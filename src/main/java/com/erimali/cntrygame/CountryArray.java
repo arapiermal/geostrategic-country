@@ -41,6 +41,11 @@ public class CountryArray implements Iterable<Country>{
         countries[getIndex(iso2)] = null;
         countriesISO2.remove(iso2);
     }
+
+    public void remove(int i){
+        countries[i] = null;
+        countriesISO2.remove(getIndexISO2(i));
+    }
     public Country get(char c1, char c2){
         int index =getIndex(c1,c2);
         if(index >= 0 && index < maxISO2Countries)
@@ -61,6 +66,9 @@ public class CountryArray implements Iterable<Country>{
         } else{
             return null;
         }
+    }
+    public boolean containsKey(int iso2){
+        return countries[iso2] != null;
     }
     public boolean containsKey(String iso2){
         int index = getIndex(iso2);

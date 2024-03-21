@@ -10,7 +10,8 @@ public class Union {
 
 	private int stability;
 	private String name;
-	private Map<String, Integer> unionCountries; // hmmm
+	private Map<Integer, Integer> unionCountries; // hmmm
+	private int[] unionCountriesISO2;
 	// power?//Influence?
 	private float centralization;
 	private Military unionMilitary; // can be null
@@ -22,12 +23,11 @@ public class Union {
 
 	List<Integer[]> votes;
 
-	public void uniteAllCountries(String mainCountry, Map<String, Country> countries) {
+	public void uniteAllCountries(String mainCountry, CountryArray countries) {
 		Country c = countries.get(mainCountry);
-		for (String s : unionCountries.keySet()) {
-			c.uniteWith(name, countries.get(s));
-		}
+		c.uniteWith(name, countries, unionCountriesISO2);
 		// DISSOLVE UNION
+
 	}
 
 	// change

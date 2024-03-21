@@ -12,7 +12,7 @@ enum WarObjectives{
 		public void action(Country c1, Country c2, float warState, int... args) {
 			//factors that effect?
 			if(warState > this.getCost()) {
-				c1.annexCountry(c2);
+				//c1.annexCountry(c2);
 			}
 		}
 	},
@@ -54,26 +54,6 @@ enum WarObjectives{
 	}
 }
 
-enum CasusBelli{
-	IMPERIALISM(), //Countries that have signed UN -> opinion --
-	TERRITORY, //Territorial disputes (they have provinces with people that speak the same language,etc...)
-	LIBERATE, //Free countries from subjugation / release countries that have been annexed
-	REGIMECHANGE, //Change their gov type to the same as ours
-	ECONOMICDOMINATION, //They have valuable resources (for ex.)
-	ASSISTREBELS, //Help rebels take over the country, cannot annex provinces
-	SPONSOREDREBELS, //They have sponsored rebel groups against us
-	CYBERATTACKED, //They have continuously carried cyberattacks on us
-	INDEPENDENCE; //Only declarable by subjects to the main country
-	//COUNTEROFFENSIVE/SELFDEFENSE
-	String desc;
-	CasusBelli(){
-
-	}
-
-	public boolean isValid(Country c1, Country c2) {
-		return true;
-	}//based on casus
-}
 
 public class War {
 	// each country in war having warState?

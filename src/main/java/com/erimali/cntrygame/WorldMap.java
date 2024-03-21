@@ -289,7 +289,7 @@ public class WorldMap {
 		// also show subjects? different color
 		if (c != null)
 			for (SVGProvince t : mapSVG) {
-				if (c.isAllyWith(t.getAccessibleText())) {
+				if (c.isAllyWith(t.getOwnerId())) {
 					t.setFill(Paint.valueOf(defaultAllyColor));
 				} else {
 					t.setFill(defColor);

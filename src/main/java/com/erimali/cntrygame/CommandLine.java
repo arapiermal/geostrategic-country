@@ -120,7 +120,7 @@ public class CommandLine {
 			break;
 		case "ANNEX":
 			if (k.length == 2 +one) {
-				mainCountry.annexCountry(countries.get(k[1+one]));
+				mainCountry.annexCountry(countries, CountryArray.getIndex(k[1+one]));
 				countries.remove(k[1]);
 				result = playerISO2 + " annexed " + k[1+one];
 			}

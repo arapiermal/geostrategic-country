@@ -115,12 +115,19 @@ public class Country {
     }
 
     public String toString(int extendedInfo) {
+        StringBuilder sb = new StringBuilder();
         switch (extendedInfo) {
             case 0:
-                return toStringLong() + "\nPopulation: " + population + "\nArea: " + area + " km^2";
+                sb.append(toStringLong()).append("\nPopulation: ").append(population).append("\nArea: ").append(area).append(" km^2");
+                break;
+            case 1:
+                sb.append(toString(0)); //Questionable practice
+                sb.append("\n").append(gov.getHeadOfState().toString()).append("\n").append(gov.getHeadOfGovernment().toString());
+                break;
             default:
-                return toString();
+                sb.append(toString());
         }
+        return sb.toString();
     }
 
     public String toStringRulers() {
@@ -168,7 +175,8 @@ public class Country {
     }
 
     // Annexation
-    public void annexCountry(Country op) {
+    public void annexCountry(CountryArray cArray, int ind, boolean... cond) {
+        Country op = cArray.get(ind);
         if (this.landlocked) {
             if (!op.landlocked) {
                 this.landlocked = false;
@@ -180,11 +188,23 @@ public class Country {
         addLanguages(op.getLanguages());
         // Get the economy
 
-        // Get the military equipment of the one who lost
-        // Soldiers disbanded (EXCEPT RARE EVENT?)
+        // Get the military equipment of the one who lost/got annexed
+        //this.uniteMilVehicles(op);
+        // Soldiers disbanded (EXCEPT when union)
+        switch (cond.length) {
+            case 3:
+
+            case 2:
+
+            case 1:
+                //this.uniteMilPersonnel(op);
+                break;
+            default:
+
+        }
 
         // delete opponent country
-        op = null; // doesn't do the job
+        cArray.remove(ind);
     }
 
     public void removeLanguages(String... langs) {
@@ -269,10 +289,11 @@ public class Country {
             a.addPopulation(sp);
             substractedPop += sp;
         }
+        // Interpolating data in the first
         if (substractedPop > extraPop) {
-            admDivisions.get(0).subtractPopulation(substractedPop - extraPop);
+            admDivisions.getFirst().subtractPopulation(substractedPop - extraPop);
         } else if (substractedPop < extraPop) {
-            admDivisions.get(0).addPopulation(extraPop - substractedPop);
+            admDivisions.getFirst().addPopulation(extraPop - substractedPop);
         }
     }
 
@@ -290,6 +311,7 @@ public class Country {
     public boolean isAllyWith(int c) {
         return dip.getAllies().contains((short) c);
     }
+
     public void improveRelations(int c) {
         dip.improveRelations(c);
     }
@@ -360,10 +382,11 @@ public class Country {
         }
     }
 
-    public void uniteWith(String name, Country... countries) {
+    public void uniteWith(String name, CountryArray cArray, int... countries) {
         this.name = name;
-        for (Country c : countries) {
-            this.annexCountry(c);
+        for (int i : countries) {
+            if (cArray.containsKey(i))
+                this.annexCountry(cArray, i);
         }
     }
 
@@ -454,6 +477,7 @@ public class Country {
             }
         }
     }
+
     // Simple Getters/Setters
     public String getName() {
         return name;
@@ -477,7 +501,7 @@ public class Country {
     }
 
     public void setArea(double area) {
-        if(area > 0.0)
+        if (area > 0.0)
             this.area = area;
     }
 
@@ -550,7 +574,7 @@ public class Country {
     }
 
     public void setIso2(String iso2) {
-        this.iso2 = iso2;
+        this.iso2 = iso2.toUpperCase();
     }
 
 }
