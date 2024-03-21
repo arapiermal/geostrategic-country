@@ -532,7 +532,7 @@ public class GLogic implements Serializable {
 		String warName = "";// Albania vs OpponentName - casusBelli
 		War w = player.declareWar(world.getCountry(o), casusBelli);
 		wars.add(w);
-		System.out.println("Player declared war - "+ casusBelli.getDesc());
+		System.out.println("Player declared war - "+ casusBelli);
 	}
 // FIX
 	public void finishWar(int index) {

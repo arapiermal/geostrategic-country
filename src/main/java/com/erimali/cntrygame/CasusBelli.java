@@ -12,7 +12,7 @@ enum CasusBelli{
     }, //Change their gov type to the same as ours
     ECONOMICDOMINATION("Economic Domination"), //They have valuable resources (for ex.)
     ASSISTREBELS("Assist our rebels"), //Help rebels take over the country, cannot annex provinces, maybe liberate
-    SPONSOREDREBELS("Revenge their sponsoring of rebels in our country"), //They have sponsored rebel groups against us
+    SPONSOREDREBELS("Revenge their rebel support"), //They have sponsored rebel groups against us
     //CYBERATTACKED, //They have continuously carried cyberattacks on us
     INDEPENDENCE("Independence"){
         @Override
@@ -24,13 +24,16 @@ enum CasusBelli{
         }
     }; //Only declarable by subjects to the main country
     //COUNTEROFFENSIVE/SELFDEFENSE
-    private String desc;
+    private final String desc;
     CasusBelli(String desc){
         this.desc = desc;
     }
-    public String getDesc(){
+    @Override
+    public String toString(){
         return this.desc;
     }
+
+
     public boolean isValid(Country c1, Country c2) {
         return true;
     }//based on casus
