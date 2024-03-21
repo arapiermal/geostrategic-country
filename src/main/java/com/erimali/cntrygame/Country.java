@@ -292,20 +292,26 @@ public class Country {
 	}
 
 	public void improveRelations(String c) {
+		dip.improveRelations(CountryArray.getIndex(c));
+	}
+	public void improveRelations(int c) {
 		dip.improveRelations(c);
 	}
 	public void improveRelations(String c,short val) {
-		dip.improveRelations(c,val);
+		dip.improveRelations(CountryArray.getIndexShort(c),val);
 	}
 	public int getRelations(String c) {
-		return dip.getRelations(c);
+		return dip.getRelations(CountryArray.getIndex(c));
 	}
 	public void clearAlliesAndRivals() {
 		dip.clearAllies();
 		dip.clearRivals();
 	}
-	public void addAlly(String c) {
+	public void addAlly(short c) {
 		dip.addAlly(c);
+	}
+	public void addAlly(String c) {
+		dip.addAlly((short) CountryArray.getIndex(c));
 	}
 	// !!!!!!!!!!!!!!!!!!!!!!!!!
 	// !!!!!!!!!!!!!!!!!!!!!!!!!

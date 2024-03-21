@@ -129,10 +129,12 @@ public class CommandLine {
 			if (countries.containsKey(k[1])) {
 				if (k.length == 2 +one) {
 					// MAKE MORE EFFICIENT
-					mainCountry.addAlly(k[1+one]);
-					countries.get(k[1+one]).addAlly(shortName);
-					result = playerISO2 + " is now ally with " + k[1+one];
-				} 
+					if(countries.containsKey(k[1+one])){
+						mainCountry.addAlly(k[1+one]);
+						countries.get(k[1+one]).addAlly(shortName);
+						result = playerISO2 + " is now ally with " + k[1+one];
+					}
+				}
 			}
 			break;
 		case "SUBJECT":

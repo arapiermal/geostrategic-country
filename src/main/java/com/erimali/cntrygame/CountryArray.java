@@ -11,6 +11,10 @@ public class CountryArray implements Iterable<Country>{
 
         countriesISO2 = new TreeSet<>();
     }
+    public static short getIndexShort(String iso2){
+        return (short) ((iso2.charAt(0) - 'A') * 26 + (iso2.charAt(1) - 'A'));
+    }
+
     public static int getIndex(String iso2){
         return (iso2.charAt(0) - 'A') * 26 + (iso2.charAt(1) - 'A');
     }

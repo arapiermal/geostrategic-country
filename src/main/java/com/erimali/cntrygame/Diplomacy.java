@@ -1,90 +1,97 @@
 package com.erimali.cntrygame;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
 //!!!!!!!!!!!!!!!!!!!!
 public class Diplomacy {
 	//private Country main;
 	private static final short DEF_IMPROVERELATIONSSIZE = 10;
 	private int diplomaticStatus;
 	private short improveRelationsSize;
-
-	private Map<String, Short> relations;
-	private Set<String> allies;
-	private Set<String> rivals;
+	private short[] relations;
+	//private Map<Short, Short> relations;
+	private Set<Short> allies;
+	private Set<Short> rivals;
 
 	public Diplomacy() {
 		this.setImproveRelationsSize(DEF_IMPROVERELATIONSSIZE);
 		this.allies = new HashSet<>();
 		this.rivals = new HashSet<>();
 
-		this.relations = new HashMap<>();
+		this.relations = new short[CountryArray.maxISO2Countries];
+		resetRelations();
 	}
-
+	public void resetRelations(){
+        Arrays.fill(relations, (short) 0);
+	}
 	// Relations
-	public int getRelations(String c) {
-		if (!relations.containsKey(c)) {
-			relations.put(c, (short) 0);
-		}
-		return relations.get(c);
+	public int getRelations(int c) {
+		if(c >= 0 && c <= relations.length)
+			return relations[c];
+		else
+			return Integer.MIN_VALUE;
 	}
 
-	public void improveRelations(String c) {
-		if (relations.containsKey(c)) {
-			relations.put(c, (short) (relations.get(c) + getImproveRelationsSize()));
-		} else {
-			relations.put(c, getImproveRelationsSize());
-		}
+	public void improveRelations(int c) {
+		if(c >= 0 && c <= relations.length)
+			relations[c] += improveRelationsSize;
 	}
 
-	public void improveRelations(String c, short amount) {
-		if (relations.containsKey(c)) {
-			relations.put(c, (short) (relations.get(c) + amount));
-		} else {
-			relations.put(c, amount);
-		}
+	public void improveRelations(int c, short amount) {
+		if(c >= 0 && c <= relations.length)
+			relations[c] += amount;
 	}
 
-	public Set<String> getAllies() {
+	public Set<Short> getAllies() {
 		return allies;
 	}
 
-	public void setAllies(Set<String> allies) {
+	public void setAllies(Set<Short> allies) {
 		this.allies = allies;
 	}
 
-	public Set<String> getRivals() {
+	public Set<Short> getRivals() {
 		return rivals;
 	}
 
-	public void setRivals(Set<String> rivals) {
+	public void setRivals(Set<Short> rivals) {
 		this.rivals = rivals;
 	}
-	public void addRival(String rival) {
+	public void addRival(Short rival) {
 		rivals.add(rival);
 	}
-	public void removeRival(String rival) {
+	public void removeRival(Short rival) {
 		rivals.remove(rival);
 	}
 	public void clearRivals() {
 		rivals.clear();
 	}
-	public void addAlly(String ally) {
+	public void addAlly(Short ally) {
 		allies.add(ally);
 	}
 	public void clearAllies() {
 		allies.clear();
 	}
-	public void removeAlly(String ally) {
+	public void removeAlly(Short ally) {
 		allies.remove(ally);
 	}
-	public Map<String, Short> getRelations() {
+	public void addImproveRelationsSize(short amount) {
+		if(amount < 0)
+			throw new IllegalArgumentException("Cannot be negative");
+		improveRelationsSize += amount;
+	}
+	public void removeImproveRelationsSize(short amount) {
+		if(amount < 0)
+			throw new IllegalArgumentException("Cannot be negative");
+		improveRelationsSize -= amount;
+		if(improveRelationsSize < 1)
+			improveRelationsSize = 1;
+	}
+	public short[] getRelations() {
 		return relations;
 	}
 
-	public void setRelations(Map<String, Short> relations) {
+	public void setRelations(short[] relations) {
 		this.relations = relations;
 	}
 
@@ -103,14 +110,5 @@ public class Diplomacy {
 	public void setImproveRelationsSize(short improveRelationsSize) {
 		this.improveRelationsSize = improveRelationsSize;
 	}
-	public void addImproveRelationsSize(short amount) {
-		if(amount < 0)
-			throw new IllegalArgumentException("Cannot be negative");
-		this.improveRelationsSize += amount;
-	}
-	public void removeImproveRelationsSize(short amount) {
-		if(amount < 0)
-			throw new IllegalArgumentException("Cannot be negative");
-		this.improveRelationsSize -= amount;
-	}
+
 }

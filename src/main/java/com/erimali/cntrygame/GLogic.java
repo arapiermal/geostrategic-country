@@ -249,7 +249,7 @@ public class GLogic implements Serializable {
 	}
 
 	public void improveRelations(int c1, int c2) {
-		world.getCountry(c1).improveRelations(CountryArray.getIndexISO2(c2));
+		world.getCountry(c1).improveRelations(c2);
 	}
 
 	public void improveRelations(String c1, String c2, short amount) {
