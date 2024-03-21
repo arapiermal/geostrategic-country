@@ -3,13 +3,7 @@ package com.erimali.cntrygame;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Set;
+import java.util.*;
 
 import com.erimali.compute.MathSolver;
 import javafx.animation.KeyFrame;
@@ -38,7 +32,7 @@ public class GLogic implements Serializable {
 	private World world;
 	private World moon;
 	// private World planets[]; //solar system
-	private Map<String, War> wars;
+	private List<War> wars;
 	private List<String> finishedWars;
 	private Currencies currencies;
 
@@ -68,6 +62,8 @@ public class GLogic implements Serializable {
 		this.setCurrencies(new Currencies());
 
 		this.improvingRelations = new HashMap<>();
+
+		this.wars = new LinkedList<>();
 	}
 
 //TESTING
@@ -524,13 +520,23 @@ public class GLogic implements Serializable {
 	public void declareWar(String a, String b, CasusBelli casusBelli) {
 		String warName = "";// Albania vs OpponentName - casusBelli
 		War w = world.getCountry(a).declareWar(world.getCountry(b), casusBelli);
-		wars.put(warName, w);
+		wars.add(w);
 	}
 
+	public void declareWar(int a, int o, CasusBelli casusBelli) {
+		String warName = "";// Albania vs OpponentName - casusBelli
+		War w = world.getCountry(a).declareWar(world.getCountry(o), casusBelli);
+		wars.add(w);
+	}
+	public void declareWar(int o, CasusBelli casusBelli) {
+		String warName = "";// Albania vs OpponentName - casusBelli
+		War w = player.declareWar(world.getCountry(o), casusBelli);
+		wars.add(w);
+		System.out.println("Player declared war - "+ casusBelli.getDesc());
+	}
 // FIX
-	public void finishWar(String warName) {
-		wars.remove(warName);
-		finishedWars.add(warName + "Won/Lost");
+	public void finishWar(int index) {
+		finishedWars.add( wars.remove(index).toString() + "Won/Lost");
 	}
 
 	public boolean isSubjectOfPlayer(String c) {

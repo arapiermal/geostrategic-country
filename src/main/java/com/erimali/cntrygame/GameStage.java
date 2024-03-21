@@ -6,15 +6,7 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -225,9 +217,7 @@ public class GameStage extends Stage {
         Label optionsText = new Label("Options");
         Label optionsWar = new Label("War");
         Button declareWar = new Button("Declare War");
-        declareWar.setOnAction(e -> {
-
-        });
+        declareWar.setOnAction(e -> declareWar());
         VBox vboxWar = new VBox(optionsWar, declareWar);
         Label preInfoRelations = new Label("Relations ");
         infoRelations = new Label();
@@ -301,6 +291,24 @@ public class GameStage extends Stage {
     public void declareWar() {
         // pop up, choose casus belli, choose war objectives (or casus -> objectives)
         //allies?
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Declare War - Casus Belli");
+
+        ListView<CasusBelli> cbListView = War.makeListViewCasusBelli(game.getPlayer(), game.getWorldCountries().get(selectedCountry));
+        dialog.getDialogPane().setContent(cbListView);
+
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        dialog.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                CasusBelli cb = cbListView.getSelectionModel().getSelectedItem();
+                game.declareWar(selectedCountry, cb);
+            } else {
+
+            }
+        });
+
+
     }
 
     private void startGame() {
