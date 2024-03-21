@@ -76,7 +76,11 @@ public class CommandLine {
 					result = "Sucessfully added " + k[2] + " amount of GDP to " + shortName;
 				}
 				break;
-			case " ":
+			case "REL":
+				if (k.length == 3 + one) {
+					mainCountry.improveRelations(k[2]);
+					result = "Improved relations with " + k[2];
+				}
 				break;
 			default:
 				return "Invalid command";// secondary command
@@ -344,5 +348,14 @@ public class CommandLine {
 		}
 		return false;
 	}
+	//Connect with EriScript like: (?)
+	//game:get:alGDP:AL.eco.gdp
+	//game.AL.eco.gdp+=alGDP*0.1
+	//
+	public static void getCountryValue(String c){
 
+	}
+	public static void setCountryValue(String c){
+
+	}
 }

@@ -78,7 +78,7 @@ enum CasusBelli{
 public class War {
 	// each country in war having warState?
 	// if warState in disfavor, AI likely to accept terms
-	private String casusBelli; //enum? array? //loadable casus bellis?
+	private CasusBelli casusBelli; //enum? array? //loadable casus bellis?
 	//private String[] warGoals;?? dependent on casusBelli
 	private float warState; // from -100 to 100
 	private Country declaringCountry;//what if Military, and in constructor get it
@@ -91,7 +91,7 @@ public class War {
 	//private Set<Military> opposingAllies;
 	private String warResult; //...
 	
-	public War(Country declaringCountry, Country opposingCountry, String casusBelli) {
+	public War(Country declaringCountry, Country opposingCountry, CasusBelli casusBelli) {
 		this.declaringCountry = declaringCountry;//.getMilitary();
 		this.opposingCountry = opposingCountry;//.getMilitary();
 		this.casusBelli = casusBelli;

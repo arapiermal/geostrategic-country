@@ -19,10 +19,15 @@ public class Diplomacy {
 		this.rivals = new HashSet<>();
 
 		this.relations = new short[CountryArray.maxISO2Countries];
-		resetRelations();
+		resetRelations(); //Countries which don't exist are also reset (?)
 	}
 	public void resetRelations(){
         Arrays.fill(relations, (short) 0);
+	}
+	public void resetRelations(Set<Integer> countries){
+		for(int i : countries){
+			relations[i] = 0;
+		}
 	}
 	// Relations
 	public int getRelations(int c) {
@@ -66,14 +71,14 @@ public class Diplomacy {
 	public void clearRivals() {
 		rivals.clear();
 	}
-	public void addAlly(Short ally) {
-		allies.add(ally);
+	public void addAlly(int ally) {
+		allies.add((short) ally);
 	}
 	public void clearAllies() {
 		allies.clear();
 	}
-	public void removeAlly(Short ally) {
-		allies.remove(ally);
+	public void removeAlly(int ally) {
+		allies.remove((short) ally);
 	}
 	public void addImproveRelationsSize(short amount) {
 		if(amount < 0)

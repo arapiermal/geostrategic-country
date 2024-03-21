@@ -18,7 +18,7 @@ public class World {
 	private String name;
 	private double totalLandArea;
 	private static final String ENDDELIMITER = Syntax.END.getName();
-	private Map<String, Language> languages;
+	private Map<String, Language> languages; // change (?)
 	private CountryArray countries;
 	//private Map<String, Country> countries;//only one to be left?
 	private Map<String, Union> unions;

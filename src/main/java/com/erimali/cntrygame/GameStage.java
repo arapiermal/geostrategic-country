@@ -286,7 +286,7 @@ public class GameStage extends Stage {
 			sendAllianceRequest.setText("Alliance request");
 		} else {
 			
-			if(game.sendAllianceRequest(CountryArray.getIndexISO2(selectedCountry))) {
+			if(game.sendAllianceRequest(selectedCountry)) {
 				sendAllianceRequest.setText("Break alliance");
 			} else {
 				

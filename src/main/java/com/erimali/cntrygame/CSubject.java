@@ -59,7 +59,7 @@ public class CSubject {
 	// WAR FOR INDEPENDENCE
 	public void declareIndependence() {
 		main.releaseSubject(subject.getIso2());
-		War independenceWar = new War(subject, main, "Independence");
+		War independenceWar = new War(subject, main, CasusBelli.INDEPENDENCE);
 		//CommandLine.getGs().getGame()
 		//where to put war
 	}

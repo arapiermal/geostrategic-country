@@ -521,7 +521,7 @@ public class GLogic implements Serializable {
 	// WAR
 //////////////////////////////////////////////////
 //
-	public void declareWar(String a, String b, String casusBelli) {
+	public void declareWar(String a, String b, CasusBelli casusBelli) {
 		String warName = "";// Albania vs OpponentName - casusBelli
 		War w = world.getCountry(a).declareWar(world.getCountry(b), casusBelli);
 		wars.put(warName, w);
@@ -549,13 +549,10 @@ public class GLogic implements Serializable {
 		return String.format("%d", player.getRelations(c));
 	}
 
-	public boolean isAllyWith(String c) {
-		return player.isAllyWith(c);
-	}
 	public boolean isAllyWith(int c) {
 		return player.isAllyWith(c);
 	}
-	public boolean sendAllianceRequest(String c) {
+	public boolean sendAllianceRequest(int c) {
 		return player.sendAllianceRequest(c);
 	}
 
