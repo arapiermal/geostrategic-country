@@ -1,0 +1,13 @@
+Ground Soldiers
+Ground vehicles
+Marine Soldiers
+Water vehicles
+Air vehicles
+Mix vehicles (such as airplane carrier (?))
+////
+Soldier
+atk:
+def:Soldiers:Land Vehicles:Water Vehicles:Air Vehicles
+health:1
+def can be like armor for soldier
+health is behind the armor

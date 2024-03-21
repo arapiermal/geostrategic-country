@@ -1,0 +1,133 @@
+package com.erimali.cntrygame;
+
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+
+
+import java.util.Set;
+enum WarObjectives{
+	//There can be partly annexation! cost cannot be a stuck value, what can be better
+	ANNEX(95){
+		//flip flop warState, if negative but the opponent is player, make positive?
+		public void action(Country c1, Country c2, float warState, int... args) {
+			//factors that effect?
+			if(warState > this.getCost()) {
+				c1.annexCountry(c2);
+			}
+		}
+	},
+	//types???
+	SUBJUGATE(85) {
+		@Override
+		public void action(Country c1, Country c2,float warState, int... args) {
+			//c1.subjugateCountry(c2);
+		}
+	},
+	REGIMECHANGE(70) {
+		@Override
+		public void action(Country c1, Country c2,float warState,int... args) {
+			//make same regime as self
+			if(args[0] == 0) {
+				c2.getGovernment().setType(c1.getGovernment().getType());
+			}
+		}
+	},
+	//handle better
+	DISMANTLEMILITARY(85){
+		public void action(Country c1, Country c2,float warState,int... args) {
+			c2.setMilitary(null);
+			int years = args[0];
+			c2.getGovernment().addPolicy(CPolicy.BANNEDMILITARY, years);
+		}
+	};
+	private float cost;
+	WarObjectives(float cost) {
+		this.cost = cost;
+	}
+	
+	public abstract void action(Country c1, Country c2,float warState,int... args);
+	public float getCost() {
+		return cost;
+	}
+	public void setCost(float cost) {
+		this.cost = cost;
+	}
+}
+
+enum CasusBelli{
+	IMPERIALISM(), //Countries that have signed UN -> opinion --
+	TERRITORY, //Territorial disputes (they have provinces with people that speak the same language,etc...)
+	LIBERATE, //Free countries from subjugation / release countries that have been annexed
+	REGIMECHANGE, //Change their gov type to the same as ours
+	ECONOMICDOMINATION, //They have valuable resources (for ex.)
+	ASSISTREBELS, //Help rebels take over the country, cannot annex provinces
+	SPONSOREDREBELS, //They have sponsored rebel groups against us
+	CYBERATTACKED, //They have continuously carried cyberattacks on us
+	INDEPENDENCE; //Only declarable by subjects to the main country
+	//COUNTEROFFENSIVE/SELFDEFENSE
+	String desc;
+	CasusBelli(){
+
+	}
+
+	public boolean isValid(Country c1, Country c2) {
+		return true;
+	}//based on casus
+}
+
+public class War {
+	// each country in war having warState?
+	// if warState in disfavor, AI likely to accept terms
+	private String casusBelli; //enum? array? //loadable casus bellis?
+	//private String[] warGoals;?? dependent on casusBelli
+	private float warState; // from -100 to 100
+	private Country declaringCountry;//what if Military, and in constructor get it
+	private Country opposingCountry;
+	private Set<Country> declaringAllies; //Which accepted to enter war
+	private Set<Country> opposingAllies;
+	//private Military declaringCountry;
+	//private Military opposingCountry;
+	//private Set<Military> declaringAllies;
+	//private Set<Military> opposingAllies;
+	private String warResult; //...
+	
+	public War(Country declaringCountry, Country opposingCountry, String casusBelli) {
+		this.declaringCountry = declaringCountry;//.getMilitary();
+		this.opposingCountry = opposingCountry;//.getMilitary();
+		this.casusBelli = casusBelli;
+	}
+	
+	//Unify militaries
+	//!!!!!!!!!!! CLASH WITH MILITARY
+	public float executeBattle(Military declaringMil, Military opposingMil) {
+		float battleResult = 0;
+		
+		return battleResult;
+	}
+	
+	//or int... arg
+	public void finishWar(String... arg) {
+		if(arg.length == 0) {
+			// withdrawal/draw
+		} else {
+			
+		}
+	}
+
+
+
+	public static VBox makeVBoxCasusBelli(Country c1, Country c2){
+		VBox vBox = new VBox();
+		for(CasusBelli cb : CasusBelli.values()){
+			if(cb.isValid(c1,c2)){
+
+				//vBox.getChildren().add();
+			}
+		}
+		if(vBox.getChildren().isEmpty()){
+			vBox.getChildren().add(new Text("No current available casus belli"));
+		}
+		return vBox;
+	}
+	
+}

@@ -1,0 +1,14 @@
+when interact with GR // event listener? // is not GR 
+GIFT,Greece wants to gift you a horse,now+rand/now+rand/now,is not GR
+There is a big metallic horse near the borders of [your country]. It appears to be a gift from Greece. What should we do?
+Accept it, surely this is not a Trojan horse!
+if is GR hostile
+EVENT DISASTER explode //more generic for spy/etc //Map<String,GEvent>?
+else
+ADD gdp 100000000;add relations GR 10 desc:Accepted gift;alert INFORMATION Accepted gift (maybe automate enum)
+Deny, why even risk it?
+sub relations GR 5 desc:Denied gift //maybe automated by GIFT enum
+
+
+//other file with events for (accepted) events
+ACTIVATE@DISASTER,Accepted trojan horse,prev+14/prev/prev,none

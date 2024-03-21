@@ -1,0 +1,3 @@
+Elbasan
+area:3199
+population:270074

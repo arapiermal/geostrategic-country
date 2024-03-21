@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Desktop</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="desktop">
+        <div id="field">
+            <div class="icon">
+                <img src="img/computer.svg" alt="">
+                <p>This PC</p>
+            </div>
+            <div class="icon">
+                <img src="img/computer.svg" alt="">
+                <p>User</p>
+            </div>
+            <div class="icon">
+                <a href="news.html?src=desktop">
+                    <img src="img/whiteblog-text.svg" alt="World News">
+                    <p>World News</p>
+                </a>
+            </div>
+            <div class="icon">
+                <a href="chess/chess.html?src=desktop" alt="Chess">
+                    <img src="img/chess-board.svg" alt="">
+                    <p>Chess</p>
+                </a>
+            </div>
+            <div class="icon txtFileIcon" id="padnote">
+                <img src="img/edit.svg" alt="">
+                <p>Padnote</p>
+            </div>
+        </div>
+        <div class="window" id="textWindow" style="display: none;">
+            <label for="textArea">Padnote</label>
+            <input id="textFileName" type="text" placeholder="File name" />
+            <textarea id="textArea" title="Padnote" placeholder=""></textarea>
+            <button id="saveButton">Save</button>
+            <button id="closeButton">Close</button>
+        </div>
+
+        <div id="taskbar">
+            <div class="taskicon">
+                <img id="start" src="img/globe.svg" alt="Start">
+            </div>
+        </div>
+        <div id="start-menu">
+            <ul>
+                <li>World News</li>
+                <li>Test 2</li>
+                <li>Test 3</li>
+            </ul>
+        </div>
+    </div>
+    <ul id="context-menu" class="context-menu">
+        <li>Action 1</li>
+        <li>Action 2</li>
+        <li>Action 3</li>
+    </ul>
+    <ul id="general-context-menu" class="context-menu">
+        <li class="create-txt-file">New text file</li>
+        <li class="change-bg-color">Change background color</li>
+        <li>Action 3</li>
+        <li>Action 4</li>
+        <li>Action 5</li>
+    </ul>
+    <script src="main.js">
+
+
+    </script>
+</body>
+
+</html>

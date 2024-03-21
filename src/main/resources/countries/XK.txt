@@ -1,0 +1,29 @@
+Kosovo
+area:10887
+population:1964327
+landlocked:false
+capital:Pristina
+infoElectronic:+383,.xk
+languages:Albanian,Serbian
+neighbours:AL
+admDivision:District
+Peja,1365,174235
+Mitrovica,2077,272247
+Pristina,2470,477312
+Gjilan,1206,180783
+Gjakova,1129,194672
+Prizren,1397,331670
+Ferizaj,1030,185806
+kaq
+Government
+type:Republic
+headOfState:President,Vjosa,Osmani,Female
+headOfGov:Prime Minister,Albin,Kurti,Male
+Economy
+currency:EUR,Euro
+GDPUSD:9900000000
+Military
+Divizioni 1-Pristina
+1000 soldiers
+10 vehicles
+kaq

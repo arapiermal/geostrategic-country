@@ -1,0 +1,133 @@
+body {
+    background-color: #f1f1f1;
+    margin: 0;
+}
+
+#desktop {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+#field {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: left;
+    align-items: flex-start;
+    align-content: flex-start;
+    flex-direction: column;
+    padding: 16px;
+    overflow: hidden;
+}
+
+.icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 8px;
+}
+
+.icon img {
+    height: 64px;
+    transition: transform 0.3s ease;
+}
+
+.icon img:hover {
+    transform: scale(1.2);
+}
+
+a {
+    text-decoration: none;
+}
+
+.icon p {
+    color: black;
+}
+
+#taskbar {
+    height: 48px;
+    background-color: #d5d5d5;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.taskicon {
+    display: flex;
+    flex-direction: row;
+    align-items: left;
+}
+
+.taskicon img {
+    height: 32px;
+    padding: 8px;
+}
+
+.taskicon img:hover {
+    filter: invert(50%);
+
+}
+
+.context-menu {
+    display: none;
+    position: absolute;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    padding: 0;
+}
+
+.context-menu li {
+    list-style-type: none;
+    padding: 5px 20px;
+    cursor: pointer;
+}
+
+.context-menu li:hover {
+    background-color: #f1f1f1;
+}
+
+#start-menu {
+    display: none;
+    left: 0;
+    position: absolute;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    bottom: 48px;
+}
+
+#start-menu ul {
+    padding: 0;
+    margin: 0;
+}
+
+#start-menu li {
+    list-style-type: none;
+    padding: 5px 20px;
+    cursor: pointer;
+}
+
+#start-menu li:hover {
+    background-color: #f1f1f1;
+}
+
+/* txt window */
+.window {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+}
+
+.window textarea {
+    width: 300px;
+    height: 200px;
+    resize: none;
+    margin-bottom: 10px;
+}

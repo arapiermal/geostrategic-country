@@ -1,0 +1,3 @@
+malenames:Zllogobodan
+surnames:Milloshevic
+phrases:da,ne,nikad,zdravo,ćao,dobrodošli,hvala,pomoć,gospodine,sigurno

@@ -1,0 +1,4 @@
+malenames:Ermal,Arjon,Agron,Ilmi,Altin,Durim,Edmond
+surnames:Arapi,Kapxhiu
+phrases:po,jo,gjithmonë,zakonisht,ndonjëherë,kurrë,përshëndetje,çkemi,mirësevini,faleminderit,ndihmë,zotëri,sigurisht
+alphabet:a,b,c,ç,d,dh,e,ë,f,g,gj,h,i,j,k,l,ll,m,n,nj,o,p,q,r,rr,s,sh,t,th,u,v,x,xh,y,z,zh
