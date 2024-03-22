@@ -8,13 +8,13 @@ public class AdmDiv {
 	// County,district,...
 	private SVGProvince svgProvince;
 
-
 	private String name;
 	private String nativeName; // Durrës vs Durres ?
 	private double area;
 	private int population;
 	private short mainLanguage; // + culture?
-	private byte rebelliousness; //separationism separatism
+	private byte seperatism; //separationism separatism
+
 	//SEPARATIONIST SENTIMENT
 	// Subdivisions?
 
@@ -86,6 +86,9 @@ public class AdmDiv {
 	}
 	public int getOwnerId(){
 		return svgProvince.getOwnerId();
+	}
+	public void setOwnerId(int id){
+		svgProvince.setOwnerId(id);
 	}
 	public SVGProvince getSvgProvince() {
 		return svgProvince;

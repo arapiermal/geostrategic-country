@@ -8,11 +8,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class World {
     private String name;
@@ -102,7 +98,7 @@ public class World {
 
     public void loadLanguages() {
         this.languages = new HashMap<>();
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(GLogic.RESOURCESPATH + "languages"))) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(GLogic.RESOURCESPATH + "countries/languages"))) {
             for (Path entry : stream) {
                 String name = entry.getFileName().toString();
                 if (!name.endsWith(".txt"))
@@ -115,6 +111,34 @@ public class World {
                 }
             }
 
+        } catch (IOException e) {
+            ErrorLog.logError(e.getMessage());
+        }
+    }
+
+    public void loadLanguages2() {
+        //REMOVING THE MAP<STRING,LANGUAGE>
+        Language[] languages;
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(GLogic.RESOURCESPATH + "countries/languages"))) {
+            Set<String> langSet = new TreeSet<>();
+            for (Path entry : stream) {
+                String name = entry.getFileName().toString();
+                if (!name.endsWith(".txt"))
+                    continue;
+                name = name.substring(0, name.length() - 4);
+                langSet.add(name);
+
+            }
+            int i = 0;
+            languages = new Language[langSet.size()];
+            for(String l : langSet){
+                try {
+                    languages[i] = new Language(l);
+                    i++;
+                } catch (Exception e) {
+                    ErrorLog.logError(e.getMessage());
+                }
+            }
         } catch (IOException e) {
             ErrorLog.logError(e.getMessage());
         }

@@ -13,8 +13,9 @@ enum Phrases {
 }
 
 public class Language {
-    private static final String DEFLANGPATH = GLogic.RESOURCESPATH + "languages/";
+    private static final String DEFLANGPATH = GLogic.RESOURCESPATH + "countries/languages/";
     // maybe synchronize, ENG to ALB
+    private String name;
     private List<String> mainPhrases;
     private List<List<String>> otherLangPhrases;
     private String[] commonMaleNames;
@@ -23,6 +24,7 @@ public class Language {
 
     public Language(String name) throws Exception {
         try (BufferedReader br = new BufferedReader(new FileReader(DEFLANGPATH + name + ".txt"))) {
+            this.name = name;
             commonMaleNames = World.getValues(br.readLine());
             commonSurnames = World.getValues(br.readLine());
             mainPhrases = new ArrayList<>(Arrays.asList(World.getValues(br.readLine())));
@@ -33,23 +35,6 @@ public class Language {
 
     }
 
-    public static void main(String[] args) {
-        try {
-            Language l1 = new Language("Albanian");
-            Language l2 = new Language("Serbian");
-            System.out.println(translateText(l1, l2, "Pershendetje, Ermal. Pershendetje si je. Une jam mire. Pershendetje."));
-
-            Language combined = new Language(l1, l2);
-            TESTING.print(combined.mainPhrases);
-            System.out.println(l1.speak(Phrases.HELLO, "Player"));
-            System.out.println(l1.translateToEnglishPhrases("Sigurisht po zotëri"));
-            TESTING.print(Language.lauFirstChar("test"));
-            TESTING.print(Language.uppercaseFirstChar("t"));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     // Unify languages
     public Language(Language... langs) {
@@ -72,6 +57,24 @@ public class Language {
             } else {
                 this.otherLangPhrases.add(t.mainPhrases);
             }
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            Language l1 = new Language("Albanian");
+            Language l2 = new Language("Serbian");
+            System.out.println(translateText(l1, l2, "Pershendetje, Ermal. Pershendetje si je. Une jam mire. Pershendetje."));
+
+            Language combined = new Language(l1, l2);
+            TESTING.print(combined.mainPhrases);
+            System.out.println(l1.speak(Phrases.HELLO, "Player"));
+            System.out.println(l1.translateToEnglishPhrases("Sigurisht po zotëri"));
+            TESTING.print(Language.lauFirstChar("test"));
+            TESTING.print(Language.uppercaseFirstChar("t"));
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

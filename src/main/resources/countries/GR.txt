@@ -8,7 +8,7 @@ languages:Greek
 neighbours:AL,MK,BG,TR
 admDivision:region
 Attica,3808,110546
-Stereá_Elláda,15549,10537
+Central_Greece,15549,10537
 Central_Macedonia,18811,32285
 Crete,8336,11243
 Eastern_Macedonia_and_Thrace,14157,9265
@@ -17,7 +17,7 @@ Ionian_Islands,2307,4130
 North_Aegean,3836,3330
 Peloponnese,15490,9809
 South_Aegean,5286,7646
-Thessaly,14037,11608
+Thessalia,14037,11608
 Western_Greece,11350,10659
 Western_Macedonia,9451,5506
 Monastic community of Mount Athos,336,0.1
