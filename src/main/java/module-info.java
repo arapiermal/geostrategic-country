@@ -1,6 +1,7 @@
 module com.erimali.cntrygame {
 
     requires javafx.controls;
+    requires javafx.media;
     requires javafx.fxml;
     requires javafx.web;
     requires javafx.graphics;

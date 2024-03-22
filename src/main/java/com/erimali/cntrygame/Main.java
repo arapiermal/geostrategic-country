@@ -139,9 +139,9 @@ public class Main extends Application {
             GOptions.setFullScreen(fullScreen.isSelected());
         });
         Text volume = new Text("Volume = ");
-        Label sliderCurrently = new Label(String.valueOf(GOptions.getVolume()));
+        Label sliderCurrently = new Label(String.valueOf(GOptions.getVolumeInt()));
         HBox volumeHBox = new HBox(volume, sliderCurrently);
-        Slider slider = new Slider(0, 100, GOptions.getVolume());
+        Slider slider = new Slider(0, 100, GOptions.getVolumeInt());
 
         slider.setMajorTickUnit(10.0);
 

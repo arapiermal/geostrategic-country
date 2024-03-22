@@ -8,6 +8,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
@@ -100,7 +101,7 @@ public class WorldMap {
 							// Color.valueOf(colors.get(ids));
 							svgPath.setFill(Paint.valueOf(colors.get(pathOwn)));
 						} else {
-							svgPath.setFill(colDef);
+							svgPath.setFill(defColor);
 							colors.put(pathOwn, defColor.toString()); // !!!!!!!!!!!!!!!!!!!
 
 						}
@@ -113,7 +114,7 @@ public class WorldMap {
 				}
 			}
 
-
+			//If number of Paths already known, no need
 			mapSVG = svgPaths.toArray(new SVGProvince[0]);
 			mapGroup = new Group(mapSVG);
 			mapGroup.setOnMouseClicked(this::onPathClicked);
@@ -124,11 +125,11 @@ public class WorldMap {
 			// better solution?
 			//Pane stackPane = new Pane(mapGroup);
 			ScrollPane scrollPane = new ZoomableScrollPane(mapGroup);
-			scrollPane.setBackground(Background.fill(backgroundColor));
+			//scrollPane.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
 			ContextMenu cm = new ContextMenu();
-			MenuItem menuItem1 = new MenuItem("Test");
-			MenuItem menuItem2 = new MenuItem("Test 2");
-			MenuItem menuItem3 = new MenuItem("Test 3");
+			MenuItem menuItem1 = new MenuItem("Recruit troops");
+			MenuItem menuItem2 = new MenuItem("Construct building");
+			MenuItem menuItem3 = new MenuItem("");
 			cm.getItems().addAll(menuItem1, menuItem2, menuItem3);
 			scrollPane.setContextMenu(cm);
 			return scrollPane;
@@ -220,9 +221,11 @@ public class WorldMap {
 	// change for show allies???
 
 	private void onMouseHover(MouseEvent event) {
-		Node clickedNode = (Node) event.getTarget();
-		if (clickedNode instanceof SVGProvince hoveredPath) {
-			gs.changeHoveringOverCountry(hoveredPath.getAccessibleText() + " - " + hoveredPath.getId());
+		Node hoveredNode = (Node) event.getTarget();
+
+		if (hoveredNode instanceof SVGProvince hoveredPath) {
+			//CHANGE
+			gs.changeHoveringOverCountry(CountryArray.getIndexISO2(hoveredPath.getOwnerId()) + " - " + hoveredPath.getId());
 		}
 	}
 	public String getPlayerCountry() {

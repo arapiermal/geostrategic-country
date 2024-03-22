@@ -3,6 +3,7 @@ package com.erimali.cntrygame;
 import java.io.File;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -122,7 +123,7 @@ public class GameStage extends Stage {
         leftScrollPane.setContent(leftGeneral);
         gameLayout.setLeft(leftScrollPane);
 
-        hoveringCountry = new Label();
+        hoveringCountry = new Label("Bottom text");
         HBox bottomInfo = new HBox(hoveringCountry);
 
         gameLayout.setBottom(bottomInfo);
@@ -289,7 +290,7 @@ public class GameStage extends Stage {
     }
 
     public void declareWar() {
-        // pop up, choose casus belli, choose war objectives (or casus -> objectives)
+        // pop up, choose casus belli (casus affects war objectives)
         //allies?
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Declare War - Casus Belli");
@@ -298,17 +299,23 @@ public class GameStage extends Stage {
         dialog.getDialogPane().setContent(cbListView);
 
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        final Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        okButton.addEventFilter(
+                ActionEvent.ACTION,
+                event -> {
+                    CasusBelli cb = cbListView.getSelectionModel().getSelectedItem();
+                    if (cb == null) {
+                        dialog.setHeaderText("Pick a casus belli.");
+                        event.consume();
+                    } else {
+                        game.declareWar(selectedCountry, cb);
+                        GameAudio.playShortSound("big-impact.mp3");
+                    }
+                }
+        );
 
-        dialog.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                CasusBelli cb = cbListView.getSelectionModel().getSelectedItem();
-                game.declareWar(selectedCountry, cb);
-            } else {
 
-            }
-        });
-
-
+        dialog.showAndWait();
     }
 
     private void startGame() {
@@ -338,12 +345,12 @@ public class GameStage extends Stage {
         date.setText(d);
     }
 
-    public void changeCountryName(String cn) {
-        countryName.setText(cn);
+    public void changeCountryName(String cName) {
+        countryName.setText(cName);
     }
 
-    public void changeHoveringOverCountry(String cn) {
-        hoveringCountry.setText(cn);
+    public void changeHoveringOverCountry(String cName) {
+        hoveringCountry.setText(cName);
     }
 
     public Label getCountryName() {

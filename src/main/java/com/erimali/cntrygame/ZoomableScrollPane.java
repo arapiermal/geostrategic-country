@@ -5,7 +5,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 
 public class ZoomableScrollPane extends ScrollPane {
     private double scaleValue = 1; //was 0.7
@@ -40,6 +43,7 @@ public class ZoomableScrollPane extends ScrollPane {
     private Node centeredNode(Node node) {
         VBox vBox = new VBox(node);
         vBox.setAlignment(Pos.CENTER);
+        vBox.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
         return vBox;
     }
 
