@@ -23,29 +23,30 @@ public class WorldMap {
 	protected static double mapWidth = 12200;
 	protected static double mapHeight = 6149.8;
 	// can make Color and simply take care when adding/changing/removing
-	private Map<String, String> colors;// save as OCEAN,#ADD8E6?
+	private Map<String, Paint> colors;// save as OCEAN,#ADD8E6?
 	private Color backgroundColor = Color.valueOf("#ADD8E6");
-	private Color colDef = new Color(0, 0, 0, 0);
+	private Color colDefTransparent = new Color(0, 0, 0, 0);
 	private String playerCountry;
 	private String defColorString = "#ececec";
 	private Color defColor = Color.valueOf(defColorString);
 	private Color defColorCountry = new Color(0, 0, 0, 0);
 	private String defBorderColorString = "#000000";
 	private Paint defBorderColor = Paint.valueOf(defBorderColorString);
+	//Irrelevant based on new SVG
 	private String defSubBorderColorString = "#FFFFFF";
 	private Paint defSubBorderColor = Paint.valueOf(defSubBorderColorString);
 	// default fill of country svg -> alpha 0
 
 	private String defaultAllyColor = "blue";
 	private Group mapGroup;
-	private Group countryGroup;
+	//private Group countryGroup;
 
 	// CURSOR
 
 	private SVGProvince[] mapSVG;// all divisions
 //set/remove fill to countries when that mode
 
-	private GameStage gs;
+	private final GameStage gs;
 
 	private int mapMode;
 
@@ -99,10 +100,10 @@ public class WorldMap {
 
 						if (colors.containsKey(pathOwn)) {
 							// Color.valueOf(colors.get(ids));
-							svgPath.setFill(Paint.valueOf(colors.get(pathOwn)));
+							svgPath.setFill(colors.get(pathOwn));
 						} else {
 							svgPath.setFill(defColor);
-							colors.put(pathOwn, defColor.toString()); // !!!!!!!!!!!!!!!!!!!
+							colors.put(pathOwn, defColor); // !!!!!!!!!!!!!!!!!!!
 
 						}
 						//svgPath.setOnMouseClicked(this::onPathClicked);
@@ -122,6 +123,7 @@ public class WorldMap {
 			mapGroup.setOnMouseEntered(this::onMouseHover);
 
 			mapGroup.setCursor(Cursor.HAND);
+
 			// better solution?
 			//Pane stackPane = new Pane(mapGroup);
 			ScrollPane scrollPane = new ZoomableScrollPane(mapGroup);
@@ -146,9 +148,9 @@ public class WorldMap {
 			while ((row = br.readLine()) != null) {
 				if (row.isBlank())
 					continue;
-				String[] c = row.split("\\s*,\\s*");
+				String[] c = row.split("\\s*,\\s*",2);
 				if (c.length >= 2) {
-					colors.put(c[0], c[1]);
+					colors.put(c[0], Paint.valueOf(c[1]));
 				}
 			}
 
@@ -196,7 +198,7 @@ public class WorldMap {
 		SVGProvince hovering = (SVGProvince) event.getSource();
 		if (this.mapMode == 0) {
 			String ids = hovering.getId();
-			hovering.setFill(Paint.valueOf(colors.get(ids)));
+			hovering.setFill(colors.get(ids));
 		}
 	}
 
@@ -275,13 +277,13 @@ public class WorldMap {
 	public void paintMapDefault() {
 
 		for (SVGProvince t : mapSVG) {
-			t.setFill(Paint.valueOf(colors.get(t.getAccessibleText())));
+			t.setFill(colors.get(t.getAccessibleText()));
 		}
 	}
 
 	public void paintMapCountries() {
 		for (SVGProvince t : mapSVG) {
-			t.setFill(Paint.valueOf(colors.get(t.getAccessibleText())));
+			t.setFill(colors.get(t.getAccessibleText()));
 		}
 	}
 
@@ -306,15 +308,15 @@ public class WorldMap {
 	}
 
 	public void changeDefColor(String cn, String value) {
-		colors.put(cn, value);
+		colors.put(cn, Paint.valueOf(value));
 		// LOAD ?!?
 	}
 
-	public Map<String, String> getColors() {
+	public Map<String, Paint> getColors() {
 		return colors;
 	}
 
-	public void setColors(Map<String, String> colors) {
+	public void setColors(Map<String, Paint> colors) {
 		this.colors = colors;
 	}
 

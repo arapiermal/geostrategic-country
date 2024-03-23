@@ -1,6 +1,6 @@
 package com.erimali.cntrygame;
 
-enum CasusBelli{
+public enum CasusBelli{
     IMPERIALISM("Imperialism"), //Countries that have signed UN -> opinion --
     TERRITORY("Territorial dispute"), //Territorial disputes (they have provinces with people that speak the same language,etc...)
     LIBERATE("Liberation"), //Free countries from subjugation / release countries that have been annexed

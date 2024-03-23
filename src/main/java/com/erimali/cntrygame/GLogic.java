@@ -47,7 +47,7 @@ public class GLogic implements Serializable {
 	// if webview news.html only wanted
 
 	// Improving Relations
-	private Map<Integer, Set<Integer>> improvingRelations;
+	private Map<Short, Set<Short>> improvingRelations;
 
 	// NEW GAME
 	public GLogic(GameStage gs) {
@@ -195,24 +195,24 @@ public class GLogic implements Serializable {
 		}
 	}
 
-	public void addImprovingRelations(int c1, int c2) {
+	public void addImprovingRelations(short c1, short c2) {
 		if (this.improvingRelations.containsKey(c1)) {
-			Set<Integer> improving = this.improvingRelations.get(c1);
+			Set<Short> improving = this.improvingRelations.get(c1);
 			improving.add(c2);
 		} else {
-			Set<Integer> improving = new HashSet<>();
+			Set<Short> improving = new HashSet<>();
 			improving.add(c2);
 			this.improvingRelations.put(c1, improving);
 		}
 	}
 
 	public void addImprovingRelations(int c2) {
-		addImprovingRelations(playerId, c2);
+		addImprovingRelations((short) playerId, (short) c2);
 	}
 
-	public void removeImprovingRelations(int c1, int c2) {
+	public void removeImprovingRelations(short c1, short c2) {
 		if (this.improvingRelations.containsKey(c1)) {
-			Set<Integer> improving = this.improvingRelations.get(c1);
+			Set<Short> improving = this.improvingRelations.get(c1);
 			improving.remove(c2);
 			if (improving.isEmpty()) {
 				this.improvingRelations.remove(c1);
@@ -221,12 +221,21 @@ public class GLogic implements Serializable {
 	}
 
 	public void removeImprovingRelations(int c2) {
-		removeImprovingRelations(playerId, c2);
+		removeImprovingRelations((short) playerId, (short) c2);
 	}
-
+	public boolean isImprovingRelations(int c2){
+		return isImprovingRelations((short) playerId, (short) c2);
+	}
+	public boolean isImprovingRelations(short c1, short c2) {
+		if (this.improvingRelations.containsKey(c1)) {
+			return improvingRelations.get(c1).contains(c2);
+		} else{
+			return false;
+		}
+	}
 	public void tickImproveRelations() {
-		for (Integer c1 : improvingRelations.keySet()) {
-			for (Integer c2 : improvingRelations.get(c1)) {
+		for (Short c1 : improvingRelations.keySet()) {
+			for (Short c2 : improvingRelations.get(c1)) {
 				improveRelations(c1, c2);
 			}
 		}
@@ -542,6 +551,9 @@ public class GLogic implements Serializable {
 	public boolean isSubjectOfPlayer(String c) {
 		return player.hasSubject(c);
 	}
+	public boolean isSubjectOfPlayer(int c) {
+		return player.hasSubject(c);
+	}
 
 	public World getMoon() {
 		return moon;
@@ -552,6 +564,10 @@ public class GLogic implements Serializable {
 	}
 
 	public String getRelationsWith(String c) {
+		return String.format("%d", player.getRelations(c));
+	}
+
+	public String getRelationsWith(int c) {
 		return String.format("%d", player.getRelations(c));
 	}
 
@@ -581,4 +597,5 @@ public class GLogic implements Serializable {
 	public String getProvInfo(int selectedProv) {
 		return world.getProvInfo(selectedProv);
 	}
+
 }

@@ -60,4 +60,7 @@ MX,#B9975B
 MT,#C8102E
 SM,#BBEEAA
 UK,blue
+OT,#F9DD16
 VA,yellow
+ZA,linear-gradient(to right, red, yellow)
+EG,radial-gradient(center 50% 50%, radius 100%, red, yellow)

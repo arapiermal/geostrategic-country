@@ -15,7 +15,7 @@ public class ZoomableScrollPane extends ScrollPane {
     private double zoomIntensity = 0.02;
     private Node target;
     private Node zoomNode;
-
+//SVGPath[] inside Group inside Group inside VBox inside ScrollPane...(inside GameStage...)
     public ZoomableScrollPane(Node target) {
         super();
         this.target = target;
@@ -31,13 +31,17 @@ public class ZoomableScrollPane extends ScrollPane {
         updateScale();
     }
 
-    private Node outerNode(Node node) {
-        Node outerNode = centeredNode(node);
-        outerNode.setOnScroll(e -> {
+    private VBox outerNode(Node node) {
+        //Node outerNode = centeredNode(node);
+        VBox vBox = new VBox(node);
+        vBox.setAlignment(Pos.CENTER);
+        vBox.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
+
+        vBox.setOnScroll(e -> {
             e.consume();
             onScroll(e.getTextDeltaY(), new Point2D(e.getX(), e.getY()));
         });
-        return outerNode;
+        return vBox;
     }
 
     private Node centeredNode(Node node) {

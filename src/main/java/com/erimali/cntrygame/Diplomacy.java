@@ -12,6 +12,7 @@ public class Diplomacy {
     //private Map<Short, Short> relations;
     private Set<Short> allies;
     private Set<Short> rivals;
+    private Set<Short> subjects;
 
     public Diplomacy() {
         this.setImproveRelationsSize(DEF_IMPROVERELATIONSSIZE);
@@ -48,6 +49,12 @@ public class Diplomacy {
     public void improveRelations(int c, short amount) {
         if (c >= 0 && c <= relations.length)
             relations[c] += amount;
+    }
+    public boolean isAllyWith(int c) {
+        return allies.contains((short) c);
+    }
+    public boolean isAllyWith(short c) {
+        return allies.contains(c);
     }
 
     public Set<Short> getAllies() {

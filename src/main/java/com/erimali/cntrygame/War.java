@@ -108,9 +108,6 @@ public class War {
 
             }
         }
-        if (lv.getItems().isEmpty()) {
-
-        }
         return lv;
     }
 

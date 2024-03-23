@@ -10,13 +10,18 @@ public class AdmDiv {
 
 	private String name;
 	private String nativeName; // Durrës vs Durres ?
+
 	private double area;
 	private int population;
 	private short mainLanguage; // + culture?
+
 	private byte seperatism; //separationism separatism
 
 	//SEPARATIONIST SENTIMENT
 	// Subdivisions?
+
+	//private short[] claimedBy; (previous owners) ...
+	//
 
 	public String toString() {
 		return this.name;

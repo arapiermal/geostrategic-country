@@ -23,12 +23,12 @@ public class Country {
     private Diplomacy dip;
     private Economy economy;
     private Government gov; // Republic of Albania toString()
-    private Military military;
+    private Military mil;
     // Other countries
     private Set<Integer> neighbours;
 
     // int -> type (satellite state, autonomous region, colony, etc.)
-    private Map<String, CSubject> subjects;
+    private Map<Integer, CSubject> subjects;
     private CSubject subjectOf;
     // SOME COUNTRIES CAN START AS SUBJECTS OF OTHERS;
 
@@ -70,7 +70,7 @@ public class Country {
         this.languages = Arrays.asList(languages);
         this.gov = gov;
         this.economy = economy;
-        this.military = military;
+        this.mil = military;
         this.dip = new Diplomacy();
 
         ////???this.neighbours = new HashSet<>(Arrays.asList(languages));
@@ -309,7 +309,10 @@ public class Country {
 
 
     public boolean isAllyWith(int c) {
-        return dip.getAllies().contains((short) c);
+        return dip.isAllyWith(c);
+    }
+    public boolean isAllyWith(short c) {
+        return dip.isAllyWith(c);
     }
 
     public void improveRelations(int c) {
@@ -325,7 +328,7 @@ public class Country {
     }
 
     public int getRelations(String c) {
-        return dip.getRelations(CountryArray.getIndex(c));
+        return dip.getRelations(CountryArray.getIndexShort(c));
     }
 
     public int getRelations(int c) {
@@ -355,7 +358,7 @@ public class Country {
             }
         }
         CSubject cs = makeSubject(op, type);
-        subjects.put(op.getIso2(), cs);
+        subjects.put(CountryArray.getIndex(op.getIso2()), cs);
     }
 
     // WAR FOR INDEPENDENCE?!?
@@ -367,11 +370,11 @@ public class Country {
         // CHECK FOR REBELLION
     }
 
-    public Map<String, CSubject> getSubjects() {
+    public Map<Integer, CSubject> getSubjects() {
         return subjects;
     }
 
-    public void setSubjects(Map<String, CSubject> subjects) {
+    public void setSubjects(Map<Integer, CSubject> subjects) {
         this.subjects = subjects;
     }
 
@@ -446,10 +449,12 @@ public class Country {
         this.subjectOf = subjectOf;
     }
 
-    public boolean hasSubject(String cn) {
-        return subjects.containsKey(cn);
+    public boolean hasSubject(String iso2) {
+        return subjects.containsKey(CountryArray.getIndex(iso2));
     }
-
+    public boolean hasSubject(int c) {
+        return subjects.containsKey(c);
+    }
     //Country c as input for more ?
     public boolean sendAllianceRequest(int c) {
         //!!!!!!!!!!!!
@@ -554,11 +559,11 @@ public class Country {
     }
 
     public Military getMilitary() {
-        return military;
+        return mil;
     }
 
     public void setMilitary(Military military) {
-        this.military = military;
+        this.mil = military;
     }
 
     public Diplomacy getDiplomacy() {

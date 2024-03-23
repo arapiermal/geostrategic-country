@@ -3,6 +3,7 @@ package com.erimali.cntrygame;
 import java.io.File;
 
 import javafx.application.Platform;
+import javafx.beans.value.ObservableIntegerValue;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -36,15 +37,24 @@ public class GameStage extends Stage {
     private int selectedCountry;
     private int selectedProv;
 
+    //Alternative ?
+    private ObservableIntegerValue selCountry;
+    private ObservableIntegerValue selProv;
+
     private Label hoveringCountry;
     private Label selectedCountryInfo;
     private Label selectedProvInfo;
 
     private Label mgResult;
+    //Our country/prov -> 0, Our subjects country/prov, Others' country/prov (taking care if they are subjects themselves)
+    //subject in general is like other country...
+    private VBox[] countryOptTypes;
+    private VBox[] provOptTypes;
     //
-    private VBox leftCountryOpt;
-    private VBox leftProvOpt;
+    private int prevLeftVBoxInd;
+    private VBox leftGeneral;
     //
+    private ToggleButton improveRelations;
     private Stage commandLineStage;
     private Label infoRelations;
     private Button sendAllianceRequest;
@@ -113,11 +123,9 @@ public class GameStage extends Stage {
         leftScrollPane.setPadding(new Insets(10));
         selectedCountryInfo = new Label();
         selectedProvInfo = new Label();
-        leftCountryOpt = makeVBoxCountryOptions();
-        leftCountryOpt.setSpacing(10);
-        leftProvOpt = makeVBoxMyProvOptions();
-        leftProvOpt.setSpacing(10);
-        VBox leftGeneral = new VBox(selectedCountryInfo, leftCountryOpt, selectedProvInfo, leftProvOpt);
+        initVBoxLeftOptions();
+
+        leftGeneral = new VBox(selectedCountryInfo, countryOptTypes[0], selectedProvInfo, provOptTypes[0]);
         leftGeneral.setSpacing(10);
 
         leftScrollPane.setContent(leftGeneral);
@@ -166,8 +174,23 @@ public class GameStage extends Stage {
         return gameLayout;
     }
 
+    private void initVBoxLeftOptions() {
+        this.countryOptTypes = new VBox[3];
+        countryOptTypes[0] = makeVBoxPlayerOptions();
+        //.setSpacing(10);
+        countryOptTypes[1] = makeVBoxSubjectOptions();
+        countryOptTypes[2] = makeVBoxCountryOptions();
+
+        this.provOptTypes = new VBox[3];
+        provOptTypes[0] = makeVBoxPlayerProvOptions();
+        provOptTypes[1] = makeVBoxSubjectProvOptions();
+        provOptTypes[2] = makeVBoxOtherProvOptions();
+    }
+
+
+
     private Stage makeCommandLineStage() {
-        // Creating the command line popup
+        // Autocomplete for already entered commands (?)
         TextField commandLine = new TextField();
         Button commandSubmit = new Button("Enter");
         commandLine.setPrefWidth(240);
@@ -213,6 +236,18 @@ public class GameStage extends Stage {
         return commandLineStage;
     }
 
+    private VBox makeVBoxPlayerOptions() {
+        VBox vBox = new VBox();
+
+        return vBox;
+    }
+
+    public VBox makeVBoxSubjectOptions() {
+        VBox vBox = new VBox();
+
+        return vBox;
+    }
+
     private VBox makeVBoxCountryOptions() {
 
         Label optionsText = new Label("Options");
@@ -223,19 +258,20 @@ public class GameStage extends Stage {
         Label preInfoRelations = new Label("Relations ");
         infoRelations = new Label();
         HBox optionsRelations = new HBox(preInfoRelations, infoRelations);
-        ToggleButton improveRelations = new ToggleButton("Improve relations");
+        improveRelations = new ToggleButton("Improve relations");
         improveRelations.getStyleClass().add("custom-toggle-button");
         Tooltip.install(improveRelations, new Tooltip("Start improving relations with country (monthly)"));
         improveRelations.setOnAction(event -> {
             if (improveRelations.isSelected()) {
                 // CSS
                 game.addImprovingRelations(selectedCountry);
-                improveRelations.setText("Stop improving relations");
+                //improveRelations.setText("Stop improving relations");
             } else {
                 game.removeImprovingRelations(selectedCountry);
-                improveRelations.setText("Improve relations");
+                //improveRelations.setText("Improve relations");
             }
         });
+
         sendAllianceRequest = new Button("Alliance request");
         sendAllianceRequest.setOnAction(e -> {
             sendAllianceRequest();
@@ -248,18 +284,24 @@ public class GameStage extends Stage {
         return new VBox(optionsText, vboxWar, vboxRelations);
     }
 
-    private VBox makeVBoxMyProvOptions() {
+    private VBox makeVBoxPlayerProvOptions() {
         Button raiseFunds = new Button("Raise municipal funds");
         Button investInProv = new Button("Invest");
         return new VBox(raiseFunds, investInProv);
     }
+    private VBox makeVBoxOtherProvOptions() {
+        VBox vBox = new VBox();
+        return vBox;
+    }
 
+    private VBox makeVBoxSubjectProvOptions() {
+        VBox vBox = new VBox();
+        return vBox;
+    }
     ////////////////////////////////////////////////////
     ////////////////////////////////////////////////////
     // if(game.isSubjectOfPlayer(selectedCountry))
-    public VBox makeVBoxSubjectOptions() {
-        return null;
-    }
+
 
     public void sendDonation() {
         // selected country -> treasury += input
@@ -404,26 +446,40 @@ public class GameStage extends Stage {
     public void setGame(GLogic game) {
         this.game = game;
     }
-
+    public void changeLeftVBoxes(int i){
+        if(prevLeftVBoxInd == i)
+            return;
+        prevLeftVBoxInd = i;
+        leftGeneral.getChildren().set(1, countryOptTypes[i]);
+        leftGeneral.getChildren().set(3, provOptTypes[i]);
+    }
     //make more efficient
     public void changeSelectedCountryInfo() {
         selectedCountryInfo.setText(game.toStringCountry(selectedCountry));
         if (isPlayingCountry) {
             if (selectedCountry == game.getPlayerId()) {
-                if (leftCountryOpt.isVisible())
-                    leftCountryOpt.setVisible(false);
-                leftProvOpt.setVisible(true);
-            } else {
-                if (!leftCountryOpt.isVisible())
-                    leftCountryOpt.setVisible(true);
-                leftProvOpt.setVisible(false);
+
+                changeLeftVBoxes(0);
+
+            } else if(game.isSubjectOfPlayer(selectedCountry)){
+                //can be put as an if below ... since most stuff are same/similar...
+
+                changeLeftVBoxes(1);
+
+            }
+            else {
+
+
+                changeLeftVBoxes(2);
+
                 //make more efficient
                 if (game.isAllyWith(selectedCountry)) {
                     sendAllianceRequest.setText("Break alliance");
                 } else {
                     sendAllianceRequest.setText("Alliance request");
                 }
-                infoRelations.setText(game.getRelationsWith(CountryArray.getIndexISO2(selectedCountry)));
+                infoRelations.setText(game.getRelationsWith(selectedCountry));
+                improveRelations.setSelected(game.isImprovingRelations(selectedCountry));
             }
         }
 
