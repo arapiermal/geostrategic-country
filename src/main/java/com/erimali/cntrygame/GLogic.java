@@ -439,9 +439,9 @@ public class GLogic implements Serializable {
 				if (!GOptions.isTranslateGEvent()) {
 					return parts[1];
 				}
-				String lang = "";
+				short lang = -1;
 				try {
-					lang = player.getLanguages().get(0);
+					lang = player.getMainLanguage();
 				} catch (Exception e) {
 
 				}
@@ -449,10 +449,10 @@ public class GLogic implements Serializable {
 				// FROM => ENGLISH
 				case "TO":
 					Language l = null;
-					if (commands[2].toUpperCase().equals("SELF")) {
+					if (commands[2].equalsIgnoreCase("SELF")) {
 						l = world.getLanguages().get(lang);
 					} else {
-						l = world.getLanguages().get(commands[2]);/////
+						l = world.getLanguages().get(world.binarySearchLanguage(commands[2]));/////
 					}
 					if (l != null) {
 						replace.append(l.translateFromEnglishPhrases(parts[1]));

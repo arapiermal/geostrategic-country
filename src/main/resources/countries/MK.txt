@@ -4,7 +4,7 @@ population:1836713
 landlocked:false
 capital:Skopje
 infoElectronic:+389,.mk
-languages:Albanian,Macedonian
+languages:Macedonian,Albanian
 neighbours:AL,GR,BG,XK,RS
 admDivision:region
 Eastern,3537,150234

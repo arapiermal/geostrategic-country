@@ -14,7 +14,8 @@ public class World {
     private String name;
     private double totalLandArea;
     private static final String ENDDELIMITER = Syntax.END.getName();
-    private Map<String, Language> languages; // change (?)
+    private List<Language> languages; // change (?)
+
     private CountryArray countries;
     //private Map<String, Country> countries;//only one to be left?
     private Map<String, Union> unions;
@@ -28,6 +29,7 @@ public class World {
             totalLandArea = 148940000;
             countries = new CountryArray();
             Path dir = Paths.get(GLogic.RESOURCESPATH + "countries");
+            loadLanguages();
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
                 for (Path entry : stream) {
                     try {
@@ -45,7 +47,6 @@ public class World {
             } catch (IOException e) {
                 ErrorLog.logError(e);
             }
-            loadLanguages();
         } catch (Exception e) {
             ErrorLog.logError(e);
         }
@@ -56,10 +57,12 @@ public class World {
         try {
             switch (type) {
                 case 0:
+                    break;
+                case 1:
                     name = "Moon";
                     totalLandArea = 38e6;
                     break;
-                case 1:
+                case 2:
                     name = "Mars";
                     totalLandArea = 144.4e6;
                     break;
@@ -96,8 +99,8 @@ public class World {
         }
     }
 
-    public void loadLanguages() {
-        this.languages = new HashMap<>();
+    public void loadLanguagesOld() {
+        Map<String, Language> languages = new HashMap<>();
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(GLogic.RESOURCESPATH + "countries/languages"))) {
             for (Path entry : stream) {
                 String name = entry.getFileName().toString();
@@ -105,7 +108,7 @@ public class World {
                     continue;
                 name = name.substring(0, name.length() - 4);
                 try {
-                    this.languages.put(name, new Language(name));
+                    languages.put(name, new Language(name, true));
                 } catch (Exception e) {
                     ErrorLog.logError(e.getMessage());
                 }
@@ -116,27 +119,40 @@ public class World {
         }
     }
 
-    public void loadLanguages2() {
+    public void loadLanguages() {
         //REMOVING THE MAP<STRING,LANGUAGE>
-        Language[] languages;
+        //Language[] languages;
+        languages = new ArrayList<>();
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(GLogic.RESOURCESPATH + "countries/languages"))) {
-            Set<String> langSet = new TreeSet<>();
+            List<String> langList = new LinkedList<>();
             for (Path entry : stream) {
                 String name = entry.getFileName().toString();
                 if (!name.endsWith(".txt"))
                     continue;
                 name = name.substring(0, name.length() - 4);
-                langSet.add(name);
+                langList.add(Language.upperFirstLowerRestLetters(name));
 
             }
+            Collections.sort(langList);
+
+            /*
             int i = 0;
-            languages = new Language[langSet.size()];
-            for(String l : langSet){
+            languages = new Language[langList.size()];
+            for(String l : langList){
                 try {
-                    languages[i] = new Language(l);
+                    languages[i] = new Language(l,true);
                     i++;
                 } catch (Exception e) {
                     ErrorLog.logError(e.getMessage());
+                }
+            }
+             */
+            for (String s : langList) {
+                try {
+                    Language l = new Language(s, true);
+                    languages.add(l);
+                } catch (Exception e) {
+                    ErrorLog.logError(e);
                 }
             }
         } catch (IOException e) {
@@ -153,10 +169,13 @@ public class World {
             // Maybe City class
             String capital = getVal(br.readLine());
             String[] infoElectronic = getValues(br.readLine());
-            String[] languages = getValues(br.readLine());
+            String[] langNameArr = getValues(br.readLine());
+            List<Short> languages = genLanguageIndexList(langNameArr);
             String[] neighbours = getValues(br.readLine());
             String admDivisionType = getVal(br.readLine());
-            List<AdmDiv> admDivisions = admDivisionsFromFile(br);
+            List<AdmDiv> admDivisions = admDivisionsFromFile(br, languages);
+
+
             br.readLine();
             Government government = governmentFromFile(br);
             br.readLine();
@@ -245,8 +264,24 @@ public class World {
         return s.trim().split("\\s+,\\s+");
     }
 
+    public List<Short> genLanguageIndexList(String... langs) {
+        List<Short> indexes = new ArrayList<>();
+        for (String lang : langs) {
+            short r = (short) binarySearchLanguage(lang);
+            if (r < 0) {
+                short sh = (short) addLangugage(new Language(lang));
+                indexes.add(sh);
+            } else {
+                indexes.add(r);
+                TESTING.print(r);
+            }
+        }
+        TESTING.print(indexes);
+        return indexes;
+    }
+
     //If individual files, needs BIG CHANGES
-    public List<AdmDiv> admDivisionsFromFile(BufferedReader br) {
+    public List<AdmDiv> admDivisionsFromFile(BufferedReader br, List<Short> indexLangs) {
         try {
             List<AdmDiv> list = new ArrayList<>();
             String line;
@@ -256,8 +291,10 @@ public class World {
                     break;
                 }
                 String[] vals = getValues2(line);
-                if (vals.length >= 3) {
-                    list.add(new AdmDiv(vals[0], vals[1], vals[2]));
+                if (vals.length == 3) {
+                    list.add(new AdmDiv(vals[0], vals[1], vals[2], indexLangs.getFirst()));
+                } else if (vals.length == 4) {
+                    list.add(new AdmDiv(vals[0], vals[1], vals[2], indexLangs.get(GUtils.parseI(vals[3]))));
                 }
             }
             //FOR BINARY SEARCH ? list.sort(...);
@@ -290,23 +327,29 @@ public class World {
         c1.subjugateCountry(c2, type);
     }
 
-    public Map<String, Language> getLanguages() {
+    public int addLangugage(Language l) {
+        if (!languages.contains(l)) {
+            // Find the correct index to insert the new language
+            int i = 0;
+            while (i < languages.size() && languages.get(i).compareTo(l) < 0) {
+                i++;
+            }
+            languages.add(i, l);
+            return i;
+        }
+        return -1;
+    }
+
+    public boolean removeLangugage(Language l) {
+        return languages.remove(l);
+    }
+
+    public List<Language> getLanguages() {
         return languages;
     }
 
-    public void setLanguages(Map<String, Language> languages) {
+    public void setLanguages(List<Language> languages) {
         this.languages = languages;
-    }
-
-    public void addLanguage(String name) {
-        if (!languages.containsKey(name)) {
-            try {
-                Language lang = new Language(name);
-                languages.put(name, lang);
-            } catch (Exception e) {
-
-            }
-        }
     }
 
     public Map<String, Union> getUnions() {
@@ -318,16 +361,16 @@ public class World {
     }
 
 
-    public Person langGenerateMale(String lang) {
-        return languages.get(lang).generateMale();
+    public Person langGenerateMale(int i) {
+        return languages.get(i).generateMale();
     }
 
     // [Albanian:John],[Albanian],birthday?? now+rand/now+rand/now - rand min30
     // max50
     // replace THIS: with actual language?
-    public String randLangName(String input) {
+    /*public String randLangName(String input) {
         input = input.replaceAll("\\s+", "");
-		/*if (input.contains(":")) {
+		if (input.contains(":")) {
 			String[] parts = input.split(":");
 			if(parts[1].toUpperCase().equals("SELF")) {
 				//parts[1] = player;
@@ -335,15 +378,20 @@ public class World {
 			}
 			return languages.get(parts[0]).translateNameFromEnglish(parts[1]);
 		} else {
-		}*/
+		}
         return languages.get(input).generateMName();
+    }*/
 
+    public String randLangSurname(int i) {
+        return languages.get(i).generateSurname();
     }
 
-    public String randLangSurname(String input) {
-        return languages.get(input).generateSurname();
+    public int binarySearchLanguage(String s) {
+        return Collections.binarySearch(languages, new Language(s));
     }
-
+    public int binarySearchLanguage(Language l) {
+        return Collections.binarySearch(languages, l);
+    }
     public double getTotalLandArea() {
         return totalLandArea;
     }

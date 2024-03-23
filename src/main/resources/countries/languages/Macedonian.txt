@@ -1,3 +1,3 @@
 malenames:Andon,Anton,Berislav,Blagoj,Blagoje,Boban,Bogdan,Bojan,Boris,Boško,Božidar,Božin,Branimir,Dalibor,Darko,Davor,Dejan,Dmitry,Dobroslav,Doncho,Dragan,Dragoljub,Dragomir,Dušan,Duško,Goran,Gordan,Hristijan,Ilija,Ivan,Jadranko,Jovan,Kliment,Krsto,Kuzman,Leonid,Lubomir,Marjan,Mateja,Maxim,Milan,Mile,Milivoj,Milorad,Miodrag,Mirko,Miroslav,Mitko,Mladen,Nebojša,Nenad,Neven,Nikita,Nikola,Oliver,Pavel,Pavle,Pero,Petko,Radomir,Ratimir,Risto,Sasho,Slavoljub,Stanimir,Stjepan,Tihomir,Todor,Toni,Vadim,Vasil,Velimir,Veselin,Vitomir,Vlade,Vladimir,Vlatko,Vuk,Vukašin,Vukmir,Yury,Željko,Živko,Zlatan,Zoran
 surnames:Stojanovski,Jovanovska,Jovanovski,Stojanovska,Nikolovska,Nikolovski,Trajkovski,Trajkovska,Stojanova,Ramadani
-phrases:Да,не,секогаш,обично,никогаш,не,здраво,добредојде,благодарам,помош,господине,секако
+phrases:Да,не,секогаш,обично,никогаш,не,здраво,добредојде,благодарам,помош,секако,господине,госпоѓо,провокација

@@ -14,7 +14,7 @@ public class Country {
     private EnumSet<Continent> continents;
     private String capital;
     private String[] infoElectronic;
-    private List<String> languages;
+    private List<Short> languages;
 
     private String admDivisionType; // county,district,etc.
     private List<AdmDiv> admDivisions;
@@ -34,7 +34,7 @@ public class Country {
 
     // Constructors
     public Country(String name, long population, double area, boolean landlocked, String capital,
-                   String[] infoElectronic, String admDivisionType, List<AdmDiv> admDivisions, List<String> languages,
+                   String[] infoElectronic, String admDivisionType, List<AdmDiv> admDivisions, List<Short> languages,
                    Set<String> neighbours, Government gov, Economy economy, Military military) {
         this.name = name;
         this.population = population;
@@ -57,7 +57,7 @@ public class Country {
     }
 
     public Country(String name, long population, double area, boolean landlocked, String capital,
-                   String[] infoElectronic, String admDivisionType, List<AdmDiv> admDivisions, String[] languages,
+                   String[] infoElectronic, String admDivisionType, List<AdmDiv> admDivisions, List<Short> languages,
                    String[] neighbours, Government gov, Economy economy, Military military) {
         this.name = name;
         this.population = population;
@@ -67,7 +67,7 @@ public class Country {
         this.setInfoElectronic(infoElectronic);
         this.admDivisionType = admDivisionType;
         this.admDivisions = admDivisions;
-        this.languages = Arrays.asList(languages);
+        this.languages = languages;
         this.gov = gov;
         this.economy = economy;
         this.mil = military;
@@ -207,22 +207,22 @@ public class Country {
         cArray.remove(ind);
     }
 
-    public void removeLanguages(String... langs) {
-        for (String l : langs) {
+    public void removeLanguages(short... langs) {
+        for (short l : langs) {
             languages.remove(l);
         }
     }
 
-    public void addLanguages(String... langs) {
-        for (String l : langs) {
+    public void addLanguages(short... langs) {
+        for (short l : langs) {
             if (!languages.contains(l)) {
                 languages.add(l);
             }
         }
     }
 
-    public void addLanguages(List<String> langs) {
-        for (String l : langs) {
+    public void addLanguages(List<Short> langs) {
+        for (Short l : langs) {
             if (!languages.contains(l)) {
                 languages.add(l);
             }
@@ -378,13 +378,6 @@ public class Country {
         this.subjects = subjects;
     }
 
-    // FIX
-    public void loadLanguage(World w) {
-        for (String l : languages) {
-            w.addLanguage(l);
-        }
-    }
-
     public void uniteWith(String name, CountryArray cArray, int... countries) {
         this.name = name;
         for (int i : countries) {
@@ -518,11 +511,11 @@ public class Country {
         this.landlocked = landlocked;
     }
 
-    public List<String> getLanguages() {
+    public List<Short> getLanguages() {
         return languages;
     }
 
-    public void setLanguages(List<String> languages) {
+    public void setLanguages(List<Short> languages) {
         this.languages = languages;
     }
 
@@ -582,4 +575,7 @@ public class Country {
         this.iso2 = iso2.toUpperCase();
     }
 
+    public short getMainLanguage() {
+        return languages.getFirst();
+    }
 }

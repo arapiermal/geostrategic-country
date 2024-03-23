@@ -2,17 +2,14 @@ package com.erimali.cntrygame;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 enum Phrases {
-    YES, NO, ALWAYS, USUALLY, SOMETIMES, NEVER, HELLO, HI, WELCOME, THANKS, HELP, SIR, CERTAINLY;
+    YES, NO, ALWAYS, USUALLY, SOMETIMES, NEVER, HELLO, HI, WELCOME, THANKS, HELP, CERTAINLY, SIR, MADAM, PROVOCATION;
 }
 
-public class Language {
+public class Language implements Comparable<Language> {
+
     private static final String DEFLANGPATH = GLogic.RESOURCESPATH + "countries/languages/";
     // maybe synchronize, ENG to ALB
     private String name;
@@ -20,15 +17,34 @@ public class Language {
     private List<List<String>> otherLangPhrases;
     private String[] commonMaleNames;
     private String[] commonSurnames;
+    //private String[] alphabet;
     private int howMany;
 
-    public Language(String name) throws Exception {
+    public Language(String name) {
+        this.name = upperFirstLowerRestLetters(name);
+        //by default howMany = 0, no txt file with data for this one.
+    }
+
+    public Language(String name, boolean b) throws Exception {
+
         try (BufferedReader br = new BufferedReader(new FileReader(DEFLANGPATH + name + ".txt"))) {
-            this.name = name;
-            commonMaleNames = World.getValues(br.readLine());
-            commonSurnames = World.getValues(br.readLine());
-            mainPhrases = new ArrayList<>(Arrays.asList(World.getValues(br.readLine())));
+            this.name = upperFirstLowerRestLetters(name);
             howMany = 1;
+            mainPhrases = new ArrayList<>();
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (!line.isBlank()) {
+                    if (commonMaleNames == null) {
+                        commonMaleNames = World.getValues(line);
+                    } else if (commonSurnames == null) {
+                        commonSurnames = World.getValues(line);
+                    } else if (mainPhrases.isEmpty()) {
+                        mainPhrases.addAll(Arrays.asList(World.getValues(line)));
+                    } else {
+                        break;
+                    }
+                }
+            }
         } catch (Exception e) {
             throw new Exception("FAILED");
         }
@@ -62,8 +78,8 @@ public class Language {
 
     public static void main(String[] args) {
         try {
-            Language l1 = new Language("Albanian");
-            Language l2 = new Language("Serbian");
+            Language l1 = new Language("Albanian", true);
+            Language l2 = new Language("Serbian", true);
             System.out.println(translateText(l1, l2, "Pershendetje, Ermal. Pershendetje si je. Une jam mire. Pershendetje."));
 
             Language combined = new Language(l1, l2);
@@ -293,16 +309,39 @@ public class Language {
         this.otherLangPhrases = otherLangPhrases;
     }
 
-    public static final String[] albLetters = {"a", "b", "c", "ç", "d", "dh", "e", "ë", "f", "g", "gj", "h", "i", "j",
-            "k", "l", "ll", "m", "n", "nj", "o", "p", "q", "r", "rr", "s", "sh", "t", "th", "u", "v", "x", "xh", "y",
-            "z", "zh"};
-
-    public static String albStringGen(Random rand, int size) {
+    public static String alphabetStringGen(String[] alphabet, Random rand, int size) {
         StringBuilder sb = new StringBuilder();
-        int l = albLetters.length;
+        int l = alphabet.length;
         for (int i = 0; i < size; i++) {
-            sb.append(albLetters[rand.nextInt(l)]);
+            sb.append(alphabet[rand.nextInt(l)]);
         }
         return sb.toString();
+    }
+
+    public static String upperFirstLowerRestLetters(String s) {
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        while (i < s.length()) {
+            char c = s.charAt(i);
+            if (Character.isLetter(c)) {
+                sb.append(Character.toUpperCase(c));
+                i++;
+                break;
+            }
+            i++;
+        }
+        while (i < s.length()) {
+            char c = s.charAt(i);
+            if (Character.isLetter(c)) {
+                sb.append(Character.toLowerCase(c));
+            }
+            i++;
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public int compareTo(Language o) {
+        return this.name.compareTo(o.name);
     }
 }
