@@ -12,7 +12,7 @@ public class MilPersonnel {
     protected final int id;
     protected final byte type;
     //GroundSoldiers, GroundVehicles, (WaterSoldiers/Marines), WaterVehicles,(AirSoldiers/paratroopers or sth), AirVehicles
-    //even (0,2,4) personnel, odd (1,3,5) vehicles
+    //even (0,2,4) personnel, odd (1,3,5) vehicles (?)
 
     protected String name;
     protected String desc;
@@ -128,9 +128,7 @@ public class MilPersonnel {
         for(MilPersonnel o : opponent)
             this.attackUnit(o,true);
     }
-    public boolean isVehicle(){
-        return false;
-    }
+
     public boolean stillStanding(){
         //if size > 0 BUT morale <= 0, army can surrender or retreat (if it can do the later)
         return this.size > 0 && this.morale > 0;
