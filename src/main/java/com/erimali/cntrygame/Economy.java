@@ -1,19 +1,25 @@
 package com.erimali.cntrygame;
 
+import java.util.List;
+
 public class Economy {
 	// TRADE??
 	private String currency;// USD, EUR, ALL,...
 	private String currencyLongName;
-	private double GDP;
+	private double inflationRate;
+
+	private double gdp;
 	private double economicGrowthRate; // increase of GDP in a year
-	// private double unemploymentRate;
-	// private double povertyRate;
+
+	private double taxation; //Government budget...
+
+	private double unemploymentRate;
 	//private List<Industry> industries;
 	// EXPORT VS IMPORT
 	private double totalExport;
 	private double totalImport;
 	//List of trades with other countries,
-
+	List<Trade.TradeAgreement> tradeAgreements;
 	public String getCurrency() {
 		return currency;
 	}
@@ -23,11 +29,11 @@ public class Economy {
 	}
 
 	public double getGDP() {
-		return GDP;
+		return gdp;
 	}
 
 	public void setGDP(double gdp) {
-		GDP = gdp;
+		gdp = gdp;
 	}
 
 	public double getEconomicGrowthRate() {
@@ -46,41 +52,19 @@ public class Economy {
 		this.currencyLongName = currencyLongName;
 	}
 
-	public void addGDP(double GDP) {
-		this.GDP += GDP;
+	public void addGDP(double amount) {
+		this.gdp += amount;
 	}
-	/*
-			int i = 0;
-			double val=0;
-			while(i < gdpString.length()){
-				char c = gdpString.charAt(i);
-				if(Character.isDigit(c)){
-					val*=10;
-					val+=c-'0';
-				} else if(c == '.'){
-					i++;
-					break;
-				} else if(c == '%'){
-					this.GDP += this.GDP * val;
-					return;
-				}
-				i++;
-			}
-			double decVal = 0;
-			while(i<gdpString.length()){
-				//Is it worth it for a little gain
-				i++;
-			}
-			*/
+
 	public void addGDP(String gdpString) {
 		try {
 			gdpString = gdpString.trim();
 			if(gdpString.endsWith("%")) {
 				gdpString = gdpString.substring(0, gdpString.length()-1);
-				this.GDP += this.GDP * (Double.parseDouble(gdpString) * 0.01);
+				gdp += gdp * (Double.parseDouble(gdpString) * 0.01);
 			} else {
-				double GDP = Double.parseDouble(gdpString);
-				this.GDP += GDP;
+				double amount = Double.parseDouble(gdpString);
+				gdp += amount;
 			}
 
 		} catch(NumberFormatException e) {
@@ -88,6 +72,6 @@ public class Economy {
 		}
 	}
 	public String formattedGDP() {
-		return GUtils.doubleToString(GDP);
+		return GUtils.doubleToString(gdp);
 	}
 }

@@ -11,9 +11,9 @@ public class Government {
 	// constitutional monarch, non-executive president -> not main
 	private boolean isHeadOfStateStronger;
 	private Ruler headOfGovernment;
-	private byte stability;
+	private int stability;
 	
-	private byte publicOpinion;
+	private int publicOpinion;
 	// Import from txt? default policies for all countries, specific
 	// policies that execute CommandLine? every year/month/day
 	// private List<Policy> policies;
@@ -25,7 +25,7 @@ public class Government {
 	
 
 	//Policies
-	private Map<CPolicy, Integer> policies;
+	private Map<GovPolicy, Integer> policies;
 	
 
 	public Government(String type, Ruler ruler) {
@@ -40,7 +40,12 @@ public class Government {
 		this.headOfState = headOfState;
 		this.headOfGovernment = headOfGovernment;
 	}
-
+	public Government(String type, Ruler headOfState, Ruler headOfGovernment, boolean isHeadOfStateStronger) {
+		this.type = type;
+		this.headOfState = headOfState;
+		this.headOfGovernment = headOfGovernment;
+		this.isHeadOfStateStronger = isHeadOfStateStronger;
+	}
 	public String getType() {
 		return type;
 	}
@@ -49,60 +54,61 @@ public class Government {
 		this.type = type;
 	}
 
-	public byte getStability() {
+	public int getStability() {
 		return stability;
 	}
 
-	public void setStability(byte stability) {
+	public void setStability(int stability) {
 		this.stability = stability;
 	}
 
 	public String toStringRulers() {
 		StringBuilder sb = new StringBuilder();
 		if (bothTheSame) {
-			return this.headOfState.toString();
+			return headOfState.toString();
 		} else {
 			//maybe head of state always at beginning?
 			if (isHeadOfStateStronger) {
-				sb.append("Head of State\n").append(this.headOfState.toString()).append("\nHead of Government\n")
-						.append(this.headOfGovernment.toString());
+				sb.append("Head of State\n").append(headOfState.toString()).append("\nHead of Government\n")
+						.append(headOfGovernment.toString());
 			} else {
-				sb.append("Head of Government\n").append(this.headOfGovernment.toString()).append("\nHead of State\n")
-						.append(this.headOfState.toString());
+				sb.append("Head of Government\n").append(headOfGovernment.toString()).append("\nHead of State\n")
+						.append(headOfState.toString());
 			}
 		}
 		return sb.toString();
 	}
 	public String toStringMainRuler() {
 		if(bothTheSame || isHeadOfStateStronger)
-			return this.headOfState.toString();
+			return headOfState.toString();
 		else
-			return this.headOfGovernment.toString();
+			return headOfGovernment.toString();
 	}
-	public Map<CPolicy, Integer> getPolicies() {
+	public Map<GovPolicy, Integer> getPolicies() {
 		return policies;
 	}
 
-	public void setPolicies(Map<CPolicy, Integer> policies) {
+	public void setPolicies(Map<GovPolicy, Integer> policies) {
 		this.policies = policies;
 	}
 	
-	public void addPolicy(CPolicy policy, int years) {
-		if(!this.policies.containsKey(policy))
-			this.policies.put(policy, years);
+	public void addPolicy(GovPolicy policy, int years) {
+		if(!policies.containsKey(policy))
+			policies.put(policy, years);
 	}
-	public void setPolicy(CPolicy policy, int years) {
-		if(this.policies.containsKey(policy))
-			this.policies.put(policy, years);
+	public void setPolicy(GovPolicy policy, int years) {
+		if(policies.containsKey(policy))
+			policies.put(policy, years);
 	}
-	public void removePolicy(CPolicy policy) {
-		if(policy.isCanRemove()) {
-			this.policies.remove(policy);
+	public void removePolicy(GovPolicy policy) {
+		if(policy.isRemovable()) {
+			policies.remove(policy);
 		}
 	}
+	//by default CPolicy not removable (?)
 	public void reduceOneYearFromPolicies() {
 		//for(Map.Entry<CPolicy, Integer> entry : this.policies) 
-		for(CPolicy p : policies.keySet()) {
+		for(GovPolicy p : policies.keySet()) {
 			int yearsLeft = policies.get(p) - 1;
 			if(yearsLeft < 0) {
 				policies.remove(p);

@@ -327,29 +327,10 @@ public class GLogic implements Serializable {
 		} else if (s.length == 3) {
 			if (s[0].contains("now"))
 				s[0] = s[0].replace("now", "" + inGDate.getDay());
-			if (s[0].contains("rand"))
-				s[0] = s[0].replace("rand", "" + ((int) (Math.random() * 31) + 1));
 			if (s[1].contains("now"))
 				s[1] = s[1].replace("now", "" + inGDate.getMonth());
-			if (s[1].contains("rand"))
-				s[1] = s[1].replace("rand", "" + ((int) (Math.random() * 12) + 1));
 			if (s[2].contains("now"))
 				s[2] = s[2].replace("now", "" + inGDate.getYear());
-			int maxYear = 9;
-			int minYear = 1;
-			if (s[2].matches(".*max\\d+")) {
-				String[] temp = s[2].split("max");
-				s[2] = temp[0].trim();
-				maxYear = GUtils.parseI(temp[1]);
-			}
-			if (s[2].matches(".*min\\d+")) {
-				String[] temp = s[2].split("min");
-				s[2] = temp[0].trim();
-				minYear = GUtils.parseI(temp[1]);
-			}
-			while (s[2].contains("rand")) {
-				s[2] = s[2].replaceFirst("rand", "" + ((int) (Math.random() * maxYear) + minYear));
-			}
 			int day = (int) MathSolver.solve(s[0]);
 			int month = (int) MathSolver.solve(s[1]);
 			int year = (int) MathSolver.solve(s[2]);
@@ -367,6 +348,7 @@ public class GLogic implements Serializable {
 			if (rows[i].startsWith("!@")) {
 				continue;
 			} else {
+                //NOT EFFICIENT
 				rows[i] = rows[i].replaceAll("!t", "~");
 			}
 			for (int j = 0; j < rows[i].length() - 3; j++) {

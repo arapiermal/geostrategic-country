@@ -21,6 +21,8 @@ public class World {
     private Map<String, Union> unions;
     private AdmDiv[] provinces;
 
+    //private List<Resource> resources;
+
     // AL -> Albania
     // DEFAULT DATA
     public World() {
@@ -36,7 +38,7 @@ public class World {
                         String shortName = entry.getFileName().toString();
                         if (!shortName.endsWith(".txt"))
                             continue;
-                        shortName = shortName.substring(0, shortName.length() - 4); // Removing '.txt'
+                        shortName = shortName.substring(0, shortName.length() - 4).trim().toUpperCase(); // Removing '.txt'
                         Country country = countryFromFile(entry.toFile());
                         country.setIso2(shortName);
                         countries.put(shortName, country);
@@ -96,26 +98,6 @@ public class World {
                     }
                 }
             }
-        }
-    }
-
-    public void loadLanguagesOld() {
-        Map<String, Language> languages = new HashMap<>();
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(GLogic.RESOURCESPATH + "countries/languages"))) {
-            for (Path entry : stream) {
-                String name = entry.getFileName().toString();
-                if (!name.endsWith(".txt"))
-                    continue;
-                name = name.substring(0, name.length() - 4);
-                try {
-                    languages.put(name, new Language(name, true));
-                } catch (Exception e) {
-                    ErrorLog.logError(e.getMessage());
-                }
-            }
-
-        } catch (IOException e) {
-            ErrorLog.logError(e.getMessage());
         }
     }
 
@@ -328,6 +310,7 @@ public class World {
         c1.subjugateCountry(c2, type);
     }
 
+    //PROBLEM UPDATING INDEXES...
     public int addLangugage(Language l) {
         if (!languages.contains(l)) {
             // Find the correct index to insert the new language

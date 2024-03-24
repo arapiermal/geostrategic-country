@@ -1,8 +1,6 @@
 package com.erimali.cntrygame;
 
 import javafx.scene.control.ListView;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 
 
 import java.util.Set;
@@ -39,7 +37,7 @@ enum WarObjectives {
         public void action(Country c1, Country c2, float warState, int... args) {
             c2.setMilitary(null);
             int years = args[0];
-            c2.getGovernment().addPolicy(CPolicy.BANNEDMILITARY, years);
+            c2.getGovernment().addPolicy(GovPolicy.BANNED_MILITARY, years);
         }
     };
     private float cost;
