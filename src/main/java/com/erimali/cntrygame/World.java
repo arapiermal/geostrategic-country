@@ -269,6 +269,7 @@ public class World {
         for (String lang : langs) {
             short r = (short) binarySearchLanguage(lang);
             if (r < 0) {
+                //Problem: the indexes have to be updated (?)
                 short sh = (short) addLangugage(new Language(lang));
                 indexes.add(sh);
             } else {

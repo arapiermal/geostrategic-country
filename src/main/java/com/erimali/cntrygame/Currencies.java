@@ -14,7 +14,7 @@ public class Currencies {
 
 	public Currencies() {
 		unitsPerXAU = new HashMap<>();
-		readCsvFile(DEFAULT_CURR_LOC + "currencies1July.csv");
+		readCsvFile(DEFAULT_CURR_LOC + "currencies1JAN2024.csv");
 	}
 
 	public Currencies(String subpath) {
@@ -92,7 +92,7 @@ public class Currencies {
 			String line = reader.readLine(); // skip first row
 			while ((line = reader.readLine()) != null) {
 				String[] tokens = line.split(",");
-				if (tokens.length == 2) {
+				if (tokens.length == 2 || tokens.length == 3) {
 					String currency = tokens[0].trim();
 					double units = Double.parseDouble(tokens[1].trim());
 					unitsPerXAU.put(currency, units);
@@ -106,14 +106,12 @@ public class Currencies {
 	}
 
 	public static String getCurrencySign(String s) {
-		if (s.equals("USD"))
-			return "$";
-		else if (s.equals("GBP"))
-			return "£";
-		else if (s.equals("EUR"))
-			return "€";
-		else
-			return s + " ";
+        return switch (s) {
+            case "USD" -> "$";
+            case "GBP" -> "£";
+            case "EUR" -> "€";
+            default -> s + " ";
+        };
 
 	}
 	/*
