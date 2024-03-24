@@ -3,7 +3,7 @@ package com.erimali.cntrygame;
 import java.util.EnumSet;
 import java.util.List;
 
-public enum CasusBelli {
+public enum CasusBelli implements CValidatable {
     //Countries that have signed UN -> opinion --
     IMPERIALISM("Imperialism") {
 
@@ -91,7 +91,7 @@ public enum CasusBelli {
         return this.desc;
     }
 
-
+    @Override
     public boolean isValid(Country c1, Country c2) {
         return true;
     }//based on casus

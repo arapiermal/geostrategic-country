@@ -3,6 +3,7 @@ package com.erimali.cntrygame;
 import java.util.Map;
 
 import javafx.scene.control.Alert;
+import javafx.scene.control.Control;
 
 
 class Command {
@@ -65,6 +66,8 @@ public class CommandLine {
 		} else {
 			return result;// or other types of commands (separated)
 		}
+		int cIndex = CountryArray.getIndex(shortName);
+
 		if(k.length < 2)
 			return result;
 		switch (k[0 + one]) {
@@ -142,24 +145,31 @@ public class CommandLine {
 			}
 			break;
 		case "SUBJECT":
+			int type = -1;
 			switch (k[1+one]) {
 			case "SATELLITE":
 				if (k.length == 3+one)
-					gs.getGame().getWorld().subjugateCountry(shortName, k[2+one], 0);
+					type = 0;
 				break;
 			case "PROTECTORATE":
-				if (k.length == 3)
-					gs.getGame().getWorld().subjugateCountry(shortName, k[2+one], 1);
+				if (k.length == 3+one)
+					type = 1;
 				break;
 			case "AUTONOMOUS":
+
 				break;
 			case "COLONY":
+
 				break;
 			case "SPACECOLONY":
+
 				break;
 			// CITYSTATE??
 			default:
 				return "Invalid subject type";
+			}
+			if(type >= 0){
+				gs.getGame().getWorld().subjugateCountry(cIndex, CountryArray.getIndex(k[2+one]), type);
 			}
 			break;
 		case "PLAY":

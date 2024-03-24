@@ -3,17 +3,17 @@ package com.erimali.cntrygame;
 public class CSubject {
 	private Country main;
 	private Country subject;
-	private int subjectType;
+	private SubjectTypes subjectType;
 	private int independenceDesire;
 	
-	public CSubject(Country main, Country subject, int subjectType) {
+	public CSubject(Country main, Country subject, SubjectTypes subjectType) {
 		this.main = main;
 		this.subject = subject;
 		this.subjectType = subjectType;
 		this.subject.setSubjectOf(this);
 	}
 	//If by war independence desire bigger by default
-	public CSubject(Country main, Country subject, int subjectType, int independenceDesire) {
+	public CSubject(Country main, Country subject, SubjectTypes subjectType, int independenceDesire) {
 		this.main = main;
 		this.subject = subject;
 		this.subjectType = subjectType;
@@ -37,14 +37,6 @@ public class CSubject {
 		this.independenceDesire = independenceDesire;
 	}
 
-	public int getSubjectType() {
-		return subjectType;
-	}
-
-	public void setSubjectType(int subjectType) {
-		this.subjectType = subjectType;
-	}
-
 	@Override
 	public String toString() {
 		return subject.getName() + "\n" + toStringSubjectType() + " of " + main.getName();
@@ -53,7 +45,7 @@ public class CSubject {
 		return toStringSubjectType() + " of " + main.getName();
 	}
 	public String toStringSubjectType() {
-		return SubjectTypes.values()[subjectType].getName();
+		return subjectType.toString();
 	}
 
 	// WAR FOR INDEPENDENCE
@@ -64,6 +56,12 @@ public class CSubject {
 		//where to put war
 	}
 
+	public void changeSubjectType(int i){
+		this.subjectType = SubjectTypes.values()[i];
+	}
+	public void changeSubjectType(SubjectTypes s){
+		this.subjectType = s;
+	}
 	public Country getSubject() {
 		return subject;
 	}

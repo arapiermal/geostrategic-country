@@ -196,19 +196,18 @@ public class World {
         try {
             return null;
         } catch (Exception e) {
-            return null;
+            return null; //assume new economy based on population and area (?)
         }
     }
 
     private Military militaryFromFile(BufferedReader br) {
         try {
-            return null;
+            return new Military();
         } catch (Exception e) {
-            return null;
+            return new Military();
         }
     }
 
-    /////////////////////////////////////
 /////////////////////////////////////
 /////////////////////////////////////
 /////////////////////////////////////
@@ -304,10 +303,12 @@ public class World {
     }
 
 
-    public void subjugateCountry(String cn1, String cn2, int type) {
-        Country c1 = countries.get(cn1);
-        Country c2 = countries.get(cn2);
-        c1.subjugateCountry(c2, type);
+    public void subjugateCountry(int ind1, int ind2, int type) {
+        Country c1 = countries.get(ind1);
+        Country c2 = countries.get(ind2);
+        if(c1 != null && c2 != null && c2.isNotSubject()){
+            c1.subjugateCountry(c2, type);
+        }
     }
 
     //PROBLEM UPDATING INDEXES...
@@ -408,5 +409,11 @@ public class World {
         if (provinces[selectedProv] == null)
             return "NO DATA";
         return provinces[selectedProv].toStringLong();
+    }
+
+    public void yearlyUpdate() {
+        for(Country c : countries){
+            c.yearlyTick();
+        }
     }
 }

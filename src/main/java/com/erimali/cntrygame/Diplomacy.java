@@ -5,20 +5,21 @@ import java.util.*;
 //!!!!!!!!!!!!!!!!!!!!
 public class Diplomacy {
     //private Country main;
-    private static final short DEF_IMPROVERELATIONSSIZE = 10;
+    private static final short DEF_IMPROVE_RELATIONS_SIZE = 10;
     private int diplomaticStatus;
     private short improveRelationsSize;
     private short[] relations;
-    //private Map<Short, Short> relations;
+    private short[] espionage;
+
     private Set<Short> allies;
     private Set<Short> rivals;
     private Set<Short> subjects;
 
     public Diplomacy() {
-        this.setImproveRelationsSize(DEF_IMPROVERELATIONSSIZE);
+        this.improveRelationsSize = DEF_IMPROVE_RELATIONS_SIZE;
         this.allies = new HashSet<>();
         this.rivals = new HashSet<>();
-
+        this.subjects = new HashSet<>();
         this.relations = new short[CountryArray.maxISO2Countries];
         resetRelations(); //Countries which don't exist are also reset (?)
     }

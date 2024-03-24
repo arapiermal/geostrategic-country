@@ -15,7 +15,7 @@ public class AdmDiv {
     private int population;
     private short mainLanguage; // + culture?
 
-    private byte seperatism; //separationism separatism
+    private short separatism; //separationism separatism
 
     //SEPARATIONIST SENTIMENT
     // Subdivisions?

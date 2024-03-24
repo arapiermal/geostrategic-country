@@ -7,7 +7,7 @@ import java.util.Set;
 
 enum WarObjectives {
     //There can be partly annexation! cost cannot be a stuck value, what can be better
-    ANNEX(95) {
+    ANNEX(100) {
         //flip flop warState, if negative but the opponent is player, make positive?
         public void action(Country c1, Country c2, float warState, int... args) {
             //factors that effect?
@@ -33,7 +33,7 @@ enum WarObjectives {
         }
     },
     //handle better
-    DISMANTLEMILITARY(85) {
+    DISMANTLEMILITARY(80) {
         public void action(Country c1, Country c2, float warState, int... args) {
             c2.setMilitary(null);
             int years = args[0];
@@ -104,6 +104,16 @@ public class War {
             if (cb.isValid(c1, c2)) {
                 lv.getItems().add(cb);
 
+            }
+        }
+        return lv;
+    }
+
+    public static <T extends Enum<T> & CValidatable> ListView<T> makeListViewValidatable(Country c1, Country c2, Class<T> enumClass) {
+        ListView<T> lv = new ListView<>();
+        for (T it : enumClass.getEnumConstants()) {
+            if (it.isValid(c1, c2)) {
+                lv.getItems().add(it);
             }
         }
         return lv;

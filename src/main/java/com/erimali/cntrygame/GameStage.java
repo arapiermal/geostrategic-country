@@ -254,12 +254,15 @@ public class GameStage extends Stage {
         Label optionsWar = new Label("War");
         Button declareWar = new Button("Declare War");
         declareWar.setOnAction(e -> declareWar());
-        VBox vboxWar = new VBox(optionsWar, declareWar);
+        declareWar.getStyleClass().add("declare-war-button");
+        Button sponsorRebels = new Button("Sponsor Rebels");
+        sponsorRebels.setOnAction(e -> sponsorRebels());
+        VBox vboxWar = new VBox(optionsWar, declareWar,sponsorRebels);
         Label preInfoRelations = new Label("Relations ");
         infoRelations = new Label();
         HBox optionsRelations = new HBox(preInfoRelations, infoRelations);
         improveRelations = new ToggleButton("Improve relations");
-        improveRelations.getStyleClass().add("custom-toggle-button");
+        improveRelations.getStyleClass().add("improve-relations-toggle-button");
         Tooltip.install(improveRelations, new Tooltip("Start improving relations with country (monthly)"));
         improveRelations.setOnAction(event -> {
             if (improveRelations.isSelected()) {
@@ -337,7 +340,7 @@ public class GameStage extends Stage {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Declare War - Casus Belli");
 
-        ListView<CasusBelli> cbListView = War.makeListViewCasusBelli(game.getPlayer(), game.getWorldCountries().get(selectedCountry));
+        ListView<CasusBelli> cbListView = War.makeListViewValidatable(game.getPlayer(), game.getWorldCountries().get(selectedCountry), CasusBelli.class);
         dialog.getDialogPane().setContent(cbListView);
 
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -493,7 +496,32 @@ public class GameStage extends Stage {
             infoRelations.setText(game.getRelationsWith(CountryArray.getIndexISO2(selectedCountry)));
         }
     }
+    public void sponsorRebels(){
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Sponsor rebels");
 
+        ListView<RebelTypes> rbListView = War.makeListViewValidatable(game.getPlayer(), game.getWorldCountries().get(selectedCountry), RebelTypes.class);
+        dialog.getDialogPane().setContent(rbListView);
+
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        final Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        okButton.addEventFilter(
+                ActionEvent.ACTION,
+                event -> {
+                    RebelTypes rt = rbListView.getSelectionModel().getSelectedItem();
+                    if (rt == null) {
+                        dialog.setHeaderText("Pick a rebel type.");
+                        event.consume();
+                    } else {
+                        //game.sponsorRebels(rt, selectedCountry, money);
+                        GameAudio.playShortSound("low-impact.mp3");
+                    }
+                }
+        );
+
+
+        dialog.showAndWait();
+    }
     // MiniGame
     public void showPopupMGTicTacToe(boolean playerTurn, int difficultyAI) {
         // Create a new stage for the popup

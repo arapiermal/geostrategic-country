@@ -3,9 +3,9 @@ package com.erimali.cntrygame;
 import java.util.*;
 
 public class CountryArray implements Iterable<Country>{
-    private Set<String> countriesISO2;
-    private final Country[] countries;
     protected static final int maxISO2Countries = 26 * 26;
+    private final Set<String> countriesISO2;
+    private final Country[] countries;
     public CountryArray() {
         countries = new Country[maxISO2Countries];
 
@@ -25,12 +25,22 @@ public class CountryArray implements Iterable<Country>{
         countries[getIndex(iso2)] = country;
         countriesISO2.add(iso2);
     }
+
+
     public void addCountry(String iso2, Country country) {
         int index = getIndex(iso2);
         if(countries[index] == null) {
             countries[index] = country;
             countriesISO2.add(iso2);
         }
+    }
+
+    public String addCountry(Country country){
+        String iso2 = genISO2unlikeSet(country.getName(), countriesISO2);
+        country.setIso2(iso2);
+        countries[getIndex(iso2)] = country;
+        countriesISO2.add(iso2);
+        return iso2;
     }
 
     public void remove(char c1, char c2){

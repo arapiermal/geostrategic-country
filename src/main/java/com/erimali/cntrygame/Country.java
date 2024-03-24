@@ -1,5 +1,6 @@
 package com.erimali.cntrygame;
 
+import javax.security.auth.Subject;
 import java.util.*;
 
 public class Country {
@@ -35,21 +36,21 @@ public class Country {
     // Constructors
     public Country(String name, long population, double area, boolean landlocked, String capital,
                    String[] infoElectronic, String admDivisionType, List<AdmDiv> admDivisions, List<Short> languages,
-                   Set<String> neighbours, Government gov, Economy economy, Military military) {
+                   Set<Integer> neighbours, Government gov, Economy economy, Military mil, Diplomacy dip) {
         this.name = name;
         this.population = population;
         this.area = area;
         this.landlocked = landlocked;
         this.capital = capital;
-        this.setInfoElectronic(infoElectronic);
-
+        this.infoElectronic = infoElectronic;
         this.admDivisionType = admDivisionType;
         this.admDivisions = admDivisions;
         this.languages = languages;
         this.economy = economy;
         this.gov = gov;
-        this.dip = new Diplomacy();
-        //this.neighbours = ;
+        this.dip = dip;
+        this.mil = mil;
+        this.neighbours = neighbours;
 
         this.subjects = new HashMap<>();
         // FOR CONSISTENCY
@@ -64,7 +65,7 @@ public class Country {
         this.area = area;
         this.landlocked = landlocked;
         this.capital = capital;
-        this.setInfoElectronic(infoElectronic);
+        this.infoElectronic = infoElectronic;
         this.admDivisionType = admDivisionType;
         this.admDivisions = admDivisions;
         this.languages = languages;
@@ -73,7 +74,6 @@ public class Country {
         this.mil = military;
         this.dip = new Diplomacy();
 
-        ////???this.neighbours = new HashSet<>(Arrays.asList(languages));
         this.neighbours = new TreeSet<>();
         for (String n : neighbours) {
             int ind = CountryArray.getIndex(n);
@@ -91,6 +91,10 @@ public class Country {
         this.name = name;
     }
 
+    public void yearlyTick(){
+        incPopulation();
+        gov.reduceOneYearFromPolicies();
+    }
 
     // toString()...
     @Override
@@ -121,7 +125,7 @@ public class Country {
                 sb.append(toStringLong()).append("\nPopulation: ").append(population).append("\nArea: ").append(area).append(" km^2");
                 break;
             case 1:
-                sb.append(toString(0)); //Questionable practice
+                sb.append(toString(0)); //
                 sb.append("\n").append(gov.getHeadOfState().toString()).append("\n").append(gov.getHeadOfGovernment().toString());
                 break;
             default:
@@ -248,7 +252,8 @@ public class Country {
 
 
     // POPULATION
-    // yearly?
+    // yearly
+
     public void incPopulation() {
         for (AdmDiv a : admDivisions) {
             this.population += a.incPopulation(populationIncrease);
@@ -302,10 +307,6 @@ public class Country {
     }
 
     // isSubject -> instanceof CSubject
-    public CSubject makeSubject(Country c, int type) {
-        c.clearAlliesAndRivals();
-        return new CSubject(this, c, type);
-    }
 
 
     public boolean isAllyWith(int c) {
@@ -357,10 +358,14 @@ public class Country {
                 this.landlocked = false;
             }
         }
-        CSubject cs = makeSubject(op, type);
+        CSubject cs = makeSubject(op, SubjectTypes.values()[type]);
         subjects.put(CountryArray.getIndex(op.getIso2()), cs);
     }
-
+    public CSubject makeSubject(Country c, SubjectTypes type) {
+        c.clearAlliesAndRivals();
+        //gain their subjects?
+        return new CSubject(this, c, type);
+    }
     // WAR FOR INDEPENDENCE?!?
     public void releaseSubject(String iso2) {
         subjects.remove(iso2);
@@ -450,7 +455,6 @@ public class Country {
     }
     //Country c as input for more ?
     public boolean sendAllianceRequest(int c) {
-        //!!!!!!!!!!!!
         boolean goodRelations = false; //other reasons, why would AI accept
 
         if (this.getRelations(c) > 100 || goodRelations) {

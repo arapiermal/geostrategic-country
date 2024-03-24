@@ -1,11 +1,9 @@
 package com.erimali.cntrygame;
 
-import java.util.Map;
+import java.util.*;
 
 import javafx.scene.shape.SVGPath;
 
-import java.util.HashMap;
-import java.util.List;
 class MilImg{
 	SVGPath svg;
 	public MilImg(String path) {
@@ -17,19 +15,20 @@ class MilImg{
 	// airplane symbol
 }
 public class Military {
-	//named divisions
-	
-	private Map<String, MilDivision> divisions;
-	
+	//named divisions (?)
+	private List<MilDivision> divisions;
+	private Set<Short> atWarWith;
+
+
 	public Military() {
-		divisions = new HashMap<>();
+		divisions = new ArrayList<>();
+		atWarWith = new HashSet<>();
 	}
-	public void addDivision(String name, MilDivision d) {
-		divisions.put(name, d);
+	public void addDivision(MilDivision d) {
+		divisions.add(d);
 	}
 	//FULL SCALE ATTACK???
 	//SEMI SCALEATACK??
-	//hmmmmm
 	public void attackOpMil(Military op) {
 		
 	}

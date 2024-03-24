@@ -1,13 +1,30 @@
-.custom-toggle-button {
-	-fx-background-color: #00FF00;
-	-fx-text-fill: #000000;
+.improve-relations-custom-toggle-button {
+    -fx-background-color: #00FF00;
+    -fx-text-fill: #000000;
 }
 
-.custom-toggle-button:selected {
-	-fx-background-color: #FF0000;
+.improve-relations-toggle-button:selected {
+    -fx-background-color: #FF0000;
 	
 }
 
-.custom-toggle-button .text {
-	-fx-font-weight: bold;
+.improve-relations-custom-toggle-button .text {
+    -fx-font-weight: bold;
+}
+.declare-war-button {
+    -fx-background-color: #FF5733;
+    -fx-background-radius: 5px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 4px 8px;
+    -fx-border-color: transparent;
+}
+
+.declare-war-button:hover {
+    -fx-background-color: #E74C3C;
+}
+
+.declare-war-button:pressed {
+    -fx-background-color: #C0392B;
 }
