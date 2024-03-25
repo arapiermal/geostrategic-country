@@ -735,9 +735,7 @@ public class GameStage extends Stage {
 
         Label label = new Label("Enter amount:");
         TextField inputField = new TextField(Double.toString(minSliderVal));
-        slider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            inputField.setText(String.valueOf(newValue.intValue()));
-        });
+        slider.valueProperty().addListener((observable, oldValue, newValue) -> inputField.setText(newValue.toString()));
         Button okButton = new Button("OK");
         okButton.setOnAction(e -> dialogStage.close());
 
