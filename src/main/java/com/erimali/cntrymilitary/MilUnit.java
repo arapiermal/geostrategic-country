@@ -20,29 +20,31 @@ public abstract class MilUnit {
         this.data = data;
         this.maxSize = maxSize;
         this.id = CURR_ID++;
+        this.morale = 100;
+
     }
 
     //return double ?
     public int attack(MilUnit o) {
         //Attacker +1 -> "The best defense is a good offense" - Sun Tzu, Art of War
-        double dmg1 = dmgCalc(this, o) + 1;
+        double dmg1 = dmgCalc(this, o);
+        double dmg2 = dmgCalc(o, this);
         if (dmg1 > 0) {
             int prevSize = o.size;
-            o.size -= (int) (dmg1 / o.data.hp);
-            o.morale -= (double) (prevSize - o.size) / 100;
+            o.size -= (int) (dmg1 / (o.data.hp * 4));
+            o.morale -= (double) (prevSize - o.size) / prevSize * 100;
 
             if (o.size <= 0) {
                 o.size = 0;
                 return 2;
             } else if (o.morale <= 0) {
-                return 1;
+                return 1; //Opponent retreats
             }
         }
-        double dmg2 = dmgCalc(o, this);
         if (dmg2 > 0) {
             int prevSize = this.size;
-            this.size -= (int) (dmg2 / this.data.hp);
-            this.morale -= (double) (prevSize - this.size) / 100;
+            this.size -= (int) (dmg2 / (this.data.hp * 4));
+            this.morale -= (double) (prevSize - this.size) / prevSize * 100;
             if (this.size <= 0) {
                 this.size = 0;
                 return -2;
@@ -52,20 +54,17 @@ public abstract class MilUnit {
         }
         return 0;
 
-        //this unnecessary if both sides get damaged regardless who attacks
-        //if (o.stillStanding() && attacking)
-        //    o.attack(this, false);
     }
 
     public static double dmgCalc(MilUnit a, MilUnit o) {
-        double mATK = a.data.atk[o.data.type] * a.size * Math.sqrt(a.lvl) + a.data.speed * a.morale + a.xp;
-        double oDEF = o.data.def[a.data.type] * o.size * Math.sqrt(o.lvl) + o.data.speed * o.morale + o.xp;
-
+        double mATK = a.data.atk[o.data.type] * a.size * Math.sqrt(a.lvl + a.data.speed) * (a.morale / 100) + a.xp;
+        mATK += mATK * Math.random();
+        double oDEF = o.data.def[a.data.type] * o.size * Math.sqrt(o.lvl + o.data.speed) * (o.morale / 100) + o.xp;
         return mATK - oDEF;
     }
 
-    public void attack(MilUnit... opponent) {
-        for (MilUnit o : opponent)
+    public void attackAll(MilUnit... opponents) {
+        for (MilUnit o : opponents)
             this.attack(o);
     }
 
@@ -74,4 +73,13 @@ public abstract class MilUnit {
         return this.size > 0 && this.morale > 0;
     }
 
+    public int incSize(int value){
+        this.size += value;
+        if(size > maxSize) {
+            int extra = size - maxSize;
+            size = maxSize;
+            return extra;
+        }
+        return 0;
+    }
 }

@@ -59,10 +59,10 @@ public class MilDiv {
 
     }
 
-    public void makeUnit(int type, int index, int maxSize) {
+    public static MilUnit makeUnit(int type, int index, int maxSize) {
         MilUnitData data = unitTypes[type].get(index);
         MilUnit unit = (type % 2 == 0) ? new MilSoldiers(data, maxSize) : new MilVehicle(data, maxSize);
-        units.add(unit);
+        return unit;
     }
 
     @Override
@@ -72,12 +72,24 @@ public class MilDiv {
 
     public static void main(String[] args) {
         loadAllUnitData();
-        TESTING.print(unitTypes[0], unitTypes[2]);
-        MilDiv div = new MilDiv("Strong");
-        div.makeUnit(0, 0, 1000);
 
-        MilUnit u = div.units.get(0);
-        TESTING.print(u.size);
+        MilUnit u = makeUnit(0, 0, 1000);
+        MilUnit o = makeUnit(0, 0, 1000);
+        u.incSize(200); // DEPENDENT UPON RATION atk:def , 2:1 ratio -> near certain loss
+        o.incSize(700);
+        TESTING.print(u.attack(o));
+
+        TESTING.print(u.size + " " + u.morale,o.size + " " + o.morale);
 
     }
+
+    /*
+    * 0 0 0 0 0 0
+    * 0 0 0 0 0 0
+    * vs
+    * 0 0 0 0 0 0
+    * 0 0 0
+    * make combinations 0 <-> 0
+    * */
+
 }
