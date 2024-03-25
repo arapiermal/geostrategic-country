@@ -75,12 +75,14 @@ public class MilDiv {
 
         MilUnit u = makeUnit(0, 0, 1000);
         MilUnit o = makeUnit(0, 0, 1000);
-        u.incSize(200); // DEPENDENT UPON RATION atk:def , 2:1 ratio -> near certain loss
+        u.incSize(1400); // DEPENDENT UPON RATION atk:def , 2:1 ratio -> near certain loss
         o.incSize(700);
         TESTING.print(u.attack(o));
 
         TESTING.print(u.size + " " + u.morale,o.size + " " + o.morale);
+        TESTING.print(u.attack(o));
 
+        TESTING.print(u.size + " " + u.morale,o.size + " " + o.morale);
     }
 
     /*
