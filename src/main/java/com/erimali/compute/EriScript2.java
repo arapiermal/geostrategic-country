@@ -1,14 +1,7 @@
 package com.erimali.compute;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import com.erimali.cntrygame.CommandLine;
@@ -24,7 +17,7 @@ import com.erimali.cntrygame.GameAudio;
 // List<String[]> rows; // params
 public class EriScript2 {
     // class which is just a function that doesn't forget previous state?
-    private static final String RETURN = "RETURN";
+    private static final String RETURN = "return";
     private static final String EXTRAARG = "EXTRA";
     private String separator = "\n";// System.lineSeparator();
     private List<String[]> rows;
@@ -52,9 +45,7 @@ public class EriScript2 {
     private static final String tempInd = "IND";
 
     public void addPrintedLines(String... toPrint) {
-        for (String line : toPrint) {
-            printed.add(line);
-        }
+        Collections.addAll(printed, toPrint);
     }
 
     public void printPrinted() {
@@ -136,9 +127,7 @@ public class EriScript2 {
                 res[0] = res[0].replaceAll("\\s+","");
         }
         //Otherwise it is a command
-        else if(res.length > 1){
-            res[0] = res[0].trim().toUpperCase();
-        }
+        //else if(res.length > 1){res[0] = res[0].trim().toUpperCase();}
         return res;
     }
 
@@ -369,8 +358,8 @@ public class EriScript2 {
             }
             return;
         }
-        switch (command.toUpperCase()) {
-            case "FOR":
+        switch (command.toLowerCase()) {
+            case "for":
                 if (parts.length == 2) {
                     String[] in = parts[1].split("\\s*,\\s*");
                     execVarRow(in[0]);
@@ -445,10 +434,10 @@ public class EriScript2 {
                     throw new IllegalArgumentException(": OVERLOAD :::::::::::::");
                 }
                 break;
-            case "IF":
+            case "if":
                 execIf();
                 break;
-            case "PRINT":
+            case "print":
                 if (parts.length == 2)
                     addPrintedLines(parsePrint(parts[1]));
                 else if (parts.length == 1)
@@ -486,27 +475,27 @@ public class EriScript2 {
                 }
                 break;
             // improve
-            case "EXEC":
+            case "exec":
                 printed.add(CommandLine.executeAllLines(parts[1]));
                 break;
-            case "CLR":
+            case "clr":
                 clearSpecific(parts[1]);
                 break;
-            case "GRAPH":
+            case "graph":
                 if (parts.length == 2) {
                     // x => arr?
-                    double x[] = getArr(parts[1].trim());
+                    double[] x = getArr(parts[1].trim());
                     EriScriptGUI.showPopupStage(GraphApp.generateGraph(x));
                 } else if (parts.length == 3) {
                     // x:y
-                    double x[] = getArr(parts[1].trim());
-                    double y[] = getArr(parts[2].trim());
+                    double[] x = getArr(parts[1].trim());
+                    double[] y = getArr(parts[2].trim());
                     EriScriptGUI.showPopupStage(GraphApp.generateGraph(x, y));
-                } else if (parts.length == 3) {
+                } else if (parts.length == 4) {
                     // x:y:z
                 }
                 break;
-            case "INPUT":
+            case "input":
                 // input:$x:Description,maybe title ???
                 // input:#x
                 // input:%x
@@ -532,14 +521,14 @@ public class EriScript2 {
                 }
 
                 break;
-            case "DEV":
+            case "dev":
                 if (parts.length == 2) {
                     parseDevCommand(parts[1].trim(), "");
                 } else if (parts.length == 3) {
                     parseDevCommand(parts[1].trim(), parts[2]);
                 }
                 break;
-            case "DEF":
+            case "def":
                 if (parts.length == 3) {
                     boolean isArr = parts[2].contains(",");
                     String name = parts[1].trim();
@@ -555,26 +544,29 @@ public class EriScript2 {
 
                 }
                 break;
-            case "SWITCH":
+            case "switch":
                 // make with $#%
                 break;
-            case "BREAK":
+            case "break":
                 break;// implement getting out of FOR LOOP
-            case "WAIT":
+            case "wait":
                 try {
                     Thread.sleep((long) solveMath(parts[1]));
                 } catch (InterruptedException e) {
                     ErrorLog.logError(e);
                 }
                 break;
-            case "IMG":
+            case "img":
                 EriIMG e = new EriIMG(Paths.get(parts[1]));
                 EriScriptGUI.showPopupStage(e.generateStage());
                 break;
-            case "SOUND":
+            case "sound":
                 if (parts.length == 2)
                     GameAudio.playShortSound(parts[1]);
 				break;
+            case "tostring":
+                printed.add(this.toString());
+                break;
             default:
                 if (parts.length < 2)
                     executeFunction(parts[0]);
@@ -1502,4 +1494,19 @@ public class EriScript2 {
         return in.substring(start, end);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for(String[] r : rows){
+            int i = 0;
+            while(i < r.length - 1){
+                sb.append(r[i]).append(':');
+                i++;
+            }
+            sb.append(r[i].replace(":","\\:"));
+            sb.append('\n');
+
+        }
+        return sb.toString();
+    }
 }

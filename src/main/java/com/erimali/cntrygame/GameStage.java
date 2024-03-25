@@ -178,13 +178,13 @@ public class GameStage extends Stage {
         this.countryOptTypes = new VBox[3];
         countryOptTypes[0] = makeVBoxPlayerOptions();
         //.setSpacing(10);
-        countryOptTypes[1] = makeVBoxSubjectOptions();
-        countryOptTypes[2] = makeVBoxCountryOptions();
+        countryOptTypes[1] = makeVBoxCountryOptions();
+        countryOptTypes[2] = makeVBoxSubjectOptions();
 
         this.provOptTypes = new VBox[3];
         provOptTypes[0] = makeVBoxPlayerProvOptions();
-        provOptTypes[1] = makeVBoxSubjectProvOptions();
-        provOptTypes[2] = makeVBoxOtherProvOptions();
+        provOptTypes[1] = makeVBoxOtherProvOptions();
+        provOptTypes[2] = makeVBoxSubjectProvOptions();
     }
 
 
@@ -459,28 +459,31 @@ public class GameStage extends Stage {
     //make more efficient
     public void changeSelectedCountryInfo() {
         selectedCountryInfo.setText(game.toStringCountry(selectedCountry));
+        Country selC = game.getWorld().getCountry(selectedCountry);
+        if(selC == null)
+            return;
         if (isPlayingCountry) {
             if (selectedCountry == game.getPlayerId()) {
 
                 changeLeftVBoxes(0);
 
-            } else if(game.isSubjectOfPlayer(selectedCountry)){
-                //can be put as an if below ... since most stuff are same/similar...
+            } else {
+                if(game.isSubjectOfPlayer(selectedCountry)){
+                    //Most stuff are same/similar...
+                    //changeLeftVBoxes(2); save for extra beyond regular here
 
-                changeLeftVBoxes(1);
-
-            }
-            else {
-
-
-                changeLeftVBoxes(2);
-
-                //make more efficient
-                if (game.isAllyWith(selectedCountry)) {
+                    sendAllianceRequest.setText("Release subject"); // Change action...
+                } else if (game.isAllyWith(selectedCountry)) {
                     sendAllianceRequest.setText("Break alliance");
+
                 } else {
                     sendAllianceRequest.setText("Alliance request");
+
                 }
+                changeLeftVBoxes(1);
+
+                //make more efficient
+
                 infoRelations.setText(game.getRelationsWith(selectedCountry));
                 improveRelations.setSelected(game.isImprovingRelations(selectedCountry));
             }
@@ -513,6 +516,13 @@ public class GameStage extends Stage {
                         dialog.setHeaderText("Pick a rebel type.");
                         event.consume();
                     } else {
+                        Double money = showNumberInputDialog(1000,1000000);
+                        if(money == null){
+                            dialog.setHeaderText("Money is a number!");
+                            event.consume();
+                        }
+                        double amount = money.doubleValue();
+                        TESTING.print(amount);
                         //game.sponsorRebels(rt, selectedCountry, money);
                         GameAudio.playShortSound("low-impact.mp3");
                     }
@@ -631,7 +641,7 @@ public class GameStage extends Stage {
         popupStage.setScene(popupScene);
         isPaused = true;
         // Show the popup
-        Platform.runLater(() -> popupStage.showAndWait());
+        Platform.runLater(popupStage::showAndWait);
     }
 
     public void popupWebNews() {
@@ -655,7 +665,7 @@ public class GameStage extends Stage {
         String PLAYER = game.getPlayer().getGovernment().toStringMainRuler();
         String OPPONENT = game.getWorldCountries().get(cn).getGovernment().toStringMainRuler();
         File file = new File("src/main/resources/web/chess/chess.html");
-        String filePath = file.toURI().toString() + "?player=" + PLAYER + "&opponent=" + OPPONENT + "&src=countrysim";
+        String filePath = file.toURI() + "?player=" + PLAYER + "&opponent=" + OPPONENT + "&src=countrysim";
 
         WebView webView = new WebView();
         webView.getEngine().load(filePath);
@@ -724,7 +734,7 @@ public class GameStage extends Stage {
         Slider slider = new Slider(minSliderVal, maxSliderVal, 0);
 
         Label label = new Label("Enter amount:");
-        TextField inputField = new TextField("0");
+        TextField inputField = new TextField(Double.toString(minSliderVal));
         slider.valueProperty().addListener((observable, oldValue, newValue) -> {
             inputField.setText(String.valueOf(newValue.intValue()));
         });

@@ -79,7 +79,9 @@ public class GLogic implements Serializable {
 
         interval = Duration.seconds(intervalInSeconds);
         keyframe = new KeyFrame(interval, event -> {
-            if (!gs.isPaused) {
+            if (gs.isPaused) {
+
+            } else{
                 gameTick();
             }
         });
@@ -117,14 +119,15 @@ public class GLogic implements Serializable {
     ///////////////////////////////////////////////////////
 
     public void gameTick() {
-        if (passDayNew() >= 1) {
+        int passing = passDayNew();
+        if (passing >= 1) {
             // be aware of cheating
             // on improve (Player) -> wait 30 days until can stop improving
             if (!improvingRelations.isEmpty()) {
                 tickImproveRelations();
             }
         }
-        if (passDayNew() == 2) {
+        if (passing == 2) {
             world.yearlyUpdate();
         }
         gs.changeDate(inGDateInfo());
