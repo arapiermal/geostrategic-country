@@ -8,8 +8,6 @@ import java.util.*;
 import com.erimali.compute.MathSolver;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.util.Duration;
 
 public class GLogic implements Serializable {
@@ -18,6 +16,7 @@ public class GLogic implements Serializable {
     // get selected country from gs?
 
     private Timeline timeline;
+    private KeyFrame keyframe;
     private Duration interval;
     private static final double minIntervalInSeconds = 0.25;
     private static final double defaultIntervalInSeconds = 1;
@@ -48,6 +47,8 @@ public class GLogic implements Serializable {
 
     // Improving Relations
     private Map<Short, Set<Short>> improvingRelations;
+    //can be decentralized if i have a Set<Short> inside Diplomacy...
+    //still would require method traverse...
 
     // NEW GAME
     public GLogic(GameStage gs) {
@@ -59,7 +60,7 @@ public class GLogic implements Serializable {
         CommandLine.setCountries(world.getCountries());
 
         this.gameEvents = loadGameEvents(DEF_GAMEEVENTSPATH);
-        this.setCurrencies(new Currencies());
+        this.currencies = new Currencies();
 
         this.improvingRelations = new HashMap<>();
 
@@ -77,20 +78,23 @@ public class GLogic implements Serializable {
     public void startTimer(double intervalInSeconds) {
 
         interval = Duration.seconds(intervalInSeconds);
-
-        timeline = new Timeline(new KeyFrame(interval, event -> {
-            if (gs.isPaused) {
-
-            } else {
+        keyframe = new KeyFrame(interval, event -> {
+            if (!gs.isPaused) {
                 gameTick();
             }
-        }));
+        });
+        timeline = new Timeline(keyframe);
 
         timeline.setCycleCount(Timeline.INDEFINITE);
 
         timeline.play();
     }
 
+    public void increaseInterval(){
+    }
+    public void decreaseInterval(){
+
+    }
     public void pauseTimer() {
         timeline.pause();
     }
@@ -403,21 +407,28 @@ public class GLogic implements Serializable {
             switch (commands[0].toUpperCase()) {
                 case "COUNTRY":
                     String reference = parts[1].trim().toUpperCase();
-                    Country c = null;
+                    Country c;
                     if (reference.equals("SELF")) {
                         c = player;
                     } else {
                         c = world.getCountry(reference);
                     }
+                    if(c == null)
+                        return "NULL";
                     switch (commands[1].toUpperCase()) {
                         case "NAME":
                             replace.append(c.getName());
                             break;
                         case "GOV":
+                            Government gov = c.getGovernment();
                             switch (commands[2].toUpperCase()) {
                                 case "TYPE":
-                                    replace.append(c.getGovernment().getType());
+                                    replace.append(gov.getType());
                                     break;
+                                case "HOS":
+                                    replace.append(gov.getHeadOfState());
+                                case "HOG":
+                                    replace.append(gov.getHeadOfGovernment());
                                 default:
                                     break;
                             }
