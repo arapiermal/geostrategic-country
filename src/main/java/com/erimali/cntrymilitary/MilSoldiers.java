@@ -1,9 +1,10 @@
-package com.erimali.miltest;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
+package com.erimali.cntrymilitary;
 
 public class MilSoldiers extends MilUnit {
+
+    public MilSoldiers(MilUnitData data, int maxSize) {
+        super(data, maxSize);
+    }
 
     public int recruit(int recruitSize) {
         if (this.lvl > 1) {

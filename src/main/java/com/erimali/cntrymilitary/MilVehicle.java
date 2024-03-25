@@ -1,14 +1,14 @@
-package com.erimali.miltest;
+package com.erimali.cntrymilitary;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.List;
 
 public class MilVehicle extends MilUnit {
     //Logically not the basic personnel required for the vehicle, but transporting soldiers/marines... (?)
     protected List<MilPersonnel> carryingPersonnel;
     protected List<MilVehicle> carryingVehicles; //prevent carry on carry on carry on carry...
-
+    public MilVehicle(MilUnitData data, int maxSize){
+        super(data, maxSize);
+    }
     //Using factories of provinces (?)
     public int build(int buildSize) {
         //
@@ -16,9 +16,9 @@ public class MilVehicle extends MilUnit {
     }
 
     public void upgrade(int value) {
-        //only personnel should be trainable (?)
+        //
         this.xp += value;
-        //protected int lvlCap;
+        //
         int lvlCap = this.lvl * 100;
         if (this.xp > lvlCap) {
             this.lvl++;

@@ -1,0 +1,7 @@
+name:Soldier
+desc:Basic soldier
+subtype:0
+speed:1
+atk:4:1:1:1
+def:3:1:1:1
+hp:5

@@ -1,4 +1,4 @@
-package com.erimali.miltest;
+package com.erimali.cntrymilitary;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

@@ -257,7 +257,10 @@ public class GameStage extends Stage {
         declareWar.getStyleClass().add("declare-war-button");
         Button sponsorRebels = new Button("Sponsor Rebels");
         sponsorRebels.setOnAction(e -> sponsorRebels());
+        declareWar.getStyleClass().add("sponsor-rebels-button");
+
         VBox vboxWar = new VBox(optionsWar, declareWar,sponsorRebels);
+
         Label preInfoRelations = new Label("Relations ");
         infoRelations = new Label();
         HBox optionsRelations = new HBox(preInfoRelations, infoRelations);

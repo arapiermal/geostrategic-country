@@ -1,7 +1,0 @@
-name:Basic Soldier
-desc:A very basic soldier
-subtype:0
-speed:1
-atk:10:5:5:5
-def:8:5:5:5
-hp:1

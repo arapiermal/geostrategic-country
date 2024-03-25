@@ -16,8 +16,11 @@ class MilImg{
 }
 public class Military {
 	//named divisions (?)
+	private long manpower;
 	private List<MilDivision> divisions;
 	private Set<Short> atWarWith;
+
+	private GDate lastDeclaredWar;
 
 
 	public Military() {

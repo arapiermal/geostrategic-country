@@ -1,16 +1,15 @@
-package com.erimali.miltest;
+package com.erimali.cntrymilitary;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.List;
 
-public class MilUnitData {
-    private static final String[] TYPES = {"Soldiers", "Marines", "Airborne forces", "Space soldiers", "",
-            "Ground Vehicles", "Water Vehicles", "Air Vehicles", "Space vehicles", ""};
-    private static final int MAX_TYPES = 10;
-    //0-4 -> personnel, 5-9 -> vehicles
-    private static int CURR_ID = 0;
-    protected final int id;
+public class MilUnitData implements Comparable<MilUnitData> {
+    private static final String[] TYPES = {"Soldiers", "Ground Vehicles", "Marines", "Water Vehicles",
+            "Airborne forces", "Air Vehicles", "Space Vehicles", "Space soldiers"};
+    protected static final int MAX_TYPES = 8;
+    private static final int MAX_SUBTYPES = 4096;
+
     protected final byte type;
 
     protected String name;
@@ -19,20 +18,21 @@ public class MilUnitData {
     protected int speed;
     protected int[] atk;
     protected int[] def;
+    //make hp go down and up (?) maxHP
     protected int hp;
     //
     protected boolean canCarry;
 
     public MilUnitData(String loc) throws Exception {
         this.type = (byte) (loc.charAt(loc.length() - 1) - '0');
+        if (type >= MAX_TYPES)
+            throw new IllegalArgumentException("TYPE CAN BE FROM 0 UP TO " + (MAX_TYPES - 1));
         try (BufferedReader br = new BufferedReader(new FileReader(loc))) {
             String line;
             while ((line = br.readLine()) != null) {
-                setValue(line.split("\\s*:\\s*"));
+                setValue(line.trim().split("\\s*:\\s*"));
             }
         }
-        this.id = CURR_ID++;
-
     }
 
     private void setValue(String[] in) {
@@ -62,25 +62,32 @@ public class MilUnitData {
                 }
                 break;
             case "hp":
-                this.hp = Integer.parseInt(in[1]); //speed based on environment?!?
+                this.hp = Integer.parseInt(in[1]);
                 break;
 
             case "carry":
-                if(isVehicle())
+                if (isVehicle()) {
                     this.canCarry = true;
+                }
                 //more carry options, what can it carry
                 //problem, all vehicles carry sth
                 break;
         }
     }
 
-    public static List<MilUnitData> loadAllUnitData() {
-
-
-        return null;
+    public boolean isVehicle() {
+        return type % 2 == 1;
     }
 
-    public boolean isVehicle() {
-        return type > 4 && type < 10;
+    @Override
+    public int compareTo(MilUnitData o) {
+        int f1 = type * MAX_SUBTYPES + subtype;
+        int f2 = o.type * MAX_SUBTYPES + o.subtype;
+        return Integer.compare(f1, f2);
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
     }
 }
