@@ -7,8 +7,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-
-public class CFormable {
+interface CFormableReleasable{
+	boolean hasRequired();
+}
+public class CReleasable {
 	public static class BaseAdmDivs{
 		public int[][] provinces = new int[CountryArray.maxISO2Countries][];
 		//This can be unnecessary if you add to List<Integer> conqueredCountries after annexation...
@@ -23,10 +25,10 @@ public class CFormable {
 		//or each AdmDiv has previousOwner (or the formables inject themselves (?))
 	}
 	//Releasable for liberation vs Form-able through unification
-	//Form Greater Albania !!
+	//Release Northern Epirus
 	private String name;
-	private int[] reqProvinces; //required provinces
-	public CFormable(String name, int[] reqProvinces){
+	private int[] reqProvinces; //Country is released with provinces it doesn't
+	public CReleasable(String name, int[] reqProvinces){
 		this.name = name;
 		this.reqProvinces = reqProvinces;
 	}
@@ -38,19 +40,18 @@ public class CFormable {
 		}
 	}
 
+	//CReleasable
 	public boolean hasRequired(int countryId, SVGProvince[] provinces){
 		for(int reqProv : reqProvinces){
 			if(provinces[reqProv].getOwnerId() != countryId)
-				return false;
+				return true;
 		}
-
-		return true;
+		return false;
 	}
 
 
-
-	public static List<CFormable> loadFormables(String path) {
-		List<CFormable> l = new ArrayList<>();
+	public static List<CReleasable> loadFormables(String path) {
+		List<CReleasable> l = new ArrayList<>();
 		try (BufferedReader br = new BufferedReader(new FileReader(path))) {
 			String line;
 			while((line = br.readLine()) != null) {

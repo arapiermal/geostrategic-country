@@ -1,28 +1,24 @@
 package com.erimali.cntrygame;
 
 enum Events {
-	WORLDCUP {
+	WORLD_CUP {
 		@Override
 		public void performEvent() {
-			// Logic for the World Cup event
 		}
 	},
 	ADV_SCIENTIFIC {
 		@Override
 		public void performEvent() {
-			// Logic for the advanced scientific event
 		}
 	},
 	ADV_TECHNOLOGICAL {
 		@Override
 		public void performEvent() {
-			// Logic for the advanced technological event
 		}
 	},
 	ADV_AI {
 		@Override
 		public void performEvent() {
-			// Logic for the advanced AI event
 		}
 	};
 

@@ -82,7 +82,7 @@ public class GLogic implements Serializable {
             if (gs.isPaused) {
 
             } else{
-                gameTick();
+                dailyTick();
             }
         });
         timeline = new Timeline(keyframe);
@@ -118,17 +118,13 @@ public class GLogic implements Serializable {
     ///////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////
 
-    public void gameTick() {
+    public void dailyTick() {
         int passing = passDayNew();
         if (passing >= 1) {
-            // be aware of cheating
-            // on improve (Player) -> wait 30 days until can stop improving
-            if (!improvingRelations.isEmpty()) {
-                tickImproveRelations();
-            }
+            monthlyTick();
         }
         if (passing == 2) {
-            world.yearlyUpdate();
+            yearlyTick();
         }
         gs.changeDate(inGDateInfo());
         if (!gameEvents.isEmpty()) {
@@ -153,6 +149,20 @@ public class GLogic implements Serializable {
         }
     }
 
+    public void weeklyTick(){
+
+    }
+
+    public void monthlyTick(){
+        // be aware of cheating
+        // on improve (Player) -> wait 30 days until can stop improving
+        if (!improvingRelations.isEmpty()) {
+            tickImproveRelations();
+        }
+    }
+    public void yearlyTick(){
+        world.yearlyUpdate();
+    }
     public String inGDateInfo() {
         return this.inGDate.toString();
     }

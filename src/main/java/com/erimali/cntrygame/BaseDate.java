@@ -172,10 +172,7 @@ public class BaseDate implements Comparable<BaseDate> {
 	}
 
 	public boolean equals(BaseDate o) {
-		if (this.day == o.day && this.month == o.month && this.year == o.year)
-			return true;
-		else
-			return false;
+        return this.day == o.day && this.month == o.month && this.year == o.year;
 	}
 
 	public int getDay() {

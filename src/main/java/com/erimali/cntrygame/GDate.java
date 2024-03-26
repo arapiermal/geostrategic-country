@@ -1,9 +1,8 @@
 package com.erimali.cntrygame;
 
-//abstract date method?
 public class GDate extends BaseDate {
-	private int dayOfWeek;
-	private static final String[] DAYSOFWEEK = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
+	protected int dayOfWeek;
+	protected static final String[] DAYS_OF_WEEK = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
 			"Sunday" };
 
 	public GDate(int day, int month, int year) throws IllegalArgumentException {
@@ -38,13 +37,10 @@ public class GDate extends BaseDate {
 		}
 	}
 	public String toStringDayOfWeek() {
-		return DAYSOFWEEK[dayOfWeek];
+		return DAYS_OF_WEEK[dayOfWeek];
 	}
 	public boolean equals(GDate o) {
-		if (this.day == o.getDay() && this.month == o.getMonth() && this.year == o.getYear())
-			return true;
-		else
-			return false;
+        return this.day == o.getDay() && this.month == o.getMonth() && this.year == o.getYear();
 	}
 	public void setDay(int day) {
 		this.day = day;

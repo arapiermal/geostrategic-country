@@ -57,9 +57,9 @@ public abstract class MilUnit {
     }
 
     public static double dmgCalc(MilUnit a, MilUnit o) {
-        double mATK = a.data.atk[o.data.type] * a.size * Math.sqrt(a.lvl + a.data.speed) * (a.morale / 100) + a.xp;
+        double mATK = a.data.atk[o.data.type] * a.size * Math.sqrt(a.lvl + a.data.speed) * (0.5 + a.morale / 100) + a.xp;
         mATK += mATK * Math.random();
-        double oDEF = o.data.def[a.data.type] * o.size * Math.sqrt(o.lvl + o.data.speed) * (o.morale / 100) + o.xp;
+        double oDEF = o.data.def[a.data.type] * o.size * Math.sqrt(o.lvl + o.data.speed) * (0.5 + o.morale / 100) + o.xp;
         return mATK - oDEF;
     }
 
