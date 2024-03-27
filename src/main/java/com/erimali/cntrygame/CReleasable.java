@@ -10,21 +10,9 @@ import java.util.List;
 interface CFormableReleasable{
 	boolean hasRequired();
 }
+//Unify in one class ? boolean to tell the difference
 public class CReleasable {
-	public static class BaseAdmDivs{
-		public int[][] provinces = new int[CountryArray.maxISO2Countries][];
-		//This can be unnecessary if you add to List<Integer> conqueredCountries after annexation...
-		public boolean contains(Country c, int... countries){
-			//What if using BigAdmDiv in the first place to avoid these problems?
-			for(AdmDiv a : c.getAdmDivs()){
-
-			}
-
-			return false;
-		}
-		//or each AdmDiv has previousOwner (or the formables inject themselves (?))
-	}
-	//Releasable for liberation vs Form-able through unification
+	//Releasable for liberation vs Formable through unification
 	//Release Northern Epirus
 	private String name;
 	private int[] reqProvinces; //Country is released with provinces it doesn't
@@ -32,12 +20,12 @@ public class CReleasable {
 		this.name = name;
 		this.reqProvinces = reqProvinces;
 	}
-	private void formCountry(Country c, int cId, SVGProvince[] provinces){
+	private Country releaseCountry(Country c, int cId, SVGProvince[] provinces){
 		if(hasRequired(cId, provinces)){
 
-			c.setName(name);
-
+			return new Country(this.name);
 		}
+		return null;
 	}
 
 	//CReleasable
@@ -48,9 +36,16 @@ public class CReleasable {
 		}
 		return false;
 	}
+	public List<Integer> getOwnedByCountry(int countryId, SVGProvince[] provinces){
+		List<Integer> ownedProvinces = new ArrayList<>();
+		for(int reqProv : reqProvinces){
+			if(provinces[reqProv].getOwnerId() != countryId)
+				ownedProvinces.add(reqProv);
+		}
+		return ownedProvinces;
+	}
 
-
-	public static List<CReleasable> loadFormables(String path) {
+	public static List<CReleasable> loadReleasables(String path) {
 		List<CReleasable> l = new ArrayList<>();
 		try (BufferedReader br = new BufferedReader(new FileReader(path))) {
 			String line;

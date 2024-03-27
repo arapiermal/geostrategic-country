@@ -6,7 +6,7 @@ public abstract class MilUnit {
     private static int CURR_ID = 0;
     protected final int id;
     //////////////////////////////////////////////////////////////////////
-    protected double morale;
+    protected float morale;
     //protected int maxHealth=hp*maxSize;
     //protected double totalHealth;
     //by this logic there's a direct interdependency between hp and size

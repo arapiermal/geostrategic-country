@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-
+//move stuff related to country in military class
 public class MilDiv {
     protected static List<MilUnitData>[] unitTypes;
     protected static String DIR_UNIT_TYPES = "src/main/resources/data/units";
@@ -48,6 +48,7 @@ public class MilDiv {
     }
 
     protected String name;
+    protected MilLeader leader;
     protected List<MilUnit> units;
 
     public MilDiv(String name) {
@@ -73,9 +74,10 @@ public class MilDiv {
     public static void main(String[] args) {
         loadAllUnitData();
 
-        MilUnit u = makeUnit(0, 0, 1000);
+        MilUnit u = makeUnit(0, 0, 2000);
         MilUnit o = makeUnit(0, 0, 1000);
         u.incSize(1400); // DEPENDENT UPON RATION atk:def , 2:1 ratio -> near certain loss
+        //UNPENETRATABLE DEFENSE !, maybe make defense to divide the attack and health somewhat different ?
         o.incSize(700);
         TESTING.print(u.attack(o));
 

@@ -16,11 +16,16 @@ public class MilUnitData implements Comparable<MilUnitData> {
     protected String desc;
     protected int subtype;
     protected int speed;
+    //protected int range; //in a matrix [][] artillery at the back can shoot at the front
+
     protected int[] atk;
     protected int[] def;
     //make hp go down and up (?) maxHP
     protected int hp;
     //
+
+    protected int minMilTech;
+
     protected boolean canCarry;
 
     public MilUnitData(String loc) throws Exception {
@@ -70,7 +75,9 @@ public class MilUnitData implements Comparable<MilUnitData> {
                     this.canCarry = true;
                 }
                 //more carry options, what can it carry
-                //problem, all vehicles carry sth
+                break;
+            case "tech":
+                this.minMilTech = Math.min(0, Integer.parseInt(in[1]));
                 break;
         }
     }

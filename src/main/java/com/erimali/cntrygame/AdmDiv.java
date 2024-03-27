@@ -1,5 +1,7 @@
 package com.erimali.cntrygame;
 
+import java.util.EnumSet;
+
 //DIJKSTRA TO TRAVERSE?????
 //int terrain; int timeToTraverse;
 //AdmDiv[] neighbours;
@@ -16,7 +18,7 @@ public class AdmDiv {
     private short mainLanguage; // + culture?
 
     private short separatism; //separationism separatism
-
+    EnumSet<Building> buildings;
     //SEPARATIONIST SENTIMENT
     // Subdivisions?
 
@@ -38,6 +40,7 @@ public class AdmDiv {
         this.area = area;
         this.population = population;
         this.mainLanguage = mainLanguage;
+        this.buildings = EnumSet.noneOf(Building.class);
     }
 
     public AdmDiv(String name, String area, String population, short mainLanguage) {
@@ -46,6 +49,8 @@ public class AdmDiv {
             this.area = Double.parseDouble(area);
             this.population = Integer.parseInt(population);
             this.mainLanguage = mainLanguage;
+            this.buildings = EnumSet.noneOf(Building.class);
+
         } catch (NumberFormatException e) {
 
         }
@@ -56,17 +61,32 @@ public class AdmDiv {
     }
 
     public void subtractPopulation(int pop) {
+        if(pop > 0)
+            return;
         this.population -= pop;
         if (this.population < 0)
             this.population = 0;
     }
 
     public int incPopulation(double incPop) {
-        int pop = (int) (this.population * incPop);
-        this.population += pop;
+        int pop = (int) (population * incPop);
+        population += pop;
         return pop;
     }
 
+    public boolean hasBuilding(Building b){
+        return buildings.contains(b);
+    }
+
+    public void buildBuilding(Building b){
+        buildings.add(b);
+    }
+    public void demolishBuilding(Building b){
+        buildings.remove(b);
+    }
+    public EnumSet<Building> getBuildings(){
+        return buildings;
+    }
     public String getName() {
         return name;
     }
@@ -118,4 +138,6 @@ public class AdmDiv {
     public void setMainLanguage(short mainLanguage) {
         this.mainLanguage = mainLanguage;
     }
+
+
 }

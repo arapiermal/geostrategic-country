@@ -23,7 +23,7 @@ public class Main extends Application {
 
     protected static final String APP_NAME = "Strategical Geopolitics Simulator";
     private Stage primaryStage;
-    private Stage gStage;
+    private Stage gameStage;
 
     @Override
     public void start(Stage primaryStage) {
@@ -95,12 +95,12 @@ public class Main extends Application {
     }
 
     private void startGame() {
-        if (gStage == null) {
-            gStage = new GameStage();
+        if (gameStage == null) {
+            gameStage = new GameStage();
         }
         primaryStage.close(); // Close the first stage
 
-        gStage.show();
+        gameStage.show();
     }
 
     private void openOptions() {
@@ -168,21 +168,13 @@ public class Main extends Application {
     private void exitApplication() {
         primaryStage.close();
 
-        if (gStage != null) {
-            gStage.close();
+        if (gameStage != null) {
+            gameStage.close();
         }
     }
 
     public static void main(String[] args) {
         launch(args);
-    }
-
-    public Stage getGs() {
-        return gStage;
-    }
-
-    public void setGs(Stage gStage) {
-        this.gStage = gStage;
     }
 
     private void openEriScriptGUI() {

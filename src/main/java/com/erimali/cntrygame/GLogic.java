@@ -33,6 +33,7 @@ public class GLogic implements Serializable {
     // private World planets[]; //solar system
     private List<War> wars;
     //private List<WarResult> finishedWars;
+    // Wars saved as GNews ... (special type, int)
     private Currencies currencies;
 
     private int playerId;
@@ -217,13 +218,13 @@ public class GLogic implements Serializable {
     }
 
     public void addImprovingRelations(short c1, short c2) {
-        if (this.improvingRelations.containsKey(c1)) {
-            Set<Short> improving = this.improvingRelations.get(c1);
+        if (improvingRelations.containsKey(c1)) {
+            Set<Short> improving = improvingRelations.get(c1);
             improving.add(c2);
         } else {
             Set<Short> improving = new HashSet<>();
             improving.add(c2);
-            this.improvingRelations.put(c1, improving);
+            improvingRelations.put(c1, improving);
         }
     }
 
@@ -232,11 +233,11 @@ public class GLogic implements Serializable {
     }
 
     public void removeImprovingRelations(short c1, short c2) {
-        if (this.improvingRelations.containsKey(c1)) {
-            Set<Short> improving = this.improvingRelations.get(c1);
+        if (improvingRelations.containsKey(c1)) {
+            Set<Short> improving = improvingRelations.get(c1);
             improving.remove(c2);
             if (improving.isEmpty()) {
-                this.improvingRelations.remove(c1);
+                improvingRelations.remove(c1);
             }
         }
     }

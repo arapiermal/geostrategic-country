@@ -1,12 +1,20 @@
 package com.erimali.cntrygame;
-enum BuildingType{
-    FACTORY,
+//if starts with MIL -> Destroyable by army, boolean (?)
+public enum Building{
+    MIL_BASE,
+    MIL_TRAINING_CAMP,
+    FACTORY_PRODUCTION,
+    MIL_FACTORY_PRODUCTION,
+    MIL_FACTORY_GROUND_VEHICLES,
+    MIL_FACTORY_WATER_VEHICLES,
+    MIL_FACTORY_AIRCRAFT,
+    MIL_NUCLEAR_FACILITY,
     AIRPORT,
-    MIL_LANDVEHICLE,
-    MIL_AIRCRAFT
-}
-public class Building {
-    //In AdmDiv. Or what about making enum and EnumSet<Building> for efficiency, which allows you to do things if you have the building
-    BuildingType type;
+    MIL_AIRPORT,
+    RESEARCH_FACILITY,
+    MIL_RESEARCH_FACILITY,
+    MIL_INTELLIGENCE_AGENCY,
 
+
+    ;
 }

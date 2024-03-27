@@ -2,6 +2,7 @@ package com.erimali.cntrygame;
 
 public class Person {
 	private String firstName;
+	private String middleName;
 	private String lastName;
 	private char gender;
 	private static final char MALE = 'M';
@@ -10,25 +11,44 @@ public class Person {
 		this.firstName = firstName;
 		this.lastName = lastName;
 	}
+	public Person(String firstName, String middleName, String lastName) {
+		this.firstName = firstName;
+		this.middleName = middleName;
+		this.lastName = lastName;
+	}
+
 	public Person(String firstName, String lastName, char gender) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.gender = gender;
 	}
+	public Person(String firstName, String middleName, String lastName, char gender) {
+		this.firstName = firstName;
+		this.middleName = middleName;
+		this.lastName = lastName;
+		this.gender = gender;
+	}
+
 	public Person(String input) {
 		String[] s = input.split(","); //\\s+,\\s+
 		if(s.length < 3) {
-			throw new IllegalArgumentException("LITTLE INPUT");
+			throw new IllegalArgumentException("NOT ENOUGH INPUT");
 		}
-		this.firstName = s[0];
-		this.lastName = s[1];
-		this.gender = s[2].charAt(0);
+		int i = 0;
+		this.firstName = s[i++];
+		if(s.length == 4)
+			this.middleName = s[i++];
+		this.lastName = s[i++];
+		this.gender = s[i].charAt(0);
 	}
 
 	public String toString() {
-		return getFirstName() + " " + getLastName();
+		return firstName + " " + lastName;
 	}
-	
+
+	public String getFullName(){
+		return firstName + " " + middleName + " " + lastName;
+	}
 
 	public String getFirstName() {
 		return firstName;
@@ -39,6 +59,13 @@ public class Person {
 		this.firstName = firstName;
 	}
 
+	public String getMiddleName() {
+		return middleName;
+	}
+
+	public void setMiddleName(String middleName) {
+		this.middleName = middleName;
+	}
 
 	public String getLastName() {
 		return lastName;
@@ -59,6 +86,9 @@ public class Person {
 		this.gender = gender;
 	}
 
+	public boolean hasMiddleName(){
+		return middleName != null;
+	}
 
 	public static char getMale() {
 		return MALE;
@@ -68,5 +98,6 @@ public class Person {
 	public static char getFemale() {
 		return FEMALE;
 	}
-	
+
+
 }

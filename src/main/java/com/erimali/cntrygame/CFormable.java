@@ -9,8 +9,10 @@ import java.util.List;
 
 
 public class CFormable {
-	public static class BaseAdmDivs{
-		public int[][] provinces = new int[CountryArray.maxISO2Countries][];
+	public static class BaseAdmDivs {
+		public static int[][] provinces = new int[CountryArray.maxISO2Countries][];
+
+
 		//This can be unnecessary if you add to List<Integer> conqueredCountries after annexation...
 		public boolean contains(Country c, int... countries){
 			//What if using BigAdmDiv in the first place to avoid these problems?

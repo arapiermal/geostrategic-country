@@ -12,6 +12,7 @@ module com.erimali.cntrygame {
 
     opens com.erimali.cntrygame to javafx.fxml;
     exports com.erimali.cntrygame;
+    exports com.erimali.cntrymilitary;
     exports com.erimali.minigames;
 
 }
