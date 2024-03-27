@@ -84,11 +84,7 @@ public class BooleanSolver {
 		var = var.trim();
 		switch (name.toUpperCase()) {
 		case "BOOL":
-			if (variables.get(var) < 1.0) {
-				return false;
-			} else {
-				return true;
-			}
+            return variables.get(var) >= 1.0;
 		case "CONTAINS":
 			return variables.containsKey(var);
 		case "POSITIVE":
