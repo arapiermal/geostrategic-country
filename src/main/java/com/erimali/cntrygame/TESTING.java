@@ -22,11 +22,9 @@ public class TESTING {
 		
 		//EriSentence s = new EriSentence("abcd,,efg ?!?hij?!?");
 		//print(s.getWords());
-		int[] dt = GUtils.getDate(":1:");
-		print(Arrays.toString(dt));
-		print(Long.MAX_VALUE);
-		print(GUtils.parseLongFromBooleanArr(GUtils.parseBooleanArrFromLong(Long.MAX_VALUE)));
-		
+
+
+
 	}
 
 	public static void print(Object... arg) {

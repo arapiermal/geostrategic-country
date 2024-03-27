@@ -167,8 +167,8 @@ public class WorldMap {
 		Node clickedNode = (Node) event.getTarget();
 		if (clickedNode instanceof SVGProvince clickedPath) {
             String pathId = clickedPath.getId();
-			String pathOwn = clickedPath.getAccessibleText();
-			gs.setSelectedCountry(clickedPath.getOwnerId());
+			int pathOwn = clickedPath.getOwnerId();
+			gs.setSelectedCountry(pathOwn);
 			//TESTING.print(clickedPath.getOwnerId(),clickedPath.getProvId());
 			//gs.changeSelectedCountryInfo();
 			gs.setSelectedProvince(clickedPath.getProvId());
@@ -176,6 +176,9 @@ public class WorldMap {
 
 			System.out.println("Path clicked - ID: " + pathId + ", Owner: " + pathOwn);
 			if (mapMode == 1) {
+				//Put CountryArray countries here...
+				//To access allies fast
+				//Would work when clicking after the first time going through Set (because all others have to be set default color)
 				paintMapAllies(); // CAN BECOME MORE EFFICIENT
 				// Only change the colors of the things which are
 				// in the previous and next Set<String/Integer> allies??
@@ -343,6 +346,6 @@ public class WorldMap {
 	}
 
 	public boolean containsColor(int id) {
-		return id >= 0 && id < CountryArray.maxISO2Countries && colors[id] != null;
+		return id >= 0 && id < colors.length && colors[id] != null;
 	}
 }
