@@ -11,7 +11,7 @@ public enum SubjectTypes {
 
     },
     //For AdmDiv area < x km^2
-    CITY_STATE("City-State") {
+    CITY_STATE("City-state") {
 
     },
     SPACE_COLONY("Space colony") {

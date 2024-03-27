@@ -93,8 +93,8 @@ public class CommandLine {
 			switch (k[1 + one]) {
 			case "COLOR":
 				if (k.length == 3 + one) {
-					if (gs.getMap().getColors().containsKey(shortName)) {
-						gs.getMap().changeDefColor(shortName, k[2]);
+					if (gs.getMap().containsColor(shortName)) {
+						gs.getMap().changeColor(shortName, k[2]);
 						result = "Sucessfully changed color of " + shortName + " to " + k[2];
 					}
 				}
