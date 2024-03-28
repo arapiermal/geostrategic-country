@@ -152,15 +152,22 @@ public class Main extends Application {
             sliderCurrently.setText(String.valueOf(newValue.intValue()));
             GOptions.setVolume(newValue.intValue());
         });
+
+        CheckBox allowCLI = new CheckBox("Allow Command-Line Interface (Cheats)");
+        allowCLI.setSelected(GOptions.isAllowCLI());
+        allowCLI.setOnAction(event -> {
+            GOptions.setAllowCLI(allowCLI.isSelected());
+        });
         CheckBox trGEvent = new CheckBox("Allow translating certain Game Event texts");
         trGEvent.setSelected(GOptions.isTranslateGEvent());
         trGEvent.setOnAction(event -> {
             GOptions.setTranslateGEvent(trGEvent.isSelected());
         });
+
         Button closeButton = new Button("Save & Close");
         closeButton.setOnAction(e -> optionsStage.close());
 
-        optionsLayout.getChildren().addAll(fullScreen, volumeHBox, slider, trGEvent, closeButton);
+        optionsLayout.getChildren().addAll(fullScreen, volumeHBox, slider, allowCLI, trGEvent, closeButton);
 
         return optionsLayout;
     }

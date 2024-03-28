@@ -30,7 +30,7 @@ public class EriScriptGUI extends Stage {
 	public static EriScriptGUI mainEriGUI;
 	private TextArea inputTextArea;
 	private TextArea outputTextArea;
-	private EriScript2 e;
+	private EriScript e;
 
 	public EriScriptGUI() {
 		EriScriptGUI.mainEriGUI = this;
@@ -192,7 +192,7 @@ public class EriScriptGUI extends Stage {
     }
 	
 	private void runScript() {
-		e = new EriScript2(inputTextArea.getText());
+		e = new EriScript(inputTextArea.getText());
 		e.execute();
 		outputTextArea.setText(e.toPrint());
 	}

@@ -1,9 +1,13 @@
 package com.erimali.cntrygame;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.Map;
 
+import com.erimali.compute.EriScript;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Control;
 
 
 class Command {
@@ -34,7 +38,7 @@ class Command {
 }
 
 public class CommandLine {
-    private static final String COMMANDSEPARATOR = ";";
+    private static final String COMMAND_SEPARATOR = ";";
 
     private static GameStage gs;
     //extract below from previous (?)
@@ -42,7 +46,37 @@ public class CommandLine {
     private static int playerId = -1;
     private static String playerISO2;
 
-    // how to less if else?
+    //
+    private static Map<String, EriScript> eriScripts;
+    //Make changeable in options (?)
+    private static String scriptsPath = GLogic.RESOURCESPATH + "scripts";
+
+    public static void loadEriScripts() {
+        eriScripts = new HashMap<>();
+        File filesPath = new File(scriptsPath);
+        if (!filesPath.exists() || !filesPath.isDirectory()) {
+            ErrorLog.logError("Error in file path.");
+            return;
+        }
+        File[] arrFiles = filesPath.listFiles();
+        if (arrFiles != null) {
+            for (File file : arrFiles) {
+                if (file.isFile() && (file.getName().endsWith(".erisc") || file.getName().endsWith(".eriscript"))) {
+                    try {
+                        String name = file.getName().substring(0, file.getName().lastIndexOf('.')).toUpperCase();
+                        String string = new String(Files.readAllBytes(file.toPath()));
+                        EriScript script = new EriScript(string);
+                        eriScripts.put(name, script);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } else {
+            ErrorLog.logError("No script files.");
+        }
+    }
+
     //throws exception ?
     public static int beginsWithISO2(String in) {
         int i = 0;
@@ -86,7 +120,7 @@ public class CommandLine {
             return result;// or other types of commands (separated)
         }
         String[] k = in.split("\\s+");
-        TESTING.print(shortName,k);
+        TESTING.print(shortName, k);
         int cIndex = CountryArray.getIndex(shortName);
 
         if (k.length < 2)
@@ -239,6 +273,10 @@ public class CommandLine {
                 if (k.length == 2)
                     gs.popupGlobeViewer(GUtils.parseI(k[1]));
                 break;
+            case "SCRIPT":
+                EriScript script = eriScripts.get(k[1]);
+                script.execute(2, k);
+                return script.toPrintClear();
             default:
                 return "Invalid command";
         }
@@ -247,7 +285,7 @@ public class CommandLine {
 
     public static String executeAllLines(String in) {
         StringBuilder result = new StringBuilder();
-        String[] commands = in.split(COMMANDSEPARATOR);//
+        String[] commands = in.split(COMMAND_SEPARATOR);//
         for (String command : commands) {
             // changeable separator
             result.append(execute(command)).append(System.lineSeparator());
@@ -256,8 +294,8 @@ public class CommandLine {
     }
 
     public static void executeAllNoResult(String in) {
-        if (in.contains(COMMANDSEPARATOR)) {
-            String[] commands = in.split(COMMANDSEPARATOR);
+        if (in.contains(COMMAND_SEPARATOR)) {
+            String[] commands = in.split(COMMAND_SEPARATOR);
             for (String command : commands) {
                 execute(command);
             }
@@ -361,7 +399,7 @@ public class CommandLine {
     }
 
     public static boolean checkStatementsAND(String in) {
-        String s[] = in.split(";");
+        String[] s = in.split(";");
         for (int i = 0; i < s.length; i++) {
             if (!checkStatement(s[i])) {
                 return false;
@@ -382,12 +420,17 @@ public class CommandLine {
     //Connect with EriScript like: (?)
     //game:get:alGDP:AL.eco.gdp
     //game.AL.eco.gdp+=alGDP*0.1
-    //
-    public static void getCountryValue(String c) {
+    //instanceof there
+    public static Object getCountryValue(String in) {
 
+        return null;
     }
 
-    public static void setCountryValue(String c) {
+    public static void setCountryValue(String in) {
+        //Some of above commands become redundant
+    }
 
+    public static void setCountryValue(String in, Object o) {
+        //Some of above commands become redundant
     }
 }

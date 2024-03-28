@@ -93,6 +93,7 @@ public class Country {
 
     public void yearlyTick(){
         incPopulation();
+        //incEconomy();
         gov.reduceOneYearFromPolicies();
     }
 

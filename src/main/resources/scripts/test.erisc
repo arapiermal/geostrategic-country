@@ -1,0 +1,9 @@
+params:a,b,c
+print:a=$a
+print:b=$b
+print:c=$c
+print:Extra args
+for:i:EXTRA
+print:$i
+.
+print:PROBLEM WHEN LESS THAN 3 PARAMS

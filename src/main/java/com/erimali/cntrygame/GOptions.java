@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 enum Settings {
-    FULLSCREEN, VOLUME, TRANSLATEGEVENT;
+    FULLSCREEN, VOLUME, CLI, TRANSLATEGEVENT;
 }
 
 public class GOptions {
@@ -17,7 +17,7 @@ public class GOptions {
     private static boolean fullScreen = false;
     private static double volume = 0.5;
     private static boolean translateGEvent = true;
-
+    private static boolean allowCLI = true;
     public static void loadGOptions() {
         try (BufferedReader br = new BufferedReader(new FileReader(DEF_SETTINGSPATH))) {
             Map<String, Integer> settings = new HashMap<>();
@@ -57,14 +57,17 @@ public class GOptions {
         //FULLSCREEN
         int fsval = settings.getOrDefault(Settings.FULLSCREEN.toString(), 0);
         fullScreen = fsval != 0;
-        int trGEvent = settings.getOrDefault(Settings.TRANSLATEGEVENT.toString(), 1);
-        translateGEvent = trGEvent != 0;
         volume = settings.getOrDefault(Settings.VOLUME.toString(), 50);
         if (volume < 0)
             volume = 0;
         else if (volume > 100)
             volume = 100;
         volume /= 100;
+        int enCLI = settings.getOrDefault(Settings.CLI.toString(), 1);
+        allowCLI = enCLI != 0;
+        int trGEvent = settings.getOrDefault(Settings.TRANSLATEGEVENT.toString(), 1);
+        translateGEvent = trGEvent != 0;
+
 
     }
 
@@ -75,11 +78,13 @@ public class GOptions {
 
     public static void saveToFile() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(DEF_SETTINGSPATH))) {
-            writer.write(Settings.FULLSCREEN.toString() + (fullScreen ? ":1" : ":0"));
+            writer.write(Settings.FULLSCREEN + (fullScreen ? ":1" : ":0"));
             writer.newLine();
-            writer.write(Settings.VOLUME.toString() + ":" + String.valueOf((int) (volume * 100)));
+            writer.write(Settings.VOLUME + ":" + (int) (volume * 100));
             writer.newLine();
-            writer.write(Settings.TRANSLATEGEVENT.toString() + (translateGEvent ? ":1" : ":0"));
+            writer.write(Settings.CLI + (allowCLI ? ":1" : ":0"));
+            writer.newLine();
+            writer.write(Settings.TRANSLATEGEVENT + (translateGEvent ? ":1" : ":0"));
             writer.newLine();
 
         } catch (IOException e) {
@@ -115,4 +120,11 @@ public class GOptions {
         GOptions.volume = (double) volume / 100;
     }
 
+    public static boolean isAllowCLI() {
+        return allowCLI;
+    }
+
+    public static void setAllowCLI(boolean allowCLI) {
+        GOptions.allowCLI = allowCLI;
+    }
 }

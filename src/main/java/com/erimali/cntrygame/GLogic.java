@@ -59,7 +59,7 @@ public class GLogic implements Serializable {
         startTimer(defaultIntervalInSeconds);
         this.world = new World();
         CommandLine.setCountries(world.getCountries());
-
+        CommandLine.loadEriScripts();
         this.gameEvents = loadGameEvents(DEF_GAMEEVENTSPATH);
         this.currencies = new Currencies();
 
