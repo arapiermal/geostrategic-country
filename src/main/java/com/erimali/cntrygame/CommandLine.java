@@ -104,6 +104,10 @@ public class CommandLine {
         if (in.startsWith("PARSE")) {
             return gs.getGame().parseTextCommand(in.substring(6));
         }
+        if(!GOptions.isAllowCLI()){
+            return "NOT ALLOWED (TURNED OFF IN OPTIONS)";
+        }
+
         String shortName;
 
         int endISO2 = beginsWithISO2(in);
