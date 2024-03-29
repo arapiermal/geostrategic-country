@@ -1,6 +1,7 @@
 Kosovo
 area:10887
 population:1964327
+popInc:0.06
 landlocked:false
 capital:Pristina
 infoElectronic:+383,.xk

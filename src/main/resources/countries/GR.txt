@@ -1,6 +1,7 @@
 Greece
 area:131957
 population:10413982
+popInc:-0.52
 landlocked:false
 capital:Athens
 infoElectronic:+30,.gr

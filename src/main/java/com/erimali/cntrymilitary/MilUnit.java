@@ -5,8 +5,8 @@ import com.erimali.cntrygame.TESTING;
 import java.io.Serializable;
 
 public abstract class MilUnit implements Serializable {
-    protected MilUnitData data;
-
+    protected transient MilUnitData data;
+    protected int dataId;
     private static int CURR_ID = 0;
     protected final int id;
     //////////////////////////////////////////////////////////////////////
@@ -22,11 +22,13 @@ public abstract class MilUnit implements Serializable {
 
     public MilUnit(MilUnitData data, int maxSize) {
         this.data = data;
+        this.dataId = data.getDataId();
         this.maxSize = maxSize;
         this.id = CURR_ID++;
         this.morale = 100;
 
     }
+
 
     //return double ?
     public int attack(MilUnit o) {

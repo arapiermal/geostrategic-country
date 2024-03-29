@@ -13,12 +13,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
 //move stuff related to country in military class
 public class MilDiv implements Serializable {
     protected static List<MilUnitData>[] unitTypes;
     protected static String DIR_UNIT_TYPES = "src/main/resources/data/units";
 
+    //call after loading save game
     public static void loadAllUnitData() {
+        //noinspection unchecked
         unitTypes = (List<MilUnitData>[]) new ArrayList[MilUnitData.MAX_TYPES];
         for (int i = 0; i < MilUnitData.MAX_TYPES; i++) {
             unitTypes[i] = new ArrayList<>();
@@ -30,7 +33,6 @@ public class MilDiv implements Serializable {
                 try {
                     MilUnitData d = new MilUnitData(entry.toString());
                     unitTypes[d.type].add(d);
-
                 } catch (Exception e) {
                     ErrorLog.logError(e);
                 }
@@ -40,6 +42,13 @@ public class MilDiv implements Serializable {
             }
         } catch (IOException e) {
             ErrorLog.logError(e);
+        }
+    }
+
+    public void correlateUnitData() {
+        int n = MilUnitData.MAX_TYPES;
+        for (MilUnit u : units) {
+            u.data = unitTypes[u.dataId / n].get(u.dataId % n);
         }
     }
 
@@ -78,18 +87,18 @@ public class MilDiv implements Serializable {
         MilUnit o = makeUnit(0, 0, 1000);
         u.incSize(1000);
         o.incSize(500);
-        while(u.attack(o) == 0){
-            TESTING.print(u.size + " " + u.morale,o.size + " " + o.morale);
+        while (u.attack(o) == 0) {
+            TESTING.print(u.size + " " + u.morale, o.size + " " + o.morale);
         }
     }
 
     /*
-    * 0 0 0 0 0 0
-    * 0 0 0 0 0 0
-    * vs
-    * 0 0 0 0 0 0
-    * 0 0 0
-    * make combinations 0 <-> 0
-    * */
+     * 0 0 0 0 0 0
+     * 0 0 0 0 0 0
+     * vs
+     * 0 0 0 0 0 0
+     * 0 0 0
+     * make combinations 0 <-> 0
+     * */
 
 }

@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.Serializable;
 import java.util.List;
 
-public class MilUnitData implements Comparable<MilUnitData> , Serializable {
+public class MilUnitData implements Comparable<MilUnitData> {
     private static final String[] TYPES = {"Soldiers", "Ground Vehicles", "Marines", "Water Vehicles",
             "Airborne forces", "Air Vehicles", "Space Vehicles", "Space soldiers"};
     protected static final int MAX_TYPES = 8;
@@ -89,11 +89,12 @@ public class MilUnitData implements Comparable<MilUnitData> , Serializable {
 
     @Override
     public int compareTo(MilUnitData o) {
-        int f1 = type * MAX_SUBTYPES + subtype;
-        int f2 = o.type * MAX_SUBTYPES + o.subtype;
-        return Integer.compare(f1, f2);
+        return Integer.compare(getDataId(), o.getDataId());
     }
 
+    public int getDataId() {
+        return type * MAX_SUBTYPES + subtype;
+    }
     @Override
     public String toString() {
         return this.name;

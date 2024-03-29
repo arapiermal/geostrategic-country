@@ -156,6 +156,7 @@ public class World implements Serializable {
             String name = br.readLine();
             double area = Double.parseDouble(getVal(br.readLine()));
             long population = Long.parseLong(getVal(br.readLine()));
+            double populationGrowthRate = Double.parseDouble(getVal(br.readLine()));
             boolean landlocked = Boolean.parseBoolean(getVal(br.readLine()));
             // Maybe City class
             String capital = getVal(br.readLine());
@@ -173,7 +174,7 @@ public class World implements Serializable {
             Economy economy = economyFromFile(br);
             br.readLine();
             Military military = militaryFromFile(br);
-            return new Country(name, population, area, landlocked, capital, infoElectronic, admDivisionType,
+            return new Country(name, area, population, populationGrowthRate, landlocked, capital, infoElectronic, admDivisionType,
                     admDivisions, languages, neighbours, government, economy, military);
         } catch (Exception e) {
             return null;

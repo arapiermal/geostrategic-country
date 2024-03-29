@@ -35,12 +35,13 @@ public class Country implements Serializable {
     // SOME COUNTRIES CAN START AS SUBJECTS OF OTHERS;
 
     // Constructors
-    public Country(String name, long population, double area, boolean landlocked, String capital,
+    public Country(String name, double area, long population, double populationIncrease, boolean landlocked, String capital,
                    String[] infoElectronic, String admDivisionType, List<AdmDiv> admDivisions, List<Short> languages,
                    Set<Integer> neighbours, Government gov, Economy economy, Military mil, Diplomacy dip) {
         this.name = name;
-        this.population = population;
         this.area = area;
+        this.population = population;
+        this.populationIncrease = populationIncrease;
         this.landlocked = landlocked;
         this.capital = capital;
         this.infoElectronic = infoElectronic;
@@ -58,12 +59,13 @@ public class Country implements Serializable {
         fixPopulation();
     }
 
-    public Country(String name, long population, double area, boolean landlocked, String capital,
+    public Country(String name, double area, long population, double populationIncrease, boolean landlocked, String capital,
                    String[] infoElectronic, String admDivisionType, List<AdmDiv> admDivisions, List<Short> languages,
                    String[] neighbours, Government gov, Economy economy, Military military) {
         this.name = name;
-        this.population = population;
         this.area = area;
+        this.population = population;
+        this.populationIncrease = populationIncrease;
         this.landlocked = landlocked;
         this.capital = capital;
         this.infoElectronic = infoElectronic;
@@ -92,7 +94,7 @@ public class Country implements Serializable {
         this.name = name;
     }
 
-    public void yearlyTick(){
+    public void yearlyTick() {
         incPopulation();
         //incEconomy();
         gov.reduceOneYearFromPolicies();
@@ -314,6 +316,7 @@ public class Country implements Serializable {
     public boolean isAllyWith(int c) {
         return dip.isAllyWith(c);
     }
+
     public boolean isAllyWith(short c) {
         return dip.isAllyWith(c);
     }
@@ -363,11 +366,13 @@ public class Country implements Serializable {
         CSubject cs = makeSubject(op, SubjectTypes.values()[type]);
         subjects.put(CountryArray.getIndex(op.getIso2()), cs);
     }
+
     public CSubject makeSubject(Country c, SubjectTypes type) {
         c.clearAlliesAndRivals();
         //gain their subjects?
         return new CSubject(this, c, type);
     }
+
     // WAR FOR INDEPENDENCE?!?
     public void releaseSubject(String iso2) {
         subjects.remove(iso2);
@@ -452,9 +457,11 @@ public class Country implements Serializable {
     public boolean hasSubject(String iso2) {
         return subjects.containsKey(CountryArray.getIndex(iso2));
     }
+
     public boolean hasSubject(int c) {
         return subjects.containsKey(c);
     }
+
     //Country c as input for more ?
     public boolean sendAllianceRequest(int c) {
         boolean goodRelations = false; //other reasons, why would AI accept
