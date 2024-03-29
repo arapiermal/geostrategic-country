@@ -6,7 +6,7 @@ import java.util.*;
 
 public class Country implements Serializable {
     // CONSTANTS
-    //
+    //private World world;
     private String name;
     private String iso2;
     private long population;

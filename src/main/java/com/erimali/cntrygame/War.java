@@ -5,6 +5,7 @@ import javafx.scene.control.ListView;
 
 
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -12,11 +13,18 @@ enum WarObjectives {
     //There can be partly annexation! cost cannot be a stuck value, what can be better
     ANNEX(100) {
         //flip flop warState, if negative but the opponent is player, make positive?
-        public void action(Country c1, Country c2, float warState, int... args) {
+        //2 cArr if different worlds (?!?!?)
+        //or should there be reference to world in each country ????
+        public void action(CountryArray cArr1, int ind1, CountryArray cArr2, int ind2, float warState, int... args) {
             //factors that effect?
+            Country c1 = cArr1.get(ind1);
+            Country c2 = cArr2.get(ind2);
             if (warState > this.getCost()) {
-                //c1.annexCountry(c2);
+                c1.annexCountry(cArr2, ind2);
             }
+        }
+        public void action(Country c1, Country c2, float warState, int... args) {
+            //c1.annexCountry(c2);
         }
     },
     //types???
@@ -63,12 +71,49 @@ enum WarObjectives {
 
 public class War implements Serializable {
     static class Battle implements Serializable{
-        MilDiv a, o;
+        int provId;
+        MilDiv a;
+        MilDiv o;
+        public Battle(int provId, MilDiv a, MilDiv o){
+            this.provId = provId;
+            this.a = a;
+            this.o = o;
+        }
         public int dayTick(){
             return a.attack(o);
         }
+
     }
     private List<Battle> activeBattles;
+    public void dayTick(){
+        for(Battle b : activeBattles){
+            int res = b.dayTick();
+            switch (res){
+                case -2:
+                    //Defeated
+                    warState -= 4;
+                    break;
+                case -1:
+                    warState -= 2;
+                    //Retreating
+                    break;
+                case 0:
+                    //The battle continues
+                    break;
+                case 1:
+                    //Opponent retreat
+                    warState += 2;
+                    break;
+                case 2:
+                    //Win
+                    warState += 4;
+                    break;
+            }
+            if(res != 0){
+                activeBattles.remove(b);
+            }
+        }
+    }
     // each country in war having warState?
     // if warState in disfavor, AI likely to accept terms
     private CasusBelli casusBelli; //enum? array? //loadable casus bellis?
@@ -78,6 +123,7 @@ public class War implements Serializable {
     private Country opposingCountry;
     private Set<Country> declaringAllies; //Which accepted to enter war
     private Set<Country> opposingAllies;
+    //if reference to Country inside military;
     //private Military declaringCountry;
     //private Military opposingCountry;
     //private Set<Military> declaringAllies;
@@ -85,17 +131,11 @@ public class War implements Serializable {
     private String warResult; //...
 
     public War(Country declaringCountry, Country opposingCountry, CasusBelli casusBelli) {
-        this.declaringCountry = declaringCountry;//.getMilitary();
-        this.opposingCountry = opposingCountry;//.getMilitary();
+        this.declaringCountry = declaringCountry;
+        this.opposingCountry = opposingCountry;
         this.casusBelli = casusBelli;
-    }
+        this.activeBattles = new LinkedList<>();
 
-    //Unify militaries
-    //!!!!!!!!!!! CLASH WITH MILITARY
-    public float executeBattle(Military declaringMil, Military opposingMil) {
-        float battleResult = 0;
-
-        return battleResult;
     }
 
     //or int... arg
@@ -107,13 +147,12 @@ public class War implements Serializable {
         }
     }
 
-
+//Not used
     public static ListView<CasusBelli> makeListViewCasusBelli(Country c1, Country c2) {
         ListView<CasusBelli> lv = new ListView<>();
         for (CasusBelli cb : CasusBelli.values()) {
             if (cb.isValid(c1, c2)) {
                 lv.getItems().add(cb);
-
             }
         }
         return lv;
