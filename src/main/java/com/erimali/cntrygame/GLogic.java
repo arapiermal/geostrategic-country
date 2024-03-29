@@ -172,7 +172,7 @@ public class GLogic implements Serializable {
         world.yearlyUpdate();
     }
     public String inGDateInfo() {
-        return this.inGDate.toString();
+        return inGDate.toString();
     }
 
     public String toStringCountry(int c) {

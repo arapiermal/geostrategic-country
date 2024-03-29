@@ -63,10 +63,10 @@ public class GameStage extends Stage {
         setTitle(Main.APP_NAME + " - Game");
         setOnCloseRequest(e -> close());
         this.selectedCountry = -1;
-        this.game = new GLogic(this);
         BorderPane gameLayout = createGameLayout();
         setWidth(1280);
         setHeight(720);
+        this.game = new GLogic(this);
 
         CommandLine.setGameStage(this);
 
@@ -86,20 +86,18 @@ public class GameStage extends Stage {
         // popupWebNews();
     }
 
+    //Load game
     public GameStage(GLogic game) {
         setTitle(Main.APP_NAME + " - Game");
         setOnCloseRequest(e -> close());
         this.selectedCountry = -1;
         game.setGameStage(this);
         game.startTimer();
-        game.pauseTimer();
-        
         this.game = game;
         BorderPane gameLayout = createGameLayout();
         updateGameLayout();
         setWidth(1280);
         setHeight(720);
-
 
 
         CommandLine.setGameStage(this);
@@ -111,9 +109,17 @@ public class GameStage extends Stage {
 
         this.setFullScreen(GOptions.isFullScreen());
     }
-    private void updateGameLayout(){
 
+    private void updateGameLayout() {
+        isPlayingCountry = game.getPlayerId() >= 0;
+        if (isPlayingCountry) {
+            countryName.setText(game.getPlayer().getName());
+            map.setPlayerCountry(game.getPlayerId());
+            chooseCountryButton.setVisible(false);
+            changeDate(game.inGDateInfo());
+        }
     }
+
     private BorderPane createGameLayout() {
         BorderPane gameLayout = new BorderPane();
         gameLayout.setPadding(new Insets(10));
@@ -202,7 +208,9 @@ public class GameStage extends Stage {
         saveStage = makeSaveStageOptions();
         return gameLayout;
     }
+
     private Stage saveStage;
+
     private Stage makeSaveStageOptions() {
         TextField saveTextField = new TextField();//game.getPlayerName() + "-" + date.getText()
         Button saveSubmit = new Button("Enter");
@@ -217,7 +225,7 @@ public class GameStage extends Stage {
                 if (!saveTextField.getText().isBlank()) {
                     try {
                         String save = saveTextField.getText();
-                        SaveGame.saveGame(save ,game);
+                        SaveGame.saveGame(save, game);
 
                         saveTextField.setText("");
                     } catch (Exception e) {
@@ -231,7 +239,7 @@ public class GameStage extends Stage {
             if (!saveTextField.getText().isBlank()) {
                 try {
                     String save = saveTextField.getText();
-                    SaveGame.saveGame(save ,game);
+                    SaveGame.saveGame(save, game);
                     saveTextField.setText("");
                 } catch (Exception e) {
                 }
