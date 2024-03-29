@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class TESTING {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 /*
 		
 		GDate d2 = g.specialDate("now/now/now");
@@ -16,26 +16,25 @@ public class TESTING {
 		String result = Language.uppercaseFirstCharacter(input);
 		System.out.println(result);
 		*/
-		//World w = new World();
-		//print(w.randLangName("Albanian:John"));
-		//print(BooleanSolver.solve(".prime(137)"));
-		
-		//EriSentence s = new EriSentence("abcd,,efg ?!?hij?!?");
-		//print(s.getWords());
+        //World w = new World();
+        //print(w.randLangName("Albanian:John"));
+        //print(BooleanSolver.solve(".prime(137)"));
+
+        //EriSentence s = new EriSentence("abcd,,efg ?!?hij?!?");
+        //print(s.getWords());
 
 
+    }
 
-	}
+    public static void print(Object... arg) {
+        if (arg.length == 0) {
+            System.out.println();
+        }
+        for (Object o : arg) {
+            System.out.println(o);
+        }
 
-	public static void print(Object... arg) {
-		if (arg.length == 0) {
-			System.out.println();
-		}
-		for (Object o : arg) {
-			System.out.println(o);
-		}
-		
-	}
+    }
 
 }
 

@@ -48,10 +48,14 @@ public class MilDiv implements Serializable {
     public void correlateUnitData() {
         int n = MilUnitData.MAX_TYPES;
         for (MilUnit u : units) {
-            u.data = unitTypes[u.dataId / n].get(u.dataId % n);
+            try {
+                u.data = unitTypes[u.dataId / n].get(u.dataId % n);
+            } catch(Exception e){
+                units.remove(u);
+            }
         }
     }
-
+    //Use in military for GUI
     public static List<MilUnitData> getUnitTypesList(int type) {
         return unitTypes[type];
     }
@@ -65,8 +69,25 @@ public class MilDiv implements Serializable {
         this.units = new LinkedList<>();
     }
 
-    public void attack() {
+    public MilDiv(String name, MilLeader leader) {
+        this.name = name;
+        this.leader = leader;
+        this.units = new LinkedList<>();
+    }
 
+    public int attack(MilDiv o) {
+        //take care when units is empty (?)
+        int n = Math.max(units.size() , o.units.size());
+        int i = 0;
+        int a1 = 0, a2 = 0;
+        int res = 0;
+        while(i < n  && res == 0){
+            res = units.get(a1++).attack(o.units.get(a2++));
+            a1 %= units.size();
+            a2 %= o.units.size();
+            i++;
+        }
+        return res;
     }
 
     public static MilUnit makeUnit(int type, int index, int maxSize) {

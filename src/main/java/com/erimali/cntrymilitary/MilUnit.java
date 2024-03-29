@@ -86,7 +86,7 @@ public abstract class MilUnit implements Serializable {
 
     public boolean stillStanding() {
         //if size > 0 BUT morale <= 0, army can surrender or retreat (if it can do the later)
-        return this.size > 0 && this.morale > 0;
+        return size > 0 && morale > 0;
     }
 
     public int incSize(int value) {

@@ -14,5 +14,6 @@ module com.erimali.cntrygame {
     exports com.erimali.cntrygame;
     exports com.erimali.cntrymilitary;
     exports com.erimali.minigames;
+    exports com.erimali.compute;
 
 }

@@ -1,9 +1,11 @@
 package com.erimali.cntrygame;
 
+import com.erimali.cntrymilitary.MilDiv;
 import javafx.scene.control.ListView;
 
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 enum WarObjectives {
@@ -60,6 +62,13 @@ enum WarObjectives {
 
 
 public class War implements Serializable {
+    static class Battle implements Serializable{
+        MilDiv a, o;
+        public int dayTick(){
+            return a.attack(o);
+        }
+    }
+    private List<Battle> activeBattles;
     // each country in war having warState?
     // if warState in disfavor, AI likely to accept terms
     private CasusBelli casusBelli; //enum? array? //loadable casus bellis?

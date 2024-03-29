@@ -6,26 +6,6 @@ public class MilSoldiers extends MilUnit {
         super(data, maxSize);
     }
 
-    public int recruitOld(int recruitSize) {
-        if (this.lvl > 1) {
-            //!!!!!!!!!!!!!!!!!
-            return recruitSize;
-            //substract xp until 0 ?!? as counterbalance?!?
-            // if taking twice for lvl 2 while recruit
-            //or take longer to train
-            //lvl 2 divide by 2?!?
-        }
-        this.size += recruitSize;
-
-        //take care of max Size
-        if (this.size > this.maxSize) {
-            int extraManpower = this.size - this.maxSize;
-            this.size = this.maxSize;
-            return extraManpower;
-        }
-        return 0;
-    }
-
     public int recruit(int amount) {
         size += amount / lvl;
         if (size > maxSize) {
