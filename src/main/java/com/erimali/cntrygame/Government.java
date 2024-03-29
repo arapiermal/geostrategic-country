@@ -1,9 +1,10 @@
 package com.erimali.cntrygame;
 
+import java.io.Serializable;
 import java.util.EnumMap;
 import java.util.Map;
 
-public class Government {
+public class Government implements Serializable {
     //private static GovTypes; // load from file?
     //improve type?
     private String type;

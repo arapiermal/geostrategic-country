@@ -2,14 +2,12 @@ package com.erimali.cntrygame;
 
 import com.erimali.compute.EriScriptGUI;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -24,15 +22,20 @@ public class Main extends Application {
     protected static final String APP_NAME = "Strategical Geopolitics Simulator";
     private Stage primaryStage;
     private Stage gameStage;
-
+    private GLogic loadGame;
     @Override
     public void start(Stage primaryStage) {
         GOptions.loadGOptions();
+        SaveGame.loadSaveGamePaths();
+
         this.primaryStage = primaryStage;
+
         //primaryStage.initStyle(StageStyle.UNDECORATED); //Removes borders
         primaryStage.setTitle(APP_NAME + " - Main Menu");
 
-        Button startButton = createButton("Start Game", this::startGame);
+        Button startButton = createButton("New Game", this::startGame);
+        Button loadButton = createButton("Load Game", this::loadGame);
+
         Button optionsButton = createButton("Options", this::openOptions);
         Button exitButton = createButton("Exit", this::exitApplication);
         Text extraContent = new Text("Extra content");
@@ -41,7 +44,7 @@ public class Main extends Application {
         Button esGUI = createButton("EriScript GUI", this::openEriScriptGUI);
         Button discl = createButton("Disclaimer", this::openDisclaimer);
 
-        VBox menuLayout = createMenuLayout(startButton, optionsButton, exitButton, extraContent, esGUI, discl);
+        VBox menuLayout = createMenuLayout(startButton, loadButton, optionsButton, exitButton, extraContent, esGUI, discl);
 
 
         BorderPane root = createRootContainer(menuLayout);
@@ -98,8 +101,7 @@ public class Main extends Application {
         if (gameStage == null) {
             gameStage = new GameStage();
         }
-        primaryStage.close(); // Close the first stage
-
+        primaryStage.close();
         gameStage.show();
     }
 
@@ -187,5 +189,34 @@ public class Main extends Application {
     private void openEriScriptGUI() {
         Stage eriScriptGUI = new EriScriptGUI();
         eriScriptGUI.show();
+    }
+
+    public void loadGame(){
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Load save-game");
+        ListView<String> listView = new ListView<>(SaveGame.saves);
+        dialog.getDialogPane().setContent(listView);
+
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        final Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        okButton.addEventFilter(
+                ActionEvent.ACTION,
+                event -> {
+                    String save = listView.getSelectionModel().getSelectedItem();
+                    if (save == null) {
+                        dialog.setHeaderText("Pick a save-game");
+                        event.consume();
+                    } else {
+                        GLogic loadGame = SaveGame.loadGame(save);
+                        if (gameStage == null && loadGame != null) {
+                            gameStage = new GameStage(loadGame);
+                            primaryStage.close();
+                            gameStage.show();
+                        }
+                    }
+                }
+        );
+
+        dialog.showAndWait();
     }
 }

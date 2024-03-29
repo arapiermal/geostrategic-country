@@ -60,19 +60,19 @@ public class GameStage extends Stage {
     private Button sendAllianceRequest;
 
     public GameStage() {
-        setTitle(Main.APP_NAME + " - Game Window");
+        setTitle(Main.APP_NAME + " - Game");
         setOnCloseRequest(e -> close());
         this.selectedCountry = -1;
         BorderPane gameLayout = createGameLayout();
         setWidth(1280);
         setHeight(720);
-        setGame(new GLogic(this));
-        CommandLine.setGs(this);
+        this.game = new GLogic(this);
+        CommandLine.setGameStage(this);
 
         Scene gameScene = new Scene(gameLayout);
         setScene(gameScene);
         gameScene.getStylesheets().add(getClass().getResource("css/gameStage.css").toExternalForm());
-        //There can be problems when loading savegame
+        //Initiate
         game.getWorld().initiateProvinces(map.getMapSVG());
 
         this.setFullScreen(GOptions.isFullScreen());
@@ -85,18 +85,39 @@ public class GameStage extends Stage {
         // popupWebNews();
     }
 
+    public GameStage(GLogic game) {
+        setTitle(Main.APP_NAME + " - Game");
+        setOnCloseRequest(e -> close());
+        this.selectedCountry = -1;
+        BorderPane gameLayout = createGameLayout();
+        setWidth(1280);
+        setHeight(720);
+        game.setGameStage(this);
+        game.startTimer();
+
+        this.game = game;
+
+        CommandLine.setGameStage(this);
+        Scene gameScene = new Scene(gameLayout);
+        setScene(gameScene);
+        gameScene.getStylesheets().add(getClass().getResource("css/gameStage.css").toExternalForm());
+        //Correlate
+        game.getWorld().correlateProvinces(map.getMapSVG());
+
+        this.setFullScreen(GOptions.isFullScreen());
+    }
+
     private BorderPane createGameLayout() {
         BorderPane gameLayout = new BorderPane();
         gameLayout.setPadding(new Insets(10));
-        // Customize the game layout
         // TOP
         gameLayout.setCenter(new BorderPane());
-        setCountryName(new Label("Select Country"));
-        setDate(new Label("Default Date"));
-        setPause(new Button("Pause"));
+        this.countryName = new Label("Select Country");
+        this.date = new Label("Default Date");
+        this.pause = new Button("Pause");
         isPaused = true;
-        getPause().setOnAction(e -> pausePlayDate());
-        setPausation(new Label("Paused"));
+        this.pause.setOnAction(e -> pausePlayDate());
+        this.pausation = new Label("Paused");
 
         chooseCountryButton = new Button("Confirm");
         chooseCountryButton.setOnAction(e -> startGame());
@@ -157,21 +178,71 @@ public class GameStage extends Stage {
 
         gameLayout.setOnKeyPressed(event -> {
             // ` -> commandLine
-            if (event.getCode() == KeyCode.BACK_QUOTE) {
-                if (commandLineStage.isShowing()) {
-                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    // REDUNDANT?????????????????????????????
-                    commandLineStage.hide();
-                } else {
+            switch (event.getCode()) {
+                case KeyCode.BACK_QUOTE:
                     commandLineStage.show();
                     commandLineStage.requestFocus();
-                }
+                    break;
+                case KeyCode.ESCAPE:
+                    showGameStageOptions();
+                    saveStage.show();
+                    saveStage.requestFocus();
+                    break;
             }
         });
 
         commandLineStage = makeCommandLineStage();
-
+        saveStage = makeSaveStageOptions();
         return gameLayout;
+    }
+    private Stage saveStage;
+    private Stage makeSaveStageOptions() {
+        TextField saveTextField = new TextField();//game.getPlayerName() + "-" + date.getText()
+        Button saveSubmit = new Button("Enter");
+        saveTextField.setPrefWidth(240);
+        saveSubmit.setPrefWidth(60);
+        HBox hBox = new HBox(saveTextField, saveSubmit);
+        ListView<String> listView = new ListView<>(SaveGame.saves);
+        VBox vBox = new VBox(listView, hBox); //add listview
+
+        saveTextField.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                if (!saveTextField.getText().isBlank()) {
+                    try {
+                        String save = saveTextField.getText();
+                        SaveGame.saveGame(save ,game);
+
+                        saveTextField.setText("");
+                    } catch (Exception e) {
+                    }
+                }
+            } else if (event.getCode() == KeyCode.ESCAPE) {
+                saveStage.hide();
+            }
+        });
+        saveSubmit.setOnAction(event -> {
+            if (!saveTextField.getText().isBlank()) {
+                try {
+                    String save = saveTextField.getText();
+                    SaveGame.saveGame(save ,game);
+                    saveTextField.setText("");
+                } catch (Exception e) {
+                }
+            }
+        });
+        saveTextField.setPromptText("Save-game name");
+
+        Stage stage = new Stage();
+        stage.setTitle("Save-game");
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initOwner(this);
+        stage.initStyle(StageStyle.UTILITY);
+        stage.setScene(new Scene(vBox));
+        return stage;
+    }
+
+    private void showGameStageOptions() {
+
     }
 
     private void initVBoxLeftOptions() {
@@ -188,9 +259,8 @@ public class GameStage extends Stage {
     }
 
 
-
     private Stage makeCommandLineStage() {
-        // Autocomplete for already entered commands (?)
+        // Autocomplete for already entered commands (?) !ControlsFX!
         TextField commandLine = new TextField();
         Button commandSubmit = new Button("Enter");
         commandLine.setPrefWidth(240);
@@ -259,7 +329,7 @@ public class GameStage extends Stage {
         sponsorRebels.setOnAction(e -> sponsorRebels());
         declareWar.getStyleClass().add("sponsor-rebels-button");
 
-        VBox vboxWar = new VBox(optionsWar, declareWar,sponsorRebels);
+        VBox vboxWar = new VBox(optionsWar, declareWar, sponsorRebels);
 
         Label preInfoRelations = new Label("Relations ");
         infoRelations = new Label();
@@ -295,6 +365,7 @@ public class GameStage extends Stage {
         Button investInProv = new Button("Invest");
         return new VBox(raiseFunds, investInProv);
     }
+
     private VBox makeVBoxOtherProvOptions() {
         VBox vBox = new VBox();
         return vBox;
@@ -311,6 +382,7 @@ public class GameStage extends Stage {
 
     public void sendDonation() {
         // selected country -> treasury += input
+        //max should be governmentBudget (not spent) / 40
         Double result = showNumberInputDialog(10000000);
         //game.getPlayer().getEconomy().getGDP()/10
         if (result != null) {
@@ -452,18 +524,20 @@ public class GameStage extends Stage {
     public void setGame(GLogic game) {
         this.game = game;
     }
-    public void changeLeftVBoxes(int i){
-        if(prevLeftVBoxInd == i)
+
+    public void changeLeftVBoxes(int i) {
+        if (prevLeftVBoxInd == i)
             return;
         prevLeftVBoxInd = i;
         leftGeneral.getChildren().set(1, countryOptTypes[i]);
         leftGeneral.getChildren().set(3, provOptTypes[i]);
     }
+
     //make more efficient
     public void changeSelectedCountryInfo() {
         selectedCountryInfo.setText(game.toStringCountry(selectedCountry));
         Country selC = game.getWorld().getCountry(selectedCountry);
-        if(selC == null)
+        if (selC == null)
             return;
         if (isPlayingCountry) {
             if (selectedCountry == game.getPlayerId()) {
@@ -471,7 +545,7 @@ public class GameStage extends Stage {
                 changeLeftVBoxes(0);
 
             } else {
-                if(game.isSubjectOfPlayer(selectedCountry)){
+                if (game.isSubjectOfPlayer(selectedCountry)) {
                     //Most stuff are same/similar...
                     //changeLeftVBoxes(2); save for extra beyond regular here
 
@@ -502,7 +576,8 @@ public class GameStage extends Stage {
             infoRelations.setText(game.getRelationsWith(CountryArray.getIndexISO2(selectedCountry)));
         }
     }
-    public void sponsorRebels(){
+
+    public void sponsorRebels() {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Sponsor rebels");
 
@@ -519,8 +594,8 @@ public class GameStage extends Stage {
                         dialog.setHeaderText("Pick a rebel type.");
                         event.consume();
                     } else {
-                        Double money = showNumberInputDialog(1000,1000000);
-                        if(money == null){
+                        Double money = showNumberInputDialog(1000, 1000000);
+                        if (money == null) {
                             dialog.setHeaderText("Money is a number!");
                             event.consume();
                         }
@@ -535,6 +610,7 @@ public class GameStage extends Stage {
 
         dialog.showAndWait();
     }
+
     // MiniGame
     public void showPopupMGTicTacToe(boolean playerTurn, int difficultyAI) {
         // Create a new stage for the popup

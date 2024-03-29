@@ -1,15 +1,16 @@
 package com.erimali.cntrygame;
 
+import java.io.Serializable;
 import java.util.EnumSet;
 
 //DIJKSTRA TO TRAVERSE?????
 //int terrain; int timeToTraverse;
 //AdmDiv[] neighbours;
 //Adjacency matrix?
-public class AdmDiv {
+public class AdmDiv implements Serializable {
     // County,district,...
-    private SVGProvince svgProvince;
-
+    //private transient SVGProvince svgProvince; //if made transient it isn't saved / serialized
+    private int provId, ownerId; //Correlate with provinces
     private String name;
     private String nativeName; // Durrës vs Durres ?
 
@@ -17,10 +18,8 @@ public class AdmDiv {
     private int population;
     private short mainLanguage; // + culture?
 
-    private short separatism; //separationism separatism
+    private byte[] rebellion; //types: separatism, autonomy,...
     EnumSet<Building> buildings;
-    //SEPARATIONIST SENTIMENT
-    // Subdivisions?
 
     //private short[] claimedBy; (previous owners) ...
     //
@@ -61,7 +60,7 @@ public class AdmDiv {
     }
 
     public void subtractPopulation(int pop) {
-        if(pop > 0)
+        if (pop > 0)
             return;
         this.population -= pop;
         if (this.population < 0)
@@ -74,19 +73,22 @@ public class AdmDiv {
         return pop;
     }
 
-    public boolean hasBuilding(Building b){
+    public boolean hasBuilding(Building b) {
         return buildings.contains(b);
     }
 
-    public void buildBuilding(Building b){
+    public void buildBuilding(Building b) {
         buildings.add(b);
     }
-    public void demolishBuilding(Building b){
+
+    public void demolishBuilding(Building b) {
         buildings.remove(b);
     }
-    public EnumSet<Building> getBuildings(){
+
+    public EnumSet<Building> getBuildings() {
         return buildings;
     }
+
     public String getName() {
         return name;
     }
@@ -112,23 +114,19 @@ public class AdmDiv {
     }
 
     public int getProvId() {
-        return svgProvince.getProvId();
+        return provId;
+    }
+
+    public void setProvId(int provId) {
+        this.provId = provId;
     }
 
     public int getOwnerId() {
-        return svgProvince.getOwnerId();
+        return ownerId;
     }
 
-    public void setOwnerId(int id) {
-        svgProvince.setOwnerId(id);
-    }
-
-    public SVGProvince getSvgProvince() {
-        return svgProvince;
-    }
-
-    public void setSvgProvince(SVGProvince svgProvince) {
-        this.svgProvince = svgProvince;
+    public void setOwnerId(int ownerId) {
+        this.ownerId = ownerId;
     }
 
     public short getMainLanguage() {
@@ -139,5 +137,9 @@ public class AdmDiv {
         this.mainLanguage = mainLanguage;
     }
 
+    public void setFromSVGProvince(SVGProvince svg){
+        this.provId = svg.getProvId();
+        this.ownerId = svg.getOwnerId();
+    }
 
 }

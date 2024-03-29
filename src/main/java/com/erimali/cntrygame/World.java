@@ -1,16 +1,13 @@
 package com.erimali.cntrygame;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-public class World {
+public class World implements Serializable {
     private String name;
     private double totalLandArea;
     private static final String ENDDELIMITER = Syntax.END.getName();
@@ -77,7 +74,13 @@ public class World {
             ErrorLog.logError(e);
         }
     }
-
+    public void correlateProvinces(SVGProvince[] wmProvinces){
+        for(Country c : countries){
+            for(AdmDiv admDiv : c.getAdmDivs()){
+                wmProvinces[admDiv.getProvId()].setOwnerId(admDiv.getOwnerId());
+            }
+        }
+    }
     public void initiateProvinces(SVGProvince[] wmProvinces) {
         provinces = new AdmDiv[wmProvinces.length];
         //set after loading data for provinces in individual countries and after WorldMap
@@ -89,8 +92,10 @@ public class World {
                     continue;
                 for (AdmDiv a : countryAdmDivs) {
                     if (wmProvinces[i].getId().equalsIgnoreCase(a.getName())) {
-                        a.setSvgProvince(wmProvinces[i]);
+                        //CHANGED!!!
+                        a.setFromSVGProvince(wmProvinces[i]);
                         provinces[i] = a;
+
                         //TESTING.print(provinces[i],i);
                         //or opposite can be done (making array in World class unnecessary)
                         // AdmDiv inside SVGProvince?!?

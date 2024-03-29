@@ -1,9 +1,22 @@
 package com.erimali.cntrygame;
 
+import java.io.Serializable;
 import java.util.*;
+enum DipOpinions{
+    //Can they be put in one ?
+    DECLARED_WAR_ON_US,
+    DECLARED_WAR_ON_NEIGHBOUR,
+    DECLARED_WAR_ON_ALLY,
+    DECLARED_WAR_ON_RIVAL,
+    IMPROVED_RELATIONS,
+    SEND_GIFT,
 
+    //private Map<DipOpinions, Short> opinions;
+    //private Map<DipOpinions, Short>[] opinions;
+
+}
 //!!!!!!!!!!!!!!!!!!!!
-public class Diplomacy {
+public class Diplomacy implements Serializable {
     //private Country main;
     private static final short DEF_IMPROVE_RELATIONS_SIZE = 10;
     private int diplomaticStatus;

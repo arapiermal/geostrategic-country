@@ -3,6 +3,7 @@ package com.erimali.cntrygame;
 import javafx.scene.control.ListView;
 
 
+import java.io.Serializable;
 import java.util.Set;
 
 enum WarObjectives {
@@ -58,7 +59,7 @@ enum WarObjectives {
 }
 
 
-public class War {
+public class War implements Serializable {
     // each country in war having warState?
     // if warState in disfavor, AI likely to accept terms
     private CasusBelli casusBelli; //enum? array? //loadable casus bellis?

@@ -1,6 +1,8 @@
 package com.erimali.cntrygame;
 
-public class Person {
+import java.io.Serializable;
+
+public class Person implements Serializable {
 	private String firstName;
 	private String middleName;
 	private String lastName;

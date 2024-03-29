@@ -1,8 +1,9 @@
 package com.erimali.cntrygame;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class CountryArray implements Iterable<Country>{
+public class CountryArray implements Iterable<Country>, Serializable {
     protected static final int maxISO2Countries = 26 * 26;
     private final Set<String> countriesISO2;
     private final Country[] countries;

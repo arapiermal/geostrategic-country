@@ -1,8 +1,9 @@
 package com.erimali.cntrygame;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Economy {
+public class Economy implements Serializable {
 	// TRADE??
 	private String currency;// USD, EUR, ALL,...
 	private String currencyLongName;

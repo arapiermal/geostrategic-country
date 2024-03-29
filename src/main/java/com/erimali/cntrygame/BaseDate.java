@@ -1,9 +1,10 @@
 package com.erimali.cntrygame;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-public class BaseDate implements Comparable<BaseDate> {
+public class BaseDate implements Comparable<BaseDate>, Serializable {
 
 	protected int day, month, year;
 

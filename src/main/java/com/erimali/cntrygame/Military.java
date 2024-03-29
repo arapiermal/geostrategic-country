@@ -1,5 +1,6 @@
 package com.erimali.cntrygame;
 
+import java.io.Serializable;
 import java.util.*;
 
 import com.erimali.cntrymilitary.MilDiv;
@@ -17,7 +18,7 @@ class MilImg {
     // airplane symbol
 }
 
-public class Military {
+public class Military implements Serializable {
     //named divisions (?)
     private long manpower;
     private int milTechLevel;

@@ -5,6 +5,7 @@ import com.erimali.cntrygame.GLogic;
 import com.erimali.cntrygame.TESTING;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,7 +15,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 //move stuff related to country in military class
-public class MilDiv {
+public class MilDiv implements Serializable {
     protected static List<MilUnitData>[] unitTypes;
     protected static String DIR_UNIT_TYPES = "src/main/resources/data/units";
 
@@ -74,11 +75,11 @@ public class MilDiv {
     public static void main(String[] args) {
         loadAllUnitData();
 
-        MilUnit u = makeUnit(0, 0, 2000);
+        MilUnit u = makeUnit(0, 0, 1000);
         MilUnit o = makeUnit(0, 0, 1000);
-        u.incSize(1400); // DEPENDENT UPON RATION atk:def , 2:1 ratio -> near certain loss
+        u.incSize(1000); // DEPENDENT UPON RATION atk:def , 2:1 ratio -> near certain loss
         //UNPENETRATABLE DEFENSE !, maybe make defense to divide the attack and health somewhat different ?
-        o.incSize(700);
+        o.incSize(500);
         TESTING.print(u.attack(o));
 
         TESTING.print(u.size + " " + u.morale,o.size + " " + o.morale);

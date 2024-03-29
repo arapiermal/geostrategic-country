@@ -325,11 +325,11 @@ public class CommandLine {
         CommandLine.playerId = playerId;
     }
 
-    public static GameStage getGs() {
+    public static GameStage getGameStage() {
         return gs;
     }
 
-    public static void setGs(GameStage gs) {
+    public static void setGameStage(GameStage gs) {
         CommandLine.gs = gs;
     }
 

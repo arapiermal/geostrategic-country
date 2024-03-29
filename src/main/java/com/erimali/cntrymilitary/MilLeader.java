@@ -2,6 +2,9 @@ package com.erimali.cntrymilitary;
 
 import com.erimali.cntrygame.Person;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 enum MilLeaderType {
     CAPTAIN("Captain"),
     COLONEL("Colonel"),
@@ -19,7 +22,7 @@ enum MilLeaderType {
     }
 }
 
-public class MilLeader extends Person {
+public class MilLeader extends Person implements Serializable {
     private MilLeaderType type;
 
     public MilLeader(String input, String type) {

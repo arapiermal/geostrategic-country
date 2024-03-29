@@ -1,6 +1,7 @@
 package com.erimali.cntrygame;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -8,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 //For big news -> WW3
-public class GNews {
+public class GNews implements Serializable {
 	private static final String SEPARATOR = "~~~";
 	//copy paste on new game?
 	private static final String DEFLOCATION = "resources/web/articles.txt";

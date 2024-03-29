@@ -1,5 +1,7 @@
 package com.erimali.cntrygame;
 
+import java.io.Serializable;
+
 enum Events {
 	WORLD_CUP {
 		@Override
@@ -25,7 +27,7 @@ enum Events {
 	public abstract void performEvent();
 }
 
-public class GEvent implements Comparable<GEvent> {
+public class GEvent implements Comparable<GEvent> , Serializable {
 	private String title;
 	private GDate date;
 	private String requirements; // not necessary for all, fix;

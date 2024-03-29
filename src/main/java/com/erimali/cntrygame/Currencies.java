@@ -1,12 +1,13 @@
 package com.erimali.cntrygame;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class Currencies {
+public class Currencies implements Serializable {
 	private static final String DEFAULT_CURR_LOC = "src/main/resources/data/";
 	private Map<String, Double> unitsPerXAU;
 	private String mainCurrency = "USD";

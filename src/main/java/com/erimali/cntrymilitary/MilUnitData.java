@@ -2,9 +2,10 @@ package com.erimali.cntrymilitary;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.Serializable;
 import java.util.List;
 
-public class MilUnitData implements Comparable<MilUnitData> {
+public class MilUnitData implements Comparable<MilUnitData> , Serializable {
     private static final String[] TYPES = {"Soldiers", "Ground Vehicles", "Marines", "Water Vehicles",
             "Airborne forces", "Air Vehicles", "Space Vehicles", "Space soldiers"};
     protected static final int MAX_TYPES = 8;

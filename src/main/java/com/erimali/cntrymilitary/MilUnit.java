@@ -1,6 +1,10 @@
 package com.erimali.cntrymilitary;
 
-public abstract class MilUnit {
+import com.erimali.cntrygame.TESTING;
+
+import java.io.Serializable;
+
+public abstract class MilUnit implements Serializable {
     protected MilUnitData data;
 
     private static int CURR_ID = 0;
@@ -32,7 +36,7 @@ public abstract class MilUnit {
         if (dmg1 > 0) {
             int prevSize = o.size;
             o.size -= (int) (dmg1 / (o.data.hp * 4)) + 1;
-            o.morale -= (double) (prevSize - o.size) / prevSize * 100;
+            o.morale -= (float) (prevSize - o.size) / prevSize * 100;
 
             if (o.size <= 0) {
                 o.size = 0;
@@ -44,7 +48,7 @@ public abstract class MilUnit {
         if (dmg2 > 0) {
             int prevSize = this.size;
             this.size -= (int) (dmg2 / (this.data.hp * 4)) + 1;
-            this.morale -= (double) (prevSize - this.size) / prevSize * 100;
+            this.morale -= (float) (prevSize - this.size) / prevSize * 100;
             if (this.size <= 0) {
                 this.size = 0;
                 return -2;
@@ -56,11 +60,21 @@ public abstract class MilUnit {
 
     }
 
-    public static double dmgCalc(MilUnit a, MilUnit o) {
+    public static double dmgCalcOld(MilUnit a, MilUnit o) {
         double mATK = a.data.atk[o.data.type] * a.size * Math.sqrt(a.lvl + a.data.speed) * (0.5 + a.morale / 100) + a.xp;
         mATK += mATK * Math.random();
         double oDEF = o.data.def[a.data.type] * o.size * Math.sqrt(o.lvl + o.data.speed) * (0.5 + o.morale / 100) + o.xp;
         return mATK - oDEF;
+    }
+
+    public static double dmgCalc(MilUnit a, MilUnit o) {
+        //a.size being twice gives too much buff
+        double ATK = a.size * (((double) a.size / o.size) * ((double) ( a.data.atk[o.data.type] / o.data.def[a.data.type]))
+                * Math.sqrt((double) (a.lvl + 1) / (o.lvl + 1)  + (a.data.speed - o.data.speed))
+                * Math.sqrt((1 + a.morale / o.morale) + (a.xp - o.xp)));
+        TESTING.print(ATK);
+        ATK += ATK * Math.random();
+        return ATK;
     }
 
     public void attackAll(MilUnit... opponents) {

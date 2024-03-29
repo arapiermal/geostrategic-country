@@ -1,9 +1,10 @@
 package com.erimali.cntrygame;
 
 import javax.security.auth.Subject;
+import java.io.Serializable;
 import java.util.*;
 
-public class Country {
+public class Country implements Serializable {
     // CONSTANTS
     //
     private String name;

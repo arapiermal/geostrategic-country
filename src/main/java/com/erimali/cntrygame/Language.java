@@ -2,13 +2,14 @@ package com.erimali.cntrygame;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.Serializable;
 import java.util.*;
 
 enum Phrases {
     YES, NO, ALWAYS, USUALLY, SOMETIMES, NEVER, HELLO, HI, WELCOME, THANKS, HELP, CERTAINLY, SIR, MADAM, PROVOCATION;
 }
 
-public class Language implements Comparable<Language> {
+public class Language implements Comparable<Language>, Serializable {
 
     private static final String DEFLANGPATH = GLogic.RESOURCESPATH + "countries/languages/";
     // maybe synchronize, ENG to ALB

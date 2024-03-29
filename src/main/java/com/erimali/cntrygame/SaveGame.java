@@ -1,49 +1,72 @@
 package com.erimali.cntrygame;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.ListView;
+
+import java.io.*;
 
 public class SaveGame {
-	//does every subclass need serializable!??!?!
-	public static String saveGamePath = "saveGames/";
+    //does every class/object inside need serializable!??!?!
+    protected static String saveGamePath = "saveGames/";
+    protected static final String saveExtension = ".save";
+    protected static final ObservableList<String> saves = FXCollections.observableArrayList();
 
-	public static void saveGame(String name, GLogic g) {
+    public static void saveGame(String name, GLogic g) {
+        try {
+            if (name.indexOf('.') < 0) {
+                name += saveExtension;
+            }
+            FileOutputStream fileOut = new FileOutputStream(saveGamePath + name);
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(g);
+            out.close();
+            fileOut.close();
+            if (!saves.contains(name)) {
+                saves.add(name);
+            }
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+    }
 
-		try {
-			FileOutputStream fileOut = new FileOutputStream(saveGamePath + name + ".ser");
-			// we create the file that accepts byte stream
-			ObjectOutputStream out = new ObjectOutputStream(fileOut);
-			out.writeObject(g);
-			// we convert the object to byte stream and write these byte streams to the file
-			out.close();
-			fileOut.close();
+    public static GLogic loadGame(String name) {
+        try {
+            if (name.indexOf('.') < 0)
+                name += saveExtension;
+            FileInputStream fileIn = new FileInputStream(saveGamePath + name);
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            GLogic g = (GLogic) in.readObject();
+            in.close();
+            fileIn.close();
+            return g;
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+            return null;
+        } catch (ClassNotFoundException c) {
+            c.printStackTrace();
+            return null;
+        }
+    }
 
-		} catch (IOException i) {
-			i.printStackTrace();
-		}
-	}
+    public static void loadSaveGamePaths() {
+        try {
+            File directory = new File(saveGamePath);
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    if (f.isFile() && f.getName().endsWith(saveExtension)) {
+                        saves.add(f.getName());
+                    }
+                }
+            }
+        } catch (Exception e) {
 
-	public static GLogic loadGame(String name) {
-		try {
-			FileInputStream fileIn = new FileInputStream(saveGamePath + name + ".ser");
-			// we access the file to read byte stream
-			ObjectInputStream in = new ObjectInputStream(fileIn);
-			GLogic g = (GLogic) in.readObject();
-			// we convert byte stream into real Object of the type GLogic. We need to
-			// downcast to GLogic because the method readObject() return an Object type
-			in.close();
-			fileIn.close();
-			return g;
-		} catch (IOException i) {
-			i.printStackTrace();
-			return null;
-		} catch (ClassNotFoundException c) {
-			System.out.println("GLogic class not found");
-			c.printStackTrace();
-			return null;
-		}
-	}
+        }
+    }
+
 }

@@ -12,12 +12,17 @@ import javafx.util.Duration;
 
 public class GLogic implements Serializable {
     protected static final String RESOURCESPATH = "src/main/resources/";
-    private GameStage gs; // take reference
+
+    public void setGameStage(GameStage gs) {
+        this.gs = gs;
+    }
+
+    private transient GameStage gs; // take reference
     // get selected country from gs?
 
-    private Timeline timeline;
-    private KeyFrame keyframe;
-    private Duration interval;
+    private transient Timeline timeline;
+    private transient KeyFrame keyframe;
+    private transient Duration interval;
     private static final double minIntervalInSeconds = 0.25;
     private static final double defaultIntervalInSeconds = 1;
     private static final double maxIntervalInSeconds = 4;
@@ -75,7 +80,9 @@ public class GLogic implements Serializable {
         this.gameEvents = loadGameEvents(DEF_GAMEEVENTSPATH);
 
     }
-
+    public void startTimer(){
+        startTimer(defaultIntervalInSeconds);
+    }
     public void startTimer(double intervalInSeconds) {
 
         interval = Duration.seconds(intervalInSeconds);
@@ -607,7 +614,7 @@ public class GLogic implements Serializable {
     }
 
     public String getPlayerName() {
-        return this.player.getName();
+        return player.getName();
     }
 
     public String getProvInfo(int selectedProv) {

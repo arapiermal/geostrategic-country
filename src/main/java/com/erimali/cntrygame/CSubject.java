@@ -1,6 +1,8 @@
 package com.erimali.cntrygame;
 
-public class CSubject {
+import java.io.Serializable;
+
+public class CSubject implements Serializable {
 	private Country main;
 	private Country subject;
 	private SubjectTypes subjectType;
