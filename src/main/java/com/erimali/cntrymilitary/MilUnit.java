@@ -68,12 +68,12 @@ public abstract class MilUnit implements Serializable {
     }
 
     public static double dmgCalc(MilUnit a, MilUnit o) {
-        //a.size being twice gives too much buff
-        double ATK = a.size * (((double) a.size / o.size) * ((double) ( a.data.atk[o.data.type] / o.data.def[a.data.type]))
-                * Math.sqrt((double) (a.lvl + 1) / (o.lvl + 1)  + (a.data.speed - o.data.speed))
-                * Math.sqrt((1 + a.morale / o.morale) + (a.xp - o.xp)));
-        TESTING.print(ATK);
+        double ATK = a.size * ((double) (a.data.atk[o.data.type] / o.data.def[a.data.type]))
+                * Math.sqrt((double) (a.lvl + 1) / (o.lvl + 1) + (a.data.speed - o.data.speed));
+                //* Math.sqrt(1 + a.morale / o.morale);
         ATK += ATK * Math.random();
+        TESTING.print(a.id + " " + ATK);
+
         return ATK;
     }
 
@@ -87,9 +87,9 @@ public abstract class MilUnit implements Serializable {
         return this.size > 0 && this.morale > 0;
     }
 
-    public int incSize(int value){
+    public int incSize(int value) {
         this.size += value;
-        if(size > maxSize) {
+        if (size > maxSize) {
             int extra = size - maxSize;
             size = maxSize;
             return extra;

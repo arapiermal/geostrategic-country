@@ -2,6 +2,6 @@ name:Soldier
 desc:Basic soldier
 subtype:0
 speed:1
-atk:5:1:1:1
+atk:3:1:1:1
 def:2:1:1:1
 hp:10

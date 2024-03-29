@@ -6,7 +6,7 @@ public class MilSoldiers extends MilUnit {
         super(data, maxSize);
     }
 
-    public int recruit(int recruitSize) {
+    public int recruitOld(int recruitSize) {
         if (this.lvl > 1) {
             //!!!!!!!!!!!!!!!!!
             return recruitSize;
@@ -25,6 +25,16 @@ public class MilSoldiers extends MilUnit {
         return 0;
     }
 
+    public int recruit(int amount) {
+        this.size += amount / lvl;
+        if (this.size > this.maxSize) {
+            int extraManpower = this.size - this.maxSize;
+            this.size = this.maxSize;
+            return extraManpower;
+        }
+        return amount % lvl;
+    }
+
     public void train(int value) {
         //only personnel should be trainable (?)
         this.xp += value;
@@ -34,21 +44,6 @@ public class MilSoldiers extends MilUnit {
             this.lvl++;
             this.xp -= lvlCap;
         }
-    }
-
-    public void attackUnit(MilSoldiers o, boolean attacking) {
-        double mATK = data.atk[o.data.type] * size * Math.sqrt(this.lvl) + data.speed * this.morale + this.xp;
-        double oDEF = o.data.def[data.type] * size * Math.sqrt(o.lvl) + o.data.speed * o.morale + o.xp;
-        double diff1 = mATK - oDEF;
-
-
-        if (o.stillStanding())
-            o.attackUnit(this, false);
-    }
-
-    public void attackUnits(MilSoldiers... opponent) {
-        for (MilSoldiers o : opponent)
-            this.attackUnit(o, true);
     }
 
 }

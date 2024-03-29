@@ -1,7 +1,6 @@
 package com.erimali.cntrymilitary;
 
 import com.erimali.cntrygame.ErrorLog;
-import com.erimali.cntrygame.GLogic;
 import com.erimali.cntrygame.TESTING;
 
 import java.io.IOException;
@@ -63,7 +62,7 @@ public class MilDiv implements Serializable {
 
     public static MilUnit makeUnit(int type, int index, int maxSize) {
         MilUnitData data = unitTypes[type].get(index);
-        MilUnit unit = (type % 2 == 0) ? new MilSoldiers(data, maxSize) : new MilVehicle(data, maxSize);
+        MilUnit unit = (type % 2 == 0) ? new MilSoldiers(data, maxSize) : new MilVehicles(data, maxSize);
         return unit;
     }
 
@@ -77,15 +76,11 @@ public class MilDiv implements Serializable {
 
         MilUnit u = makeUnit(0, 0, 1000);
         MilUnit o = makeUnit(0, 0, 1000);
-        u.incSize(1000); // DEPENDENT UPON RATION atk:def , 2:1 ratio -> near certain loss
-        //UNPENETRATABLE DEFENSE !, maybe make defense to divide the attack and health somewhat different ?
+        u.incSize(1000);
         o.incSize(500);
-        TESTING.print(u.attack(o));
-
-        TESTING.print(u.size + " " + u.morale,o.size + " " + o.morale);
-        TESTING.print(u.attack(o));
-
-        TESTING.print(u.size + " " + u.morale,o.size + " " + o.morale);
+        while(u.attack(o) == 0){
+            TESTING.print(u.size + " " + u.morale,o.size + " " + o.morale);
+        }
     }
 
     /*
