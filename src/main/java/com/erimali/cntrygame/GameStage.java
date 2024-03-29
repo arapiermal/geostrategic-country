@@ -27,7 +27,7 @@ public class GameStage extends Stage {
     private Label countryName;
     private Label date;
     private Label pausation;
-    private Button pause;
+    private Button pauseButton;
     private Button chooseCountryButton;
     protected boolean isPaused;
     protected boolean isPlayingCountry;
@@ -63,10 +63,11 @@ public class GameStage extends Stage {
         setTitle(Main.APP_NAME + " - Game");
         setOnCloseRequest(e -> close());
         this.selectedCountry = -1;
+        this.game = new GLogic(this);
         BorderPane gameLayout = createGameLayout();
         setWidth(1280);
         setHeight(720);
-        this.game = new GLogic(this);
+
         CommandLine.setGameStage(this);
 
         Scene gameScene = new Scene(gameLayout);
@@ -89,13 +90,17 @@ public class GameStage extends Stage {
         setTitle(Main.APP_NAME + " - Game");
         setOnCloseRequest(e -> close());
         this.selectedCountry = -1;
-        BorderPane gameLayout = createGameLayout();
-        setWidth(1280);
-        setHeight(720);
         game.setGameStage(this);
         game.startTimer();
-
+        game.pauseTimer();
+        
         this.game = game;
+        BorderPane gameLayout = createGameLayout();
+        updateGameLayout();
+        setWidth(1280);
+        setHeight(720);
+
+
 
         CommandLine.setGameStage(this);
         Scene gameScene = new Scene(gameLayout);
@@ -106,7 +111,9 @@ public class GameStage extends Stage {
 
         this.setFullScreen(GOptions.isFullScreen());
     }
+    private void updateGameLayout(){
 
+    }
     private BorderPane createGameLayout() {
         BorderPane gameLayout = new BorderPane();
         gameLayout.setPadding(new Insets(10));
@@ -114,16 +121,16 @@ public class GameStage extends Stage {
         gameLayout.setCenter(new BorderPane());
         this.countryName = new Label("Select Country");
         this.date = new Label("Default Date");
-        this.pause = new Button("Pause");
+        this.pauseButton = new Button("Pause");
         isPaused = true;
-        this.pause.setOnAction(e -> pausePlayDate());
+        this.pauseButton.setOnAction(e -> pausePlayDate());
         this.pausation = new Label("Paused");
 
         chooseCountryButton = new Button("Confirm");
         chooseCountryButton.setOnAction(e -> startGame());
         HBox htopleft = new HBox(getCountryName(), chooseCountryButton);
         htopleft.setSpacing(10);
-        HBox htopright = new HBox(getPausation(), getPause(), getDate());
+        HBox htopright = new HBox(this.pausation, this.pauseButton, this.date);
         htopright.setSpacing(10);
         Region reg = new Region();
 
@@ -160,7 +167,7 @@ public class GameStage extends Stage {
         // maybe Button[], setOnAction( i ...);
 
         Button[] mapModes = new Button[2];
-
+        //enum MapModes (?)
         mapModes[0] = new Button("Default");// change to img
         mapModes[0].setOnAction(event -> {
             map.switchMapMode(0);
@@ -454,10 +461,10 @@ public class GameStage extends Stage {
         isPaused = !isPaused;
         if (isPaused) {
             pausation.setVisible(true);
-            pause.setText("Play");
+            pauseButton.setText("Play");
         } else {
             pausation.setVisible(false);
-            pause.setText("Pause");
+            pauseButton.setText("Pause");
         }
     }
 
@@ -493,17 +500,10 @@ public class GameStage extends Stage {
         return pausation;
     }
 
-    public void setPausation(Label pausation) {
-        this.pausation = pausation;
+    public Button getPauseButton() {
+        return pauseButton;
     }
 
-    public Button getPause() {
-        return pause;
-    }
-
-    public void setPause(Button pause) {
-        this.pause = pause;
-    }
 
     public Button getChooseCountryButton() {
         return chooseCountryButton;

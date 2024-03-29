@@ -31,10 +31,12 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-/backup/
-
 ### VS Code ###
 .vscode/
 
 ### Mac OS ###
 .DS_Store
+
+###
+/backup/
+/saveGames/

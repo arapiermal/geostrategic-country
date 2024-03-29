@@ -40,7 +40,7 @@ public class GLogic implements Serializable {
     //private List<WarResult> finishedWars;
     // Wars saved as GNews ... (special type, int)
     private Currencies currencies;
-
+//TAKE CARE WHEN SAVING WHILE NOTHING IS CHOSEN
     private int playerId;
     private Country player;
     // Game Events

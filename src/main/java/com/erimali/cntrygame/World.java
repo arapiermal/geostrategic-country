@@ -74,13 +74,20 @@ public class World implements Serializable {
             ErrorLog.logError(e);
         }
     }
-    public void correlateProvinces(SVGProvince[] wmProvinces){
-        for(Country c : countries){
-            for(AdmDiv admDiv : c.getAdmDivs()){
-                wmProvinces[admDiv.getProvId()].setOwnerId(admDiv.getOwnerId());
+
+    public void correlateProvinces(SVGProvince[] wmProvinces) {
+        for (Country c : countries) {
+            for (AdmDiv admDiv : c.getAdmDivs()) {
+                int provId = admDiv.getProvId();
+                int ownerId = admDiv.getOwnerId();
+                if (wmProvinces[provId].getOwnerId() != ownerId) {
+                    wmProvinces[provId].setOwnerId(admDiv.getOwnerId());
+                    //update map ...
+                }
             }
         }
     }
+
     public void initiateProvinces(SVGProvince[] wmProvinces) {
         provinces = new AdmDiv[wmProvinces.length];
         //set after loading data for provinces in individual countries and after WorldMap
@@ -96,9 +103,6 @@ public class World implements Serializable {
                         a.setFromSVGProvince(wmProvinces[i]);
                         provinces[i] = a;
 
-                        //TESTING.print(provinces[i],i);
-                        //or opposite can be done (making array in World class unnecessary)
-                        // AdmDiv inside SVGProvince?!?
                         break;
                     }
                 }
@@ -213,7 +217,7 @@ public class World implements Serializable {
         }
     }
 
-/////////////////////////////////////
+    /////////////////////////////////////
 /////////////////////////////////////
 /////////////////////////////////////
 	/*
@@ -311,7 +315,7 @@ public class World implements Serializable {
     public void subjugateCountry(int ind1, int ind2, int type) {
         Country c1 = countries.get(ind1);
         Country c2 = countries.get(ind2);
-        if(c1 != null && c2 != null && c2.isNotSubject()){
+        if (c1 != null && c2 != null && c2.isNotSubject()) {
             c1.subjugateCountry(c2, type);
         }
     }
@@ -379,9 +383,11 @@ public class World implements Serializable {
     public int binarySearchLanguage(String s) {
         return Collections.binarySearch(languages, new Language(s));
     }
+
     public int binarySearchLanguage(Language l) {
         return Collections.binarySearch(languages, l);
     }
+
     public double getTotalLandArea() {
         return totalLandArea;
     }
@@ -417,7 +423,7 @@ public class World implements Serializable {
     }
 
     public void yearlyUpdate() {
-        for(Country c : countries){
+        for (Country c : countries) {
             c.yearlyTick();
         }
     }
