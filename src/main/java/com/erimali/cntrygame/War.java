@@ -71,6 +71,7 @@ enum WarObjectives {
 
 public class War implements Serializable {
     static class Battle implements Serializable{
+        //if many MilDiv in the same province, after one is defeated, check province to fight the rest
         int provId;
         MilDiv a;
         MilDiv o;

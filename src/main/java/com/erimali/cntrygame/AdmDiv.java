@@ -29,11 +29,14 @@ public class AdmDiv implements Serializable {
     }
 
     public String toStringLong() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(name).append("\nArea: ").append(area).append(" km^2\nPopulation: ").append(population);
-        return sb.toString();
+        return toStringBuilderLong().toString();
     }
 
+    public StringBuilder toStringBuilderLong() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(name).append("\nArea: ").append(area).append(" km^2\nPopulation: ").append(population);
+        return sb;
+    }
     public AdmDiv(String name, double area, int population, short mainLanguage) {
         this.name = name;
         this.area = area;

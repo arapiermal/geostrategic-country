@@ -21,7 +21,7 @@ public class Country implements Serializable {
     private String admDivisionType; // county,district,etc.
     private List<AdmDiv> admDivisions;
     // !!!!!!!!!!!!!!!!!!!!
-    private Set<Integer> annexedCountries; // !!!!!!!!!!!!!!!!!!!!!!!
+    //private Set<Integer> annexedCountries; // !!!!!!!!!!!!!!!!!!!!!!!
     private Diplomacy dip;
     private Economy economy;
     private Government gov; // Republic of Albania toString()

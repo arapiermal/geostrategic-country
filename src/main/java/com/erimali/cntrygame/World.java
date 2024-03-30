@@ -418,9 +418,10 @@ public class World implements Serializable {
     }
 
     public String getProvInfo(int selectedProv) {
-        if (provinces[selectedProv] == null)
+        AdmDiv prov = provinces[selectedProv];
+        if (prov == null)
             return "NO DATA";
-        return provinces[selectedProv].toStringLong();
+        return prov.toStringBuilderLong().append("\nMain language: ").append(languages.get(prov.getMainLanguage())).toString();
     }
 
     public void yearlyUpdate() {

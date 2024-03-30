@@ -37,7 +37,7 @@ public abstract class MilUnit implements Serializable {
         double dmg2 = dmgCalc(o, this);
         if (dmg1 > 0) {
             int prevSize = o.size;
-            o.size -= (int) (dmg1 / (o.data.hp * 4)) + 1;
+            o.size -= (int) (dmg1 / (o.data.hp * 2)) + 1;
             o.morale -= (float) (prevSize - o.size) / prevSize * 100;
 
             if (o.size <= 0) {
@@ -49,7 +49,7 @@ public abstract class MilUnit implements Serializable {
         }
         if (dmg2 > 0) {
             int prevSize = this.size;
-            this.size -= (int) (dmg2 / (this.data.hp * 4)) + 1;
+            this.size -= (int) (dmg2 / (this.data.hp * 2)) + 1;
             this.morale -= (float) (prevSize - this.size) / prevSize * 100;
             if (this.size <= 0) {
                 this.size = 0;

@@ -342,6 +342,11 @@ public class Language implements Comparable<Language>, Serializable {
     }
 
     @Override
+    public String toString() {
+        return name;
+    }
+
+    @Override
     public int compareTo(Language o) {
         return this.name.compareTo(o.name);
     }

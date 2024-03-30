@@ -92,7 +92,7 @@ public class GEvent implements Comparable<GEvent> , Serializable {
 	}
 
 	public void run(int i) {
-		CommandLine.execute(commands[i]);
+		CommandLine.execute(commands[i], true);
 	}
 
 	public String[] getCommands() {

@@ -127,10 +127,10 @@ public class GameStage extends Stage {
         gameLayout.setCenter(new BorderPane());
         this.countryName = new Label("Select Country");
         this.date = new Label("Default Date");
-        this.pauseButton = new Button("Pause");
+        this.pauseButton = new Button("Play");
         isPaused = true;
         this.pauseButton.setOnAction(e -> pausePlayDate());
-        this.pausation = new Label("Paused");
+        this.pausation = new Label("Selecting");
 
         chooseCountryButton = new Button("Confirm");
         chooseCountryButton.setOnAction(e -> startGame());
@@ -198,20 +198,44 @@ public class GameStage extends Stage {
                     break;
                 case KeyCode.ESCAPE:
                     showGameStageOptions();
-                    saveStage.show();
-                    saveStage.requestFocus();
+
                     break;
             }
         });
 
         commandLineStage = makeCommandLineStage();
-        saveStage = makeSaveStageOptions();
+        gsOptionsScenes = new Scene[2];
+        gsOptionsScenes[0] = makeGSOptionsDefScene();
+        gsOptionsScenes[1] = makeSaveSceneOptions();
+        gsOptionsStage = makeGSOptionsStage();
         return gameLayout;
     }
 
-    private Stage saveStage;
+    private Scene makeGSOptionsDefScene() {
+        Button saveOptions = new Button("Save");
+        saveOptions.setOnAction(e -> changeGSOptionsScene(1));
+        Button exitToMain = new Button("Exit to main menu");
+        VBox vBox = new VBox(10, saveOptions, exitToMain);
+        vBox.setAlignment(Pos.CENTER);
+        vBox.setPadding(new Insets(20));
+        Scene scene = new Scene(vBox, 400, 300);
 
-    private Stage makeSaveStageOptions() {
+        return scene;
+    }
+
+    private void changeGSOptionsScene(int i) {
+        if (i >= 0 && i < gsOptionsScenes.length)
+            gsOptionsStage.setScene(gsOptionsScenes[i]);
+        else if (i == -1) {
+            //go to Main...
+            // -2 for save (String currentSaveName) & exit
+        }
+    }
+
+    private Scene[] gsOptionsScenes;
+    private Stage gsOptionsStage;
+
+    private Scene makeSaveSceneOptions() {
         TextField saveTextField = new TextField();//game.getPlayerName() + "-" + date.getText()
         Button saveSubmit = new Button("Enter");
         saveTextField.setPrefWidth(240);
@@ -232,7 +256,7 @@ public class GameStage extends Stage {
                     }
                 }
             } else if (event.getCode() == KeyCode.ESCAPE) {
-                saveStage.hide();
+                gsOptionsStage.hide();
             }
         });
         saveSubmit.setOnAction(event -> {
@@ -247,17 +271,12 @@ public class GameStage extends Stage {
         });
         saveTextField.setPromptText("Save-game name");
 
-        Stage stage = new Stage();
-        stage.setTitle("Save-game");
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.initOwner(this);
-        stage.initStyle(StageStyle.UTILITY);
-        stage.setScene(new Scene(vBox));
-        return stage;
+        return new Scene(vBox);
     }
 
     private void showGameStageOptions() {
-
+        gsOptionsStage.show();
+        gsOptionsStage.requestFocus();
     }
 
     private void initVBoxLeftOptions() {
@@ -273,6 +292,15 @@ public class GameStage extends Stage {
         provOptTypes[2] = makeVBoxSubjectProvOptions();
     }
 
+    private Stage makeGSOptionsStage() {
+        Stage stage = new Stage();
+        stage.setTitle("Options");
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initOwner(this);
+        stage.initStyle(StageStyle.UTILITY);
+        stage.setScene(gsOptionsScenes[0]);
+        return stage;
+    }
 
     private Stage makeCommandLineStage() {
         // Autocomplete for already entered commands (?) !ControlsFX!
@@ -471,6 +499,20 @@ public class GameStage extends Stage {
             pausation.setVisible(true);
             pauseButton.setText("Play");
         } else {
+            pausation.setVisible(false);
+            pauseButton.setText("Pause");
+        }
+    }
+
+    public void pausePlayDate(boolean b) {
+        if (!isPlayingCountry)
+            return;
+        if (isPaused && !b) {
+            isPaused = false;
+            pausation.setVisible(true);
+            pauseButton.setText("Play");
+        } else if (!isPaused && b) {
+            isPaused = true;
             pausation.setVisible(false);
             pauseButton.setText("Pause");
         }
@@ -683,6 +725,7 @@ public class GameStage extends Stage {
 
     // boolean pauseGame (should it be paused while popping up or not)
     public void popupGEvent(GEvent gEvent) {
+        pausePlayDate(true);
         // Create a new stage for the popup
         Stage popupStage = new Stage();
         popupStage.initModality(Modality.APPLICATION_MODAL);
@@ -708,9 +751,9 @@ public class GameStage extends Stage {
             // HMMMM css not activated?
             int choice = i;
             optButton[i].setOnAction(event -> {
+                pausePlayDate(false);
                 gEvent.run(choice);
                 popupStage.close();
-                isPaused = false;
             });
         }
         VBox options = new VBox(optButton);
@@ -724,10 +767,8 @@ public class GameStage extends Stage {
         StackPane.setMargin(popupRoot, new Insets(20));
         Scene popupScene = new Scene(container);
 
-        // Set the scene for the popup stage
         popupStage.setScene(popupScene);
-        isPaused = true;
-        // Show the popup
+
         Platform.runLater(popupStage::showAndWait);
     }
 
@@ -745,12 +786,11 @@ public class GameStage extends Stage {
         popupStage.show();
     }
 
-    public void popupChess(String cn) {
-        if (!isPaused) {
-            pausePlayDate();
-        }
+    public void popupChess(String cName) {
+        pausePlayDate(true);
+
         String PLAYER = game.getPlayer().getGovernment().toStringMainRuler();
-        String OPPONENT = game.getWorldCountries().get(cn).getGovernment().toStringMainRuler();
+        String OPPONENT = game.getWorldCountries().get(cName).getGovernment().toStringMainRuler();
         File file = new File("src/main/resources/web/chess/chess.html");
         String filePath = file.toURI() + "?player=" + PLAYER + "&opponent=" + OPPONENT + "&src=countrysim";
 
@@ -761,7 +801,8 @@ public class GameStage extends Stage {
         popupStage.setScene(new Scene(webView, 1000, 700));
         popupStage.setTitle("Chess Battle");
         popupStage.initModality(Modality.APPLICATION_MODAL);
-        popupStage.show();
+        //popupStage.show();
+        Platform.runLater(popupStage::showAndWait);
     }
 
     public void showAlert(Alert.AlertType alertType, String title, String message) {

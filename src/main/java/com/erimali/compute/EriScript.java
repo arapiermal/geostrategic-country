@@ -486,7 +486,7 @@ public class EriScript {
                 break;
             // improve
             case "exec":
-                printed.add(CommandLine.executeAllLines(parts[1]));
+                printed.add(CommandLine.executeAllLines(parts[1], true));
                 break;
             case "clr":
                 clearSpecific(parts[1]);

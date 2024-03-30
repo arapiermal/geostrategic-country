@@ -97,14 +97,16 @@ public class CommandLine {
         }
         return -1;
     }
-
-    public static String execute(String in) {
+    public static String execute(String in){
+        return execute(in, false);
+    }
+    public static String execute(String in, boolean admin) {
         String result = "";
         in = in.trim().toUpperCase();
         if (in.startsWith("PARSE")) {
             return gs.getGame().parseTextCommand(in.substring(6));
         }
-        if(!GOptions.isAllowCLI()){
+        if(!GOptions.isAllowCLI() && !admin){
             return "NOT ALLOWED (TURNED OFF IN OPTIONS)";
         }
 
@@ -287,12 +289,12 @@ public class CommandLine {
         return result;
     }
 
-    public static String executeAllLines(String in) {
+    public static String executeAllLines(String in, boolean admin) {
         StringBuilder result = new StringBuilder();
         String[] commands = in.split(COMMAND_SEPARATOR);//
         for (String command : commands) {
             // changeable separator
-            result.append(execute(command)).append(System.lineSeparator());
+            result.append(execute(command,admin)).append(System.lineSeparator());
         }
         return result.toString();
     }
