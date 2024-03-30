@@ -18,8 +18,8 @@ import java.util.Map;
 
 //Build vs Demolish button and cancel while in progress
 public class BuildBuildings extends Application {
-    public static class ProgressBarButtonTreeTableCell<S> extends TreeTableCell<S, Double> {
-        public static <S> Callback<TreeTableColumn<S,Double>, TreeTableCell<S,Double>> forTreeTableColumn() {
+    public static class ProgressBarButtonTreeTableCell<S extends Task> extends TreeTableCell<S, Double> {
+        public static <S extends Task> Callback<TreeTableColumn<S,Double>, TreeTableCell<S,Double>> forTreeTableColumn() {
             return param -> new ProgressBarButtonTreeTableCell<>();
         }
         private final ProgressBar progressBar;
@@ -32,6 +32,11 @@ public class BuildBuildings extends Application {
             this.progressBar = new ProgressBar();
             this.progressBar.setMaxWidth(Double.MAX_VALUE);
             this.button = new Button();
+            this.button.setOnAction(event -> {
+                S rowData = getTreeTableRow().getItem();
+                rowData.changeStatus();
+                // Perform actions with rowData (e.g., open a dialog, update data, etc.)
+            });
         }
 
         @Override public void updateItem(Double item, boolean empty) {
@@ -124,9 +129,11 @@ public class BuildBuildings extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-
+    public abstract static class Task {
+        abstract void changeStatus();
+    }
     // Task class representing each task
-    public static class BuildBuilding {
+    public static class BuildBuilding extends Task{
         private final Building building;
         private final SimpleDoubleProperty progress;
         //if add progress the moment you click button, below becomes irrelevant
@@ -174,6 +181,10 @@ public class BuildBuildings extends Application {
 
         public ObservableValue<Integer> statusProperty() {
             return buildingStatus.asObject();
+        }
+
+        public void changeStatus(){
+
         }
     }
 
