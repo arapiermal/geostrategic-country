@@ -130,7 +130,7 @@ public class GameStage extends Stage {
         this.pauseButton = new Button("Play");
         isPaused = true;
         this.pauseButton.setOnAction(e -> pausePlayDate());
-        this.pausation = new Label("Selecting");
+        this.pausation = new Label("Paused");
 
         chooseCountryButton = new Button("Confirm");
         chooseCountryButton.setOnAction(e -> startGame());

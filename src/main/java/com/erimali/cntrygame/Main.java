@@ -22,7 +22,6 @@ public class Main extends Application {
     protected static final String APP_NAME = "Strategical Geopolitics Simulator";
     private Stage primaryStage;
     private Stage gameStage;
-    private GLogic loadGame;
     @Override
     public void start(Stage primaryStage) {
         GOptions.loadGOptions();
