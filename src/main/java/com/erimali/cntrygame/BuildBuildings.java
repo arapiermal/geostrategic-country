@@ -5,19 +5,59 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ProgressBarTreeTableCell;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.Map;
 
 //Build vs Demolish button and cancel while in progress
 public class BuildBuildings extends Application {
-    @Override
-    public void start(Stage primaryStage) {
+    public static class ProgressBarButtonTreeTableCell<S> extends TreeTableCell<S, Double> {
+        public static <S> Callback<TreeTableColumn<S,Double>, TreeTableCell<S,Double>> forTreeTableColumn() {
+            return param -> new ProgressBarButtonTreeTableCell<>();
+        }
+        private final ProgressBar progressBar;
+        private final Button button;
+
+        private ObservableValue<Double> observable;
+        public ProgressBarButtonTreeTableCell() {
+            this.getStyleClass().add("progress-bar-tree-table-cell");
+
+            this.progressBar = new ProgressBar();
+            this.progressBar.setMaxWidth(Double.MAX_VALUE);
+            this.button = new Button();
+        }
+
+        @Override public void updateItem(Double item, boolean empty) {
+            super.updateItem(item, empty);
+
+            if (empty) {
+                setGraphic(null);
+            } else {
+                progressBar.progressProperty().unbind();
+
+                final TreeTableColumn<S,Double> column = getTableColumn();
+                observable = column == null ? null : column.getCellObservableValue(getIndex());
+
+                if (observable != null) {
+                    progressBar.progressProperty().bind(observable);
+                } else if (item != null) {
+                    progressBar.setProgress(item);
+                    button.setText(item == 0 ? "Build" : item == 1 ? "Demolish" : "Cancel");
+                }
+
+                setGraphic(progressBar);
+            }
+        }
+    }
+
+    public static TreeTableView<BuildBuilding> makeTreeTableView(){
         // Create a TreeTableView
         TreeTableView<BuildBuilding> treeTableView = new TreeTableView<>();
         // Define columns
@@ -26,8 +66,10 @@ public class BuildBuildings extends Application {
         TreeTableColumn<BuildBuilding, Double> progressColumn = new TreeTableColumn<>("Progress");
         progressColumn.setCellValueFactory(param -> param.getValue().getValue().progressProperty());
         //
-        progressColumn.setCellFactory(ProgressBarTreeTableCell.forTreeTableColumn());
-        //
+
+        //progressColumn.setCellFactory(ProgressBarTreeTableCell.forTreeTableColumn());
+        progressColumn.setCellFactory(ProgressBarButtonTreeTableCell.forTreeTableColumn());
+        //HOW TO UNITE WITH PROGRESS THE BUTTONS...
         TreeTableColumn<BuildBuilding, Integer> buttonsColumn = new TreeTableColumn<>("Status");
         buttonsColumn.setCellValueFactory(param -> param.getValue().getValue().statusProperty());
         buttonsColumn.setCellFactory(column -> {
@@ -63,6 +105,12 @@ public class BuildBuildings extends Application {
         initTreeTableViewFromEnum(root);
         treeTableView.setRoot(root);
         treeTableView.setShowRoot(false);
+        return treeTableView;
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        TreeTableView<BuildBuilding> treeTableView = makeTreeTableView();
         // Display the TreeTableView
         Scene scene = new Scene(treeTableView, 400, 300);
         primaryStage.setScene(scene);
@@ -70,7 +118,7 @@ public class BuildBuildings extends Application {
         primaryStage.show();
         EnumMap<Building, Byte> buildings = new EnumMap<>(Building.class);
         buildings.put(Building.MIL_AIRPORT, (byte) 50);
-        setValuesFromEnumMap(buildings, root);
+        setValuesFromEnumMap(buildings, treeTableView.getRoot());
     }
 
     public static void main(String[] args) {
@@ -131,8 +179,8 @@ public class BuildBuildings extends Application {
 
 
     public static void initTreeTableViewFromEnum(TreeItem<BuildBuilding> root) {
-        TreeItem<BuildBuilding> mil = new TreeItem<>(new BuildBuilding(Building._MIL, 0.0));
-        TreeItem<BuildBuilding> dip = new TreeItem<>(new BuildBuilding(Building._DIP, 0.0));
+        TreeItem<BuildBuilding> mil = new TreeItem<>(new BuildBuilding(Building._MIL, 1.0));
+        TreeItem<BuildBuilding> dip = new TreeItem<>(new BuildBuilding(Building._DIP, 0.5));
         TreeItem<BuildBuilding> others = new TreeItem<>(new BuildBuilding(Building._OTHERS, 0.0));
         root.getChildren().addAll(mil, dip, others);
 
