@@ -242,7 +242,7 @@ public class GameStage extends Stage {
         tabPane.getTabs().addAll(tabs);
         return tabPane;
     }
-
+//2-8 months
     private Tab makeTabBuildings() {
         ListView<Building> provBuildings = new ListView<>();
         //checktreeview ... (?)
