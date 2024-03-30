@@ -17,8 +17,7 @@ public class GLogic implements Serializable {
         this.gs = gs;
     }
 
-    private transient GameStage gs; // take reference
-    // get selected country from gs?
+    private transient GameStage gs; // keep reference
 
     private transient Timeline timeline;
     private transient KeyFrame keyframe;

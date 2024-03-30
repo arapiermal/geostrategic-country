@@ -134,6 +134,8 @@ public class WorldMap {
 			MenuItem menuItem3 = new MenuItem("");
 			cm.getItems().addAll(menuItem1, menuItem2, menuItem3);
 			scrollPane.setContextMenu(cm);
+			scrollPane.setHvalue(scrollPane.getHmax()/2);
+			scrollPane.setVvalue(scrollPane.getVmax()/2);
 			return scrollPane;
 		} catch (Exception e) {
 			e.printStackTrace();

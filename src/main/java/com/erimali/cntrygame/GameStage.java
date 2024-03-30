@@ -1,22 +1,19 @@
 package com.erimali.cntrygame;
 
 import java.io.File;
+import java.util.EnumSet;
+import java.util.Set;
 
 import javafx.application.Platform;
 import javafx.beans.value.ObservableIntegerValue;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -122,7 +119,7 @@ public class GameStage extends Stage {
 
     private BorderPane createGameLayout() {
         BorderPane gameLayout = new BorderPane();
-        gameLayout.setPadding(new Insets(10));
+        gameLayout.setPadding(new Insets(8));
         // TOP
         gameLayout.setCenter(new BorderPane());
         this.countryName = new Label("Select Country");
@@ -134,14 +131,14 @@ public class GameStage extends Stage {
 
         chooseCountryButton = new Button("Confirm");
         chooseCountryButton.setOnAction(e -> startGame());
-        HBox htopleft = new HBox(getCountryName(), chooseCountryButton);
-        htopleft.setSpacing(10);
-        HBox htopright = new HBox(this.pausation, this.pauseButton, this.date);
-        htopright.setSpacing(10);
-        Region reg = new Region();
+        HBox hTopLeft = new HBox(getCountryName(), chooseCountryButton);
+        hTopLeft.setSpacing(10);
+        HBox hTopRight = new HBox(this.pausation, this.pauseButton, this.date);
+        hTopRight.setSpacing(10);
+        Region regTop = new Region();
 
-        HBox htop = new HBox(htopleft, reg, htopright);
-        HBox.setHgrow(reg, Priority.ALWAYS);
+        HBox htop = new HBox(hTopLeft, regTop, hTopRight);
+        HBox.setHgrow(regTop, Priority.ALWAYS);
         htop.setSpacing(10);
         htop.setStyle("-fx-background-color: #f0f0f0;");
 
@@ -155,6 +152,8 @@ public class GameStage extends Stage {
         // close X
         ScrollPane leftScrollPane = new ScrollPane();
         leftScrollPane.setPadding(new Insets(10));
+        /////
+        leftScrollPane.setMinWidth(240);
         selectedCountryInfo = new Label();
         selectedProvInfo = new Label();
         initVBoxLeftOptions();
@@ -164,30 +163,34 @@ public class GameStage extends Stage {
 
         leftScrollPane.setContent(leftGeneral);
         gameLayout.setLeft(leftScrollPane);
+//////////////////////////////////////////////////////////////
+        //Bottom
+        hoveringCountry = new Label("Hovering");
+        HBox hBottomLeft = new HBox(hoveringCountry);
+        Button gsOptions = new Button("Options");
+        gsOptions.setOnAction(e -> showGameStageOptions());
+        ToolBar tBottomRight = new ToolBar(gsOptions);
+        Region regBottom = new Region();
+        HBox bottom = new HBox(hBottomLeft, regBottom, tBottomRight);
+        HBox.setHgrow(regBottom, Priority.ALWAYS);
 
-        hoveringCountry = new Label("Bottom text");
-        HBox bottomInfo = new HBox(hoveringCountry);
-
-        gameLayout.setBottom(bottomInfo);
-        Label toChange = new Label();
+        gameLayout.setBottom(bottom);
         // maybe Button[], setOnAction( i ...);
 
-        Button[] mapModes = new Button[2];
-        //enum MapModes (?)
-        mapModes[0] = new Button("Default");// change to img
-        mapModes[0].setOnAction(event -> {
-            map.switchMapMode(0);
-        });
-        mapModes[1] = new Button("Allies");
-        mapModes[1].setOnAction(event -> {
-            map.switchMapMode(1);
-        });
-        HBox mapChoices = new HBox(mapModes[0], mapModes[1]);
-        VBox rightInfo = new VBox(toChange, mapChoices);
+
+        TabPane tabPaneRight = makeRighTabPane();
+
+        Region regRight = new Region();
+        Label label = new Label("Map modes");
+        FlowPane mapChoices = makeRightMapModesFlowPane();
+
+        VBox vBoxRight = new VBox(tabPaneRight, regRight, label, mapChoices);
+        vBoxRight.setPadding(new Insets(8));
+        VBox.setVgrow(regRight, Priority.ALWAYS);
 
         // rightScrollPane.setContent(rightInfo);
         // gameLayout.setRight(rightScrollPane);
-        gameLayout.setRight(rightInfo);
+        gameLayout.setRight(vBoxRight);
 
         gameLayout.setOnKeyPressed(event -> {
             // ` -> commandLine
@@ -209,6 +212,45 @@ public class GameStage extends Stage {
         gsOptionsScenes[1] = makeSaveSceneOptions();
         gsOptionsStage = makeGSOptionsStage();
         return gameLayout;
+    }
+
+    private FlowPane makeRightMapModesFlowPane() {
+        FlowPane flowPane = new FlowPane(Orientation.HORIZONTAL, 10, 10);
+        flowPane.setPrefWidth(240);
+        Button[] mapModes = new Button[2];
+        //enum MapModes (?)
+        mapModes[0] = new Button("Default");// change to img
+        mapModes[0].setOnAction(event -> {
+            map.switchMapMode(0);
+        });
+        mapModes[1] = new Button("Allies");
+        mapModes[1].setOnAction(event -> {
+            map.switchMapMode(1);
+        });
+
+        flowPane.getChildren().addAll(mapModes);
+
+        return flowPane;
+    }
+
+    private TabPane makeRighTabPane() {
+        TabPane tabPane = new TabPane();
+        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+        Tab[] tabs = new Tab[2];
+        tabs[0] = new Tab("Military");
+        tabs[1] = makeTabBuildings();
+        tabPane.getTabs().addAll(tabs);
+        return tabPane;
+    }
+
+    private Tab makeTabBuildings() {
+        ListView<Building> provBuildings = new ListView<>();
+        //checktreeview ... (?)
+        //MIL -> alone
+        //Civilian -> alone
+        Set<Building> buildings = game.getWorld().getAdmDiv(selectedProv).getBuildings();
+
+        return new Tab("Buildings", provBuildings);
     }
 
     private Scene makeGSOptionsDefScene() {

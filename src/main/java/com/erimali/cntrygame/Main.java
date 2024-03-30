@@ -41,9 +41,9 @@ public class Main extends Application {
         extraContent.setStyle("-fx-font-style: italic; -fx-fill: white;");
 
         Button esGUI = createButton("EriScript GUI", this::openEriScriptGUI);
-        Button discl = createButton("Disclaimer", this::openDisclaimer);
+        Button disclaimerButton = createButton("Disclaimer", this::openDisclaimer);
 
-        VBox menuLayout = createMenuLayout(startButton, loadButton, optionsButton, exitButton, extraContent, esGUI, discl);
+        VBox menuLayout = createMenuLayout(startButton, loadButton, optionsButton, exitButton, extraContent, esGUI, disclaimerButton);
 
 
         BorderPane root = createRootContainer(menuLayout);
@@ -113,7 +113,6 @@ public class Main extends Application {
         optStage.setScene(optScene);
         optStage.initModality(Modality.APPLICATION_MODAL);
 
-        // Main Menu disabled while options open
         primaryStage.getScene().getRoot().setDisable(true);
 
         optStage.setOnHidden(e -> {
