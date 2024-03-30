@@ -5,11 +5,13 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ProgressBarTreeTableCell;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
@@ -67,6 +69,7 @@ public class BuildBuildings extends Application {
     }
 //how to make the stuff on top to be 0/4 buildings built...
     //utilize negative values from -1 to -n...
+    //provId, ownerId, subjects ...
 
     public static TreeTableView<BuildBuilding> makeTreeTableView() {
         // Create a TreeTableView
@@ -102,7 +105,10 @@ public class BuildBuildings extends Application {
         primaryStage.setTitle("Progress Data in TreeTableView");
         primaryStage.show();
         currProvBuildings = new EnumMap<>(Building.class);
-        currProvBuildings.put(Building.MIL_AIRPORT, (byte) 50);
+        for (Building b : Building.values()) {
+            currProvBuildings.put(b, (byte) 0);
+        }
+        currProvBuildings.put(Building.MIL_AIRPORT, (byte) 2);
         setValuesFromEnumMap(currProvBuildings, treeTableView.getRoot());
     }
 
@@ -165,26 +171,52 @@ public class BuildBuildings extends Application {
     //SelectedProvince -> EnumMap<Building,Byte> currBuilding; EnumSet<Building> finishedBuildings;
     //
     public static void popupBuilding(BuildBuilding bb) {
-        double val = bb.getProgress();
+        Dialog<ButtonType> dialog = new Dialog<>();
         Building b = bb.getBuilding();
         byte byteVal = currProvBuildings.getOrDefault(b, (byte) 0);
-        //Build
-        if (val == 0) {
-            byteVal++;
-
-            val += (double) 1 / b.stepsToBuild;
+        if (byteVal == 0) {
+            dialog.setTitle("Build Building");
         }
         //Demolish
-        else if (val == 1) {
-            //upon confirm
-            byteVal = 0;
+        else if (byteVal == b.stepsToBuild) {
+            dialog.setTitle("Demolish Building");
         }
         //Cancel
         else {
-            byteVal = 0;
+            dialog.setTitle("Cancel Building");
         }
-        currProvBuildings.put(b, byteVal);
-        bb.setProgress(byteVal);
+        VBox vBox = new VBox(new Label("Name: " + b.toString()), new Label("Cost: $" + b.price), new Label("Time (Months): " + b.stepsToBuild));
+        dialog.getDialogPane().setContent(vBox);
+
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        final Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        okButton.addEventFilter(
+                ActionEvent.ACTION,
+                event -> {
+                    byte bVal = currProvBuildings.getOrDefault(b, (byte) 0);
+
+                    //Build
+                    if (bVal == 0) {
+
+                        bVal++;
+
+                    }
+                    //Demolish
+                    else if (bVal == b.stepsToBuild) {
+                        //upon confirm
+                        bVal = 0;
+                    }
+                    //Cancel
+                    else {
+                        bVal = 0;
+                    }
+                    currProvBuildings.put(b, bVal);
+                    bb.setProgress(bVal);
+                }
+        );
+
+        dialog.showAndWait();
+
     }
 
     public static void initTreeTableViewFromEnum(TreeItem<BuildBuilding> root) {
@@ -202,6 +234,7 @@ public class BuildBuildings extends Application {
             else if (b.isOther())
                 others.getChildren().add(new TreeItem<>(new BuildBuilding(b, 0.0)));
         }
+
     }
 
     public static void setValuesFromEnumMap(EnumMap<Building, Byte> buildings, TreeItem<BuildBuilding> root) {
@@ -211,6 +244,19 @@ public class BuildBuildings extends Application {
         int m = 0;
         int d = 0;
         int o = 0;
+        /*for(Building b : Building.values()){
+            if(currProvBuildings.containsKey(b)){
+                byte val = currProvBuildings.get(b);
+                if (b.isMilitary()) {
+                    mil.getChildren().get(m++).getValue().setProgress(val);
+                } else if (b.isDiplomatic()) {
+                    dip.getChildren().get(d++).getValue().setProgress(val);
+                } else if (b.isOther()) {
+                    others.getChildren().get(o++).getValue().setProgress(val);
+                }
+            }
+        }*/
+
         for (Map.Entry<Building, Byte> b : buildings.entrySet()) {
             if (b.getKey().isMilitary()) {
                 mil.getChildren().get(m++).getValue().setProgress(b.getValue());
@@ -220,5 +266,6 @@ public class BuildBuildings extends Application {
                 others.getChildren().get(o++).getValue().setProgress(b.getValue());
             }
         }
+
     }
 }
