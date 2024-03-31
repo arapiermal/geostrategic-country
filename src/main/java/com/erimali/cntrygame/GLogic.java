@@ -161,11 +161,11 @@ public class GLogic implements Serializable {
     }
 
     public void monthlyTick(){
-        // be aware of cheating
-        // on improve (Player) -> wait 30 days until can stop improving
         if (!improvingRelations.isEmpty()) {
             tickImproveRelations();
         }
+        //...
+        world.monthlyUpdate();
     }
     public void yearlyTick(){
         world.yearlyUpdate();

@@ -1,6 +1,9 @@
 package com.erimali.cntrygame;
 
+import javafx.scene.control.TableView;
+
 import java.io.Serializable;
+import java.util.EnumMap;
 import java.util.EnumSet;
 
 //DIJKSTRA TO TRAVERSE?????
@@ -20,6 +23,7 @@ public class AdmDiv implements Serializable {
 
     private byte[] rebellion; //types: separatism, autonomy,...
     EnumSet<Building> buildings;
+    public EnumMap<Building, Byte> currProvBuildings;
 
     //private short[] claimedBy; (previous owners) ...
     //
@@ -37,12 +41,14 @@ public class AdmDiv implements Serializable {
         sb.append(name).append("\nArea: ").append(area).append(" km^2\nPopulation: ").append(population);
         return sb;
     }
+
     public AdmDiv(String name, double area, int population, short mainLanguage) {
         this.name = name;
         this.area = area;
         this.population = population;
         this.mainLanguage = mainLanguage;
         this.buildings = EnumSet.noneOf(Building.class);
+        this.currProvBuildings = new EnumMap<>(Building.class);
     }
 
     public AdmDiv(String name, String area, String population, short mainLanguage) {
@@ -52,6 +58,7 @@ public class AdmDiv implements Serializable {
             this.population = Integer.parseInt(population);
             this.mainLanguage = mainLanguage;
             this.buildings = EnumSet.noneOf(Building.class);
+            this.currProvBuildings = new EnumMap<>(Building.class);
 
         } catch (NumberFormatException e) {
 
@@ -76,11 +83,28 @@ public class AdmDiv implements Serializable {
         return pop;
     }
 
+    public void monthlyTick() {
+        for (EnumMap.Entry<Building, Byte> entry : currProvBuildings.entrySet()) {
+            Building b = entry.getKey();
+            byte val = (byte) (entry.getValue() + 1);
+            TESTING.print(b,val);
+            if (val >= b.stepsToBuild) {
+                currProvBuildings.remove(b);
+                buildings.add(b);
+            }
+        }
+    }
+
+    public void buildBuilding(Building b) {
+        if (!buildings.contains(b))
+            currProvBuildings.put(b, (byte) 1);
+    }
+
     public boolean hasBuilding(Building b) {
         return buildings.contains(b);
     }
 
-    public void buildBuilding(Building b) {
+    public void instaBuildBuilding(Building b) {
         buildings.add(b);
     }
 
@@ -140,9 +164,26 @@ public class AdmDiv implements Serializable {
         this.mainLanguage = mainLanguage;
     }
 
-    public void setFromSVGProvince(SVGProvince svg){
+    public void setFromSVGProvince(SVGProvince svg) {
         this.provId = svg.getProvId();
         this.ownerId = svg.getOwnerId();
+    }
+
+    //if not player or subject id -> second column ...
+//every month and when changing
+    public void setValuesFromEnumMapSet(TableView<BuildBuildings.BuildBuilding> tableView) {
+        Building[] builds = Building.values();
+        for (int i = 0; i < builds.length; i++) {
+            BuildBuildings.BuildBuilding bb = tableView.getItems().get(i);
+            Building b = builds[i];
+            if (buildings.contains(b)) {
+                if (bb != null) bb.setProgress(1.0);
+            } else if (currProvBuildings.containsKey(b)) {
+                if (bb != null) bb.setProgress(currProvBuildings.get(b));
+            } else {
+                if (bb != null) bb.setProgress(0.0);
+            }
+        }
     }
 
 }

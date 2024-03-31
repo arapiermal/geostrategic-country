@@ -424,10 +424,28 @@ public class World implements Serializable {
         return prov.toStringBuilderLong().append("\nMain language: ").append(languages.get(prov.getMainLanguage())).toString();
     }
 
+    public void monthlyUpdate(){
+        //keep track with set for less overhead
+        for(AdmDiv a : provinces){
+            if(a != null){
+                a.monthlyTick();
+            }
+        }
+    }
     public void yearlyUpdate() {
         for (Country c : countries) {
             c.yearlyTick();
         }
     }
 
+
+    //Check if valid...
+    public void buildBuilding(int provId, Building b) {
+        if (provId >= 0 && provId < provinces.length) {
+            AdmDiv a = provinces[provId];
+            if (a != null) {
+                a.buildBuilding(b);
+            }
+        }
+    }
 }

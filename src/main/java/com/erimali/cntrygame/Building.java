@@ -1,7 +1,7 @@
 package com.erimali.cntrygame;
 //if starts with MIL -> Destroyable by army, boolean (?)
 public enum Building{
-    _BUILDING(-1,"Buildings", (byte) 0, 0),
+    //_BUILDING(-1,"Buildings", (byte) 0, 0),
     //_MIL(-2,"Military", (byte) 0, 0),
     MIL_BASE(0,"Military Base", (byte) 4, 1000000),
     MIL_TRAINING_CAMP(0,"Training Camp", (byte) 4,1000000),
@@ -48,7 +48,5 @@ public enum Building{
     public boolean isOther(){
         return type == 2;
     }
-    public boolean isRootLike(){
-        return type < 0;
-    }
+    //public boolean isRootLike(){ return type < 0; }
 }

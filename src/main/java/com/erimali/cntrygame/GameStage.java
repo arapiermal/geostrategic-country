@@ -185,7 +185,7 @@ public class GameStage extends Stage {
         FlowPane mapChoices = makeRightMapModesFlowPane();
 
         VBox vBoxRight = new VBox(tabPaneRight, regRight, label, mapChoices);
-        vBoxRight.setPadding(new Insets(8));
+        vBoxRight.setPadding(new Insets(4));
         VBox.setVgrow(regRight, Priority.ALWAYS);
 
         // rightScrollPane.setContent(rightInfo);
@@ -235,22 +235,26 @@ public class GameStage extends Stage {
 
     private TabPane makeRighTabPane() {
         TabPane tabPane = new TabPane();
+
+        tabPane.setMinWidth(316);
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         Tab[] tabs = new Tab[2];
         tabs[0] = new Tab("Military");
         tabs[1] = makeTabBuildings();
+        //tabPane.setStyle("-fx-tab-min-width: 0;");
+
         tabPane.getTabs().addAll(tabs);
         return tabPane;
     }
+    private TableView<BuildBuildings.BuildBuilding> tableViewBuildings;
 //2-8 months
     private Tab makeTabBuildings() {
-        ListView<Building> provBuildings = new ListView<>();
-        //checktreeview ... (?)
-        //MIL -> alone
-        //Civilian -> alone
-        Set<Building> buildings = game.getWorld().getAdmDiv(selectedProv).getBuildings();
+        tableViewBuildings = BuildBuildings.makeTableView();
+        tableViewBuildings.setVisible(false);
 
-        return new Tab("Buildings", provBuildings);
+        Tab tab = new Tab("Buildings", tableViewBuildings);
+
+        return tab;
     }
 
     private Scene makeGSOptionsDefScene() {
@@ -530,6 +534,7 @@ public class GameStage extends Stage {
         countryName.setText(game.getPlayer().getName());// !!!!!!!!
         map.setPlayerCountry(selectedCountry);
         chooseCountryButton.setVisible(false);
+        tableViewBuildings.setVisible(true);
         isPlayingCountry = true;
     }
 
@@ -933,17 +938,25 @@ public class GameStage extends Stage {
     }
 
     public void setSelectedProvince(int provId) {
-        this.selectedProv = provId;
-        this.changeSelectedProvInfo();
+        if(selectedProv != provId){
+            selectedProv = provId;
+            changeSelectedProvInfo();
+        }
+
     }
 
     private void changeSelectedProvInfo() {
+        AdmDiv a = game.getWorld().getAdmDiv(selectedProv);
         selectedProvInfo.setText(game.getProvInfo(selectedProv));
+        if(a != null) {
+            BuildBuildings.setFromProv(a);
+            a.setValuesFromEnumMapSet(tableViewBuildings);
+        }
     }
 
     public void setSelectedCountry(int ownerId) {
-        this.selectedCountry = ownerId;
-        this.changeSelectedCountryInfo();
+        selectedCountry = ownerId;
+        changeSelectedCountryInfo();
     }
 
 

@@ -2,13 +2,13 @@ package com.erimali.cntrygame;
 
 import javafx.application.Application;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.ProgressBarTableCell;
 import javafx.scene.control.cell.ProgressBarTreeTableCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -18,12 +18,16 @@ import javafx.util.Callback;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
-
-//Build vs Demolish button and cancel while in progress
+//TreeView redundant if no opening Military vs Civilian subtrees...
 public class BuildBuildings extends Application {
-    public static class ProgressBarButtonTreeTableCell<S extends Task> extends TreeTableCell<S, Double> {
-        public static <S extends Task> Callback<TreeTableColumn<S, Double>, TreeTableCell<S, Double>> forTreeTableColumn() {
-            return param -> new ProgressBarButtonTreeTableCell<>();
+    public static void setFromProv(AdmDiv admDiv) {
+        BuildBuildings.currProvBuildings = admDiv.currProvBuildings;
+        BuildBuildings.buildings = admDiv.buildings;
+    }
+
+    public static class ProgressBarButtonTableCell<S extends Task> extends TableCell<S, Double> {
+        public static <S extends Task> Callback<TableColumn<S,Double>, TableCell<S,Double>> forTableColumn() {
+            return param -> new ProgressBarButtonTableCell<>();
         }
 
         private final ProgressBar progressBar;
@@ -31,8 +35,8 @@ public class BuildBuildings extends Application {
         private final HBox hBox;
         private ObservableValue<Double> observable;
 
-        public ProgressBarButtonTreeTableCell() {
-            this.getStyleClass().add("progress-bar-tree-table-cell");
+        public ProgressBarButtonTableCell() {
+            this.getStyleClass().add("progress-bar-button-table-cell");
 
             this.progressBar = new ProgressBar();
             this.progressBar.setMaxWidth(Double.MAX_VALUE);
@@ -43,7 +47,7 @@ public class BuildBuildings extends Application {
                 rowData.changeStatus();
 
             });
-            this.hBox = new HBox(8, progressBar, button);
+            this.hBox = new HBox(4, progressBar, button);
         }
 
         @Override
@@ -55,7 +59,7 @@ public class BuildBuildings extends Application {
             } else {
                 progressBar.progressProperty().unbind();
 
-                final TreeTableColumn<S, Double> column = getTableColumn();
+                final TableColumn<S, Double> column = getTableColumn();
                 observable = column == null ? null : column.getCellObservableValue(getIndex());
 
                 if (observable != null) {
@@ -78,48 +82,41 @@ public class BuildBuildings extends Application {
     //utilize negative values from -1 to -n...
     //provId, ownerId, subjects ...
 
-    public static TreeTableView<BuildBuilding> makeTreeTableView() {
+    public static TableView<BuildBuilding> makeTableView() {
         // Create a TreeTableView
-        TreeTableView<BuildBuilding> treeTableView = new TreeTableView<>();
+        TableView<BuildBuilding> tableView = new TableView<>();
         // Define columns
-        TreeTableColumn<BuildBuilding, String> nameColumn = new TreeTableColumn<>("Task Name");
-        nameColumn.setCellValueFactory(param -> param.getValue().getValue().nameProperty());
-        nameColumn.setMinWidth(160);
-        TreeTableColumn<BuildBuilding, Double> progressColumn = new TreeTableColumn<>("Progress");
-        progressColumn.setCellValueFactory(param -> param.getValue().getValue().isRootLike() ? null : param.getValue().getValue().progressProperty());
-        progressColumn.setMinWidth(160);
+        TableColumn<BuildBuilding, String> nameColumn = new TableColumn<>("Task Name");
+        nameColumn.setCellValueFactory(param -> param.getValue().nameProperty());
+        nameColumn.setMinWidth(138);
+        TableColumn<BuildBuilding, Double> progressColumn = new TableColumn<>("Progress");
+        progressColumn.setCellValueFactory(param -> param.getValue().progressProperty());
+        progressColumn.setMinWidth(162);
         //
 
         //progressColumn.setCellFactory(ProgressBarTreeTableCell.forTreeTableColumn());
-        progressColumn.setCellFactory(ProgressBarButtonTreeTableCell.forTreeTableColumn());
+        progressColumn.setCellFactory(ProgressBarButtonTableCell.forTableColumn());
 
-        treeTableView.getColumns().addAll(nameColumn, progressColumn);
-        // Create root item and populate data
+        tableView.getColumns().addAll(nameColumn, progressColumn);
 
-        BuildBuilding a = new BuildBuilding(Building._BUILDING, -2);
+        for (Building build : Building.values()) {
+            tableView.getItems().add(new BuildBuilding(build, 0.0));
+        }
 
-        TreeItem<BuildBuilding> root = new TreeItem<>(a);
-        initTreeTableViewFromEnum(root);
-        treeTableView.setRoot(root);
-        treeTableView.setShowRoot(false);
-        //treeTableView.setMinWidth(200);
-
-        return treeTableView;
+        return tableView;
     }
 
     @Override
     public void start(Stage primaryStage) {
-        TreeTableView<BuildBuilding> treeTableView = makeTreeTableView();
+        TableView<BuildBuilding> tableView = makeTableView();
         // Display the TreeTableView
-        Scene scene = new Scene(treeTableView, 400, 300);
+        Scene scene = new Scene(tableView, 400, 300);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Progress Data in TreeTableView");
         primaryStage.show();
         buildings = EnumSet.noneOf(Building.class);
         currProvBuildings = new EnumMap<>(Building.class);
-
-        currProvBuildings.put(Building.MIL_AIRPORT, (byte) 2);
-        setValuesFromEnumMapSet(treeTableView.getRoot());
+        //setValuesFromEnumMapSet(tableView);
     }
 
     public static void main(String[] args) {
@@ -129,14 +126,12 @@ public class BuildBuildings extends Application {
     public abstract static class Task {
         abstract void changeStatus();
 
-        abstract boolean isRootLike();
     }
 
     // Task class representing each task
     public static class BuildBuilding extends Task {
         private final Building building;
         private final SimpleDoubleProperty progress;
-        //if add progress the moment you click button, below becomes irrelevant
 
         public BuildBuilding(Building building, double progress) {
             this.building = building;
@@ -177,21 +172,15 @@ public class BuildBuildings extends Application {
             popupBuilding(this);
         }
 
-        @Override
-        public boolean isRootLike() {
-            return building.isRootLike();
-        }
     }
 
     public static EnumMap<Building, Byte> currProvBuildings;
     public static EnumSet<Building> buildings;
 
-    //SelectedProvince -> EnumMap<Building,Byte> currBuilding; EnumSet<Building> finishedBuildings;
-    //
     public static void popupBuilding(BuildBuilding bb) {
         Dialog<ButtonType> dialog = new Dialog<>();
         Building b = bb.getBuilding();
-        byte byteVal = currProvBuildings.getOrDefault(b, (byte) 0);
+        byte byteVal = buildings.contains(b) ? b.stepsToBuild : currProvBuildings.getOrDefault(b, (byte) 0);
         if (byteVal == 0) {
             dialog.setTitle("Build Building");
         }
@@ -217,18 +206,20 @@ public class BuildBuildings extends Application {
                     if (bVal == 0) {
 
                         bVal++;
+                        currProvBuildings.put(b, bVal);
 
                     }
                     //Demolish
                     else if (bVal == b.stepsToBuild) {
                         //upon confirm
                         bVal = 0;
+                        buildings.remove(b);
                     }
                     //Cancel
                     else {
                         bVal = 0;
+                        currProvBuildings.remove(b);
                     }
-                    currProvBuildings.put(b, bVal);
                     bb.setProgress(bVal);
                 }
         );
@@ -237,50 +228,5 @@ public class BuildBuildings extends Application {
 
     }
 
-    public static void initTreeTableViewFromEnum(TreeItem<BuildBuilding> root) {
-        Building[] builds = Building.values();
-        for (int i = 1; i < builds.length; i++) {
-            root.getChildren().add(new TreeItem<>(new BuildBuilding(builds[i], 0.0)));
-        }
-
-    }
-
-    public static void setValuesFromEnumMapSet(TreeItem<BuildBuilding> root) {
-        /*for(Building b : Building.values()){
-            if(currProvBuildings.containsKey(b)){
-                byte val = currProvBuildings.get(b);
-                if (b.isMilitary()) {
-                    mil.getChildren().get(m++).getValue().setProgress(val);
-                } else if (b.isDiplomatic()) {
-                    dip.getChildren().get(d++).getValue().setProgress(val);
-                } else if (b.isOther()) {
-                    others.getChildren().get(o++).getValue().setProgress(val);
-                }
-            }
-        }*/
-/*
-        for (Map.Entry<Building, Byte> b : currProvBuildings.entrySet()) {
-            if (b.getKey().isMilitary()) {
-                mil.getChildren().get(m++).getValue().setProgress(b.getValue());
-            } else if (b.getKey().isDiplomatic()) {
-                dip.getChildren().get(d++).getValue().setProgress(b.getValue());
-            } else if (b.getKey().isOther()) {
-                others.getChildren().get(o++).getValue().setProgress(b.getValue());
-            }
-        }
-*/
-        Building[] builds = Building.values();
-        for (int i = 1; i < builds.length; i++) {
-            BuildBuilding bb = root.getChildren().get(i++).getValue();
-            Building b = builds[i];
-            if (buildings.contains(b)) {
-                if (bb != null) bb.setProgress(1.0);
-            } else if (currProvBuildings.containsKey(b)) {
-                if (bb != null) bb.setProgress(currProvBuildings.get(b));
-            } else {
-                if (bb != null) bb.setProgress(0.0);
-            }
-        }
-    }
 
 }
