@@ -167,6 +167,7 @@ public class GLogic implements Serializable {
         //...
         world.monthlyUpdate();
         gs.changeSelectedProvInfo();
+        gs.changeSelectedCountryInfo();
     }
     public void yearlyTick(){
         world.yearlyUpdate();

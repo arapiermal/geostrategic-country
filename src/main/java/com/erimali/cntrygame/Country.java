@@ -1,6 +1,5 @@
 package com.erimali.cntrygame;
 
-import javax.security.auth.Subject;
 import java.io.Serializable;
 import java.util.*;
 
@@ -17,13 +16,12 @@ public class Country implements Serializable {
     private String capital;
     private String[] infoElectronic;
     private List<Short> languages;
-
     private String admDivisionType; // county,district,etc.
     private List<AdmDiv> admDivisions;
     // !!!!!!!!!!!!!!!!!!!!
     //private Set<Integer> annexedCountries; // !!!!!!!!!!!!!!!!!!!!!!!
     private Diplomacy dip;
-    private Economy economy;
+    private Economy eco;
     private Government gov; // Republic of Albania toString()
     private Military mil;
     // Other countries
@@ -32,12 +30,14 @@ public class Country implements Serializable {
     // int -> type (satellite state, autonomous region, colony, etc.)
     private Map<Integer, CSubject> subjects;
     private CSubject subjectOf;
+    private List<Union> uni;
+
     // SOME COUNTRIES CAN START AS SUBJECTS OF OTHERS;
 
     // Constructors
     public Country(String name, double area, long population, double populationIncrease, boolean landlocked, String capital,
                    String[] infoElectronic, String admDivisionType, List<AdmDiv> admDivisions, List<Short> languages,
-                   Set<Integer> neighbours, Government gov, Economy economy, Military mil, Diplomacy dip) {
+                   Set<Integer> neighbours, Government gov, Economy eco, Military mil, Diplomacy dip) {
         this.name = name;
         this.area = area;
         this.population = population;
@@ -48,20 +48,21 @@ public class Country implements Serializable {
         this.admDivisionType = admDivisionType;
         this.admDivisions = admDivisions;
         this.languages = languages;
-        this.economy = economy;
+        this.eco = eco;
         this.gov = gov;
         this.dip = dip;
         this.mil = mil;
         this.neighbours = neighbours;
 
         this.subjects = new HashMap<>();
+        this.uni = new LinkedList<>();
         // FOR CONSISTENCY
         fixPopulation();
     }
 
     public Country(String name, double area, long population, double populationIncrease, boolean landlocked, String capital,
                    String[] infoElectronic, String admDivisionType, List<AdmDiv> admDivisions, List<Short> languages,
-                   String[] neighbours, Government gov, Economy economy, Military military) {
+                   String[] neighbours, Government gov, Economy eco, Military military) {
         this.name = name;
         this.area = area;
         this.population = population;
@@ -73,7 +74,7 @@ public class Country implements Serializable {
         this.admDivisions = admDivisions;
         this.languages = languages;
         this.gov = gov;
-        this.economy = economy;
+        this.eco = eco;
         this.mil = military;
         this.dip = new Diplomacy();
 
@@ -84,6 +85,7 @@ public class Country implements Serializable {
         }
 
         this.subjects = new HashMap<>();
+        this.uni = new LinkedList<>();
 
         // FOR CONSISTENCY
         fixPopulation();
@@ -152,16 +154,16 @@ public class Country implements Serializable {
     }
 
     public double getGDPPerCapita() {
-        return this.economy.getGDP() / population;
+        return this.eco.getGDP() / population;
     }
 
     // ACTIONS
     public void addGDP(double gdp) {
-        economy.addGDP(gdp);
+        eco.addGDP(gdp);
     }
 
     public void addGDP(String gdp) {
-        economy.addGDP(gdp);
+        eco.addGDP(gdp);
     }
 
     // War
@@ -214,7 +216,12 @@ public class Country implements Serializable {
         // delete opponent country
         cArray.remove(ind);
     }
+    public void annexAdmDiv(Country o, int i){
+        //i based on provId (?)
+    }
+    public void annexAdmDivs(Country o, int... i){
 
+    }
     public void removeLanguages(short... langs) {
         for (short l : langs) {
             languages.remove(l);
@@ -397,6 +404,13 @@ public class Country implements Serializable {
                 this.annexCountry(cArray, i);
         }
     }
+    public void uniteWith(String name, CountryArray cArray, Set<Short> countries) {
+        this.name = name;
+        for (short i : countries) {
+            if (cArray.containsKey(i))
+                this.annexCountry(cArray, i);
+        }
+    }
 
     public String getPhonePrefix() {
         return infoElectronic[0];
@@ -484,9 +498,22 @@ public class Country implements Serializable {
             try {
                 continents.add(Continent.valueOf(s));
             } catch (IllegalArgumentException iae) {
-                continue;
             }
         }
+    }
+
+    public List<Union> getUnions(){
+        return uni;
+    }
+    public Union getUnion(int i){
+        return uni.get(i);
+    }
+    public void addUnion(Union u){
+        uni.add(u);
+    }
+
+    public void removeUnion(Union u) {
+        uni.remove(u);
     }
 
     // Simple Getters/Setters
@@ -541,19 +568,19 @@ public class Country implements Serializable {
     }
 
     public Economy getEconomy() {
-        return economy;
+        return eco;
     }
 
-    public void setEconomy(Economy economy) {
-        this.economy = economy;
+    public void setEconomy(Economy eco) {
+        this.eco = eco;
     }
 
     public String getCurrency() {
-        return economy.getCurrency();
+        return eco.getCurrency();
     }
 
     public void setCurrency(String currency) {
-        this.economy.setCurrency(currency);
+        this.eco.setCurrency(currency);
     }
 
     public Government getGovernment() {
@@ -591,4 +618,5 @@ public class Country implements Serializable {
     public short getMainLanguage() {
         return languages.getFirst();
     }
+
 }

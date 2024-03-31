@@ -448,4 +448,21 @@ public class World implements Serializable {
             }
         }
     }
+
+    public void addUnion(Union u){
+        unions.put(u.getShortName(), u);
+    }
+
+    public void removeUnion(String shortName){
+        Union u = unions.remove(shortName);
+        for(short i : u.getUnionCountries()){
+            Country c = countries.get(i);
+            if(c != null){
+                c.removeUnion(u);
+            }
+        }
+    }
+    public void removeUnion(String shortName, int c) {
+        unions.get(shortName).dismantle(c);
+    }
 }

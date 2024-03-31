@@ -81,6 +81,10 @@ public class CountryArray implements Iterable<Country>, Serializable {
     public boolean containsKey(int iso2){
         return countries[iso2] != null;
     }
+
+    public boolean containsKey(short iso2){
+        return countries[iso2] != null;
+    }
     public boolean containsKey(String iso2){
         int index = getIndex(iso2);
         if(index >= 0 && index < maxISO2Countries)

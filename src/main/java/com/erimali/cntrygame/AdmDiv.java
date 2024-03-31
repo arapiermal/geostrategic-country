@@ -3,6 +3,7 @@ package com.erimali.cntrygame;
 import javafx.scene.control.TableView;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
 
@@ -19,9 +20,11 @@ public class AdmDiv implements Serializable {
 
     private double area;
     private int population;
-    private short mainLanguage; // + culture?
-
+    private short mainLanguage; // + culture?, PopDistFloat/Double..., can be [][] and static methods there.
+//based on stability, rebellion can happen or if > 64
+    //when annexing during war set rebellion to 16 32 or 64 (except provinces which consider us liberators)
     private byte[] rebellion; //types: separatism, autonomy,...
+    //treat like
     EnumSet<Building> buildings;
     public EnumMap<Building, Byte> currProvBuildings;
 
@@ -49,22 +52,25 @@ public class AdmDiv implements Serializable {
         this.mainLanguage = mainLanguage;
         this.buildings = EnumSet.noneOf(Building.class);
         this.currProvBuildings = new EnumMap<>(Building.class);
+        resetRebellion();
     }
 
     public AdmDiv(String name, String area, String population, short mainLanguage) {
         this.name = name;
+        this.mainLanguage = mainLanguage;
+        this.buildings = EnumSet.noneOf(Building.class);
+        this.currProvBuildings = new EnumMap<>(Building.class);
+        resetRebellion();
         try {
             this.area = Double.parseDouble(area);
             this.population = Integer.parseInt(population);
-            this.mainLanguage = mainLanguage;
-            this.buildings = EnumSet.noneOf(Building.class);
-            this.currProvBuildings = new EnumMap<>(Building.class);
-
         } catch (NumberFormatException e) {
 
         }
     }
-
+    public void resetRebellion(){
+        Arrays.fill(rebellion, (byte) 0);
+    }
     public void addPopulation(int pop) {
         this.population += pop;
     }
