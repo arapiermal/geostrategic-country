@@ -28,3 +28,45 @@
 .declare-war-button:pressed {
     -fx-background-color: #C0392B;
 }
+
+.sponsor-rebels-button {
+    -fx-background-color: #FF5733;
+    -fx-background-radius: 5px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 4px 8px;
+    -fx-border-color: transparent;
+}
+
+.sponsor-rebels-button:hover {
+    -fx-background-color: #E74C3C;
+}
+
+.sponsor-rebels-button:pressed {
+    -fx-background-color: #C0392B;
+}
+
+.progress-button-table-cell .Button {
+
+    cursor: pointer;
+}
+
+.progress-button-table-cell .Button:hover {
+}
+
+.progress-button-table-cell .Button {
+
+}
+
+.progress-button-table-cell .Build {
+
+}
+
+.progress-button-table-cell .Cancel {
+
+}
+
+.progress-button-table-cell .Demolish {
+
+}

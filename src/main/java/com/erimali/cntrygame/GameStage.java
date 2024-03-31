@@ -417,7 +417,7 @@ public class GameStage extends Stage {
         declareWar.getStyleClass().add("declare-war-button");
         Button sponsorRebels = new Button("Sponsor Rebels");
         sponsorRebels.setOnAction(e -> sponsorRebels());
-        declareWar.getStyleClass().add("sponsor-rebels-button");
+        sponsorRebels.getStyleClass().add("sponsor-rebels-button");
 
         VBox vboxWar = new VBox(optionsWar, declareWar, sponsorRebels);
 
@@ -537,6 +537,8 @@ public class GameStage extends Stage {
         chooseCountryButton.setVisible(false);
         tableViewBuildings.setVisible(true);
         isPlayingCountry = true;
+        changeSelectedCountryInfo();
+        changeSelectedProvInfo();
     }
 
     public void pausePlayDate() {
