@@ -33,13 +33,13 @@ public class GLogic implements Serializable {
 
     // Countries
     private World world;
-    private World moon;
+    private World[] moon_planets;
     // private World planets[]; //solar system
     private List<War> wars;
     //private List<WarResult> finishedWars;
     // Wars saved as GNews ... (special type, int)
     private Currencies currencies;
-//TAKE CARE WHEN SAVING WHILE NOTHING IS CHOSEN
+    //TAKE CARE WHEN SAVING WHILE NOTHING IS CHOSEN
     private int playerId;
     private Country player;
     // Game Events
@@ -59,36 +59,28 @@ public class GLogic implements Serializable {
     public GLogic(GameStage gs) {
         this.inGDate = new GDate(DEF_STARTDAY, DEF_STARTMONTH, DEF_STARTYEAR);
         this.gs = gs;
-        gs.changeDate(inGDateInfo());
-        startTimer(defaultIntervalInSeconds);
+        startTimer();
         this.world = new World();
         CommandLine.setCountries(world.getCountries());
         CommandLine.loadEriScripts();
         this.gameEvents = loadGameEvents(DEF_GAMEEVENTSPATH);
         this.currencies = new Currencies();
-
         this.improvingRelations = new HashMap<>();
 
         this.wars = new LinkedList<>();
     }
 
-    //TESTING
-    public GLogic() {
-        this.inGDate = new GDate(DEF_STARTDAY, DEF_STARTMONTH, DEF_STARTYEAR);
-        this.world = new World();
-        this.gameEvents = loadGameEvents(DEF_GAMEEVENTSPATH);
-
-    }
-    public void startTimer(){
+    public void startTimer() {
         startTimer(defaultIntervalInSeconds);
     }
+
     public void startTimer(double intervalInSeconds) {
 
         interval = Duration.seconds(intervalInSeconds);
         keyframe = new KeyFrame(interval, event -> {
             if (gs.isPaused) {
 
-            } else{
+            } else {
                 dailyTick();
             }
         });
@@ -99,11 +91,13 @@ public class GLogic implements Serializable {
         timeline.play();
     }
 
-    public void increaseInterval(){
+    public void increaseInterval() {
     }
-    public void decreaseInterval(){
+
+    public void decreaseInterval() {
 
     }
+
     public void pauseTimer() {
         timeline.pause();
     }
@@ -156,11 +150,11 @@ public class GLogic implements Serializable {
         }
     }
 
-    public void weeklyTick(){
+    public void weeklyTick() {
 
     }
 
-    public void monthlyTick(){
+    public void monthlyTick() {
         if (!improvingRelations.isEmpty()) {
             tickImproveRelations();
         }
@@ -169,9 +163,19 @@ public class GLogic implements Serializable {
         gs.changeSelectedProvInfo();
         gs.changeSelectedCountryInfo();
     }
-    public void yearlyTick(){
+
+    public void yearlyTick() {
         world.yearlyUpdate();
     }
+
+    public Country getCountry(String c) {
+        return world.getCountry(c);
+    }
+
+    public Country getCountry(int id) {
+        return world.getCountry(id);
+    }
+
     public String inGDateInfo() {
         return inGDate.toString();
     }
@@ -274,25 +278,15 @@ public class GLogic implements Serializable {
         }
     }
 
-    public void improveRelations(String c) {
-        player.improveRelations(c);
-    }
-
-    public void improveRelations(String c, short amount) {
-        player.improveRelations(c, amount);
-    }
-
-    public void improveRelations(String c1, String c2) {
-        world.getCountry(c1).improveRelations(c2);
-    }
-
     public void improveRelations(int c1, int c2) {
         world.getCountry(c1).improveRelations(c2);
     }
 
-    public void improveRelations(String c1, String c2, short amount) {
+    public void improveRelations(int c1, int c2, short amount) {
         world.getCountry(c1).improveRelations(c2, amount);
     }
+
+
     // Game Events
 
     private PriorityQueue<GEvent> loadGameEvents(String path) {
@@ -435,7 +429,7 @@ public class GLogic implements Serializable {
                     } else {
                         c = world.getCountry(reference);
                     }
-                    if(c == null)
+                    if (c == null)
                         return "NULL";
                     switch (commands[1].toUpperCase()) {
                         case "NAME":
@@ -549,11 +543,6 @@ public class GLogic implements Serializable {
     // WAR
 //////////////////////////////////////////////////
 //
-    public void declareWar(String a, String b, CasusBelli casusBelli) {
-        String warName = "";// Albania vs OpponentName - casusBelli
-        War w = world.getCountry(a).declareWar(world.getCountry(b), casusBelli);
-        wars.add(w);
-    }
 
     public void declareWar(int a, int o, CasusBelli casusBelli) {
         String warName = "";// Albania vs OpponentName - casusBelli
@@ -579,12 +568,9 @@ public class GLogic implements Serializable {
     }
 
     public World getMoon() {
-        return moon;
+        return moon_planets[0];
     }
 
-    public void setMoon(World moon) {
-        this.moon = moon;
-    }
 
     public String getRelationsWith(String c) {
         return String.format("%d", player.getRelations(c));
@@ -622,4 +608,9 @@ public class GLogic implements Serializable {
         return world.getProvInfo(selectedProv);
     }
 
+    public void dailyWarBattles() {
+        for (War w : wars) {
+            w.dayTick();
+        }
+    }
 }

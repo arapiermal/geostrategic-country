@@ -25,20 +25,20 @@ public class BuildBuildings extends Application {
         BuildBuildings.buildings = admDiv.buildings;
     }
 
-    public static class ProgressBarButtonTableCell<S extends Task> extends TableCell<S, Double> {
-        public static <S extends Task> Callback<TableColumn<S,Double>, TableCell<S,Double>> forTableColumn() {
+    public static class ProgressBarButtonTableCell<S extends GTask> extends TableCell<S, Double> {
+        public static <S extends GTask> Callback<TableColumn<S,Double>, TableCell<S,Double>> forTableColumn() {
             return param -> new ProgressBarButtonTableCell<>();
         }
-
-        private final ProgressBar progressBar;
+//Progress indicator or bar (?) indicator -> less space
+        private final ProgressIndicator progressBar;
         private final Button button;
         private final HBox hBox;
         private ObservableValue<Double> observable;
 
         public ProgressBarButtonTableCell() {
-            this.getStyleClass().add("progress-bar-button-table-cell");
+            this.getStyleClass().add("progress-button-table-cell");
 
-            this.progressBar = new ProgressBar();
+            this.progressBar = new ProgressIndicator();
             this.progressBar.setMaxWidth(Double.MAX_VALUE);
 
             this.button = new Button();
@@ -64,12 +64,16 @@ public class BuildBuildings extends Application {
 
                 if (observable != null) {
                     progressBar.progressProperty().bind(observable);
-                    button.setText(observable.getValue() == 0 ? "Build" : observable.getValue() == 1 ? "Demolish" : "Cancel");
-
+                    String txt = observable.getValue() == 0 ? "Build" : observable.getValue() == 1 ? "Demolish" : "Cancel";
+                    button.setText(txt);
+                    button.getStyleClass().removeAll("Build","Demolish","Cancel");
+                    button.getStyleClass().add(txt);
                 } else if (item != null) {
                     progressBar.setProgress(item);
-                    button.setText(item == 0 ? "Build" : item == 1 ? "Demolish" : "Cancel");
-
+                    String txt = item == 0 ? "Build" : item == 1 ? "Demolish" : "Cancel";
+                    button.setText(txt);
+                    button.getStyleClass().removeAll("Build","Demolish","Cancel");
+                    button.getStyleClass().add(txt);
                 }
                 setGraphic(hBox);
 
@@ -83,10 +87,9 @@ public class BuildBuildings extends Application {
     //provId, ownerId, subjects ...
 
     public static TableView<BuildBuilding> makeTableView() {
-        // Create a TreeTableView
         TableView<BuildBuilding> tableView = new TableView<>();
-        // Define columns
-        TableColumn<BuildBuilding, String> nameColumn = new TableColumn<>("Task Name");
+        // Columns
+        TableColumn<BuildBuilding, String> nameColumn = new TableColumn<>("Building Name");
         nameColumn.setCellValueFactory(param -> param.getValue().nameProperty());
         nameColumn.setMinWidth(138);
         TableColumn<BuildBuilding, Double> progressColumn = new TableColumn<>("Progress");
@@ -111,8 +114,10 @@ public class BuildBuildings extends Application {
         TableView<BuildBuilding> tableView = makeTableView();
         // Display the TreeTableView
         Scene scene = new Scene(tableView, 400, 300);
+
         primaryStage.setScene(scene);
         primaryStage.setTitle("Progress Data in TreeTableView");
+
         primaryStage.show();
         buildings = EnumSet.noneOf(Building.class);
         currProvBuildings = new EnumMap<>(Building.class);
@@ -123,13 +128,13 @@ public class BuildBuildings extends Application {
         launch(args);
     }
 
-    public abstract static class Task {
+    public abstract static class GTask {
         abstract void changeStatus();
 
     }
 
     // Task class representing each task
-    public static class BuildBuilding extends Task {
+    public static class BuildBuilding extends GTask {
         private final Building building;
         private final SimpleDoubleProperty progress;
 

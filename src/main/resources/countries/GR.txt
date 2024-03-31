@@ -21,7 +21,7 @@ South_Aegean,5286,7646
 Thessalia,14037,11608
 Western_Greece,11350,10659
 Western_Macedonia,9451,5506
-Monastic community of Mount Athos,0.1,336
+Mount_Athos,0.1,336
 kaq
 Government
 type:Republic

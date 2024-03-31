@@ -13,7 +13,7 @@ import java.util.EnumSet;
 //Adjacency matrix?
 public class AdmDiv implements Serializable {
     // County,district,...
-    //private transient SVGProvince svgProvince; //if made transient it isn't saved / serialized
+    private transient SVGProvince svgProvince; //if made transient it isn't saved / serialized
     private int provId, ownerId; //Correlate with provinces
     private String name;
     private String nativeName; // Durrës vs Durres ?
@@ -21,7 +21,7 @@ public class AdmDiv implements Serializable {
     private double area;
     private int population;
     private short mainLanguage; // + culture?, PopDistFloat/Double..., can be [][] and static methods there.
-//based on stability, rebellion can happen or if > 64
+    //based on stability, rebellion can happen or if > 64
     //when annexing during war set rebellion to 16 32 or 64 (except provinces which consider us liberators)
     private byte[] rebellion; //types: separatism, autonomy,...
     //treat like
@@ -68,11 +68,13 @@ public class AdmDiv implements Serializable {
             e.printStackTrace();
         }
     }
-    public void resetRebellion(){
+
+    public void resetRebellion() {
         //or EnumMap ...
         rebellion = new byte[RebelType.values().length];
         Arrays.fill(rebellion, (byte) 0);
     }
+
     public void addPopulation(int pop) {
         this.population += pop;
     }
@@ -98,7 +100,7 @@ public class AdmDiv implements Serializable {
             if (val >= b.stepsToBuild) {
                 currProvBuildings.remove(b);
                 buildings.add(b);
-            } else{
+            } else {
                 entry.setValue(val);
             }
         }
@@ -163,6 +165,8 @@ public class AdmDiv implements Serializable {
 
     public void setOwnerId(int ownerId) {
         this.ownerId = ownerId;
+        if (svgProvince != null)
+            svgProvince.setOwnerId(ownerId);
     }
 
     public short getMainLanguage() {
@@ -176,6 +180,7 @@ public class AdmDiv implements Serializable {
     public void setFromSVGProvince(SVGProvince svg) {
         this.provId = svg.getProvId();
         this.ownerId = svg.getOwnerId();
+        this.svgProvince = svg;
     }
 
     //if not player or subject id -> second column ...
@@ -195,4 +200,11 @@ public class AdmDiv implements Serializable {
         }
     }
 
+    public SVGProvince getSvgProvince() {
+        return svgProvince;
+    }
+
+    public void setSvgProvince(SVGProvince svgProvince) {
+        this.svgProvince = svgProvince;
+    }
 }

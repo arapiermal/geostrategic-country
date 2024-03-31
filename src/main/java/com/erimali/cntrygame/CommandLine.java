@@ -148,7 +148,7 @@ public class CommandLine {
                         break;
                     case "REL":
                         if (k.length == 3) {
-                            mainCountry.improveRelations(k[2]);
+                            mainCountry.improveRelations(CountryArray.getIndexShort(k[2]));
                             result = "Improved relations with " + k[2];
                         }
                         break;
@@ -188,11 +188,13 @@ public class CommandLine {
                         break;
                 }
                 break;
+            case "REBELS":
+                break;
             case "ANNEX":
                 if (k.length == 2) {
                     mainCountry.annexCountry(countries, CountryArray.getIndex(k[1]));
-                    countries.remove(k[1]);
                     result = shortName + " annexed " + k[1];
+                    gs.getMap().refreshMap();
                 }
                 //CHANGED
                 //US ANNEX DE
@@ -226,6 +228,12 @@ public class CommandLine {
                 if (k.length > 4)
                     gs.getGame().getWorld().addUnion(k[1], k[2], k[3], k[4]);
                 break;
+            case "WAR":
+                if(k.length == 2){
+                    gs.getGame().declareWar(cIndex, CountryArray.getIndex(k[1]), CasusBelli.IMPERIALISM);
+                } else {
+                    gs.getGame().declareWar(cIndex, CountryArray.getIndex(k[1]), CasusBelli.valueOf(k[3]));
+                }
             case "PLAY":
                 switch (k[1]) {
                     case "CHESS":
@@ -256,11 +264,11 @@ public class CommandLine {
                 try {
                     a = Alert.AlertType.valueOf(k[1]);
                     title = k[2];
-                    description = GUtils.joinStrings(k, 3);
+                    description = k[3];
                 } catch (Exception e) {
                     a = Alert.AlertType.NONE;
                     title = k[1];
-                    description = GUtils.joinStrings(k, 2);
+                    description = k[2];
                 }
                 gs.showAlert(a, title, description);
                 break;

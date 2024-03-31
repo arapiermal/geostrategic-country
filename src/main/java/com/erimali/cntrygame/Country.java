@@ -4,10 +4,12 @@ import java.io.Serializable;
 import java.util.*;
 
 public class Country implements Serializable {
-    // CONSTANTS
     //private World world;
     private String name;
     private String iso2;
+
+
+    private int countryId;
     private long population;
     private double populationIncrease;
     private double area;
@@ -56,6 +58,7 @@ public class Country implements Serializable {
 
         this.subjects = new HashMap<>();
         this.uni = new LinkedList<>();
+
         // FOR CONSISTENCY
         fixPopulation();
     }
@@ -197,7 +200,7 @@ public class Country implements Serializable {
         this.admDivisions.addAll(op.admDivisions);
         addLanguages(op.getLanguages());
         // Get the economy
-
+        annexAllAdmDivs(op);
         // Get the military equipment of the one who lost/got annexed
         //this.uniteMilVehicles(op);
         // Soldiers disbanded (EXCEPT when union)
@@ -216,12 +219,23 @@ public class Country implements Serializable {
         // delete opponent country
         cArray.remove(ind);
     }
-    public void annexAdmDiv(Country o, int i){
+
+    public void annexAdmDivs(Country o, int... i) {
+        //Comparable based on provId... PriorityQueue ?
         //i based on provId (?)
     }
-    public void annexAdmDivs(Country o, int... i){
+
+    //are they happy with annexation ... , change
+    public void annexAllAdmDivs(Country o, boolean... args) {
+        List<AdmDiv> l = o.getAdmDivs();
+        while (!l.isEmpty()) {
+            AdmDiv a = l.removeFirst();
+            a.setOwnerId(countryId);
+            admDivisions.add(a);
+        }
 
     }
+
     public void removeLanguages(short... langs) {
         for (short l : langs) {
             languages.remove(l);
@@ -332,12 +346,8 @@ public class Country implements Serializable {
         dip.improveRelations(c);
     }
 
-    public void improveRelations(String c) {
-        dip.improveRelations(CountryArray.getIndex(c));
-    }
-
-    public void improveRelations(String c, short val) {
-        dip.improveRelations(CountryArray.getIndexShort(c), val);
+    public void improveRelations(int c, short val) {
+        dip.improveRelations(c, val);
     }
 
     public int getRelations(String c) {
@@ -404,6 +414,7 @@ public class Country implements Serializable {
                 this.annexCountry(cArray, i);
         }
     }
+
     public void uniteWith(String name, CountryArray cArray, Set<Short> countries) {
         this.name = name;
         for (short i : countries) {
@@ -502,13 +513,15 @@ public class Country implements Serializable {
         }
     }
 
-    public List<Union> getUnions(){
+    public List<Union> getUnions() {
         return uni;
     }
-    public Union getUnion(int i){
+
+    public Union getUnion(int i) {
         return uni.get(i);
     }
-    public void addUnion(Union u){
+
+    public void addUnion(Union u) {
         uni.add(u);
     }
 
@@ -613,6 +626,11 @@ public class Country implements Serializable {
 
     public void setIso2(String iso2) {
         this.iso2 = iso2.toUpperCase();
+        this.countryId = CountryArray.getIndex(iso2);
+    }
+
+    public int getCountryId() {
+        return countryId;
     }
 
     public short getMainLanguage() {

@@ -1,9 +1,9 @@
 CHESSTOURNAMENT,FIDE World Championship 2024,5/2/2024,is not RU
 In light of the new chess world tournament, Putin invites you to a game of chess. ~ Defeating him in this game could be a great opportunity to boost our reputation.
-`!{translate to self:Certainly}`, accept it. 
+`!{translate to self:Certainly}`, accept it.
 play chess XK
 Deny, we have better things to do. The year is !{DATE NOW:yyyy}
-alert INFORMATION Reputation-- We have lost reputation
+alert INFORMATION Reputation-- "We have lost reputation"
 ~~~
 NEWS,Ukraine war,15/6/2024,is not RU|UA
 The ukrainian war continues ~ What should we do about it ~ Zelenski or Putin?
@@ -33,3 +33,13 @@ How to make trigerable, based on world progress~A new industrial revolution is t
 Continue the technological progress, it's only going to get better.
 
 Try your best to stop the world from going through this dystopic world!
+
+~~~
+SPEEDUP,Chinese companies,4/2/2024,is not CN
+Chinese companies seek to buy some property in Albania and they would also not mind working to speed up constructions. ~ Accepting them can put us on a road of dependency to China.
+`!{translate to self:Accept}`, 2x building speed is cool!
+add building speed 1 [until now+1/now+1/now+1]
+Deny, better to rely on ourselves.
+
+China? Pfffft, bunch of coward weaklings.
+add relation -50 DIPLOMATIC_INSULT

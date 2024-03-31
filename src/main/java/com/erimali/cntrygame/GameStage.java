@@ -62,7 +62,7 @@ public class GameStage extends Stage {
         setWidth(1280);
         setHeight(720);
         this.game = new GLogic(this);
-
+        changeDate(game.inGDateInfo());
         CommandLine.setGameStage(this);
 
         Scene gameScene = new Scene(gameLayout);
@@ -89,6 +89,7 @@ public class GameStage extends Stage {
         game.setGameStage(this);
         game.startTimer();
         this.game = game;
+        changeDate(game.inGDateInfo());
         BorderPane gameLayout = createGameLayout();
         updateGameLayout();
         setWidth(1280);
@@ -670,7 +671,7 @@ public class GameStage extends Stage {
 
         } else {
 
-            infoRelations.setText(game.getRelationsWith(CountryArray.getIndexISO2(selectedCountry)));
+            infoRelations.setText(game.getRelationsWith(selectedCountry));
         }
     }
 
@@ -710,23 +711,20 @@ public class GameStage extends Stage {
 
     // MiniGame
     public void showPopupMGTicTacToe(boolean playerTurn, int difficultyAI) {
-        // Create a new stage for the popup
         Stage popupStage = new Stage();
         popupStage.initModality(Modality.APPLICATION_MODAL);
         popupStage.initOwner(this);
 
-        // Create the root layout for the popup
         GridPane popupRoot = new GridPane();
         Scene popupScene = new Scene(popupRoot, 400, 300);
 
-        // Create the Tic Tac Toe board
         MGTicTacToe ttt = new MGTicTacToe(playerTurn, difficultyAI);
         int size = MGTicTacToe.getSize();
         Button[][] boardButtons = new Button[size][size];
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
-                int currentRow = row; // Create a final or effectively final copy of row
-                int currentCol = col; // Create a final or effectively final copy of col
+                int currentRow = row;
+                int currentCol = col;
 
                 Button button = new Button();
                 button.setMinSize(100, 100);
@@ -743,10 +741,8 @@ public class GameStage extends Stage {
             int colAI = ttt.getLastOpponentMove()[1];
             boardButtons[rowAI][colAI].setText(ttt.boardPieceToString(rowAI, colAI));
         }
-        // Set the scene for the popup stage
         popupStage.setScene(popupScene);
 
-        // Show the popup
         popupStage.showAndWait();
     }
 
@@ -764,9 +760,7 @@ public class GameStage extends Stage {
         } else if (result == MGTicTacToe.getInvalid()) {
             mgResult.setText("INVALID MOVE");
         } else {
-            if (result != MGTicTacToe.getOngoing()) {
-                mgResult.setText(ttt.getGameResult());
-            }
+            mgResult.setText(ttt.getGameResult());
         }
     }
 
@@ -820,7 +814,7 @@ public class GameStage extends Stage {
     }
 
     public void popupWebNews() {
-        File file = new File("src/main/resources/web/news.html");
+        File file = new File(GLogic.RESOURCESPATH + "web/news.html");
         String filePath = file.toURI().toString();
 
         WebView webView = new WebView();
@@ -838,7 +832,7 @@ public class GameStage extends Stage {
 
         String PLAYER = game.getPlayer().getGovernment().toStringMainRuler();
         String OPPONENT = game.getWorldCountries().get(cName).getGovernment().toStringMainRuler();
-        File file = new File("src/main/resources/web/chess/chess.html");
+        File file = new File(GLogic.RESOURCESPATH + "web/chess/chess.html");
         String filePath = file.toURI() + "?player=" + PLAYER + "&opponent=" + OPPONENT + "&src=countrysim";
 
         WebView webView = new WebView();
@@ -944,6 +938,7 @@ public class GameStage extends Stage {
         }
 
     }
+
     //
     public void changeSelectedProvInfo() {
         AdmDiv a = game.getWorld().getAdmDiv(selectedProv);

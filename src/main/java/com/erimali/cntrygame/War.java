@@ -32,6 +32,7 @@ enum WarObjectives {
         @Override
         public void action(Country c1, Country c2, float warState, int... args) {
             //c1.subjugateCountry(c2);
+
         }
     },
     REGIMECHANGE(70) {
@@ -85,7 +86,10 @@ public class War implements Serializable {
         }
 
     }
-    private List<Battle> activeBattles;
+    static class BattleResult implements Serializable {
+
+    }
+    //also through wars ... 
     public void dayTick(){
         for(Battle b : activeBattles){
             int res = b.dayTick();
@@ -124,6 +128,8 @@ public class War implements Serializable {
     private Country opposingCountry;
     private Set<Country> declaringAllies; //Which accepted to enter war
     private Set<Country> opposingAllies;
+    private List<Battle> activeBattles;
+
     //if reference to Country inside military;
     //private Military declaringCountry;
     //private Military opposingCountry;
@@ -138,8 +144,18 @@ public class War implements Serializable {
         this.activeBattles = new LinkedList<>();
 
     }
+    public void bringAlly(){
+
+    }
     public float getWarState(Country c){
         return (c == declaringCountry || declaringAllies.contains(c)) ? warState : -warState;
+    }
+    public void startBattle(int provId, MilDiv a, MilDiv o){
+
+    }
+
+    public void negotiate(){
+
     }
     //or int... arg
     public void finishWar(String... arg) {

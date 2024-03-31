@@ -71,10 +71,10 @@ public class CSubject implements Serializable {
 	public void setSubject(Country subject) {
 		this.subject = subject;
 	}
-	public String getMainIso2() {
-		return main.getIso2();
+	public int getMainId() {
+		return main.getCountryId();
 	}
-	public String getSubjectIso2() {
-		return subject.getIso2();
+	public int getSubjectId() {
+		return subject.getCountryId();
 	}
 }

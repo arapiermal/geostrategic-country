@@ -3,117 +3,79 @@ package com.erimali.cntrygame;
 import java.io.Serializable;
 
 enum Events {
-	WORLD_CUP {
-		@Override
-		public void performEvent() {
-		}
-	},
-	ADV_SCIENTIFIC {
-		@Override
-		public void performEvent() {
-		}
-	},
-	ADV_TECHNOLOGICAL {
-		@Override
-		public void performEvent() {
-		}
-	},
-	ADV_AI {
-		@Override
-		public void performEvent() {
-		}
-	};
+    WORLD_CUP {
+        @Override
+        public void performEvent() {
+        }
+    },
+    ADV_SCIENTIFIC {
+        @Override
+        public void performEvent() {
+        }
+    },
+    ADV_TECHNOLOGICAL {
+        @Override
+        public void performEvent() {
+        }
+    },
+    ADV_AI {
+        @Override
+        public void performEvent() {
+        }
+    };
 
-	public abstract void performEvent();
+    public abstract void performEvent();
 }
 
-public class GEvent implements Comparable<GEvent> , Serializable {
-	private String title;
-	private GDate date;
-	private String requirements; // not necessary for all, fix;
-	private String description;
-	private String[] options;
-	private String[] commands;
-	private boolean canHappen;
-	// maybe use commandLine
+public class GEvent extends BaseEvent implements Comparable<GEvent> {
+    private GDate date;
+    private String requirements;
+    private boolean canHappen;
 
-	public GEvent(String title, GDate date, String description, String[] options, String[] commands) {
-		super();
-		this.title = title;
-		this.date = date;
-		this.description = description;
-		this.options = options;
-		this.commands = commands;
-	}
-	public GEvent(String title, GDate date, String requirements, String description, String[] options, String[] commands) {
-		super();
-		this.title = title;
-		this.date = date;
-		this.requirements = requirements;
-		this.description = description;
-		this.options = options;
-		this.commands = commands;
-	}
-	public GDate getDate() {
-		return date;
-	}
+    public GEvent(String title, GDate date, String description, String[] options, String[] commands) {
+        super(title, description, options, commands);
+        this.date = date;
 
-	public void setDate(GDate date) {
-		this.date = date;
-	}
+    }
 
-	@Override
-	public int compareTo(GEvent o) {
-		return this.date.compareTo(o.getDate());
-	}
+    public GEvent(String title, GDate date, String requirements, String description, String[] options, String[] commands) {
+        super(title, description, options, commands);
+        this.date = date;
+        this.requirements = requirements;
+    }
 
-	public String getTitle() {
-		return title;
-	}
+    public GDate getDate() {
+        return date;
+    }
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    public void setDate(GDate date) {
+        this.date = date;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    @Override
+    public int compareTo(GEvent o) {
+        return this.date.compareTo(o.getDate());
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void run(int i) {
+        CommandLine.execute(getCommands()[i], true);
+    }
 
-	public String[] getOptions() {
-		return options;
-	}
+    public String getRequirements() {
+        return requirements;
+    }
 
-	public void setOptions(String[] options) {
-		this.options = options;
-	}
+    public void setRequirements(String requirements) {
+        this.requirements = requirements;
+    }
 
-	public void run(int i) {
-		CommandLine.execute(commands[i], true);
-	}
+    public boolean isCanHappen() {
+        return canHappen;
+    }
 
-	public String[] getCommands() {
-		return commands;
-	}
-
-	public void setCommands(String[] commands) {
-		this.commands = commands;
-	}
-	public String getRequirements() {
-		return requirements;
-	}
-	public void setRequirements(String requirements) {
-		this.requirements = requirements;
-	}
-	public boolean isCanHappen() {
-		return canHappen;
-	}
-	public void setCanHappen() {
-		if(requirements != null)
-			this.canHappen = CommandLine.checkStatement(requirements);
-	}
+    public void setCanHappen() {
+        if (requirements != null)
+            this.canHappen = CommandLine.checkStatement(requirements);
+    }
 
 }

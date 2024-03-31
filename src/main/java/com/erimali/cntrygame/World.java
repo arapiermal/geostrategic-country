@@ -83,6 +83,7 @@ public class World implements Serializable {
                 int ownerId = admDiv.getOwnerId();
                 if (wmProvinces[provId].getOwnerId() != ownerId) {
                     wmProvinces[provId].setOwnerId(admDiv.getOwnerId());
+                    admDiv.setSvgProvince(wmProvinces[provId]);
                     //update map ...
                 }
             }
