@@ -1,11 +1,11 @@
-CHESSTOURNAMENT,FIDE World Championship 2024,5/1/2024,is not RU
+CHESSTOURNAMENT,FIDE World Championship 2024,5/2/2024,is not RU
 In light of the new chess world tournament, Putin invites you to a game of chess. ~ Defeating him in this game could be a great opportunity to boost our reputation.
 `!{translate to self:Certainly}`, accept it. 
 play chess XK
 Deny, we have better things to do. The year is !{DATE NOW:yyyy}
 alert INFORMATION Reputation-- We have lost reputation
 ~~~
-NEWS,Ukraine war,15/1/2024,is not RU|UA
+NEWS,Ukraine war,15/6/2024,is not RU|UA
 The ukrainian war continues ~ What should we do about it ~ Zelenski or Putin?
 Send help to Ukraine and be part of sanctioning Russia
 
@@ -14,21 +14,21 @@ Never send help to Ukraine and never be part of sanctioning Russia
 Help Russia (Crazy option)
 
 ~~~
-VACCINE,VoCid 91 truths,1/2/2024,none
+VACCINE,VoCid 91 truths,10/2/2024,none
 Would you like to release the truths about VoCid 91 vaccines?
 Yes, the truth needs to be out.
 command
 No, keep it a secret. The public needs not to know.
 command
 ~~~
-WORLDCUP,FIFA World Cup 2026,1/3/2024,none
+WORLDCUP,FIFA World Cup 2026,2/3/2024,none
 FIFA World Cup -> football tournament
 Option 1
 command here
 Option 2
 command here
 ~~~
-ADVTECHNOLOGICAL,Industrial Revolution,1/4/2024,none
+ADVTECHNOLOGICAL,Industrial Revolution,2/4/2024,none
 How to make trigerable, based on world progress~A new industrial revolution is taking place. 
 Continue the technological progress, it's only going to get better.
 

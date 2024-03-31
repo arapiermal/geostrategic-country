@@ -945,7 +945,7 @@ public class GameStage extends Stage {
 
     }
 
-    private void changeSelectedProvInfo() {
+    public void changeSelectedProvInfo() {
         AdmDiv a = game.getWorld().getAdmDiv(selectedProv);
         selectedProvInfo.setText(game.getProvInfo(selectedProv));
         if(a != null) {

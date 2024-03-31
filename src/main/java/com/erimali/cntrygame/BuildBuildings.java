@@ -185,7 +185,7 @@ public class BuildBuildings extends Application {
             dialog.setTitle("Build Building");
         }
         //Demolish
-        else if (byteVal == b.stepsToBuild) {
+        else if (byteVal >= b.stepsToBuild) {
             dialog.setTitle("Demolish Building");
         }
         //Cancel
@@ -200,7 +200,7 @@ public class BuildBuildings extends Application {
         okButton.addEventFilter(
                 ActionEvent.ACTION,
                 event -> {
-                    byte bVal = currProvBuildings.getOrDefault(b, (byte) 0);
+                    byte bVal = buildings.contains(b) ? b.stepsToBuild : currProvBuildings.getOrDefault(b, (byte) 0);
 
                     //Build
                     if (bVal == 0) {

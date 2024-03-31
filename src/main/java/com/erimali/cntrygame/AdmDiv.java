@@ -87,10 +87,11 @@ public class AdmDiv implements Serializable {
         for (EnumMap.Entry<Building, Byte> entry : currProvBuildings.entrySet()) {
             Building b = entry.getKey();
             byte val = (byte) (entry.getValue() + 1);
-            TESTING.print(b,val);
             if (val >= b.stepsToBuild) {
                 currProvBuildings.remove(b);
                 buildings.add(b);
+            } else{
+                entry.setValue(val);
             }
         }
     }
@@ -177,11 +178,11 @@ public class AdmDiv implements Serializable {
             BuildBuildings.BuildBuilding bb = tableView.getItems().get(i);
             Building b = builds[i];
             if (buildings.contains(b)) {
-                if (bb != null) bb.setProgress(1.0);
+                bb.setProgress(1.0);
             } else if (currProvBuildings.containsKey(b)) {
-                if (bb != null) bb.setProgress(currProvBuildings.get(b));
+                bb.setProgress(currProvBuildings.get(b));
             } else {
-                if (bb != null) bb.setProgress(0.0);
+                bb.setProgress(0.0);
             }
         }
     }
