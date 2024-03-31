@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Map;
 
 //Build vs Demolish button and cancel while in progress
@@ -27,7 +28,7 @@ public class BuildBuildings extends Application {
 
         private final ProgressBar progressBar;
         private final Button button;
-
+        private final HBox hBox;
         private ObservableValue<Double> observable;
 
         public ProgressBarButtonTreeTableCell() {
@@ -35,12 +36,14 @@ public class BuildBuildings extends Application {
 
             this.progressBar = new ProgressBar();
             this.progressBar.setMaxWidth(Double.MAX_VALUE);
+
             this.button = new Button();
             this.button.setOnAction(event -> {
-                S rowData = getTreeTableRow().getItem();
+                S rowData = getTableRow().getItem();
                 rowData.changeStatus();
 
             });
+            this.hBox = new HBox(8, progressBar, button);
         }
 
         @Override
@@ -57,14 +60,18 @@ public class BuildBuildings extends Application {
 
                 if (observable != null) {
                     progressBar.progressProperty().bind(observable);
-                    button.setText(item == 0 ? "Build" : item == 1 ? "Demolish" : "Cancel");
+                    button.setText(observable.getValue() == 0 ? "Build" : observable.getValue() == 1 ? "Demolish" : "Cancel");
+
                 } else if (item != null) {
                     progressBar.setProgress(item);
                     button.setText(item == 0 ? "Build" : item == 1 ? "Demolish" : "Cancel");
-                }
 
-                setGraphic(new HBox(progressBar, button));
+                }
+                setGraphic(hBox);
+
             }
+
+
         }
     }
 //how to make the stuff on top to be 0/4 buildings built...
@@ -77,8 +84,10 @@ public class BuildBuildings extends Application {
         // Define columns
         TreeTableColumn<BuildBuilding, String> nameColumn = new TreeTableColumn<>("Task Name");
         nameColumn.setCellValueFactory(param -> param.getValue().getValue().nameProperty());
+        nameColumn.setMinWidth(160);
         TreeTableColumn<BuildBuilding, Double> progressColumn = new TreeTableColumn<>("Progress");
-        progressColumn.setCellValueFactory(param -> param.getValue().getValue().progressProperty());
+        progressColumn.setCellValueFactory(param -> param.getValue().getValue().isRootLike() ? null : param.getValue().getValue().progressProperty());
+        progressColumn.setMinWidth(160);
         //
 
         //progressColumn.setCellFactory(ProgressBarTreeTableCell.forTreeTableColumn());
@@ -87,12 +96,14 @@ public class BuildBuildings extends Application {
         treeTableView.getColumns().addAll(nameColumn, progressColumn);
         // Create root item and populate data
 
-        BuildBuilding a = new BuildBuilding(Building._BUILDING, 0);
+        BuildBuilding a = new BuildBuilding(Building._BUILDING, -2);
 
         TreeItem<BuildBuilding> root = new TreeItem<>(a);
         initTreeTableViewFromEnum(root);
         treeTableView.setRoot(root);
         treeTableView.setShowRoot(false);
+        //treeTableView.setMinWidth(200);
+
         return treeTableView;
     }
 
@@ -104,12 +115,11 @@ public class BuildBuildings extends Application {
         primaryStage.setScene(scene);
         primaryStage.setTitle("Progress Data in TreeTableView");
         primaryStage.show();
+        buildings = EnumSet.noneOf(Building.class);
         currProvBuildings = new EnumMap<>(Building.class);
-        for (Building b : Building.values()) {
-            currProvBuildings.put(b, (byte) 0);
-        }
+
         currProvBuildings.put(Building.MIL_AIRPORT, (byte) 2);
-        setValuesFromEnumMap(currProvBuildings, treeTableView.getRoot());
+        setValuesFromEnumMapSet(treeTableView.getRoot());
     }
 
     public static void main(String[] args) {
@@ -118,6 +128,8 @@ public class BuildBuildings extends Application {
 
     public abstract static class Task {
         abstract void changeStatus();
+
+        abstract boolean isRootLike();
     }
 
     // Task class representing each task
@@ -164,9 +176,15 @@ public class BuildBuildings extends Application {
         public void changeStatus() {
             popupBuilding(this);
         }
+
+        @Override
+        public boolean isRootLike() {
+            return building.isRootLike();
+        }
     }
 
     public static EnumMap<Building, Byte> currProvBuildings;
+    public static EnumSet<Building> buildings;
 
     //SelectedProvince -> EnumMap<Building,Byte> currBuilding; EnumSet<Building> finishedBuildings;
     //
@@ -220,30 +238,14 @@ public class BuildBuildings extends Application {
     }
 
     public static void initTreeTableViewFromEnum(TreeItem<BuildBuilding> root) {
-        TreeItem<BuildBuilding> mil = new TreeItem<>(new BuildBuilding(Building._MIL, 0.0));
-
-        TreeItem<BuildBuilding> dip = new TreeItem<>(new BuildBuilding(Building._DIP, 0.0));
-        TreeItem<BuildBuilding> others = new TreeItem<>(new BuildBuilding(Building._OTHERS, 0.0));
-        root.getChildren().addAll(mil, dip, others);
-
-        for (Building b : Building.values()) {
-            if (b.isMilitary())
-                mil.getChildren().add(new TreeItem<>(new BuildBuilding(b, 0.0)));
-            else if (b.isDiplomatic())
-                dip.getChildren().add(new TreeItem<>(new BuildBuilding(b, 0.0)));
-            else if (b.isOther())
-                others.getChildren().add(new TreeItem<>(new BuildBuilding(b, 0.0)));
+        Building[] builds = Building.values();
+        for (int i = 1; i < builds.length; i++) {
+            root.getChildren().add(new TreeItem<>(new BuildBuilding(builds[i], 0.0)));
         }
 
     }
 
-    public static void setValuesFromEnumMap(EnumMap<Building, Byte> buildings, TreeItem<BuildBuilding> root) {
-        TreeItem<BuildBuilding> mil = root.getChildren().get(0);
-        TreeItem<BuildBuilding> dip = root.getChildren().get(1);
-        TreeItem<BuildBuilding> others = root.getChildren().get(2);
-        int m = 0;
-        int d = 0;
-        int o = 0;
+    public static void setValuesFromEnumMapSet(TreeItem<BuildBuilding> root) {
         /*for(Building b : Building.values()){
             if(currProvBuildings.containsKey(b)){
                 byte val = currProvBuildings.get(b);
@@ -256,8 +258,8 @@ public class BuildBuildings extends Application {
                 }
             }
         }*/
-
-        for (Map.Entry<Building, Byte> b : buildings.entrySet()) {
+/*
+        for (Map.Entry<Building, Byte> b : currProvBuildings.entrySet()) {
             if (b.getKey().isMilitary()) {
                 mil.getChildren().get(m++).getValue().setProgress(b.getValue());
             } else if (b.getKey().isDiplomatic()) {
@@ -266,6 +268,19 @@ public class BuildBuildings extends Application {
                 others.getChildren().get(o++).getValue().setProgress(b.getValue());
             }
         }
-
+*/
+        Building[] builds = Building.values();
+        for (int i = 1; i < builds.length; i++) {
+            BuildBuilding bb = root.getChildren().get(i++).getValue();
+            Building b = builds[i];
+            if (buildings.contains(b)) {
+                if (bb != null) bb.setProgress(1.0);
+            } else if (currProvBuildings.containsKey(b)) {
+                if (bb != null) bb.setProgress(currProvBuildings.get(b));
+            } else {
+                if (bb != null) bb.setProgress(0.0);
+            }
+        }
     }
+
 }
