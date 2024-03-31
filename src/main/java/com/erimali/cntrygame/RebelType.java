@@ -3,7 +3,7 @@ package com.erimali.cntrygame;
 import java.util.EnumSet;
 import java.util.List;
 
-public enum RebelTypes implements CValidatable {
+public enum RebelType implements CValidatable {
     //Rebels that speak the same main language as us
     LINGUISTIC("Linguistic minority") {
         @Override
@@ -25,7 +25,7 @@ public enum RebelTypes implements CValidatable {
             return !c1.getGovernment().getType().equalsIgnoreCase(c2.getGovernment().getType());
         }
     },
-    //Rebels that desire independence from subjugation/annexation
+    //Rebels that desire independence from subjugation/[annexation]
     INDEPENDENCE("Independence") {
         @Override
         public boolean isValid(Country c1, Country c2) {
@@ -39,7 +39,7 @@ public enum RebelTypes implements CValidatable {
     private EnumSet<WarObjectives> allowedObjectives;
     private short perceivedAggressiveness;
 
-    RebelTypes(String desc) {
+    RebelType(String desc) {
         this.desc = desc;
     }
 

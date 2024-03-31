@@ -5,17 +5,17 @@ import java.io.Serializable;
 public class CSubject implements Serializable {
 	private Country main;
 	private Country subject;
-	private SubjectTypes subjectType;
+	private SubjectType subjectType;
 	private int independenceDesire;
 	
-	public CSubject(Country main, Country subject, SubjectTypes subjectType) {
+	public CSubject(Country main, Country subject, SubjectType subjectType) {
 		this.main = main;
 		this.subject = subject;
 		this.subjectType = subjectType;
 		this.subject.setSubjectOf(this);
 	}
 	//If by war independence desire bigger by default
-	public CSubject(Country main, Country subject, SubjectTypes subjectType, int independenceDesire) {
+	public CSubject(Country main, Country subject, SubjectType subjectType, int independenceDesire) {
 		this.main = main;
 		this.subject = subject;
 		this.subjectType = subjectType;
@@ -59,9 +59,9 @@ public class CSubject implements Serializable {
 	}
 
 	public void changeSubjectType(int i){
-		this.subjectType = SubjectTypes.values()[i];
+		this.subjectType = SubjectType.values()[i];
 	}
-	public void changeSubjectType(SubjectTypes s){
+	public void changeSubjectType(SubjectType s){
 		this.subjectType = s;
 	}
 	public Country getSubject() {

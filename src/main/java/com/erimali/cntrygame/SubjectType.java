@@ -1,9 +1,11 @@
 package com.erimali.cntrygame;
 
-public enum SubjectTypes {
+public enum SubjectType {
+    //Control all actions
     PUPPET("Puppet state") {
 
     },
+    //
     SATELLITE("Satellite state"){
 
     },
@@ -20,7 +22,7 @@ public enum SubjectTypes {
     ;
     private final String desc;
     private int autonomy;
-    SubjectTypes(String desc) {
+    SubjectType(String desc) {
         this.desc = desc;
     }
 

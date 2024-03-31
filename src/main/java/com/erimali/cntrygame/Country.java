@@ -363,18 +363,18 @@ public class Country implements Serializable {
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!
     // !!!!!!!!!!!!!!!!!!!!!!!!!
-    public void subjugateCountry(Country op, int type) {
+    public void subjugateCountry(Country op, SubjectType type) {
         // gain access to water for navy
         if (this.landlocked) {
             if (!op.landlocked) {
                 this.landlocked = false;
             }
         }
-        CSubject cs = makeSubject(op, SubjectTypes.values()[type]);
+        CSubject cs = makeSubject(op, type);
         subjects.put(CountryArray.getIndex(op.getIso2()), cs);
     }
 
-    public CSubject makeSubject(Country c, SubjectTypes type) {
+    public CSubject makeSubject(Country c, SubjectType type) {
         c.clearAlliesAndRivals();
         //gain their subjects?
         return new CSubject(this, c, type);

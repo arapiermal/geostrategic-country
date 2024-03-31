@@ -29,6 +29,7 @@ public class World implements Serializable {
             countries = new CountryArray();
             Path dir = Paths.get(GLogic.RESOURCESPATH + "countries");
             loadLanguages();
+            this.unions = new HashMap<>();
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
                 for (Path entry : stream) {
                     try {
@@ -177,6 +178,7 @@ public class World implements Serializable {
             return new Country(name, area, population, populationGrowthRate, landlocked, capital, infoElectronic, admDivisionType,
                     admDivisions, languages, neighbours, government, economy, military);
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -265,10 +267,8 @@ public class World implements Serializable {
                 indexes.add(sh);
             } else {
                 indexes.add(r);
-                TESTING.print(r);
             }
         }
-        TESTING.print(indexes);
         return indexes;
     }
 
@@ -283,10 +283,14 @@ public class World implements Serializable {
                     break;
                 }
                 String[] vals = getValues2(line);
-                if (vals.length == 3) {
-                    list.add(new AdmDiv(vals[0], vals[1], vals[2], indexLangs.getFirst()));
-                } else if (vals.length == 4) {
-                    list.add(new AdmDiv(vals[0], vals[1], vals[2], indexLangs.get(GUtils.parseI(vals[3]))));
+                try {
+                    if (vals.length == 3) {
+                        list.add(new AdmDiv(vals[0], vals[1], vals[2], indexLangs.getFirst()));
+                    } else if (vals.length == 4) {
+                        list.add(new AdmDiv(vals[0], vals[1], vals[2], indexLangs.get(GUtils.parseI(vals[3]))));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
             //FOR BINARY SEARCH ? list.sort(...);
@@ -313,7 +317,7 @@ public class World implements Serializable {
     }
 
 
-    public void subjugateCountry(int ind1, int ind2, int type) {
+    public void subjugateCountry(int ind1, int ind2, SubjectType type) {
         Country c1 = countries.get(ind1);
         Country c2 = countries.get(ind2);
         if (c1 != null && c2 != null && c2.isNotSubject()) {
@@ -424,14 +428,15 @@ public class World implements Serializable {
         return prov.toStringBuilderLong().append("\nMain language: ").append(languages.get(prov.getMainLanguage())).toString();
     }
 
-    public void monthlyUpdate(){
+    public void monthlyUpdate() {
         //keep track with set for less overhead
-        for(AdmDiv a : provinces){
-            if(a != null){
+        for (AdmDiv a : provinces) {
+            if (a != null) {
                 a.monthlyTick();
             }
         }
     }
+
     public void yearlyUpdate() {
         for (Country c : countries) {
             c.yearlyTick();
@@ -449,19 +454,30 @@ public class World implements Serializable {
         }
     }
 
-    public void addUnion(Union u){
+    public void addUnion(String shortName, String name, String type, String countries) {
+        shortName = shortName.replace("\\s","").toUpperCase();
+
+        int t = Union.genType(type);
+        short[] c = CountryArray.getShortArrFromStringArr(countries);
+        Union u = new Union(this, shortName, name, t, c);
+        unions.put(shortName,u);
+        TESTING.print(u);
+    }
+
+    public void addUnion(Union u) {
         unions.put(u.getShortName(), u);
     }
 
-    public void removeUnion(String shortName){
+    public void removeUnion(String shortName) {
         Union u = unions.remove(shortName);
-        for(short i : u.getUnionCountries()){
+        for (short i : u.getUnionCountries()) {
             Country c = countries.get(i);
-            if(c != null){
+            if (c != null) {
                 c.removeUnion(u);
             }
         }
     }
+
     public void removeUnion(String shortName, int c) {
         unions.get(shortName).dismantle(c);
     }

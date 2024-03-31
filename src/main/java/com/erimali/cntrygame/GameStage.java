@@ -1,8 +1,6 @@
 package com.erimali.cntrygame;
 
 import java.io.File;
-import java.util.EnumSet;
-import java.util.Set;
 
 import javafx.application.Platform;
 import javafx.beans.value.ObservableIntegerValue;
@@ -246,8 +244,10 @@ public class GameStage extends Stage {
         tabPane.getTabs().addAll(tabs);
         return tabPane;
     }
+
     private TableView<BuildBuildings.BuildBuilding> tableViewBuildings;
-//2-8 months
+
+    //2-8 months
     private Tab makeTabBuildings() {
         tableViewBuildings = BuildBuildings.makeTableView();
         tableViewBuildings.setVisible(false);
@@ -678,7 +678,7 @@ public class GameStage extends Stage {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Sponsor rebels");
 
-        ListView<RebelTypes> rbListView = War.makeListViewValidatable(game.getPlayer(), game.getWorldCountries().get(selectedCountry), RebelTypes.class);
+        ListView<RebelType> rbListView = War.makeListViewValidatable(game.getPlayer(), game.getWorldCountries().get(selectedCountry), RebelType.class);
         dialog.getDialogPane().setContent(rbListView);
 
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -686,12 +686,12 @@ public class GameStage extends Stage {
         okButton.addEventFilter(
                 ActionEvent.ACTION,
                 event -> {
-                    RebelTypes rt = rbListView.getSelectionModel().getSelectedItem();
+                    RebelType rt = rbListView.getSelectionModel().getSelectedItem();
                     if (rt == null) {
                         dialog.setHeaderText("Pick a rebel type.");
                         event.consume();
                     } else {
-                        Double money = showNumberInputDialog(1000, 1000000);
+                        Double money = showNumberInputDialog(1000000, 100000000);
                         if (money == null) {
                             dialog.setHeaderText("Money is a number!");
                             event.consume();
@@ -938,19 +938,25 @@ public class GameStage extends Stage {
     }
 
     public void setSelectedProvince(int provId) {
-        if(selectedProv != provId){
+        if (selectedProv != provId) {
             selectedProv = provId;
             changeSelectedProvInfo();
         }
 
     }
-
+    //
     public void changeSelectedProvInfo() {
         AdmDiv a = game.getWorld().getAdmDiv(selectedProv);
         selectedProvInfo.setText(game.getProvInfo(selectedProv));
-        if(a != null) {
-            BuildBuildings.setFromProv(a);
-            a.setValuesFromEnumMapSet(tableViewBuildings);
+        if (a != null) {
+            int owner = a.getOwnerId();
+            if (isPlayingCountry && (game.getPlayerId() == owner || game.isSubjectOfPlayer(owner))) {
+                tableViewBuildings.setVisible(true);
+                BuildBuildings.setFromProv(a);
+                a.setValuesFromEnumMapSet(tableViewBuildings);
+            } else {
+                tableViewBuildings.setVisible(false);
+            }
         }
     }
 

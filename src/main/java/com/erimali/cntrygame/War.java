@@ -118,7 +118,7 @@ public class War implements Serializable {
     // each country in war having warState?
     // if warState in disfavor, AI likely to accept terms
     private CasusBelli casusBelli; //enum? array? //loadable casus bellis?
-    //private String[] warGoals;?? dependent on casusBelli
+    private WarObjectives[] allowedObjectives;//?? dependent on casusBelli
     private float warState; // from -100 to 100
     private Country declaringCountry;//what if Military, and in constructor get it
     private Country opposingCountry;
@@ -138,7 +138,9 @@ public class War implements Serializable {
         this.activeBattles = new LinkedList<>();
 
     }
-
+    public float getWarState(Country c){
+        return (c == declaringCountry || declaringAllies.contains(c)) ? warState : -warState;
+    }
     //or int... arg
     public void finishWar(String... arg) {
         if (arg.length == 0) {

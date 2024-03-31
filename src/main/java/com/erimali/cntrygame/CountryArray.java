@@ -153,5 +153,17 @@ public class CountryArray implements Iterable<Country>, Serializable {
         return countriesISO2;
     }
 
+    public static short[] getShortArrFromStringArr(String in){
+        return getShortArrFromStringArr(in.trim().split("\\s*,\\s*"));
+    }
+    public static short[] getShortArrFromStringArr(String[] in){
+        short[] arr = new short[in.length];
+        int i = 0;
+        for(String s : in){
+            if(s.length() > 1)
+                arr[i++] = getIndexShort(s);
+        }
+        return arr;
+    }
 
 }

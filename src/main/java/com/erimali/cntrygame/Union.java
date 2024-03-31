@@ -1,22 +1,25 @@
 package com.erimali.cntrygame;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 enum UnionPolicies {
-    FREE_TRADE,
-    COMMON_CURRENCY,
-    INFRASTRUCTURE_INVESTMENT, //double unionFunds; (?)
-
+    FREE_TRADE(Union.ECONOMIC),
+    COMMON_CURRENCY(Union.ECONOMIC),
+    INFRASTRUCTURE_INVESTMENT(Union.ECONOMIC), //double unionFunds; (?)
+    SHARE_MIL_TECH(Union.MILITARY); //Every year set mil tech to country with the biggest/ or +1
+    int type;
+    UnionPolicies(int type) {
+        this.type = type;
+    }
 }
 
 //if UN -> fully centralized => WorldGovernment (!!!!!!!!!!!!!!!!!!!!!)
 public class Union {
-    protected final static int POLITICAL_UNION = 1;
-    protected final static int ECONOMIC_UNION = 2;
-    protected final static int MILITARY_UNION = 4;
+    protected final static int ECONOMIC = 1;
+    protected final static int POLITICAL = 2; //Diplomatic+Government
+    protected final static int MILITARY = 4;
     protected final static int MAX_TYPES = 3;
     int type;
 
@@ -38,9 +41,9 @@ public class Union {
         String[] s = in.trim().toUpperCase().split("\\s*,\\s*");
         for (int i = 0; i < MAX_TYPES; i++) {
             int val = switch (s[i].substring(0, 3)) {
-                case "POL" -> POLITICAL_UNION;
-                case "ECO" -> ECONOMIC_UNION;
-                case "MIL" -> MILITARY_UNION;
+                case "ECO" -> ECONOMIC;
+                case "POL" -> POLITICAL;
+                case "MIL" -> MILITARY;
                 default -> 0;
             };
             if (val > 0) {
@@ -92,6 +95,11 @@ public class Union {
         }
 
         initInfluence();
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
     public void initInfluence() {
@@ -153,11 +161,20 @@ public class Union {
      */
 
     public void incInfluence(short i, byte amount) {
-        if (i < 0 || i >= influence.length || !unionCountries.contains(i)) //or allow other countries to increase influence to join
+        if (amount < 0 || i < 0 || i >= influence.length || !unionCountries.contains(i)) //or allow other countries to increase influence to join
             return;
         influence[i] += amount;
+        if(influence[i] > 100)
+            influence[i] = 100;
     }
 
+    public void decInfluence(short i, byte amount) {
+        if (amount > 0 || i < 0 || i >= influence.length || !unionCountries.contains(i))
+            return;
+        influence[i] += amount;
+        if(influence[i] < 0)
+            influence[i] = 0;
+    }
     public boolean hasGovernment() {
         return govUnion != null;
     }

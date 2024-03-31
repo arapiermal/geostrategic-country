@@ -3,8 +3,12 @@ package com.erimali.cntrygame;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.erimali.compute.EriScript;
 import javafx.scene.control.Alert;
@@ -97,26 +101,28 @@ public class CommandLine {
         }
         return -1;
     }
-    public static String execute(String in){
+
+    public static String execute(String in) {
         return execute(in, false);
     }
+
     public static String execute(String in, boolean admin) {
         String result = "";
-        in = in.trim().toUpperCase();
-        if (in.startsWith("PARSE")) {
+        in = in.trim();
+        if (in.substring(0,5).equalsIgnoreCase("PARSE")) {
             return gs.getGame().parseTextCommand(in.substring(6));
         }
-        if(!GOptions.isAllowCLI() && !admin){
+        if (!GOptions.isAllowCLI() && !admin) {
             return "NOT ALLOWED (TURNED OFF IN OPTIONS)";
         }
 
         String shortName;
 
         int endISO2 = beginsWithISO2(in);
-
+//shortName is inside country...
         Country mainCountry;
         if (endISO2 > 0) {
-            shortName = in.substring(0, 2);
+            shortName = in.substring(0, 2).toUpperCase();
             in = in.substring(endISO2);
             mainCountry = countries.get(shortName);
         } else if (playerId != -1) {
@@ -125,8 +131,8 @@ public class CommandLine {
         } else {
             return result;// or other types of commands (separated)
         }
-        String[] k = in.split("\\s+");
-        TESTING.print(shortName, k);
+        //union EU "European Union"... preserves case inside ""
+        String[] k = tokenize(in);       //in.split("\\s+");
         int cIndex = CountryArray.getIndex(shortName);
 
         if (k.length < 2)
@@ -161,7 +167,7 @@ public class CommandLine {
                         }
                         break;
                     case "COUNTRY":
-                        // TO ALB
+                        // TO AL
                         break;
                     case "GOV":
                         switch (k[2]) {
@@ -206,32 +212,19 @@ public class CommandLine {
                 }
                 break;
             case "SUBJECT":
-                int type = -1;
-                switch (k[1]) {
-                    case "SATELLITE":
-                        if (k.length == 3)
-                            type = 0;
-                        break;
-                    case "PROTECTORATE":
-                        if (k.length == 3)
-                            type = 1;
-                        break;
-                    case "AUTONOMOUS":
-
-                        break;
-                    case "COLONY":
-
-                        break;
-                    case "SPACECOLONY":
-
-                        break;
-                    // CITYSTATE??
-                    default:
-                        return "Invalid subject type";
+                SubjectType type = null;
+                try {
+                    type = SubjectType.valueOf(k[1]);
+                } catch(Exception e){
                 }
-                if (type >= 0) {
+
+                if (type != null) {
                     gs.getGame().getWorld().subjugateCountry(cIndex, CountryArray.getIndex(k[2]), type);
                 }
+                break;
+            case "UNION":
+                if (k.length > 4)
+                    gs.getGame().getWorld().addUnion(k[1], k[2], k[3], k[4]);
                 break;
             case "PLAY":
                 switch (k[1]) {
@@ -294,7 +287,7 @@ public class CommandLine {
         String[] commands = in.split(COMMAND_SEPARATOR);//
         for (String command : commands) {
             // changeable separator
-            result.append(execute(command,admin)).append(System.lineSeparator());
+            result.append(execute(command, admin)).append(System.lineSeparator());
         }
         return result.toString();
     }
@@ -439,4 +432,24 @@ public class CommandLine {
     public static void setCountryValue(String in, Object o) {
         //Some of above commands become redundant
     }
+
+
+    public static String[] tokenize(String input) {
+        List<String> tokens = new ArrayList<>();
+        Matcher m = Pattern.compile("[^\\s\"]+|\"([^\"]*)\"").matcher(input);
+
+        while (m.find()) {
+            //"Filan Fisteku"
+            if (m.group(1) != null) {
+                tokens.add(m.group(1));
+            }
+            //SINGLEWORD
+            else {
+                tokens.add(m.group().toUpperCase());
+            }
+        }
+
+        return tokens.toArray(new String[0]);
+    }
+
 }

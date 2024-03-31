@@ -65,10 +65,12 @@ public class AdmDiv implements Serializable {
             this.area = Double.parseDouble(area);
             this.population = Integer.parseInt(population);
         } catch (NumberFormatException e) {
-
+            e.printStackTrace();
         }
     }
     public void resetRebellion(){
+        //or EnumMap ...
+        rebellion = new byte[RebelType.values().length];
         Arrays.fill(rebellion, (byte) 0);
     }
     public void addPopulation(int pop) {
