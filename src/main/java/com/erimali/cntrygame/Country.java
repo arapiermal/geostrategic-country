@@ -29,11 +29,11 @@ public class Country implements Serializable {
     // Other countries
     private Set<Integer> neighbours;
 
-    // int -> type (satellite state, autonomous region, colony, etc.)
     private Map<Integer, CSubject> subjects;
     private CSubject subjectOf;
     private List<Union> uni;
 
+    private EnumMap<Building, Short> availableBuildings;
     // SOME COUNTRIES CAN START AS SUBJECTS OF OTHERS;
 
     // Constructors

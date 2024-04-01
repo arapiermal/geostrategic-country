@@ -12,7 +12,7 @@ public enum Building{
     MIL_FACTORY_GROUND_VEHICLES(0,"Land Vehicles Factory", (byte) 4,1000000),
     MIL_FACTORY_WATER_VEHICLES(0,"Water Vehicles Factory", (byte) 4,1000000),
     MIL_FACTORY_AIRCRAFT(0,"Aircraft Factory", (byte) 4,1000000),
-    MIL_NUCLEAR_FACILITY(0,"Nuclear Facility", (byte) 4,1000000),
+    MIL_NUCLEAR_FACILITY(0,"Nuclear Facility", (byte) 8,1000000),
     MIL_AIRPORT(0,"Military Airport", (byte) 4,1000000),
     //_DIP(-2,"Diplomatic", (byte) 0,0),
     DIP_INTELLIGENCE_AGENCY(1,"Intelligence Agency", (byte) 4,1000000),

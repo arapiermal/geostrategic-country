@@ -109,10 +109,14 @@ public class MilDiv implements Serializable {
         MilUnit u = makeUnit(0, 0, 1000);
         MilUnit o = makeUnit(0, 0, 1000);
         u.incSize(1000);
-        o.incSize(700);
-        while (u.attack(o) == 0) {
+        o.incSize(1000);
+        u.incLevel(1);
+        o.incLevel(1);
+        int res;
+        while ((res = u.attack(o)) == 0) {
             TESTING.print(u.size + " " + u.morale, o.size + " " + o.morale);
         }
+        TESTING.print(res > 0 ? "WIN" : "LOST");
     }
 
     public boolean hasLeader() {

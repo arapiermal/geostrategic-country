@@ -38,6 +38,16 @@ public class MilUnitData implements Comparable<MilUnitData> {
             while ((line = br.readLine()) != null) {
                 setValue(line.trim().split("\\s*:\\s*"));
             }
+            minValues();
+        }
+    }
+
+    public static int parseIntOrDef(String in, int def) {
+        try {
+            int val = Integer.parseInt(in);
+            return val;
+        } catch (NumberFormatException nfe) {
+            return def;
         }
     }
 
@@ -53,22 +63,22 @@ public class MilUnitData implements Comparable<MilUnitData> {
                 this.subtype = Integer.parseInt(in[1]);
                 break;
             case "speed":
-                this.speed = Integer.parseInt(in[1]); //speed based on environment?!?
+                this.speed = parseIntOrDef(in[1], 1); //speed based on environment?!?
                 break;
             case "atk":
                 this.atk = new int[in.length - 1];
                 for (int i = 1; i < in.length; i++) {
-                    this.atk[i - 1] = Integer.parseInt(in[i]);
+                    this.atk[i - 1] = Math.max(1, parseIntOrDef(in[i], 1));
                 }
                 break;
             case "def":
                 this.def = new int[in.length - 1];
                 for (int i = 1; i < in.length; i++) {
-                    this.def[i - 1] = Integer.parseInt(in[i]);
+                    this.def[i - 1] = Math.max(1, parseIntOrDef(in[i], 1));
                 }
                 break;
             case "hp":
-                this.hp = Integer.parseInt(in[1]);
+                this.hp = parseIntOrDef(in[1], 1);
                 break;
 
             case "carry":
@@ -78,9 +88,17 @@ public class MilUnitData implements Comparable<MilUnitData> {
                 //more carry options, what can it carry
                 break;
             case "tech":
-                this.minMilTech = Math.min(0, Integer.parseInt(in[1]));
+                this.minMilTech = parseIntOrDef(in[1], 0);
                 break;
         }
+    }
+
+    private void minValues() {
+
+
+        this.speed = Math.max(1, this.speed);
+        this.hp = Math.max(1, this.hp);
+        this.minMilTech = Math.max(0, this.minMilTech);
     }
 
     public boolean isVehicle() {
@@ -95,6 +113,7 @@ public class MilUnitData implements Comparable<MilUnitData> {
     public int getDataId() {
         return type * MAX_SUBTYPES + subtype;
     }
+
     @Override
     public String toString() {
         return this.name;

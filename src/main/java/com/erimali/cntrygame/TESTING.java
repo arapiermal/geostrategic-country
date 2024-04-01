@@ -1,6 +1,34 @@
 package com.erimali.cntrygame;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Set;
+
+class EnumShortArr<K extends Enum<K>> {
+    Class<K> enumClass;
+    short[] arr;
+
+    public EnumShortArr(Class<K> enumClass) {
+        this.enumClass = enumClass;
+        arr = new short[enumClass.getEnumConstants().length];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = 0;
+        }
+    }
+
+    public void put(K en, short s) {
+        arr[en.ordinal()] = s;
+    }
+
+    public short get(K en) {
+        return arr[en.ordinal()];
+    }
+
+
+    public static <K extends Enum<K>> void testPut(short[] arr, K en, short s) {
+        arr[en.ordinal()] = s;
+    }
+}
 
 public class TESTING {
 

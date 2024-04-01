@@ -6,19 +6,17 @@ import java.io.Serializable;
 import java.util.*;
 
 enum Phrases {
-    YES, NO, ALWAYS, USUALLY, SOMETIMES, NEVER, HELLO, HI, WELCOME, THANKS, HELP, CERTAINLY, SIR, MADAM, PROVOCATION;
+    YES, NO, ALWAYS, USUALLY, SOMETIMES, NEVER, HELLO, HI, WELCOME, THANKS, HELP, CERTAINLY, SIR, MADAM, PROVOCATION, GOOD, BAD;
 }
 
 public class Language implements Comparable<Language>, Serializable {
-
     private static final String DEFLANGPATH = GLogic.RESOURCESPATH + "countries/languages/";
     // maybe synchronize, ENG to ALB
     private String name;
-    private List<String> mainPhrases;
-    private List<List<String>> otherLangPhrases;
-    private String[] commonMaleNames;
-    private String[] commonSurnames;
-    //private String[] alphabet;
+    private transient List<String> mainPhrases;
+    private transient List<List<String>> otherLangPhrases;
+    private transient String[] commonMaleNames;
+    private transient String[] commonSurnames;
     private int howMany;
 
     public Language(String name) {
@@ -27,9 +25,11 @@ public class Language implements Comparable<Language>, Serializable {
     }
 
     public Language(String name, boolean b) throws Exception {
-
+        this.name = upperFirstLowerRestLetters(name);
+        loadLanguage();
+    }
+    public void loadLanguage() throws Exception{
         try (BufferedReader br = new BufferedReader(new FileReader(DEFLANGPATH + name + ".txt"))) {
-            this.name = upperFirstLowerRestLetters(name);
             howMany = 1;
             mainPhrases = new ArrayList<>();
             String line;
@@ -51,19 +51,21 @@ public class Language implements Comparable<Language>, Serializable {
         }
 
     }
-
-
+//These are added to the end of the world list or new list for comboLangs.
     // Unify languages
     public Language(Language... langs) {
         if (langs.length < 2) {
             throw new IllegalArgumentException("CANNOT UNIFY " + langs.length + " LANGUAGES");
         }
+
         commonMaleNames = new String[findCMNlength(langs)];
         commonSurnames = new String[findCSlength(langs)];
         this.otherLangPhrases = new LinkedList<>();
         int i = 0;
         int j = 0;
+        StringBuilder sbName = new StringBuilder();
         for (Language t : langs) {
+            sbName.append(t.name);
             addCMN(i, t.commonMaleNames);
             i += t.commonMaleNames.length;
             addCS(j, t.commonSurnames);
@@ -75,16 +77,17 @@ public class Language implements Comparable<Language>, Serializable {
                 this.otherLangPhrases.add(t.mainPhrases);
             }
         }
+        this.name = sbName.toString();
     }
 
     public static void main(String[] args) {
         try {
             Language l1 = new Language("Albanian", true);
             Language l2 = new Language("Serbian", true);
-            System.out.println(translateText(l1, l2, "Pershendetje, Ermal. Pershendetje si je. Une jam mire. Pershendetje."));
+            System.out.println(translateText(l1, l2, "Po, Ermal. Përshëndetje si je. Unë jam mirë. Pershendetje."));
 
             Language combined = new Language(l1, l2);
-            TESTING.print(combined.mainPhrases);
+            TESTING.print(combined.mainPhrases, combined.otherLangPhrases.getFirst());
             System.out.println(l1.speak(Phrases.HELLO, "Player"));
             System.out.println(l1.translateToEnglishPhrases("Sigurisht po zotëri"));
             TESTING.print(Language.lauFirstChar("test"));

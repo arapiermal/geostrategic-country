@@ -32,12 +32,11 @@ public abstract class MilUnit implements Serializable {
 
     //return double ?
     public int attack(MilUnit o) {
-        //Attacker +1 -> "The best defense is a good offense" - Sun Tzu, Art of War
         double dmg1 = dmgCalc(this, o);
         double dmg2 = dmgCalc(o, this);
         if (dmg1 > 0) {
             int prevSize = o.size;
-            o.size -= (int) (dmg1 / (o.data.hp * 2)) + 1;
+            o.size -= (int) (dmg1 / (o.data.hp) + 1);
             o.morale -= (float) (prevSize - o.size) / prevSize * 100;
 
             if (o.size <= 0) {
@@ -49,13 +48,13 @@ public abstract class MilUnit implements Serializable {
         }
         if (dmg2 > 0) {
             int prevSize = this.size;
-            this.size -= (int) (dmg2 / (this.data.hp * 2)) + 1;
+            this.size -= (int) (dmg2 / (this.data.hp)) + 1;
             this.morale -= (float) (prevSize - this.size) / prevSize * 100;
             if (this.size <= 0) {
                 this.size = 0;
                 return -2;
             } else if (this.morale <= 0) {
-                return -1;
+                return -1; //This unit retreats
             }
         }
         return 0;
@@ -71,9 +70,9 @@ public abstract class MilUnit implements Serializable {
 
     public static double dmgCalc(MilUnit a, MilUnit o) {
         double ATK = a.size * ((double) (a.data.atk[o.data.type] / o.data.def[a.data.type]))
-                * Math.sqrt((double) (a.lvl + 1) / (o.lvl + 1) + (a.data.speed - o.data.speed));
-                //* Math.sqrt(1 + a.morale / o.morale);
-        ATK += ATK * Math.random();
+                * Math.sqrt((double) ((a.lvl + 1) * (a.data.minMilTech + 1)) / ((o.lvl + 1) * (o.data.minMilTech + 1)) + (a.data.speed - o.data.speed));
+        //* Math.sqrt(1 + a.morale / o.morale);
+        ATK += ATK * Math.random() / 2;
         TESTING.print(a.id + " " + ATK);
 
         return ATK;
@@ -97,5 +96,10 @@ public abstract class MilUnit implements Serializable {
             return extra;
         }
         return 0;
+    }
+
+    public void incLevel(int i) {
+        if (i > 0)
+            this.lvl += i;
     }
 }
