@@ -1,11 +1,13 @@
 package com.erimali.cntrygame;
 
+import com.erimali.cntrymilitary.MilDiv;
+import com.erimali.cntrymilitary.MilSoldiers;
+import com.erimali.cntrymilitary.MilUnit;
+import com.erimali.cntrymilitary.MilVehicles;
 import javafx.scene.control.TableView;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.EnumSet;
+import java.util.*;
 
 //DIJKSTRA TO TRAVERSE?????
 //int terrain; int timeToTraverse;
@@ -26,11 +28,14 @@ public class AdmDiv implements Serializable {
     private byte[] rebellion; //types: separatism, autonomy,...
     private static final byte REBELLION_TYPES = 2;
     //treat like
-    EnumSet<Building> buildings;
-    public EnumMap<Building, Byte> currProvBuildings;
+    private EnumSet<Building> buildings;
+    private EnumMap<Building, Byte> buildingBuildings;
 
     //private short[] claimedBy; (previous owners) ...
-    //
+    //Mil
+    private List<MilUnit> unitsInProgress;
+    private List<MilUnit> divisions; // unit vs div or new interface
+
 
     public String toString() {
         return this.name;
@@ -52,7 +57,9 @@ public class AdmDiv implements Serializable {
         this.population = population;
         this.mainLanguage = mainLanguage;
         this.buildings = EnumSet.noneOf(Building.class);
-        this.currProvBuildings = new EnumMap<>(Building.class);
+        this.buildingBuildings = new EnumMap<>(Building.class);
+        this.unitsInProgress = new LinkedList<>();
+        this.divisions = new LinkedList<>();
         resetRebellion();
     }
 
@@ -60,7 +67,9 @@ public class AdmDiv implements Serializable {
         this.name = name;
         this.mainLanguage = mainLanguage;
         this.buildings = EnumSet.noneOf(Building.class);
-        this.currProvBuildings = new EnumMap<>(Building.class);
+        this.buildingBuildings = new EnumMap<>(Building.class);
+        this.unitsInProgress = new LinkedList<>();
+        this.divisions = new LinkedList<>();
         resetRebellion();
         try {
             this.area = Double.parseDouble(area);
@@ -95,11 +104,11 @@ public class AdmDiv implements Serializable {
     }
 
     public void monthlyTick() {
-        for (EnumMap.Entry<Building, Byte> entry : currProvBuildings.entrySet()) {
+        for (EnumMap.Entry<Building, Byte> entry : buildingBuildings.entrySet()) {
             Building b = entry.getKey();
             byte val = (byte) (entry.getValue() + 1);
             if (val >= b.stepsToBuild) {
-                currProvBuildings.remove(b);
+                buildingBuildings.remove(b);
                 buildings.add(b);
             } else {
                 entry.setValue(val);
@@ -109,7 +118,7 @@ public class AdmDiv implements Serializable {
 
     public void buildBuilding(Building b) {
         if (!buildings.contains(b))
-            currProvBuildings.put(b, (byte) 1);
+            buildingBuildings.put(b, (byte) 1);
     }
 
     public boolean hasBuilding(Building b) {
@@ -126,6 +135,9 @@ public class AdmDiv implements Serializable {
 
     public EnumSet<Building> getBuildings() {
         return buildings;
+    }
+    public EnumMap<Building, Byte> getBuildingBuildings() {
+        return buildingBuildings;
     }
 
     public String getName() {
@@ -193,8 +205,8 @@ public class AdmDiv implements Serializable {
             Building b = builds[i];
             if (buildings.contains(b)) {
                 bb.setProgress(1.0);
-            } else if (currProvBuildings.containsKey(b)) {
-                bb.setProgress(currProvBuildings.get(b));
+            } else if (buildingBuildings.containsKey(b)) {
+                bb.setProgress(buildingBuildings.get(b));
             } else {
                 bb.setProgress(0.0);
             }
@@ -208,4 +220,14 @@ public class AdmDiv implements Serializable {
     public void setSvgProvince(SVGProvince svgProvince) {
         this.svgProvince = svgProvince;
     }
+
+    public void trainBuild(){
+        MilUnit u = unitsInProgress.getFirst();
+        if(u instanceof MilSoldiers milSoldiers){
+            milSoldiers.train(100);//fix based on max
+        } else if(u instanceof MilVehicles milVehicles){
+            milVehicles.build(10);
+        }
+    }
+
 }

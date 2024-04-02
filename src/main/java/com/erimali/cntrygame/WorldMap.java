@@ -5,10 +5,8 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
@@ -16,10 +14,10 @@ import javafx.scene.shape.SVGPath;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class WorldMap {
     protected static double mapWidth = 12200;
@@ -29,7 +27,7 @@ public class WorldMap {
     private Paint[] colors;
     private Color backgroundColor = Color.valueOf("#ADD8E6");
     private Color colDefTransparent = new Color(0, 0, 0, 0);
-    private String playerCountry;
+    private int playerCountry;
     private String defColorString = "#ececec";
     private Color defColor = Color.valueOf(defColorString);
     private Color defColorCountry = new Color(0, 0, 0, 0);
@@ -59,17 +57,33 @@ public class WorldMap {
 
     private int lastClickedProvince;
 
+    private SVGPath[] milSVG;
+
+    public void loadMilSVGData() {
+        URL p =  getClass().getResource("img/milsvgdata.txt");
+        if(p == null){
+            throw new IllegalArgumentException("img/milsvgdata.txt not found");
+        }
+        try (BufferedReader br = new BufferedReader(new FileReader(p.getFile()))) {
+            milSVG = new SVGPath[8];
+            int i = 0;
+            String s;
+            while((s = br.readLine()) != null){
+                milSVG[i] = new SVGPath();
+                milSVG[i].setContent(s);
+                i++;
+            }
+        } catch (IOException ioException) {
+            ErrorLog.logError(ioException);
+        }
+    }
+
     public WorldMap(GameStage gs) {
         loadColors();
+        loadMilSVGData();
         this.gs = gs;
     }
     // SET PLAYER COUNTRY
-
-    public WorldMap(String playerCountry, GameStage gs) {
-        this.setPlayerCountry(playerCountry);
-        loadColors();
-        this.gs = gs;
-    }
 
     public ZoomableScrollPane start() {
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/resources/map/mcBig.svg"))) {
@@ -104,12 +118,11 @@ public class WorldMap {
                         svgPath.updateXY();
                         //OR LOAD PROVINCE FROM HERE
                         // AL/Elbasan.txt
-
                         if (containsColor(pathOwnId)) {
                             svgPath.setFill(getColor(pathOwnId));
                         } else {
                             svgPath.setFill(defColor);
-                            setColor(pathOwnId, defColor); // !!!!!!!!!!!!!!!!!!!
+                            setColor(pathOwnId, defColor);
 
                         }
                         //svgPath.setOnMouseClicked(this::onPathClicked);
@@ -135,7 +148,9 @@ public class WorldMap {
             ZoomableScrollPane scrollPane = new ZoomableScrollPane(mapGroup);
             lines = new ArrayList<>();
             TESTING.print(mapSVG[3198], mapSVG[3031]);
-            int l = drawLine(3198, 3031);
+            //int l = drawLine(3198, 3031);
+            int[] l = drawLines(3031, 3030, 2993, 2994, 2991, 2992, 3198);
+            makeMilSVG(0, 3198);
             //scrollPane.removeLine(l);
             //scrollPane.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
             ContextMenu cm = new ContextMenu();
@@ -198,6 +213,23 @@ public class WorldMap {
         }
     }
 
+    public Region makeMilSVG(int type, int provId) {
+        SVGProvince prov = mapSVG[provId];
+        double w = prov.getBoundsInLocal().getWidth() / 3;
+        double h = prov.getBoundsInLocal().getHeight() / 3;
+        Region milImg = new Region();
+        milImg.setShape(milSVG[type]);
+        milImg.setMinSize(w, h);
+        milImg.setPrefSize(w, h);
+        milImg.setMaxSize(w, h);
+        milImg.setStyle("-fx-background-color: green;");
+        milImg.setLayoutX(prov.getProvX() - w / 2);
+        milImg.setLayoutY(prov.getProvY() - h / 2);
+
+        mapGroup.getChildren().add(milImg);
+        return milImg;
+    }
+
     private void onMouseHoverOld(MouseEvent event) {
         SVGProvince hovering = (SVGProvince) event.getSource();
         if (this.mapMode == 0) {
@@ -248,28 +280,8 @@ public class WorldMap {
         }
     }
 
-    public String getPlayerCountry() {
-        return playerCountry;
-    }
-
-    public void setPlayerCountry(String playerCountry) {
-        this.playerCountry = playerCountry;
-    }
-
-    public void setPlayerCountry(int playerId) {
-        this.playerCountry = CountryArray.getIndexISO2(playerId);
-    }
-
-    public void setMapGroupCursorCrosshair() {
-        mapGroup.setCursor(Cursor.CROSSHAIR);
-    }
-
-    public void setMapGroupCursorHand() {
-        mapGroup.setCursor(Cursor.HAND);
-    }
-
-    public void setMapGroupCursorNone() {
-        mapGroup.setCursor(Cursor.NONE);
+    public void setMapGroupCursor(Cursor c) {
+        mapGroup.setCursor(c);
     }
 
     public void switchMapMode(int mode) {
@@ -438,4 +450,6 @@ public class WorldMap {
     public void removeLine(Line l) {
         mapGroup.getChildren().remove(l);
     }
+
+
 }

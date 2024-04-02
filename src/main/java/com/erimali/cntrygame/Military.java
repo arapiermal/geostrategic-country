@@ -6,18 +6,6 @@ import java.util.*;
 import com.erimali.cntrymilitary.MilDiv;
 import javafx.scene.shape.SVGPath;
 
-class MilImg {
-    SVGPath svg;
-
-    public MilImg(String path) {
-        svg = new SVGPath();
-        svg.setContent(path);
-    }
-    // soldier cap
-    // navy symbol
-    // airplane symbol
-}
-
 public class Military implements Serializable {
     //named divisions (?)
     private long manpower;
@@ -33,9 +21,8 @@ public class Military implements Serializable {
     }
 
 
-
     private boolean progressMilTech(int type, int amount) {
-        if(type < 0 || type >= milTechProgress.length || amount < 0)
+        if (type < 0 || type >= milTechProgress.length || amount < 0)
             return false;
         milTechProgress[type] += (short) amount;
         if (milTechProgress[type] >= 100) {

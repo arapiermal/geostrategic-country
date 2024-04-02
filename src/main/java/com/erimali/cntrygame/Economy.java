@@ -75,4 +75,8 @@ public class Economy implements Serializable {
 	public String formattedGDP() {
 		return GUtils.doubleToString(gdp);
 	}
+
+    public void giveMoney(Country o, double amount) {
+
+    }
 }

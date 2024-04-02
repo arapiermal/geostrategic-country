@@ -613,4 +613,15 @@ public class GLogic implements Serializable {
             w.dayTick();
         }
     }
+
+    public void giveMoney(int selectedCountry, Double result) {
+        giveMoney(playerId,selectedCountry,result);
+    }
+    public void giveMoney(int i1, int i2, double amount){
+        Country c1 = world.getCountry(i1);
+        Country c2 = world.getCountry(i2);
+        if(c1 != null && c2 != null){
+            c1.getEconomy().giveMoney(c2,amount);
+        }
+    }
 }

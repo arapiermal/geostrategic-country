@@ -55,6 +55,10 @@ public class GameStage extends Stage {
     private Label infoRelations;
     private Button sendAllianceRequest;
 
+    private Stage gsOptionsStage;
+    private Scene[] gsOptionsScenes;
+
+
     public GameStage() {
         setTitle(Main.APP_NAME + " - Game");
         setOnCloseRequest(e -> close());
@@ -113,7 +117,7 @@ public class GameStage extends Stage {
         isPlayingCountry = game.getPlayerId() >= 0;
         if (isPlayingCountry) {
             countryName.setText(game.getPlayer().getName());
-            map.setPlayerCountry(game.getPlayerId());
+            //map.setPlayerCountry(game.getPlayerId());
             chooseCountryButton.setVisible(false);
             changeDate(game.inGDateInfo());
         }
@@ -285,9 +289,6 @@ public class GameStage extends Stage {
             // -2 for save (String currentSaveName) & exit
         }
     }
-
-    private Scene[] gsOptionsScenes;
-    private Stage gsOptionsStage;
 
     private Scene makeSaveSceneOptions() {
         TextField saveTextField = new TextField();//game.getPlayerName() + "-" + date.getText()
@@ -496,6 +497,7 @@ public class GameStage extends Stage {
         //game.getPlayer().getEconomy().getGDP()/10
         if (result != null) {
             displayNumberInputResult(result);
+            game.giveMoney(selectedCountry, result);
             // country send donation method?
             //game.getPlayer().giveMoney(game.getWorldCountries().get(selectedCountry));
         } else {
@@ -552,7 +554,7 @@ public class GameStage extends Stage {
             return;
         game.selectPlayer(selectedCountry);
         countryName.setText(game.getPlayer().getName());// !!!!!!!!
-        map.setPlayerCountry(selectedCountry);
+        //map.setPlayerCountry(selectedCountry);
         chooseCountryButton.setVisible(false);
         tableViewBuildings.setVisible(true);
         isPlayingCountry = true;

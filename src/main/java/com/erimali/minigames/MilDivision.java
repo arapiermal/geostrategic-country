@@ -1,4 +1,7 @@
-package com.erimali.cntrygame;
+package com.erimali.minigames;
+
+import com.erimali.cntrygame.CarryUnits;
+import com.erimali.cntrygame.TravelAmbients;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +36,7 @@ abstract class MilAmmo {
 
 }
 
-abstract class MilUnit implements BaseUnit, Cloneable {
+abstract class MilUnt implements BaseUnit, Cloneable {
 	static final int UNITTYPENUMBER = 4;
 
 	String name;
@@ -49,11 +52,11 @@ abstract class MilUnit implements BaseUnit, Cloneable {
 	static TravelAmbients mainMovement;
 
 	// polymorphic methods
-	public abstract void attack(MilUnit... op);
+	public abstract void attack(MilUnt... op);
 
 	public abstract void train(int amount);
 
-	public boolean join(MilUnit unit) {
+	public boolean join(MilUnt unit) {
 		if (this.getClass() == unit.getClass() && this.subtype == unit.subtype) {
 			this.training = (this.training * this.qnt + unit.training * unit.qnt) / (2 * (this.qnt + unit.qnt));
 
@@ -78,7 +81,7 @@ abstract class MilUnit implements BaseUnit, Cloneable {
 }
 
 //Certain types do better against other types
-class MilSoldiers extends MilUnit {
+class MilSoldiers extends MilUnt {
 	static {
 		mainMovement = TravelAmbients.TERRAIN;
 	}
@@ -98,7 +101,7 @@ class MilSoldiers extends MilUnit {
 
 	// if Anti-tank, Anti-air weapons -> more damage
 	@Override
-	public void attack(MilUnit... op) {
+	public void attack(MilUnt... op) {
 		// TODO Auto-generated method stub
 
 	}
@@ -141,7 +144,7 @@ class MilMarine extends MilSoldiers {
 }
 
 //Artilliery?
-class MilVehicles extends MilUnit implements BaseVehicles {
+class MilVehicles extends MilUnt implements BaseVehicles {
 	static {
 		mainMovement = TravelAmbients.TERRAIN;
 	}
@@ -158,7 +161,7 @@ class MilVehicles extends MilUnit implements BaseVehicles {
 	}
 
 	@Override
-	public void attack(MilUnit... op) {
+	public void attack(MilUnt... op) {
 		// TODO Auto-generated method stub
 	}
 
@@ -171,7 +174,7 @@ class MilVehicles extends MilUnit implements BaseVehicles {
 }
 
 class TransportVehicles extends MilVehicles implements CarryUnits {
-	List<MilUnit> carrying;
+	List<MilUnt> carrying;
 	boolean[] canCarry;
 	int[] maxCarry;
 	public TransportVehicles(int subtype, int qnt) {
@@ -199,14 +202,14 @@ class TransportVehicles extends MilVehicles implements CarryUnits {
 
 }
 
-class MilNavy extends MilUnit implements BaseNavy {
+class MilNavy extends MilUnt implements BaseNavy {
 	static {
 		mainMovement = TravelAmbients.WATER;
 	}
 	MilMarine marines;
 
 	@Override
-	public void attack(MilUnit... op) {
+	public void attack(MilUnt... op) {
 		// TODO Auto-generated method stub
 
 	}
@@ -220,7 +223,7 @@ class MilNavy extends MilUnit implements BaseNavy {
 }
 
 class TransportNavy extends MilNavy implements CarryUnits {
-	List<MilUnit> carrying;
+	List<MilUnt> carrying;
 	boolean[] canCarry;
 	int[] maxCarry;
 	@Override
@@ -240,13 +243,13 @@ class TransportNavy extends MilNavy implements CarryUnits {
 	}
 }
 
-class MilAirforce extends MilUnit implements BaseAirforce {
+class MilAirforce extends MilUnt implements BaseAirforce {
 	static {
 		mainMovement = TravelAmbients.AIR;
 	}
 
 	@Override
-	public void attack(MilUnit... op) {
+	public void attack(MilUnt... op) {
 		// TODO Auto-generated method stub
 
 	}
@@ -260,7 +263,7 @@ class MilAirforce extends MilUnit implements BaseAirforce {
 }
 
 class TransportAirforce extends MilAirforce implements CarryUnits {
-	List<MilUnit> carrying;
+	List<MilUnt> carrying;
 	boolean[] canCarry;
 
 	@Override
@@ -282,10 +285,10 @@ class TransportAirforce extends MilAirforce implements CarryUnits {
 	}
 }
 
-class MilSpaceforce extends MilUnit implements BaseSpaceforce {
+class MilSpaceforce extends MilUnt implements BaseSpaceforce {
 
 	@Override
-	public void attack(MilUnit... op) {
+	public void attack(MilUnt... op) {
 		// TODO Auto-generated method stub
 
 	}
@@ -323,9 +326,9 @@ class TransportSpaceforce extends MilSpaceforce implements CarryUnits {
 public class MilDivision {
 	private static final int DEFAULT_TRAINING = 10;
 	// HMMMMMM, this is already a division
-	public List<MilUnit> units;
+	public List<MilUnt> units;
 	public List<MilSoldiers> recruitingSoldiers;
-	public List<MilUnit> trainingUnits;
+	public List<MilUnt> trainingUnits;
 
 	public MilDivision() {
 		units = new ArrayList<>();
@@ -342,18 +345,18 @@ public class MilDivision {
 	// SINCE IS DIVISION
 	// inefficient thinking (since beginning)?
 	// 9999 soldiers -> 9x1000 soldiers + 999 soldiers
-	public void distributeSplitUnits(MilUnit unit, int qntEach) {
+	public void distributeSplitUnits(MilUnt unit, int qntEach) {
 		while (unit.qnt > qntEach) {
 			splitUnit(unit, qntEach);
 		}
 	}
 
-	public void splitUnit(MilUnit unit, int splitQnt) {
+	public void splitUnit(MilUnt unit, int splitQnt) {
 		if (splitQnt <= 0 || splitQnt >= unit.qnt) {
 			throw new IllegalArgumentException("Invalid split quantity.");
 		}
 		try {
-			MilUnit newUnit = (MilUnit) unit.clone();
+			MilUnt newUnit = (MilUnt) unit.clone();
 			unit.qnt -= splitQnt;
 			unit.maxQnt -= splitQnt;
 			newUnit.qnt = splitQnt;
@@ -364,8 +367,8 @@ public class MilDivision {
 			e.printStackTrace();
 		}
 		/*
-		 * Constructor<? extends MilUnit> constructor; try { constructor =
-		 * unit.getClass().getConstructor(MilUnit.class, int.class); MilUnit newUnit =
+		 * Constructor<? extends MilUnt> constructor; try { constructor =
+		 * unit.getClass().getConstructor(MilUnt.class, int.class); MilUnt newUnit =
 		 * constructor.newInstance(unit, splitQnt); unit.qnt -= splitQnt;
 		 * units.add(newUnit);
 		 * 
@@ -426,7 +429,7 @@ public class MilDivision {
 
 	public void trainTick(int amount) {
 		// divide amount / trainingUnits.length
-		for (MilUnit mu : trainingUnits) {
+		for (MilUnt mu : trainingUnits) {
 			mu.train(amount);
 		}
 	}
@@ -439,12 +442,12 @@ public class MilDivision {
 
 	public void stopTraining(int... index) {
 		for (int i : index) {
-			// MilUnit mu = trainingUnits.get(i);
+			// MilUnt mu = trainingUnits.get(i);
 			units.add(trainingUnits.remove(i));
 		}
 	}
 
-	public void attack(MilUnit... opponent) {
+	public void attack(MilUnt... opponent) {
 		// distribute?
 		// 2 : 5 -> 1st-> 2, 2nd -> 2, 1st->1
 		int skip = units.size() / opponent.length;

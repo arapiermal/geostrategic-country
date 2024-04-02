@@ -5,11 +5,8 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.ProgressBarTableCell;
-import javafx.scene.control.cell.ProgressBarTreeTableCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -17,12 +14,11 @@ import javafx.util.Callback;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.Map;
-//TreeView redundant if no opening Military vs Civilian subtrees...
+
 public class BuildBuildings extends Application {
     public static void setFromProv(AdmDiv admDiv) {
-        BuildBuildings.currProvBuildings = admDiv.currProvBuildings;
-        BuildBuildings.buildings = admDiv.buildings;
+        BuildBuildings.currBuildingBuildings = admDiv.getBuildingBuildings();
+        BuildBuildings.buildings = admDiv.getBuildings();
     }
 
     public static class ProgressBarButtonTableCell<S extends GTask> extends TableCell<S, Double> {
@@ -120,7 +116,7 @@ public class BuildBuildings extends Application {
 
         primaryStage.show();
         buildings = EnumSet.noneOf(Building.class);
-        currProvBuildings = new EnumMap<>(Building.class);
+        currBuildingBuildings = new EnumMap<>(Building.class);
         //setValuesFromEnumMapSet(tableView);
     }
 
@@ -179,13 +175,13 @@ public class BuildBuildings extends Application {
 
     }
 
-    public static EnumMap<Building, Byte> currProvBuildings;
+    public static EnumMap<Building, Byte> currBuildingBuildings;
     public static EnumSet<Building> buildings;
 
     public static void popupBuilding(BuildBuilding bb) {
         Dialog<ButtonType> dialog = new Dialog<>();
         Building b = bb.getBuilding();
-        byte byteVal = buildings.contains(b) ? b.stepsToBuild : currProvBuildings.getOrDefault(b, (byte) 0);
+        byte byteVal = buildings.contains(b) ? b.stepsToBuild : currBuildingBuildings.getOrDefault(b, (byte) 0);
         if (byteVal == 0) {
             dialog.setTitle("Build Building");
         }
@@ -205,13 +201,13 @@ public class BuildBuildings extends Application {
         okButton.addEventFilter(
                 ActionEvent.ACTION,
                 event -> {
-                    byte bVal = buildings.contains(b) ? b.stepsToBuild : currProvBuildings.getOrDefault(b, (byte) 0);
+                    byte bVal = buildings.contains(b) ? b.stepsToBuild : currBuildingBuildings.getOrDefault(b, (byte) 0);
 
                     //Build
                     if (bVal == 0) {
 
                         bVal++;
-                        currProvBuildings.put(b, bVal);
+                        currBuildingBuildings.put(b, bVal);
 
                     }
                     //Demolish
@@ -223,7 +219,7 @@ public class BuildBuildings extends Application {
                     //Cancel
                     else {
                         bVal = 0;
-                        currProvBuildings.remove(b);
+                        currBuildingBuildings.remove(b);
                     }
                     bb.setProgress(bVal);
                 }
