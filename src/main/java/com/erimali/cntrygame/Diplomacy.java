@@ -4,12 +4,13 @@ import java.io.Serializable;
 import java.util.*;
 enum DipOpinions{
     //Can they be put in one ?
+    IMPROVED_RELATIONS,
+    SENT_GIFT,
     DECLARED_WAR_ON_US,
     DECLARED_WAR_ON_NEIGHBOUR,
     DECLARED_WAR_ON_ALLY,
     DECLARED_WAR_ON_RIVAL,
-    IMPROVED_RELATIONS,
-    SEND_GIFT,
+
 
     //private Map<DipOpinions, Short> opinions;
     //private Map<DipOpinions, Short>[] opinions;

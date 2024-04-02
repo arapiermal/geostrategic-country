@@ -13,22 +13,23 @@ public class GNews implements Serializable {
 	private static final String SEPARATOR = "~~~";
 	//copy paste on new game?
 	private static final String DEFLOCATION = "resources/web/articles.txt";
+	//same place SAVEGAME/news
 	private GDate date; //BDate instead ?
 	private String title;
-	private String description;
+	private String desc;
 	private String[] paragraphs;
 	private boolean appended;
 
-	public GNews(GDate date, String title, String description) {
+	public GNews(GDate date, String title, String desc) {
 		this.date = date;
 		this.title = title;
-		this.description = description;
+		this.desc = desc;
 	}
 
-	public GNews(GDate date, String title, String description, String... paragraphs) {
+	public GNews(GDate date, String title, String desc, String... paragraphs) {
 		this.date = date;
 		this.title = title;
-		this.description = description;
+		this.desc = desc;
 		this.paragraphs = paragraphs;
 	}
 
@@ -67,10 +68,10 @@ public class GNews implements Serializable {
 	}
 	public String toString() {
 		if (paragraphs == null)
-			return date + "\n" + title + "\n" + description;
+			return date + "\n" + title + "\n" + desc;
 		else {
 			StringBuilder sb = new StringBuilder();
-			sb.append(this.date).append("\n").append(this.title).append("\n").append(this.description);
+			sb.append(this.date).append("\n").append(this.title).append("\n").append(this.desc);
 			for (String p : paragraphs) {
 				sb.append(p).append("\n");
 			}
@@ -80,10 +81,10 @@ public class GNews implements Serializable {
 	public String toStringForFile() {
 		String separator = System.lineSeparator();
 		if (paragraphs == null)
-			return date + separator + title + separator + description;
+			return date + separator + title + separator + desc;
 		else {
 			StringBuilder sb = new StringBuilder();
-			sb.append(date).append(separator).append(title).append(separator).append(description);
+			sb.append(date).append(separator).append(title).append(separator).append(desc);
 			for (String p : paragraphs) {
 				sb.append(p).append(separator);
 			}

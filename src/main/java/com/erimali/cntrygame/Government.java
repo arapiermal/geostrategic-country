@@ -14,6 +14,7 @@ public class Government implements Serializable {
     private boolean isHeadOfStateStronger;
     private Ruler headOfGovernment;
     private int stability;
+    private double corruption;
 
     private int publicOpinion;
     // Import from txt? default policies for all countries, specific

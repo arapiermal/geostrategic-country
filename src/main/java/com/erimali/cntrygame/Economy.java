@@ -9,7 +9,7 @@ public class Economy implements Serializable {
 	private String currencyLongName;
 	private double inflationRate;
 
-	private double gdp;
+	private double gdp; //$
 	private double economicGrowthRate; // increase of GDP in a year
 
 	private double taxation; //Government budget...
