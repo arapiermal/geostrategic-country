@@ -460,7 +460,7 @@ public class Country implements Serializable {
     }
 
     public boolean isNotSubject() {
-        return getSubjectOf() == null;
+        return subjectOf == null;
     }
 
     public CSubject getSubject(String iso2) {

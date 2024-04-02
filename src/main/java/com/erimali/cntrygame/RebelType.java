@@ -22,7 +22,7 @@ public enum RebelType implements CValidatable {
     REGIME("Regime change") {
         @Override
         public boolean isValid(Country c1, Country c2) {
-            return !c1.getGovernment().getType().equalsIgnoreCase(c2.getGovernment().getType());
+            return !c1.getGovernment().sameType(c2.getGovernment());
         }
     },
     //Rebels that desire independence from subjugation/[annexation]
@@ -35,6 +35,7 @@ public enum RebelType implements CValidatable {
                 return false;
         }
     };
+    //RebelType != REBELLION_TYPE (?) separatism is separatism regardless
     private final String desc;
     private EnumSet<WarObjectives> allowedObjectives;
     private short perceivedAggressiveness;

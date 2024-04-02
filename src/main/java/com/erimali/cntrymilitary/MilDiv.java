@@ -61,6 +61,8 @@ public class MilDiv implements Serializable {
         return unitTypes[type];
     }
 
+    //TreeTableView here(?)
+
     //////////////////////////////////////////////////////////////
     protected String name;
     protected MilLeader leader;
@@ -109,7 +111,7 @@ public class MilDiv implements Serializable {
         MilUnit u = makeUnit(0, 0, 1000);
         MilUnit o = makeUnit(0, 0, 1000);
         u.incSize(1000);
-        o.incSize(1000);
+        o.incSize(900);
         u.incLevel(1);
         o.incLevel(1);
         int res;

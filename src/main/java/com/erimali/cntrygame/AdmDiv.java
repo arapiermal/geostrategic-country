@@ -24,6 +24,7 @@ public class AdmDiv implements Serializable {
     //based on stability, rebellion can happen or if > 64
     //when annexing during war set rebellion to 16 32 or 64 (except provinces which consider us liberators)
     private byte[] rebellion; //types: separatism, autonomy,...
+    private static final byte REBELLION_TYPES = 2;
     //treat like
     EnumSet<Building> buildings;
     public EnumMap<Building, Byte> currProvBuildings;

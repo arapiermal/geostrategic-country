@@ -5,6 +5,7 @@ import java.io.File;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableIntegerValue;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -235,10 +236,10 @@ public class GameStage extends Stage {
     private TabPane makeRighTabPane() {
         TabPane tabPane = new TabPane();
 
-        tabPane.setMinWidth(316);
+        tabPane.setMinWidth(280);
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         Tab[] tabs = new Tab[2];
-        tabs[0] = new Tab("Military");
+        tabs[0] = makeTabMilitary();
         tabs[1] = makeTabBuildings();
         //tabPane.setStyle("-fx-tab-min-width: 0;");
 
@@ -247,7 +248,11 @@ public class GameStage extends Stage {
     }
 
     private TableView<BuildBuildings.BuildBuilding> tableViewBuildings;
+    private Tab makeTabMilitary(){
+        Tab tab = new Tab("Military");
 
+        return tab;
+    }
     //2-8 months
     private Tab makeTabBuildings() {
         tableViewBuildings = BuildBuildings.makeTableView();
@@ -317,8 +322,9 @@ public class GameStage extends Stage {
             }
         });
         saveTextField.setPromptText("Save-game name");
+        Scene scene =new Scene(vBox);
 
-        return new Scene(vBox);
+        return scene;
     }
 
     private void showGameStageOptions() {
@@ -346,8 +352,19 @@ public class GameStage extends Stage {
         stage.initOwner(this);
         stage.initStyle(StageStyle.UTILITY);
         stage.setScene(gsOptionsScenes[0]);
+        stage.setOnCloseRequest(e-> {
+            Scene scene = stage.getScene();
+            if (scene.equals(gsOptionsScenes[0])) {
+                stage.close();
+            } else if(scene.equals(gsOptionsScenes[1])){
+                changeGSOptionsScene(0);
+                e.consume();
+            }
+        });
         return stage;
     }
+    //or keep variable outside
+    //private int optStageScene;
 
     private Stage makeCommandLineStage() {
         // Autocomplete for already entered commands (?) !ControlsFX!

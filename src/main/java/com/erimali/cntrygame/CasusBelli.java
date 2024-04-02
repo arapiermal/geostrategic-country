@@ -41,7 +41,7 @@ public enum CasusBelli implements CValidatable {
     REGIME("Regime change") {
         @Override
         public boolean isValid(Country c1, Country c2) {
-            return !c1.getGovernment().getType().equalsIgnoreCase(c2.getGovernment().getType());
+            return !c1.getGovernment().sameType(c2.getGovernment());
         }
     },
     //They have valuable resources (for ex.)

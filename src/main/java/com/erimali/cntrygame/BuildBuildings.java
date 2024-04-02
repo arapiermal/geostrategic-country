@@ -94,7 +94,7 @@ public class BuildBuildings extends Application {
         nameColumn.setMinWidth(140);
         TableColumn<BuildBuilding, Double> progressColumn = new TableColumn<>("Progress");
         progressColumn.setCellValueFactory(param -> param.getValue().progressProperty());
-        progressColumn.setMinWidth(140);
+        progressColumn.setMinWidth(120);
         //
 
         //progressColumn.setCellFactory(ProgressBarTreeTableCell.forTreeTableColumn());

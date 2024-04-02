@@ -158,7 +158,7 @@ public class War implements Serializable {
 
     }
     //or int... arg
-    public void finishWar(String... arg) {
+    public void finishWar(int... arg) {
         if (arg.length == 0) {
             // withdrawal/draw
         } else {

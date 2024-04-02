@@ -53,7 +53,9 @@ public class Government implements Serializable {
         this.policies = new EnumMap<>(GovPolicy.class);
 
     }
-
+    public boolean sameType(Government o){
+        return type.equalsIgnoreCase(o.type);
+    }
     public String getType() {
         return type;
     }

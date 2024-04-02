@@ -1,5 +1,7 @@
 package com.erimali.cntrygame;
+enum RulerType {
 
+}
 public class Ruler extends Person {
 	private String type;
 
