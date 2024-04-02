@@ -11,6 +11,8 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.SVGPath;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -46,8 +48,10 @@ public class WorldMap {
 
     // CURSOR
 
-    private SVGProvince[] mapSVG;// all divisions
+    private SVGProvince[] mapSVG;// all adm divisions
 //set/remove fill to countries when that mode
+
+    private List<Line> lines;
 
     private final GameStage gs;
 
@@ -67,7 +71,7 @@ public class WorldMap {
         this.gs = gs;
     }
 
-    public ScrollPane start() {
+    public ZoomableScrollPane start() {
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/resources/map/mcBig.svg"))) {
             // Load SVG file
 
@@ -97,7 +101,7 @@ public class WorldMap {
                         SVGProvince svgPath = new SVGProvince(CountryArray.getIndex(pathOwn), currProvId++);
                         svgPath.setId(pathId);
                         svgPath.setContent(pathData);
-
+                        svgPath.updateXY();
                         //OR LOAD PROVINCE FROM HERE
                         // AL/Elbasan.txt
 
@@ -128,7 +132,11 @@ public class WorldMap {
 
             // better solution?
             //Pane stackPane = new Pane(mapGroup);
-            ScrollPane scrollPane = new ZoomableScrollPane(mapGroup);
+            ZoomableScrollPane scrollPane = new ZoomableScrollPane(mapGroup);
+            lines = new ArrayList<>();
+            TESTING.print(mapSVG[3198],mapSVG[3031]);
+            int l = drawLine(3198,3031);
+            //scrollPane.removeLine(l);
             //scrollPane.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
             ContextMenu cm = new ContextMenu();
             MenuItem menuItem1 = new MenuItem("Recruit troops");
@@ -176,9 +184,8 @@ public class WorldMap {
             //TESTING.print(clickedPath.getOwnerId(),clickedPath.getProvId());
             //gs.changeSelectedCountryInfo();
             gs.setSelectedProvince(clickedPath.getProvId());
-            //gs.changeSelectedProvinceInfo();
-
-            System.out.println("Path clicked - ID: " + pathId + ", Owner: " + pathOwn);
+            //gs.changeSelectedProvinceInfclickedNode.getProo()  +; c
+            System.out.println( clickedPath.getProvId() +" clicked - ID: " + pathId + ", Owner: " + pathOwn);
             if (mapMode == 1) {
                 //Put CountryArray countries here...
                 //To access allies fast
@@ -370,5 +377,53 @@ public class WorldMap {
 
                 break;
         }
+    }
+
+    public int drawLine(int s0, int s1){
+        if(s0 < 0 || s0 > mapSVG.length || s1 < 0 || s1 > mapSVG.length)
+            return -1;
+        lines.add(drawLine(mapSVG[s0], mapSVG[s1]));
+        return lines.size() - 1;
+    }
+    public Line drawLine(SVGProvince s0, SVGProvince s1) {
+        Line line = new Line(s0.getProvX(), s0.getProvY(), s1.getProvX(), s1.getProvY());
+        mapGroup.getChildren().add(line);
+        return line;
+    }
+    public Line drawLine(SVGPath s0, SVGPath s1) {
+        double minX0 = s0.getBoundsInLocal().getMinX();
+        double minY0 = s0.getBoundsInLocal().getMinY();
+        double maxX0 = s0.getBoundsInLocal().getMaxX();
+        double maxY0 = s0.getBoundsInLocal().getMaxY();
+        double x0 = (minX0 + maxX0) / 2;
+        double y0 = (minY0 + maxY0) / 2;
+        double minX1 = s1.getBoundsInLocal().getMinX();
+        double minY1 = s1.getBoundsInLocal().getMinY();
+        double maxX1 = s1.getBoundsInLocal().getMaxX();
+        double maxY1 = s1.getBoundsInLocal().getMaxY();
+        double x1 = (minX1 + maxX1) / 2;
+        double y1 = (minY1 + maxY1) / 2;
+        TESTING.print(x0 + " " + y0, x1 + " " + y1);
+
+        Line line = new Line(x0, y0, x1, y1);
+        mapGroup.getChildren().add(line);
+        return line;
+    }
+    //double x0 = s0.getLayoutX() + s0.getBoundsInLocal().getWidth() / 2;
+    //double y0 = s0.getLayoutY() + s0.getBoundsInLocal().getHeight() / 2;
+    //double x1 = s1.getLayoutX() + s1.getBoundsInLocal().getWidth() / 2;
+    //double y1 = s1.getLayoutY() + s1.getBoundsInLocal().getHeight() / 2;
+
+    public Line drawLine(double x0, double y0, double x1, double y1) {
+        Line line = new Line(x0, y0, x1, y1);
+        mapGroup.getChildren().add(line);
+        return line;
+    }
+    //problematic when updating indexes...
+    public void removeLine(int i){
+        removeLine(lines.remove(i));
+    }
+    public void removeLine(Line l) {
+        mapGroup.getChildren().remove(l);
     }
 }

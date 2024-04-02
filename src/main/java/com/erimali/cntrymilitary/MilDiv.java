@@ -111,9 +111,9 @@ public class MilDiv implements Serializable {
         MilUnit u = makeUnit(0, 0, 1000);
         MilUnit o = makeUnit(0, 0, 1000);
         u.incSize(1000);
-        o.incSize(900);
-        u.incLevel(1);
-        o.incLevel(1);
+        o.incSize(500);
+        //u.incLevel(1);
+        o.incLevel(5);
         int res;
         while ((res = u.attack(o)) == 0) {
             TESTING.print(u.size + " " + u.morale, o.size + " " + o.morale);

@@ -90,9 +90,11 @@ public class GameStage extends Stage {
         game.setGameStage(this);
         game.startTimer();
         this.game = game;
-        changeDate(game.inGDateInfo());
         BorderPane gameLayout = createGameLayout();
+        changeDate(game.inGDateInfo());
         updateGameLayout();
+        CommandLine.setCountries(game.getWorldCountries());
+        CommandLine.setPlayerCountry(game.getPlayerId());
         setWidth(1280);
         setHeight(720);
 

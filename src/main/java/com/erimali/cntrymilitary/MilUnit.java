@@ -73,7 +73,7 @@ public abstract class MilUnit implements Serializable {
                 * Math.sqrt((double) ((a.lvl + 1) * (a.data.minMilTech + 1)) / ((o.lvl + 1) * (o.data.minMilTech + 1)) + (a.data.speed - o.data.speed));
         //* Math.sqrt(1 + a.morale / o.morale);
         ATK += ATK * Math.random() / 2;
-        TESTING.print(a.id + " " + ATK);
+        TESTING.print(a.id + ") ATK = " + ATK);
 
         return ATK;
     }

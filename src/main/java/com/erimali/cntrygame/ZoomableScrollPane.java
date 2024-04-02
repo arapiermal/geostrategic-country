@@ -13,10 +13,11 @@ import javafx.scene.paint.Color;
 public class ZoomableScrollPane extends ScrollPane {
     private double scaleValue = 1; //was 0.7
     private double zoomIntensity = 0.02;
-    private Node target;
+    private Group target;
     private Node zoomNode;
-//SVGPath[] inside Group inside Group inside VBox inside ScrollPane...(inside GameStage...)
-    public ZoomableScrollPane(Node target) {
+
+    //SVGPath[] inside Group inside Group inside VBox inside ScrollPane...(inside GameStage...)
+    public ZoomableScrollPane(Group target) {
         super();
         this.target = target;
         this.zoomNode = new Group(target);
