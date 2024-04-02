@@ -134,8 +134,8 @@ public class WorldMap {
             //Pane stackPane = new Pane(mapGroup);
             ZoomableScrollPane scrollPane = new ZoomableScrollPane(mapGroup);
             lines = new ArrayList<>();
-            TESTING.print(mapSVG[3198],mapSVG[3031]);
-            int l = drawLine(3198,3031);
+            TESTING.print(mapSVG[3198], mapSVG[3031]);
+            int l = drawLine(3198, 3031);
             //scrollPane.removeLine(l);
             //scrollPane.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
             ContextMenu cm = new ContextMenu();
@@ -185,7 +185,7 @@ public class WorldMap {
             //gs.changeSelectedCountryInfo();
             gs.setSelectedProvince(clickedPath.getProvId());
             //gs.changeSelectedProvinceInfclickedNode.getProo()  +; c
-            System.out.println( clickedPath.getProvId() +" clicked - ID: " + pathId + ", Owner: " + pathOwn);
+            System.out.println(clickedPath.getProvId() + " clicked - ID: " + pathId + ", Owner: " + pathOwn);
             if (mapMode == 1) {
                 //Put CountryArray countries here...
                 //To access allies fast
@@ -379,17 +379,27 @@ public class WorldMap {
         }
     }
 
-    public int drawLine(int s0, int s1){
-        if(s0 < 0 || s0 > mapSVG.length || s1 < 0 || s1 > mapSVG.length)
+    public int[] drawLines(int... p) {
+        int[] res = new int[p.length - 1];
+        for (int i = 0; i < res.length; i++) {
+            res[i] = drawLine(p[i], p[i + 1]);
+        }
+        return res;
+    }
+
+    public int drawLine(int s0, int s1) {
+        if (s0 < 0 || s0 > mapSVG.length || s1 < 0 || s1 > mapSVG.length)
             return -1;
         lines.add(drawLine(mapSVG[s0], mapSVG[s1]));
         return lines.size() - 1;
     }
+
     public Line drawLine(SVGProvince s0, SVGProvince s1) {
         Line line = new Line(s0.getProvX(), s0.getProvY(), s1.getProvX(), s1.getProvY());
         mapGroup.getChildren().add(line);
         return line;
     }
+
     public Line drawLine(SVGPath s0, SVGPath s1) {
         double minX0 = s0.getBoundsInLocal().getMinX();
         double minY0 = s0.getBoundsInLocal().getMinY();
@@ -419,10 +429,12 @@ public class WorldMap {
         mapGroup.getChildren().add(line);
         return line;
     }
+
     //problematic when updating indexes...
-    public void removeLine(int i){
+    public void removeLine(int i) {
         removeLine(lines.remove(i));
     }
+
     public void removeLine(Line l) {
         mapGroup.getChildren().remove(l);
     }
