@@ -1,6 +1,6 @@
 package com.erimali.cntrygame;
 
-import com.erimali.cntrymilitary.MilDiv;
+import com.erimali.cntrymilitary.MilAttack;
 import com.erimali.cntrymilitary.MilSoldiers;
 import com.erimali.cntrymilitary.MilUnit;
 import com.erimali.cntrymilitary.MilVehicles;
@@ -33,9 +33,15 @@ public class AdmDiv implements Serializable {
 
     //private short[] claimedBy; (previous owners) ...
     //Mil
-    private List<MilUnit> unitsInProgress;
-    private List<MilUnit> divisions; // unit vs div or new interface
+    //private List<MilUnit> unitsRecruitingBuild;
+    //private List<MilUnit> unitsTrainingUpgrade;
+    //list in GLogic so only the ones necessary are updated.
+    private MilUnit unitRecruitingBuild;
 
+    private MilUnit unitTrainingUpgrade;
+
+    private List<MilAttack> divisions; // unit vs div or new interface
+//boolean or sth
 
     public String toString() {
         return this.name;
@@ -58,7 +64,6 @@ public class AdmDiv implements Serializable {
         this.mainLanguage = mainLanguage;
         this.buildings = EnumSet.noneOf(Building.class);
         this.buildingBuildings = new EnumMap<>(Building.class);
-        this.unitsInProgress = new LinkedList<>();
         this.divisions = new LinkedList<>();
         resetRebellion();
     }
@@ -68,7 +73,6 @@ public class AdmDiv implements Serializable {
         this.mainLanguage = mainLanguage;
         this.buildings = EnumSet.noneOf(Building.class);
         this.buildingBuildings = new EnumMap<>(Building.class);
-        this.unitsInProgress = new LinkedList<>();
         this.divisions = new LinkedList<>();
         resetRebellion();
         try {
@@ -116,6 +120,11 @@ public class AdmDiv implements Serializable {
         }
     }
 
+    public void weeklyTick() {
+        recruitBuild();
+        trainUpgrade();
+    }
+
     public void buildBuilding(Building b) {
         if (!buildings.contains(b))
             buildingBuildings.put(b, (byte) 1);
@@ -136,6 +145,7 @@ public class AdmDiv implements Serializable {
     public EnumSet<Building> getBuildings() {
         return buildings;
     }
+
     public EnumMap<Building, Byte> getBuildingBuildings() {
         return buildingBuildings;
     }
@@ -221,13 +231,59 @@ public class AdmDiv implements Serializable {
         this.svgProvince = svgProvince;
     }
 
-    public void trainBuild(){
-        MilUnit u = unitsInProgress.getFirst();
-        if(u instanceof MilSoldiers milSoldiers){
-            milSoldiers.train(100);//fix based on max
-        } else if(u instanceof MilVehicles milVehicles){
-            milVehicles.build(10);
+
+    public void cancelUnitProcess(){
+
+    }
+
+    //stopped automatically when maxSize reached
+    public int recruitBuildTenth(){
+        if (unitRecruitingBuild == null) {
+            return Integer.MIN_VALUE;
+        } else {
+            //how much manpower/resources goes in (?)
+            return unitRecruitingBuild.recruitBuild();
         }
+    }
+    public int recruitBuild() {
+        if (unitRecruitingBuild == null) {
+            return Integer.MIN_VALUE;
+        }
+        if (unitRecruitingBuild instanceof MilSoldiers milSoldiers) {
+            return milSoldiers.recruit(100);//fix based on max
+        } else if (unitRecruitingBuild instanceof MilVehicles milVehicles) {
+           return milVehicles.build(10);
+        } else {
+            return Integer.MAX_VALUE;
+        }
+
+    }
+    //started/stopped when player clicks
+    public void trainUpgrade() {
+        if (unitTrainingUpgrade == null) {
+            return;
+        }
+        if (unitRecruitingBuild instanceof MilSoldiers milSoldiers) {
+            milSoldiers.train(100);//fix based on max
+        } else if (unitRecruitingBuild instanceof MilVehicles milVehicles) {
+            milVehicles.upgrade(10);
+        }
+    }
+
+    public MilUnit getUnitRecruitingBuild() {
+        return unitRecruitingBuild;
+    }
+
+    public void setUnitRecruitingBuild(MilUnit unitRecruitingBuild) {
+        this.unitRecruitingBuild = unitRecruitingBuild;
+    }
+
+    public MilUnit getUnitTrainingUpgrade() {
+        return unitTrainingUpgrade;
+    }
+
+    public void setUnitTrainingUpgrade(MilUnit unitTrainingUpgrade) {
+        this.unitTrainingUpgrade = unitTrainingUpgrade;
     }
 
 }

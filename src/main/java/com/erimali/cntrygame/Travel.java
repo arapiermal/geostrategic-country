@@ -1,16 +1,18 @@
 package com.erimali.cntrygame;
 
+import com.erimali.cntrymilitary.MilUnit;
+
 import java.util.List;
 
 public class Travel {
 
     TravelAmbients ambient;
     // km / h speed for Units?
-    List<CarryUnits> travellers; //unnecessary if Transport Units have that inside?
+    List<MilUnit> travellers; //unnecessary if Transport Units have that inside?
     double totalDistance;
     double distanceTravelled;
 
-    public Travel(List<CarryUnits> travellers, TravelAmbients ambient, double distance) {
+    public Travel(List<MilUnit> travellers, TravelAmbients ambient, double distance) {
         this.travellers = travellers;
         this.ambient = ambient;
         this.totalDistance = distance;

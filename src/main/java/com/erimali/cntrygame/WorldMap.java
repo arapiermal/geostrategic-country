@@ -17,6 +17,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class WorldMap {
@@ -50,6 +51,7 @@ public class WorldMap {
 //set/remove fill to countries when that mode
 
     private List<Line> lines;
+    private List<Region> milUnits;
 
     private final GameStage gs;
 
@@ -89,7 +91,7 @@ public class WorldMap {
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/resources/map/mcBig.svg"))) {
             // Load SVG file
 
-            List<SVGProvince> svgPaths = new ArrayList<>(); //LINKED LIST MORE EFFICIENT?!? SINCE WILL BE CONVERTED TO ARRAY?
+            List<SVGProvince> svgPaths = new LinkedList<>(); //LINKED LIST MORE EFFICIENT?!? SINCE WILL BE CONVERTED TO ARRAY?
             //List<SVGPath> countryPaths = new ArrayList<>();
             String line;
             int currProvId = 0;
@@ -139,7 +141,7 @@ public class WorldMap {
             mapGroup = new Group(mapSVG);
             mapGroup.setOnMouseClicked(this::onPathClicked);
 
-            mapGroup.setOnMouseEntered(this::onMouseHover);
+            //mapGroup.setOnMouseEntered(this::onMouseHover);
 
             mapGroup.setCursor(Cursor.HAND);
 
@@ -390,12 +392,24 @@ public class WorldMap {
                 break;
         }
     }
-
+    //0.0 0.1 0.2 0.3, 1.0 1.1 1.2 1.3  ...
+    //0                4                ...
+    //how to keep track of removable lines
     public int[] drawLines(int... p) {
         int[] res = new int[p.length - 1];
         for (int i = 0; i < res.length; i++) {
             res[i] = drawLine(p[i], p[i + 1]);
         }
+        return res;
+    }
+
+    public int[] drawLinesArrow(int... p) {
+        int[] res = new int[p.length + 1];
+        for (int i = 0; i < p.length - 1; i++) {
+            res[i] = drawLine(p[i], p[i + 1]);
+        }
+        //res[p.length] = ;
+        //res[p.length + 1] = ;
         return res;
     }
 

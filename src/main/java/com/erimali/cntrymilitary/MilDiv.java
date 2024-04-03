@@ -15,7 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 //move stuff related to country in military class
-public class MilDiv implements Serializable {
+public class MilDiv implements MilAttack, Serializable {
     protected static List<MilUnitData>[] unitTypes;
     protected static String DIR_UNIT_TYPES = "src/main/resources/data/units";
 
@@ -67,6 +67,7 @@ public class MilDiv implements Serializable {
     protected String name;
     protected MilLeader leader;
     protected List<MilUnit> units;
+    protected int speed; //Math.min of all milunits?
 
     public MilDiv(String name) {
         this.name = name;
@@ -79,6 +80,21 @@ public class MilDiv implements Serializable {
         this.units = new LinkedList<>();
     }
 
+    public void addMilUnit(MilUnit... milUnits) {
+        Collections.addAll(units, milUnits);
+    }
+
+    public MilUnit removeMilUnit(int i) {
+        if (i >= 0 && i < units.size())
+            return units.remove(i);
+        else
+            return null;
+    }
+
+    public boolean removeMilUnit(MilUnit i) {
+        return units.remove(i);
+    }
+
     public int attack(MilDiv o) {
         //take care when units is empty (?)
         int n = Math.max(units.size(), o.units.size());
@@ -86,7 +102,19 @@ public class MilDiv implements Serializable {
         int a1 = 0, a2 = 0;
         int res = 0;
         while (i < n && res == 0) {
-            res = units.get(a1++).attack(o.units.get(a2++));
+            res = units.get(a1).attack(o.units.get(a2));
+            if (res == -2) {
+                units.remove(a1);
+                //(?)
+                if (units.isEmpty())
+                    return res;
+            } else if (res == 2) {
+                o.units.remove(a2);
+                if (o.units.isEmpty())
+                    return res;
+            }
+            a1++;
+            a2++;
             a1 %= units.size();
             a2 %= o.units.size();
             i++;
@@ -94,26 +122,52 @@ public class MilDiv implements Serializable {
         return res;
     }
 
-    public static MilUnit makeUnit(int type, int index, int maxSize) {
-        MilUnitData data = unitTypes[type].get(index);
-        MilUnit unit = (type % 2 == 0) ? new MilSoldiers(data, maxSize) : new MilVehicles(data, maxSize);
-        return unit;
+    //Potential bullying (!)
+    public int attack(MilUnit o) {
+        int n = units.size();
+        int i = 0;
+        int a1 = 0;
+        int res = 0;
+        while (i < n && res == 0) {
+            res = units.get(a1).attack(o);
+            if (res == -2) {
+                units.remove(a1);
+            } else if (res == 2) {
+                return res;
+            }
+            a1++;
+            a1 %= units.size();
+            i++;
+        }
+        return res;
     }
+
+    @Override
+    public int attack(MilAttack o) {
+        return o instanceof MilDiv ? attack((MilDiv) o) : attack((MilUnit) o);
+    }
+
 
     @Override
     public String toString() {
         return this.name;
     }
 
+    public static MilUnit makeUnit(int type, int index) {
+        MilUnitData data = unitTypes[type].get(index);
+        MilUnit unit = (type % 2 == 0) ? new MilSoldiers(data) : new MilVehicles(data);
+        return unit;
+    }
+
     public static void main(String[] args) {
         loadAllUnitData();
 
-        MilUnit u = makeUnit(0, 0, 1000);
-        MilUnit o = makeUnit(0, 0, 1000);
+        MilUnit u = makeUnit(0, 0);
+        MilUnit o = makeUnit(0, 0);
         u.incSize(1000);
         o.incSize(500);
         //u.incLevel(1);
-        o.incLevel(5);
+        o.incLevel(2);
         int res;
         while ((res = u.attack(o)) == 0) {
             TESTING.print(u.size + " " + u.morale, o.size + " " + o.morale);
@@ -140,5 +194,5 @@ public class MilDiv implements Serializable {
      * 0 0 0
      * make combinations 0 <-> 0
      * */
-    
+
 }

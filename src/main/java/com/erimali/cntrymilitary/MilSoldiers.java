@@ -2,15 +2,15 @@ package com.erimali.cntrymilitary;
 
 public class MilSoldiers extends MilUnit {
 
-    public MilSoldiers(MilUnitData data, int maxSize) {
-        super(data, maxSize);
+    public MilSoldiers(MilUnitData data) {
+        super(data);
     }
 
     public int recruit(int amount) {
         size += amount / lvl;
-        if (size > maxSize) {
-            int extraManpower = size - maxSize;
-            size = maxSize;
+        if (size > data.maxSize) {
+            int extraManpower = size - data.maxSize;
+            size = data.maxSize;
             return extraManpower;
         }
         return amount % lvl;

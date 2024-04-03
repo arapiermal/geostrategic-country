@@ -5,31 +5,15 @@ import com.erimali.cntrygame.Person;
 import java.io.Serial;
 import java.io.Serializable;
 
-enum MilLeaderType {
-    CAPTAIN("Captain"),
-    COLONEL("Colonel"),
-    GENERAL("General");
-
-    private String type;
-
-    MilLeaderType(String type) {
-        this.type = type;
-    }
-
-    @Override
-    public String toString() {
-        return this.type;
-    }
-}
-
 public class MilLeader extends Person implements Serializable {
     private MilLeaderType type;
 
-    public MilLeader(String input, String type) {
+    public MilLeader(String input) {
         super(input.substring(input.indexOf("->") + 2));//!!!!!!!!!!!!!
         int index = input.indexOf("->");
         this.type = MilLeaderType.valueOf(input.substring(0, index).trim());
     }
+
 
 
     public MilLeaderType getType() {

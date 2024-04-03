@@ -56,7 +56,6 @@ public class Person implements Serializable {
 		return firstName;
 	}
 
-
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
 	}
@@ -73,16 +72,13 @@ public class Person implements Serializable {
 		return lastName;
 	}
 
-
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
 
-
 	public char getGender() {
 		return gender;
 	}
-
 
 	public void setGender(char gender) {
 		this.gender = gender;
@@ -95,7 +91,6 @@ public class Person implements Serializable {
 	public static char getMale() {
 		return MALE;
 	}
-
 
 	public static char getFemale() {
 		return FEMALE;

@@ -15,15 +15,13 @@ public abstract class MilUnit implements Serializable {
     //protected double totalHealth;
     //by this logic there's a direct interdependency between hp and size
     //
-    protected int maxSize;
     protected int size;
     protected int xp;
     protected int lvl;
 
-    public MilUnit(MilUnitData data, int maxSize) {
+    public MilUnit(MilUnitData data) {
         this.data = data;
         this.dataId = data.getDataId();
-        this.maxSize = maxSize;
         this.id = CURR_ID++;
         this.morale = 100;
 
@@ -43,6 +41,7 @@ public abstract class MilUnit implements Serializable {
                 o.size = 0;
                 return 2;
             } else if (o.morale <= 0) {
+                o.morale = 0;
                 return 1; //Opponent retreats
             }
         }
@@ -54,6 +53,7 @@ public abstract class MilUnit implements Serializable {
                 this.size = 0;
                 return -2;
             } else if (this.morale <= 0) {
+                this.morale = 0;
                 return -1; //This unit retreats
             }
         }
@@ -90,9 +90,9 @@ public abstract class MilUnit implements Serializable {
 
     public int incSize(int value) {
         this.size += value;
-        if (size > maxSize) {
-            int extra = size - maxSize;
-            size = maxSize;
+        if (size > data.maxSize) {
+            int extra = size - data.maxSize;
+            size = data.maxSize;
             return extra;
         }
         return 0;
@@ -101,5 +101,22 @@ public abstract class MilUnit implements Serializable {
     public void incLevel(int i) {
         if (i > 0)
             this.lvl += i;
+    }
+
+    public int recruitBuild(int amount) {
+        size += amount / lvl;
+        if (size > data.maxSize) {
+            int extra = size - data.maxSize;
+            size = data.maxSize;
+            return extra;
+        }
+        return amount % lvl;
+    }
+    public int recruitBuild(){
+        return recruitBuild(data.maxSize/10);
+    }
+    @Override
+    public String toString(){
+        return data.name;
     }
 }
