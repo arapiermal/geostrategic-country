@@ -11,11 +11,11 @@ public enum TravelAmbients {
     AIR, //
     SPACE; //
 
-    String[][] SUBTYPES = {{"Grassy", "Muddy", "Mountainous", "Desert"}, //
+    final String[][] SUBTYPES = {{"Grassy", "Muddy", "Mountainous", "Desert"}, //
             {"Ocean", "Sea", "Lake"}, //
             {"Air"}, //
             {"Space"}};//
-    double[][] DIFFICULTY = {{1, 1.3, 1.1, 1.2}, //
+    final double[][] DIFFICULTY = {{1, 1.3, 1.1, 1.2}, //
             {1, 1.05, 1.1}, //
             {1}, //
             {1}};//

@@ -20,9 +20,11 @@ public class MilDiv implements MilAttack, Serializable {
     protected static String DIR_UNIT_TYPES = "src/main/resources/data/units";
 
     //call after loading save game
-    public static void loadAllUnitData() {
-        //noinspection unchecked
-        unitTypes = (List<MilUnitData>[]) new ArrayList[MilUnitData.MAX_TYPES];
+    public static void loadAllUnitData(List<MilUnitData>[] unitTypes) {
+        if(unitTypes == null) {
+            //noinspection unchecked
+            unitTypes = (List<MilUnitData>[]) new ArrayList[MilUnitData.MAX_TYPES];
+        }
         for (int i = 0; i < MilUnitData.MAX_TYPES; i++) {
             unitTypes[i] = new ArrayList<>();
 
@@ -45,7 +47,7 @@ public class MilDiv implements MilAttack, Serializable {
         }
     }
 
-    public void correlateUnitData() {
+    public void correlateUnitData(List<MilUnitData>[] unitTypes) {
         int n = MilUnitData.MAX_TYPES;
         for (MilUnit u : units) {
             try {
@@ -160,7 +162,7 @@ public class MilDiv implements MilAttack, Serializable {
     }
 
     public static void main(String[] args) {
-        loadAllUnitData();
+        loadAllUnitData(MilDiv.unitTypes);
 
         MilUnit u = makeUnit(0, 0);
         MilUnit o = makeUnit(0, 0);

@@ -1,10 +1,12 @@
 package com.erimali.cntrygame;
 
+import com.erimali.cntrymilitary.MilUnitData;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -87,7 +89,7 @@ public class WorldMap {
     }
     // SET PLAYER COUNTRY
 
-    public ZoomableScrollPane start() {
+    public ScrollPane start() {
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/resources/map/mcBig.svg"))) {
             // Load SVG file
 
@@ -147,12 +149,11 @@ public class WorldMap {
 
             // better solution?
             //Pane stackPane = new Pane(mapGroup);
-            ZoomableScrollPane scrollPane = new ZoomableScrollPane(mapGroup);
+            ScrollPane scrollPane = new ZoomableScrollPane(mapGroup);
             lines = new ArrayList<>();
-            TESTING.print(mapSVG[3198], mapSVG[3031]);
             //int l = drawLine(3198, 3031);
             int[] l = drawLines(3031, 3030, 2993, 2994, 2991, 2992, 3198);
-            makeMilSVG(0, 3198);
+            makeMilSVG(0, 3198, 0);
             //scrollPane.removeLine(l);
             //scrollPane.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
             ContextMenu cm = new ContextMenu();
@@ -163,6 +164,9 @@ public class WorldMap {
             scrollPane.setContextMenu(cm);
             scrollPane.setHvalue(scrollPane.getHmax() / 2);
             scrollPane.setVvalue(scrollPane.getVmax() / 2);
+            URL css = getClass().getResource("css/worldMap.css");
+            if(css != null)
+                scrollPane.getStylesheets().add(css.toExternalForm());
             return scrollPane;
         } catch (Exception e) {
             e.printStackTrace();
@@ -215,7 +219,7 @@ public class WorldMap {
         }
     }
 
-    public Region makeMilSVG(int type, int provId) {
+    public Region makeMilSVG(int type, int provId, int friendly) {
         SVGProvince prov = mapSVG[provId];
         double w = prov.getBoundsInLocal().getWidth() / 3;
         double h = prov.getBoundsInLocal().getHeight() / 3;
@@ -225,6 +229,9 @@ public class WorldMap {
         milImg.setPrefSize(w, h);
         milImg.setMaxSize(w, h);
         milImg.setStyle("-fx-background-color: green;");
+        milImg.getStyleClass().add("mil-img");
+        milImg.getStyleClass().add(MilUnitData.getUnitTypeName(type));
+        milImg.getStyleClass().add(friendly == 0 ? "player" : friendly > 0 ? "allies" : "enemy");
         milImg.setLayoutX(prov.getProvX() - w / 2);
         milImg.setLayoutY(prov.getProvY() - h / 2);
 

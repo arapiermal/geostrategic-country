@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.*;
 
 import com.erimali.cntrymilitary.MilDiv;
+import com.erimali.cntrymilitary.MilUnitData;
 import javafx.scene.shape.SVGPath;
 
 public class Military implements Serializable {
@@ -63,5 +64,11 @@ public class Military implements Serializable {
     }
     public boolean isAtWarWith(short s){
         return atWarWith.contains(s);
+    }
+
+    public void correlateUnitData(List<MilUnitData>[] unitTypes) {
+        for(MilDiv d : divisions){
+            d.correlateUnitData(unitTypes);
+        }
     }
 }

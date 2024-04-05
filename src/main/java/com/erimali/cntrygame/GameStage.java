@@ -13,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
+import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -89,11 +90,12 @@ public class GameStage extends Stage {
     //Load game
     public GameStage(GLogic game) {
         setTitle(Main.APP_NAME + " - Game");
-        setOnCloseRequest(e -> close());
+        setOnCloseRequest(e -> close());//...
         this.selectedCountry = -1;
         game.setGameStage(this);
         game.startTimer();
         this.game = game;
+        game.correlateAllUnitData();
         BorderPane gameLayout = createGameLayout();
         changeDate(game.inGDateInfo());
         updateGameLayout();
@@ -123,6 +125,32 @@ public class GameStage extends Stage {
         }
     }
 
+    private HBox makeGameSpeedHBox() {
+        Label speedData = new Label("1.0");
+        Text speedDataInfo = new Text("days/sec");
+        Button speedUp = new Button("+");
+        speedUp.setPrefHeight(20);
+        speedUp.setPrefWidth(30);
+        speedUp.setStyle("-fx-background-color: lightblue; -fx-shape: 'M 0 50 L 25 0 L 50 50 Z'");
+        speedUp.setOnAction(e -> {
+            game.increaseSpeed();
+            speedData.setText(String.valueOf(game.getSpeed()));
+        });
+
+        Button speedDown = new Button("-");
+        speedDown.setPrefHeight(20);
+        speedDown.setPrefWidth(30);
+        speedDown.setStyle("-fx-background-color: lightblue; -fx-shape: 'M 0 0 L 25 50 L 50 0 Z'");
+        speedDown.setOnAction(e -> {
+            game.decreaseSpeed();
+            speedData.setText(String.valueOf(game.getSpeed()));
+        });
+
+        VBox vBox = new VBox(speedUp, speedDown);
+        vBox.setSpacing(4);
+        return new HBox(vBox, speedData,speedDataInfo);
+    }
+
     private BorderPane createGameLayout() {
         BorderPane gameLayout = new BorderPane();
         gameLayout.setPadding(new Insets(8));
@@ -131,15 +159,17 @@ public class GameStage extends Stage {
         this.countryName = new Label("Select Country");
         this.date = new Label("Default Date");
         this.pauseButton = new Button("Play");
-        isPaused = true;
+        this.isPaused = true;
         this.pauseButton.setOnAction(e -> pausePlayDate());
-        this.pausation = new Label("Paused");
+        this.pausation = new Label("New game");
 
         chooseCountryButton = new Button("Confirm");
         chooseCountryButton.setOnAction(e -> startGame());
         HBox hTopLeft = new HBox(getCountryName(), chooseCountryButton);
         hTopLeft.setSpacing(10);
-        HBox hTopRight = new HBox(this.pausation, this.pauseButton, this.date);
+
+        HBox hGameSpeed = makeGameSpeedHBox();
+        HBox hTopRight = new HBox(pausation, pauseButton, date, hGameSpeed);
         hTopRight.setSpacing(10);
         Region regTop = new Region();
 
@@ -254,11 +284,13 @@ public class GameStage extends Stage {
     }
 
     private TableView<BuildBuildings.BuildBuilding> tableViewBuildings;
-    private Tab makeTabMilitary(){
+
+    private Tab makeTabMilitary() {
         Tab tab = new Tab("Military");
 
         return tab;
     }
+
     //2-8 months
     private Tab makeTabBuildings() {
         tableViewBuildings = BuildBuildings.makeTableView();
@@ -325,7 +357,7 @@ public class GameStage extends Stage {
             }
         });
         saveTextField.setPromptText("Save-game name");
-        Scene scene =new Scene(vBox);
+        Scene scene = new Scene(vBox);
 
         return scene;
     }
@@ -355,11 +387,11 @@ public class GameStage extends Stage {
         stage.initOwner(this);
         stage.initStyle(StageStyle.UTILITY);
         stage.setScene(gsOptionsScenes[0]);
-        stage.setOnCloseRequest(e-> {
+        stage.setOnCloseRequest(e -> {
             Scene scene = stage.getScene();
             if (scene.equals(gsOptionsScenes[0])) {
                 stage.close();
-            } else if(scene.equals(gsOptionsScenes[1])){
+            } else if (scene.equals(gsOptionsScenes[1])) {
                 changeGSOptionsScene(0);
                 e.consume();
             }

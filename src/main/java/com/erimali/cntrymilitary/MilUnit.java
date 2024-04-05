@@ -119,4 +119,8 @@ public abstract class MilUnit implements Serializable {
     public String toString(){
         return data.name;
     }
+
+    public int getType(){
+        return data.type;
+    }
 }

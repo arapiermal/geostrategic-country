@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.Set;
 
 public class MilUnitData implements Comparable<MilUnitData> {
-    private static final String[] TYPES = {"Soldiers", "Ground Vehicles", "Marines", "Water Vehicles",
-            "Airborne forces", "Air Vehicles", "Space Vehicles", "Space soldiers"};
+    private static final String[] TYPES = {"soldiers", "ground-vehicles", "marines", "ships",
+            "airborne-forces", "planes", "space-ships", "space-soldiers"};
     protected static final int MAX_TYPES = 8;
     private static final int MAX_SUBTYPES = 4096;
 
-    protected final byte type;
+    protected final int type;
 
     protected String name;
     protected String desc;
@@ -64,7 +64,7 @@ public class MilUnitData implements Comparable<MilUnitData> {
     }
 
     private void setValue(String[] in) {
-        if(in.length < 2)
+        if (in.length < 2)
             return;
         switch (in[0].toLowerCase()) {
             case "name":
@@ -101,13 +101,13 @@ public class MilUnitData implements Comparable<MilUnitData> {
                 if (isVehicle()) {
                     this.canCarry = new boolean[MAX_TYPES];
                     Set<Integer> temp = new HashSet<>();
-                    for(int i = 1; i < in.length; i++){
-                        int val = parseIntOrDef(in[i],-1);
-                        if(val > -1 && val < canCarry.length){
+                    for (int i = 1; i < in.length; i++) {
+                        int val = parseIntOrDef(in[i], -1);
+                        if (val > -1 && val < canCarry.length) {
                             temp.add(val);
                         }
                     }
-                    for(int i = 0 ; i < canCarry.length; i++){
+                    for (int i = 0; i < canCarry.length; i++) {
                         canCarry[i] = temp.contains(i);
                     }
                 }
@@ -170,5 +170,16 @@ public class MilUnitData implements Comparable<MilUnitData> {
             }
         }
         return false;
+    }
+
+    public static String getUnitTypeName(int type) {
+        if (type >= 0 && type < MAX_TYPES) {
+            return TYPES[type];
+        }
+        return "";
+    }
+
+    public static int getMaxTypes() {
+        return MAX_TYPES;
     }
 }

@@ -5,6 +5,8 @@ import java.io.FileReader;
 import java.io.Serializable;
 import java.util.*;
 
+import com.erimali.cntrymilitary.MilDiv;
+import com.erimali.cntrymilitary.MilUnitData;
 import com.erimali.compute.MathSolver;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -22,19 +24,23 @@ public class GLogic implements Serializable {
     private transient Timeline timeline;
     private transient KeyFrame keyframe;
     private transient Duration interval;
-    private static final double minIntervalInSeconds = 0.25;
     private static final double defaultIntervalInSeconds = 1;
-    private static final double maxIntervalInSeconds = 4;
+    //keep in double or int (?) Math.pow might be problematic
+    private static final double MIN_GAME_SPEED_INTERVAL = 0.25;
+    private static final double MAX_GAME_SPEED_INTERVAL = 4;
+    private double gameSpeedInterval;
     // Date
-    private GDate inGDate;// HMMMMMM
-    private static final int DEF_STARTDAY = 1;
-    private static final int DEF_STARTMONTH = 1;
-    private static final int DEF_STARTYEAR = 2024;
+    private GDate inGDate;//
+    private static final int DEF_START_DAY = 1;
+    private static final int DEF_START_MONTH = 1;
+    private static final int DEF_START_YEAR = 2024;
 
-    // Countries
+    // World with countries
     private World world;
-    private World[] moon_planets;
-    // private World planets[]; //solar system
+    private World[] moon_planets;//solar system
+
+    private transient List<MilUnitData>[] unitTypes;
+
     private List<War> wars;
     //private List<WarResult> finishedWars;
     // Wars saved as GNews ... (special type, int)
@@ -57,8 +63,9 @@ public class GLogic implements Serializable {
 
     // NEW GAME
     public GLogic(GameStage gs) {
-        this.inGDate = new GDate(DEF_STARTDAY, DEF_STARTMONTH, DEF_STARTYEAR);
+        this.inGDate = new GDate(DEF_START_DAY, DEF_START_MONTH, DEF_START_YEAR);
         this.gs = gs;
+        this.gameSpeedInterval = defaultIntervalInSeconds;
         startTimer();
         this.world = new World();
         CommandLine.setCountries(world.getCountries());
@@ -66,12 +73,12 @@ public class GLogic implements Serializable {
         this.gameEvents = loadGameEvents(DEF_GAMEEVENTSPATH);
         this.currencies = new Currencies();
         this.improvingRelations = new HashMap<>();
-
         this.wars = new LinkedList<>();
+        loadAllUnitData();
     }
 
     public void startTimer() {
-        startTimer(defaultIntervalInSeconds);
+        startTimer(gameSpeedInterval);
     }
 
     public void startTimer(double intervalInSeconds) {
@@ -91,11 +98,24 @@ public class GLogic implements Serializable {
         timeline.play();
     }
 
-    public void increaseInterval() {
+    public void increaseSpeed() {
+        gameSpeedInterval /= 2;
+        if (gameSpeedInterval < MIN_GAME_SPEED_INTERVAL) {
+            gameSpeedInterval = MIN_GAME_SPEED_INTERVAL;
+            return;
+        }
+        timeline.stop();
+        startTimer();
     }
 
-    public void decreaseInterval() {
-
+    public void decreaseSpeed() {
+        gameSpeedInterval *= 2;
+        if (gameSpeedInterval > MAX_GAME_SPEED_INTERVAL) {
+            gameSpeedInterval = MAX_GAME_SPEED_INTERVAL;
+            return;
+        }
+        timeline.stop();
+        startTimer();
     }
 
     public void pauseTimer() {
@@ -615,13 +635,30 @@ public class GLogic implements Serializable {
     }
 
     public void giveMoney(int selectedCountry, Double result) {
-        giveMoney(playerId,selectedCountry,result);
+        giveMoney(playerId, selectedCountry, result);
     }
-    public void giveMoney(int i1, int i2, double amount){
+
+    public void giveMoney(int i1, int i2, double amount) {
         Country c1 = world.getCountry(i1);
         Country c2 = world.getCountry(i2);
-        if(c1 != null && c2 != null){
-            c1.getEconomy().giveMoney(c2,amount);
+        if (c1 != null && c2 != null) {
+            c1.getEconomy().giveMoney(c2, amount);
         }
+    }
+
+    public void loadAllUnitData() {
+        //noinspection unchecked
+        unitTypes = (List<MilUnitData>[]) new ArrayList[MilUnitData.getMaxTypes()];
+        MilDiv.loadAllUnitData(unitTypes);
+    }
+
+    public void correlateAllUnitData() {
+        for (Country c : world.getCountries()) {
+            c.getMilitary().correlateUnitData(unitTypes);
+        }
+    }
+
+    public double getSpeed() {
+        return 1/gameSpeedInterval;
     }
 }
