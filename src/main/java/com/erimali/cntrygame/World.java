@@ -1,5 +1,10 @@
 package com.erimali.cntrygame;
 
+import com.erimali.cntrymilitary.MilSoldiers;
+import com.erimali.cntrymilitary.MilUnit;
+import com.erimali.cntrymilitary.MilUnitData;
+import com.erimali.cntrymilitary.MilVehicles;
+
 import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -8,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class World implements Serializable {
+    private GLogic game;
     private String name;
     private double totalLandArea;
     private static final String ENDDELIMITER = Syntax.END.getName();
@@ -17,12 +23,14 @@ public class World implements Serializable {
     //private Map<String, Country> countries;//only one to be left?
     private Map<String, Union> unions;
     private AdmDiv[] provinces;
-
+    //set from world map
+    private short[][] initialProvinces;
     //private List<Resource> resources;
 
     // AL -> Albania
     // DEFAULT DATA
-    public World() {
+    public World(GLogic game) {
+        this.game = game;
         try {
             name = "Earth";
             totalLandArea = 148940000;
@@ -53,7 +61,8 @@ public class World implements Serializable {
 
     }
 
-    public World(int type) {
+    public World(GLogic game, int type) {
+        this.game = game;
         try {
             switch (type) {
                 case 0:
@@ -481,5 +490,15 @@ public class World implements Serializable {
 
     public void removeUnion(String shortName, int c) {
         unions.get(shortName).dismantle(c);
+    }
+
+    public void makeMilUnit(int ownerId, int provId, MilUnitData data, int size) {
+        if(size <= 0){
+            MilUnit u = data.isVehicle() ? new MilVehicles(data, ownerId) : new MilSoldiers(data,ownerId);
+            provinces[provId].setUnitRecruitingBuild(u);
+
+        } else{
+
+        }
     }
 }

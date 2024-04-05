@@ -31,7 +31,9 @@ public class MilUnitData implements Comparable<MilUnitData> {
     protected int minMilTech;
 
     private boolean[] canCarry; //problematic if small vehicle carry big one
-
+    public MilUnitData(){
+        this.type = -1;
+    }
     public MilUnitData(String loc) throws Exception {
         this.type = (byte) (loc.charAt(loc.length() - 1) - '0');
         if (type >= MAX_TYPES)
@@ -141,7 +143,7 @@ public class MilUnitData implements Comparable<MilUnitData> {
 
     @Override
     public String toString() {
-        return this.name;
+        return name;
     }
 
     public boolean canCarry() {
@@ -181,5 +183,14 @@ public class MilUnitData implements Comparable<MilUnitData> {
 
     public static int getMaxTypes() {
         return MAX_TYPES;
+    }
+
+    public String toStringLong() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Name: ").append(name).append('\n');
+        sb.append("Desc: ").append(desc).append('\n');
+        sb.append("Speed: ").append(speed).append('\n');
+        sb.append("Size: ").append(maxSize);
+        return sb.toString();
     }
 }

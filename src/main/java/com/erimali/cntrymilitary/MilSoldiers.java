@@ -2,8 +2,8 @@ package com.erimali.cntrymilitary;
 
 public class MilSoldiers extends MilUnit {
 
-    public MilSoldiers(MilUnitData data) {
-        super(data);
+    public MilSoldiers(MilUnitData data, int ownerId) {
+        super(data,ownerId);
     }
 
     public int recruit(int amount) {

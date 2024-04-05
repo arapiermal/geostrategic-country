@@ -11,11 +11,15 @@ public class Travel {
     List<MilUnit> travellers; //unnecessary if Transport Units have that inside?
     double totalDistance;
     double distanceTravelled;
+    int srcProvId;
+    int dstProvId;
 
-    public Travel(List<MilUnit> travellers, TravelAmbients ambient, double distance) {
+    public Travel(List<MilUnit> travellers, TravelAmbients ambient, double totalDistance, int srcProvId, int dstProvId) {
         this.travellers = travellers;
         this.ambient = ambient;
-        this.totalDistance = distance;
+        this.totalDistance = totalDistance;
+        this.srcProvId = srcProvId;
+        this.dstProvId = dstProvId;
     }
 
     public boolean travel(double distance) {
@@ -43,7 +47,7 @@ public class Travel {
             return d; // return km
         }
     }
-    // minigames?
+    // minigames? (NO)
     // technologies?
     // rockets?
 

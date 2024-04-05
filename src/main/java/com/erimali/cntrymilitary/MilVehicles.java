@@ -9,11 +9,11 @@ public class MilVehicles extends MilUnit {
     protected List<MilPersonnel> carryingPersonnel;
     protected List<MilVehicles> carryingVehicles; //prevent carry on carry on carry on carry...
 
-    public MilVehicles(MilUnitData data) {
-        super(data);
-        if(data.canCarryPersonnel()){
+    public MilVehicles(MilUnitData data, int ownerId) {
+        super(data, ownerId);
+        if (data.canCarryPersonnel()) {
             carryingPersonnel = new LinkedList<>();
-        } else if(data.canCarryVehicles()){
+        } else if (data.canCarryVehicles()) {
             carryingVehicles = new ArrayList<>();
         }
     }

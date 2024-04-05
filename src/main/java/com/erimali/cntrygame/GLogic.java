@@ -10,6 +10,8 @@ import com.erimali.cntrymilitary.MilUnitData;
 import com.erimali.compute.MathSolver;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.util.Duration;
 
 public class GLogic implements Serializable {
@@ -67,7 +69,7 @@ public class GLogic implements Serializable {
         this.gs = gs;
         this.gameSpeedInterval = defaultIntervalInSeconds;
         startTimer();
-        this.world = new World();
+        this.world = new World(this);
         CommandLine.setCountries(world.getCountries());
         CommandLine.loadEriScripts();
         this.gameEvents = loadGameEvents(DEF_GAMEEVENTSPATH);
@@ -658,7 +660,32 @@ public class GLogic implements Serializable {
         }
     }
 
+
     public double getSpeed() {
-        return 1/gameSpeedInterval;
+        return 1 / gameSpeedInterval;
+    }
+
+    public TreeView<MilUnitData> makeTreeViewUnitTypes() {
+        MilUnitData rootEmpty = new MilUnitData();
+        TreeItem<MilUnitData> root = new TreeItem<>(rootEmpty);
+
+        TreeView<MilUnitData> tree = new TreeView<>(root);
+        for (List<MilUnitData> l : unitTypes) {
+            if (!l.isEmpty()) {
+                TreeItem<MilUnitData> rl = new TreeItem<>(l.getFirst());
+                for (int i = 1; i < l.size(); i++) {
+                    rl.getChildren().add(new TreeItem<>(l.get(i)));
+                }
+                root.getChildren().add(rl);
+            }
+        }
+        tree.setShowRoot(false);
+        return tree;
+    }
+
+    public void makeMilUnit(int ownerId, int provId, int type, int index) {
+        MilUnitData d = unitTypes[type].get(index);
+        world.makeMilUnit(ownerId, provId, d,0);
+
     }
 }

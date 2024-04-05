@@ -23,7 +23,8 @@ public class MilDiv implements MilAttack, Serializable {
     public static void loadAllUnitData(List<MilUnitData>[] unitTypes) {
         if(unitTypes == null) {
             //noinspection unchecked
-            unitTypes = (List<MilUnitData>[]) new ArrayList[MilUnitData.MAX_TYPES];
+            MilDiv.unitTypes = (List<MilUnitData>[]) new ArrayList[MilUnitData.MAX_TYPES];
+            unitTypes = MilDiv.unitTypes;
         }
         for (int i = 0; i < MilUnitData.MAX_TYPES; i++) {
             unitTypes[i] = new ArrayList<>();
@@ -155,17 +156,17 @@ public class MilDiv implements MilAttack, Serializable {
         return this.name;
     }
 
-    public static MilUnit makeUnit(int type, int index) {
+    public static MilUnit makeUnit(int ownerId,int type, int index) {
         MilUnitData data = unitTypes[type].get(index);
-        MilUnit unit = (type % 2 == 0) ? new MilSoldiers(data) : new MilVehicles(data);
+        MilUnit unit = (type % 2 == 0) ? new MilSoldiers(data,ownerId) : new MilVehicles(data,ownerId);
         return unit;
     }
 
     public static void main(String[] args) {
-        loadAllUnitData(MilDiv.unitTypes);
+        loadAllUnitData(null);
 
-        MilUnit u = makeUnit(0, 0);
-        MilUnit o = makeUnit(0, 0);
+        MilUnit u = makeUnit(0, 0,0);
+        MilUnit o = makeUnit(1, 0,0);
         u.incSize(1000);
         o.incSize(500);
         //u.incLevel(1);

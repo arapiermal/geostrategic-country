@@ -2,6 +2,7 @@ package com.erimali.cntrygame;
 
 import java.io.File;
 
+import com.erimali.cntrymilitary.MilUnitData;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableIntegerValue;
 import javafx.event.ActionEvent;
@@ -64,10 +65,10 @@ public class GameStage extends Stage {
         setTitle(Main.APP_NAME + " - Game");
         setOnCloseRequest(e -> close());
         this.selectedCountry = -1;
+        this.game = new GLogic(this);
         BorderPane gameLayout = createGameLayout();
         setWidth(1280);
         setHeight(720);
-        this.game = new GLogic(this);
         changeDate(game.inGDateInfo());
         CommandLine.setGameStage(this);
 
@@ -148,7 +149,7 @@ public class GameStage extends Stage {
 
         VBox vBox = new VBox(speedUp, speedDown);
         vBox.setSpacing(4);
-        return new HBox(vBox, speedData,speedDataInfo);
+        return new HBox(vBox, speedData, speedDataInfo);
     }
 
     private BorderPane createGameLayout() {
@@ -286,7 +287,18 @@ public class GameStage extends Stage {
     private TableView<BuildBuildings.BuildBuilding> tableViewBuildings;
 
     private Tab makeTabMilitary() {
-        Tab tab = new Tab("Military");
+        Label unitInfo = new Label();
+        TreeView<MilUnitData> treeUnitTypes = game.makeTreeViewUnitTypes();
+
+        treeUnitTypes.setOnMouseClicked(e -> {
+            TreeItem<MilUnitData> selectedItem = treeUnitTypes.getSelectionModel().getSelectedItem();
+            if (selectedItem != null) {
+                MilUnitData selUnit = selectedItem.getValue();
+                unitInfo.setText(selUnit.toStringLong());
+            }
+        });
+        VBox vBox = new VBox(treeUnitTypes,unitInfo);
+        Tab tab = new Tab("Military", vBox);
 
         return tab;
     }

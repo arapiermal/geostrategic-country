@@ -228,8 +228,8 @@ public class WorldMap {
         milImg.setMinSize(w, h);
         milImg.setPrefSize(w, h);
         milImg.setMaxSize(w, h);
-        milImg.setStyle("-fx-background-color: green;");
-        milImg.getStyleClass().add("mil-img");
+        //milImg.setStyle("-fx-background-color: green;");
+        milImg.getStyleClass().add("milImg");
         milImg.getStyleClass().add(MilUnitData.getUnitTypeName(type));
         milImg.getStyleClass().add(friendly == 0 ? "player" : friendly > 0 ? "allies" : "enemy");
         milImg.setLayoutX(prov.getProvX() - w / 2);

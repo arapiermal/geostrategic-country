@@ -109,7 +109,10 @@ public class CommandLine {
     public static String execute(String in, boolean admin) {
         String result = "";
         in = in.trim();
-        if (in.substring(0,5).equalsIgnoreCase("PARSE")) {
+        if (in.length() < 2) {
+            return result;
+        }
+        if (in.length() > 6 && in.substring(0, 5).equalsIgnoreCase("PARSE")) {
             return gs.getGame().parseTextCommand(in.substring(6));
         }
         if (!GOptions.isAllowCLI() && !admin) {
@@ -217,7 +220,7 @@ public class CommandLine {
                 SubjectType type = null;
                 try {
                     type = SubjectType.valueOf(k[1]);
-                } catch(Exception e){
+                } catch (Exception e) {
                 }
 
                 if (type != null) {
@@ -229,7 +232,7 @@ public class CommandLine {
                     gs.getGame().getWorld().addUnion(k[1], k[2], k[3], k[4]);
                 break;
             case "WAR":
-                if(k.length == 2){
+                if (k.length == 2) {
                     gs.getGame().declareWar(cIndex, CountryArray.getIndex(k[1]), CasusBelli.IMPERIALISM);
                 } else {
                     gs.getGame().declareWar(cIndex, CountryArray.getIndex(k[1]), CasusBelli.valueOf(k[3]));

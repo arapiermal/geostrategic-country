@@ -1,9 +1,6 @@
 package com.erimali.cntrygame;
 
-import com.erimali.cntrymilitary.MilAttack;
-import com.erimali.cntrymilitary.MilSoldiers;
-import com.erimali.cntrymilitary.MilUnit;
-import com.erimali.cntrymilitary.MilVehicles;
+import com.erimali.cntrymilitary.*;
 import javafx.scene.control.TableView;
 
 import java.io.Serializable;
@@ -286,4 +283,7 @@ public class AdmDiv implements Serializable {
         this.unitTrainingUpgrade = unitTrainingUpgrade;
     }
 
+    public void makeMilUnit(MilUnitData d) {
+
+    }
 }

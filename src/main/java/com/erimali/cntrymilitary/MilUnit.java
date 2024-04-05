@@ -7,6 +7,8 @@ import java.io.Serializable;
 public abstract class MilUnit implements Serializable {
     protected transient MilUnitData data;
     protected int dataId;
+    protected int ownerId; //rebellious units -> change ownerId
+    //even provId (?) for movement
     private static int CURR_ID = 0;
     protected final int id;
     //////////////////////////////////////////////////////////////////////
@@ -19,12 +21,12 @@ public abstract class MilUnit implements Serializable {
     protected int xp;
     protected int lvl;
 
-    public MilUnit(MilUnitData data) {
+    public MilUnit(MilUnitData data, int ownerId) {
         this.data = data;
+        this.ownerId = ownerId;
         this.dataId = data.getDataId();
         this.id = CURR_ID++;
         this.morale = 100;
-
     }
 
 
