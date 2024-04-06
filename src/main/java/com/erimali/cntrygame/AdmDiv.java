@@ -34,10 +34,10 @@ public class AdmDiv implements Serializable {
     //private List<MilUnit> unitsTrainingUpgrade;
     //list in GLogic so only the ones necessary are updated.
     private MilUnit unitRecruitingBuild;
+//train more than recruit/build (maybe train division)
+    //private MilUnit unitTrainingUpgrade;
 
-    private MilUnit unitTrainingUpgrade;
-
-    private List<MilAttack> divisions; // unit vs div or new interface
+    private List<MilUnit> units; // unit vs div or new interface
 //boolean or sth
 
     public String toString() {
@@ -61,7 +61,7 @@ public class AdmDiv implements Serializable {
         this.mainLanguage = mainLanguage;
         this.buildings = EnumSet.noneOf(Building.class);
         this.buildingBuildings = new EnumMap<>(Building.class);
-        this.divisions = new LinkedList<>();
+        this.units = new LinkedList<>();
         resetRebellion();
     }
 
@@ -70,7 +70,7 @@ public class AdmDiv implements Serializable {
         this.mainLanguage = mainLanguage;
         this.buildings = EnumSet.noneOf(Building.class);
         this.buildingBuildings = new EnumMap<>(Building.class);
-        this.divisions = new LinkedList<>();
+        this.units = new LinkedList<>();
         resetRebellion();
         try {
             this.area = Double.parseDouble(area);
@@ -115,11 +115,6 @@ public class AdmDiv implements Serializable {
                 entry.setValue(val);
             }
         }
-    }
-
-    public void weeklyTick() {
-        recruitBuild();
-        trainUpgrade();
     }
 
     public void buildBuilding(Building b) {
@@ -244,18 +239,39 @@ public class AdmDiv implements Serializable {
     }
     public int recruitBuild() {
         if (unitRecruitingBuild == null) {
-            return Integer.MIN_VALUE;
+            return Integer.MIN_VALUE; //maybe max value
         }
         if (unitRecruitingBuild instanceof MilSoldiers milSoldiers) {
-            return milSoldiers.recruit(100);//fix based on max
+            int extra = milSoldiers.recruit(100);
+            if(extra > 0) {
+                units.add(unitRecruitingBuild);
+                unitRecruitingBuild = null;
+            }
+            return extra;//fix based on max
         } else if (unitRecruitingBuild instanceof MilVehicles milVehicles) {
-           return milVehicles.build(10);
+            int extra = milVehicles.build(10);
+            if(extra > 0) {
+                units.add(unitRecruitingBuild);
+                unitRecruitingBuild = null;
+            }
+           return extra;
         } else {
             return Integer.MAX_VALUE;
         }
 
     }
-    //started/stopped when player clicks
+
+
+    public MilUnit getUnitRecruitingBuild() {
+        return unitRecruitingBuild;
+    }
+
+    public void setUnitRecruitingBuild(MilUnit unitRecruitingBuild) {
+        this.unitRecruitingBuild = unitRecruitingBuild;
+    }
+
+   /*
+   //started/stopped when player clicks
     public void trainUpgrade() {
         if (unitTrainingUpgrade == null) {
             return;
@@ -266,24 +282,25 @@ public class AdmDiv implements Serializable {
             milVehicles.upgrade(10);
         }
     }
-
-    public MilUnit getUnitRecruitingBuild() {
-        return unitRecruitingBuild;
-    }
-
-    public void setUnitRecruitingBuild(MilUnit unitRecruitingBuild) {
-        this.unitRecruitingBuild = unitRecruitingBuild;
-    }
-
-    public MilUnit getUnitTrainingUpgrade() {
+   public MilUnit getUnitTrainingUpgrade() {
         return unitTrainingUpgrade;
     }
 
     public void setUnitTrainingUpgrade(MilUnit unitTrainingUpgrade) {
         this.unitTrainingUpgrade = unitTrainingUpgrade;
-    }
+    }*/
 
     public void makeMilUnit(MilUnitData d) {
 
+    }
+
+    public void addUnit(MilUnit u){
+        units.add(u);
+    }
+    public boolean removeUnit(MilUnit u){
+        return units.remove(u);
+    }
+    public MilUnit removeUnit(int i){
+        return units.remove(i);
     }
 }

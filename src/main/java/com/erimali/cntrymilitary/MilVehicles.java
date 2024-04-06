@@ -5,8 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class MilVehicles extends MilUnit {
-    protected MilPersonnel personnel;
-    protected List<MilPersonnel> carryingPersonnel;
+    protected MilSoldiers personnel;
+    protected List<MilSoldiers> carryingPersonnel;
     protected List<MilVehicles> carryingVehicles; //prevent carry on carry on carry on carry...
 
     public MilVehicles(MilUnitData data, int ownerId) {

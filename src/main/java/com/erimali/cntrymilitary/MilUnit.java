@@ -27,6 +27,7 @@ public abstract class MilUnit implements Serializable {
         this.dataId = data.getDataId();
         this.id = CURR_ID++;
         this.morale = 100;
+        this.lvl = 1;
     }
 
 
@@ -72,7 +73,7 @@ public abstract class MilUnit implements Serializable {
 
     public static double dmgCalc(MilUnit a, MilUnit o) {
         double ATK = a.size * ((double) (a.data.atk[o.data.type] / o.data.def[a.data.type]))
-                * Math.sqrt((double) ((a.lvl + 1) * (a.data.minMilTech + 1)) / ((o.lvl + 1) * (o.data.minMilTech + 1)) + (a.data.speed - o.data.speed));
+                * Math.sqrt((double) (a.lvl * (a.data.minMilTech + 1)) / (o.lvl * (o.data.minMilTech + 1)) + (a.data.speed - o.data.speed));
         //* Math.sqrt(1 + a.morale / o.morale);
         ATK += ATK * Math.random() / 2;
         TESTING.print(a.id + ") ATK = " + ATK);

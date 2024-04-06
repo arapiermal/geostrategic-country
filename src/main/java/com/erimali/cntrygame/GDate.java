@@ -52,4 +52,13 @@ public class GDate extends BaseDate {
 	public void setYear(int year) {
 		this.year = year;
 	}
+	public boolean isFirstDayOfWeek(){
+		return dayOfWeek == 0;
+	}
+	public boolean isFirstDayOfMonth(){
+		return day == 1;
+	}
+	public boolean isFirstDayOfYear(){
+		return day == 1 && month == 1;
+	}
 }

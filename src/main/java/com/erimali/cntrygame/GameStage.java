@@ -60,12 +60,15 @@ public class GameStage extends Stage {
     private Stage gsOptionsStage;
     private Scene[] gsOptionsScenes;
 
+    private Button recruitBuildButton;
 
     public GameStage() {
         setTitle(Main.APP_NAME + " - Game");
         setOnCloseRequest(e -> close());
         this.selectedCountry = -1;
+        this.map = new WorldMap(this);
         this.game = new GLogic(this);
+
         BorderPane gameLayout = createGameLayout();
         setWidth(1280);
         setHeight(720);
@@ -95,6 +98,7 @@ public class GameStage extends Stage {
         this.selectedCountry = -1;
         game.setGameStage(this);
         game.startTimer();
+        this.map = new WorldMap(this);
         this.game = game;
         game.correlateAllUnitData();
         BorderPane gameLayout = createGameLayout();
@@ -182,7 +186,6 @@ public class GameStage extends Stage {
         gameLayout.setTop(htop);
 
         // CENTER
-        map = new WorldMap(this);
         gameLayout.setCenter(map.start());
 
         // LEFT
@@ -288,6 +291,7 @@ public class GameStage extends Stage {
 
     private Tab makeTabMilitary() {
         Label unitInfo = new Label();
+        recruitBuildButton = new Button("Recruit");
         TreeView<MilUnitData> treeUnitTypes = game.makeTreeViewUnitTypes();
 
         treeUnitTypes.setOnMouseClicked(e -> {
@@ -295,9 +299,19 @@ public class GameStage extends Stage {
             if (selectedItem != null) {
                 MilUnitData selUnit = selectedItem.getValue();
                 unitInfo.setText(selUnit.toStringLong());
+                recruitBuildButton.setText(selUnit.isVehicle() ? "Build" : "Recruit");
             }
         });
-        VBox vBox = new VBox(treeUnitTypes,unitInfo);
+        recruitBuildButton.setOnAction(e -> {
+            TreeItem<MilUnitData> selectedItem = treeUnitTypes.getSelectionModel().getSelectedItem();
+            if (selectedItem != null) {
+                MilUnitData selUnit = selectedItem.getValue();
+                game.makeMilUnit(game.getPlayerId(), selectedProv, selUnit);
+            }
+        });
+        VBox vBox = new VBox(treeUnitTypes, unitInfo, recruitBuildButton);
+        VBox.setVgrow(unitInfo, Priority.ALWAYS); //
+        recruitBuildButton.setVisible(false);
         Tab tab = new Tab("Military", vBox);
 
         return tab;
@@ -1013,10 +1027,12 @@ public class GameStage extends Stage {
         if (a != null) {
             int owner = a.getOwnerId();
             if (isPlayingCountry && (game.getPlayerId() == owner || game.isSubjectOfPlayer(owner))) {
+                recruitBuildButton.setVisible(true);
                 tableViewBuildings.setVisible(true);
                 BuildBuildings.setFromProv(a);
                 a.setValuesFromEnumMapSet(tableViewBuildings);
             } else {
+                recruitBuildButton.setVisible(false);
                 tableViewBuildings.setVisible(false);
             }
         }

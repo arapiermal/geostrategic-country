@@ -87,12 +87,10 @@ public class WorldMap {
         loadMilSVGData();
         this.gs = gs;
     }
-    // SET PLAYER COUNTRY
 
     public ScrollPane start() {
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/resources/map/mcBig.svg"))) {
             // Load SVG file
-
             List<SVGProvince> svgPaths = new LinkedList<>(); //LINKED LIST MORE EFFICIENT?!? SINCE WILL BE CONVERTED TO ARRAY?
             //List<SVGPath> countryPaths = new ArrayList<>();
             String line;
@@ -139,8 +137,8 @@ public class WorldMap {
             }
 
             //If number of Paths already known, no need
-            mapSVG = svgPaths.toArray(new SVGProvince[0]);
-            mapGroup = new Group(mapSVG);
+            this.mapSVG = svgPaths.toArray(new SVGProvince[0]);
+            this.mapGroup = new Group(mapSVG);
             mapGroup.setOnMouseClicked(this::onPathClicked);
 
             //mapGroup.setOnMouseEntered(this::onMouseHover);
@@ -150,10 +148,10 @@ public class WorldMap {
             // better solution?
             //Pane stackPane = new Pane(mapGroup);
             ScrollPane scrollPane = new ZoomableScrollPane(mapGroup);
-            lines = new ArrayList<>();
+            this.lines = new ArrayList<>();
             //int l = drawLine(3198, 3031);
-            int[] l = drawLines(3031, 3030, 2993, 2994, 2991, 2992, 3198);
-            makeMilSVG(0, 3198, 0);
+            //int[] l = drawLines(3031, 3030, 2993, 2994, 2991, 2992, 3198);
+            //makeMilSVG(0, 3198, 0);
             //scrollPane.removeLine(l);
             //scrollPane.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
             ContextMenu cm = new ContextMenu();
@@ -246,8 +244,8 @@ public class WorldMap {
             Color currentColor = Color.web(hovering.getFill().toString());
             Color lightenedColor = lightenColor(currentColor, 0.25);
             // Color lightenedColor = currentColor.brighter();
-            String lightenedColorHex = lightenedColor.toString().replace("0x", "#");
-            hovering.setFill(Paint.valueOf(lightenedColorHex));
+            //String lightenedColorHex = lightenedColor.toString().replace("0x", "#");
+            hovering.setFill(lightenedColor);
         }
         gs.changeHoveringOverCountry(hovering.getAccessibleText() + " - " + hovering.getId());
     }

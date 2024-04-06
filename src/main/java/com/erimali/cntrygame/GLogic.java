@@ -5,8 +5,7 @@ import java.io.FileReader;
 import java.io.Serializable;
 import java.util.*;
 
-import com.erimali.cntrymilitary.MilDiv;
-import com.erimali.cntrymilitary.MilUnitData;
+import com.erimali.cntrymilitary.*;
 import com.erimali.compute.MathSolver;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -60,6 +59,7 @@ public class GLogic implements Serializable {
 
     // Improving Relations
     private Map<Short, Set<Short>> improvingRelations;
+    private Map<Integer, List<MilUnit>> recruitingBuildUnits;
     //can be decentralized if i have a Set<Short> inside Diplomacy...
     //still would require method traverse...
 
@@ -77,6 +77,7 @@ public class GLogic implements Serializable {
         this.improvingRelations = new HashMap<>();
         this.wars = new LinkedList<>();
         loadAllUnitData();
+        this.recruitingBuildUnits = new HashMap<>();
     }
 
     public void startTimer() {
@@ -142,12 +143,15 @@ public class GLogic implements Serializable {
     ///////////////////////////////////////////////////////
 
     public void dailyTick() {
-        int passing = passDayNew();
-        if (passing >= 1) {
+        inGDate.nextDay();
+        if (inGDate.isFirstDayOfYear()) {
+            yearlyTick();
+        }
+        if (inGDate.isFirstDayOfMonth()) {
             monthlyTick();
         }
-        if (passing == 2) {
-            yearlyTick();
+        if(inGDate.isFirstDayOfWeek()){
+            weeklyTick();
         }
         gs.changeDate(inGDateInfo());
         if (!gameEvents.isEmpty()) {
@@ -160,19 +164,8 @@ public class GLogic implements Serializable {
         }
     }
 
-    public int passDayNew() {
-        inGDate.nextDay();
-        if (inGDate.getDay() == 1) {
-            if (inGDate.getMonth() == 1)
-                return 2;
-            else
-                return 1;
-        } else {
-            return 0;
-        }
-    }
-
     public void weeklyTick() {
+        world.weeklyMilTick(recruitingBuildUnits.keySet());
 
     }
 
@@ -683,9 +676,32 @@ public class GLogic implements Serializable {
         return tree;
     }
 
-    public void makeMilUnit(int ownerId, int provId, int type, int index) {
-        MilUnitData d = unitTypes[type].get(index);
-        world.makeMilUnit(ownerId, provId, d,0);
+    //manpower and resources of owner should be used
+    public void makeMilUnit(int ownerId, int provId, MilUnitData d) {
+        //no units, one unit (only key should be and empty list), more than one -> one recruiting/getting built rest in queue
+        //
+        MilUnit u = d.isVehicle() ? new MilVehicles(d, ownerId) : new MilSoldiers(d, ownerId);
+        if(recruitingBuildUnits.containsKey(provId)){
+            recruitingBuildUnits.get(provId).add(u);
+        } else{
+            world.recruitBuildMilUnit(u, provId);
+            recruitingBuildUnits.put(provId, new LinkedList<>());
+        }
 
+    }
+    public void makeMilUnit(int provId){
+        if(recruitingBuildUnits.containsKey(provId)){
+            List<MilUnit> l = recruitingBuildUnits.get(provId);
+            if(l.isEmpty()){
+                recruitingBuildUnits.remove(provId);
+            } else{
+                MilUnit u = recruitingBuildUnits.get(provId).removeFirst();
+                world.recruitBuildMilUnit(u, provId);
+            }
+        }
+    }
+
+    public WorldMap getWorldMap() {
+        return gs.getMap();
     }
 }

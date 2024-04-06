@@ -13,10 +13,11 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class World implements Serializable {
+    private WorldMap worldMap;
     private GLogic game;
     private String name;
     private double totalLandArea;
-    private static final String ENDDELIMITER = Syntax.END.getName();
+    private static final String ENDDELIMITER = "kaq";
     private List<Language> languages; // change (?)
 
     private CountryArray countries;
@@ -31,6 +32,7 @@ public class World implements Serializable {
     // DEFAULT DATA
     public World(GLogic game) {
         this.game = game;
+        this.worldMap = game.getWorldMap();
         try {
             name = "Earth";
             totalLandArea = 148940000;
@@ -465,12 +467,12 @@ public class World implements Serializable {
     }
 
     public void addUnion(String shortName, String name, String type, String countries) {
-        shortName = shortName.replace("\\s","").toUpperCase();
+        shortName = shortName.replace("\\s", "").toUpperCase();
 
         int t = Union.genType(type);
         short[] c = CountryArray.getShortArrFromStringArr(countries);
         Union u = new Union(this, shortName, name, t, c);
-        unions.put(shortName,u);
+        unions.put(shortName, u);
         TESTING.print(u);
     }
 
@@ -493,12 +495,37 @@ public class World implements Serializable {
     }
 
     public void makeMilUnit(int ownerId, int provId, MilUnitData data, int size) {
-        if(size <= 0){
-            MilUnit u = data.isVehicle() ? new MilVehicles(data, ownerId) : new MilSoldiers(data,ownerId);
+        if (size <= 0) {
+            MilUnit u = data.isVehicle() ? new MilVehicles(data, ownerId) : new MilSoldiers(data, ownerId);
             provinces[provId].setUnitRecruitingBuild(u);
 
-        } else{
-
+        } else {
+            MilUnit u = data.isVehicle() ? new MilVehicles(data, ownerId) : new MilSoldiers(data, ownerId);
+            u.incSize(size);
+            provinces[provId].addUnit(u);
         }
+    }
+
+    public void recruitBuildMilUnit(MilUnit unit, int provId) {
+        provinces[provId].setUnitRecruitingBuild(unit);
+
+    }
+
+    public void weeklyMilTick(Set<Integer> activeRecruitingBuildProv) {
+        for (int provId : activeRecruitingBuildProv) {
+            if (provinces[provId].recruitBuild() > 0) {
+                //take care of extra manpower/resources (!)
+                game.makeMilUnit(provId);
+
+            } else{
+                //FIX!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                // or maybe when finished recruiting/building show
+                // if units.size() of province > 0 show milimg
+                //friendly dependent on owner id
+                worldMap.makeMilSVG(provinces[provId].getUnitRecruitingBuild().getType(), provId, 0);
+
+            }
+        }
+
     }
 }
