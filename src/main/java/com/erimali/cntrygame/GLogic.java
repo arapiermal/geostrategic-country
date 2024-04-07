@@ -195,6 +195,9 @@ public class GLogic implements Serializable {
         return inGDate.toString();
     }
 
+    public String inGDateInfo(char sep) {
+        return inGDate.toString(sep);
+    }
     public String toStringCountry(int c) {
         Country country = world.getCountry(c);
         if (country != null) {

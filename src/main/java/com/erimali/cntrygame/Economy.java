@@ -11,7 +11,7 @@ public class Economy implements Serializable {
 
 	private double gdp; //$
 	private double economicGrowthRate; // increase of GDP in a year
-
+	private double treasury;
 	private double taxation; //Government budget...
 
 	private double unemploymentRate;
@@ -79,4 +79,20 @@ public class Economy implements Serializable {
     public void giveMoney(Country o, double amount) {
 
     }
+	public void incTaxation(double amount){
+		if(amount > 0)
+			taxation += amount;
+	}
+	public void decTaxation(double amount){
+		if(amount > 0)
+			taxation -= amount;
+	}
+    public double getTaxation() {
+		return taxation;
+    }
+
+	public void monthlyTreasuryUpdate(){
+		//revenue vs expenditures
+
+	}
 }

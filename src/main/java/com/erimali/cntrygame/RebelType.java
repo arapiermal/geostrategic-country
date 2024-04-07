@@ -25,6 +25,13 @@ public enum RebelType implements CValidatable {
             return !c1.getGovernment().sameType(c2.getGovernment());
         }
     },
+    //Rebels for lower taxes
+    TAXATION("Lower taxes") {
+        @Override
+        public boolean isValid(Country c1, Country c2) {
+            return c1.getEconomy().getTaxation() < c2.getEconomy().getTaxation();
+        }
+    },
     //Rebels that desire independence from subjugation/[annexation]
     INDEPENDENCE("Independence") {
         @Override
@@ -34,6 +41,7 @@ public enum RebelType implements CValidatable {
             else
                 return false;
         }
+
     };
     //RebelType != REBELLION_TYPE (?) separatism is separatism regardless
     private final String desc;
@@ -49,8 +57,6 @@ public enum RebelType implements CValidatable {
         return this.desc;
     }
 
+    public void success(){};
 
-    public boolean isValid(Country c1, Country c2) {
-        return true;
-    }//based on casus
 }

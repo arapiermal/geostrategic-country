@@ -10,20 +10,22 @@ import java.util.*;
 //int terrain; int timeToTraverse;
 //AdmDiv[] neighbours;
 //Adjacency matrix?
-public class AdmDiv implements Serializable {
+public class AdmDiv implements Serializable, Comparable<AdmDiv> {
     // County,district,...
     private transient SVGProvince svgProvince; //if made transient it isn't saved / serialized
-    private int provId, ownerId; //Correlate with provinces
+    //private Country mainCountry; //update buildings on finished
+    private int provId;
+    private int ownerId;
     private String name;
     private String nativeName; // Durrës vs Durres ?
-
     private double area;
     private int population;
+    private boolean landlocked;
     private short mainLanguage; // + culture?, PopDistFloat/Double..., can be [][] and static methods there.
+    private short infrastructure;
     //based on stability, rebellion can happen or if > 64
     //when annexing during war set rebellion to 16 32 or 64 (except provinces which consider us liberators)
     private byte[] rebellion; //types: separatism, autonomy,...
-    private static final byte REBELLION_TYPES = 2;
     //treat like
     private EnumSet<Building> buildings;
     private EnumMap<Building, Byte> buildingBuildings;
@@ -41,7 +43,7 @@ public class AdmDiv implements Serializable {
 //boolean or sth
 
     public String toString() {
-        return this.name;
+        return name;
     }
 
     public String toStringLong() {
@@ -54,14 +56,16 @@ public class AdmDiv implements Serializable {
         return sb;
     }
 
-    public AdmDiv(String name, double area, int population, short mainLanguage) {
+    public AdmDiv(String name, double area, int population,boolean landlocked, short mainLanguage) {
         this.name = name;
         this.area = area;
         this.population = population;
+        this.landlocked = landlocked;
         this.mainLanguage = mainLanguage;
         this.buildings = EnumSet.noneOf(Building.class);
         this.buildingBuildings = new EnumMap<>(Building.class);
         this.units = new LinkedList<>();
+        this.rebellion = new byte[RebelType.values().length];
         resetRebellion();
     }
 
@@ -71,6 +75,7 @@ public class AdmDiv implements Serializable {
         this.buildings = EnumSet.noneOf(Building.class);
         this.buildingBuildings = new EnumMap<>(Building.class);
         this.units = new LinkedList<>();
+        this.rebellion = new byte[RebelType.values().length];
         resetRebellion();
         try {
             this.area = Double.parseDouble(area);
@@ -81,9 +86,16 @@ public class AdmDiv implements Serializable {
     }
 
     public void resetRebellion() {
-        //or EnumMap ...
-        rebellion = new byte[RebelType.values().length];
         Arrays.fill(rebellion, (byte) 0);
+    }
+
+    public void sponsorRebellion(RebelType rt, byte amount) {
+        if (amount > 0)
+            rebellion[rt.ordinal()] += amount;
+    }
+
+    public void fightRebellion(byte amount) {
+
     }
 
     public void addPopulation(int pop) {
@@ -224,12 +236,12 @@ public class AdmDiv implements Serializable {
     }
 
 
-    public void cancelUnitProcess(){
+    public void cancelUnitProcess() {
 
     }
 
     //stopped automatically when maxSize reached
-    public int recruitBuildTenth(){
+    public int recruitBuildTenth() {
         if (unitRecruitingBuild == null) {
             return Integer.MIN_VALUE;
         } else {
@@ -237,24 +249,25 @@ public class AdmDiv implements Serializable {
             return unitRecruitingBuild.recruitBuild();
         }
     }
+
     public int recruitBuild() {
         if (unitRecruitingBuild == null) {
             return Integer.MIN_VALUE; //maybe max value
         }
         if (unitRecruitingBuild instanceof MilSoldiers milSoldiers) {
             int extra = milSoldiers.recruit(100);
-            if(extra > 0) {
+            if (extra > 0) {
                 units.add(unitRecruitingBuild);
                 unitRecruitingBuild = null;
             }
             return extra;//fix based on max
         } else if (unitRecruitingBuild instanceof MilVehicles milVehicles) {
             int extra = milVehicles.build(10);
-            if(extra > 0) {
+            if (extra > 0) {
                 units.add(unitRecruitingBuild);
                 unitRecruitingBuild = null;
             }
-           return extra;
+            return extra;
         } else {
             return Integer.MAX_VALUE;
         }
@@ -294,13 +307,20 @@ public class AdmDiv implements Serializable {
 
     }
 
-    public void addUnit(MilUnit u){
+    public void addUnit(MilUnit u) {
         units.add(u);
     }
-    public boolean removeUnit(MilUnit u){
+
+    public boolean removeUnit(MilUnit u) {
         return units.remove(u);
     }
-    public MilUnit removeUnit(int i){
+
+    public MilUnit removeUnit(int i) {
         return units.remove(i);
+    }
+
+    @Override
+    public int compareTo(AdmDiv o) {
+        return Integer.compare(this.provId, o.provId);
     }
 }

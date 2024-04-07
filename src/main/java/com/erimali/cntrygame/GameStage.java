@@ -1,6 +1,8 @@
 package com.erimali.cntrygame;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 import com.erimali.cntrymilitary.MilUnitData;
 import javafx.application.Platform;
@@ -12,6 +14,8 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
@@ -59,7 +63,7 @@ public class GameStage extends Stage {
 
     private Stage gsOptionsStage;
     private Scene[] gsOptionsScenes;
-
+    private TextField saveTextField;
     private Button recruitBuildButton;
 
     public GameStage() {
@@ -77,7 +81,9 @@ public class GameStage extends Stage {
 
         Scene gameScene = new Scene(gameLayout);
         setScene(gameScene);
-        gameScene.getStylesheets().add(getClass().getResource("css/gameStage.css").toExternalForm());
+        URL cssGameScene = getClass().getResource("css/gameStage.css");
+        if(cssGameScene != null)
+            gameScene.getStylesheets().add(cssGameScene.toExternalForm());
         //Initiate
         game.getWorld().initiateProvinces(map.getMapSVG());
 
@@ -100,6 +106,7 @@ public class GameStage extends Stage {
         game.startTimer();
         this.map = new WorldMap(this);
         this.game = game;
+        game.loadAllUnitData();
         game.correlateAllUnitData();
         BorderPane gameLayout = createGameLayout();
         changeDate(game.inGDateInfo());
@@ -207,7 +214,19 @@ public class GameStage extends Stage {
         //Bottom
         hoveringCountry = new Label("Hovering");
         HBox hBottomLeft = new HBox(hoveringCountry);
-        Button gsOptions = new Button("Options");
+        Button gsOptions = new Button("Settings");
+        try {
+            URL imgSrcSettings = getClass().getResource("img/settings.png");
+            if(imgSrcSettings != null) {
+                ImageView imgViewSettings = new ImageView(imgSrcSettings.toExternalForm());
+                imgViewSettings.setFitHeight(32);
+                imgViewSettings.setFitWidth(32);
+                gsOptions.setGraphic(imgViewSettings);
+                gsOptions.setText(null);
+            }
+        } catch(Exception e){
+
+        }
         gsOptions.setOnAction(e -> showGameStageOptions());
         ToolBar tBottomRight = new ToolBar(gsOptions);
         Region regBottom = new Region();
@@ -329,7 +348,11 @@ public class GameStage extends Stage {
 
     private Scene makeGSOptionsDefScene() {
         Button saveOptions = new Button("Save");
-        saveOptions.setOnAction(e -> changeGSOptionsScene(1));
+        saveOptions.setOnAction(e -> {
+            saveTextField.setText(getCurrDefSaveGameName());
+            gsOptionsStage.setScene(gsOptionsScenes[1]);
+        });
+
         Button exitToMain = new Button("Exit to main menu");
         VBox vBox = new VBox(10, saveOptions, exitToMain);
         vBox.setAlignment(Pos.CENTER);
@@ -347,9 +370,11 @@ public class GameStage extends Stage {
             // -2 for save (String currentSaveName) & exit
         }
     }
-
+    public String getCurrDefSaveGameName(){
+        return isPlayingCountry ? game.getPlayer().getIso2() +"-" + game.inGDateInfo('_') : "";
+    }
     private Scene makeSaveSceneOptions() {
-        TextField saveTextField = new TextField();//game.getPlayerName() + "-" + date.getText()
+        saveTextField = new TextField();
         Button saveSubmit = new Button("Enter");
         saveTextField.setPrefWidth(240);
         saveSubmit.setPrefWidth(60);

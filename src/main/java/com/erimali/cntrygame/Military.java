@@ -11,8 +11,8 @@ public class Military implements Serializable {
     //named divisions (?)
     private long manpower;//influenced by government policies / other attributes (popwillingness)
     private static final short MIL_TECH_LEVEL_CAP = 100;
-    private short[] milTechLevel;
     private short[] milTechProgress;
+    private short[] milTechLevel;
     private List<MilDiv> divisions;
     //Have at least 1 division in all times?
     private Set<Short> atWarWith;
@@ -21,6 +21,11 @@ public class Military implements Serializable {
     public Military() {
         divisions = new ArrayList<>();
         atWarWith = new HashSet<>();
+        milTechProgress = new short[MilUnitData.getMaxTypes()];
+        Arrays.fill(milTechProgress, (short) 0);
+        milTechLevel = new short[MilUnitData.getMaxTypes()];
+        Arrays.fill(milTechLevel, (short) 0);
+
     }
 
     //if true pop up benefits/new available units
@@ -40,6 +45,7 @@ public class Military implements Serializable {
     public void addDivision(MilDiv d) {
         divisions.add(d);
     }
+
     public void addDivisions(MilDiv... d) {
         Collections.addAll(divisions, d);
     }
@@ -57,18 +63,42 @@ public class Military implements Serializable {
     public Set<Short> getAtWarWith() {
         return atWarWith;
     }
-    public void addAtWarWith(short... o){
-        for(short s : o){
+
+    public void addAtWarWith(short... o) {
+        for (short s : o) {
             atWarWith.add(s);
         }
     }
-    public boolean isAtWarWith(short s){
+
+    public boolean isAtWarWith(short s) {
         return atWarWith.contains(s);
     }
 
     public void correlateUnitData(List<MilUnitData>[] unitTypes) {
-        for(MilDiv d : divisions){
+        for (MilDiv d : divisions) {
             d.correlateUnitData(unitTypes);
         }
+    }
+
+    public short getMilTechProgress(int i) {
+        return milTechProgress[i];
+    }
+
+    public short getMilTechLevel(int i) {
+        return milTechLevel[i];
+    }
+
+    public void addMilTechProgress(int type, short amount) {
+        milTechProgress[type] += amount;
+        //short lvlCap = MIL_TECH_LEVEL_CAP * milTechLevel[type];
+        if (milTechProgress[type] >= MIL_TECH_LEVEL_CAP) {
+            short lvlUp = (short) (milTechProgress[type] / MIL_TECH_LEVEL_CAP);
+            milTechLevel[type] += lvlUp;
+            milTechProgress[type] %= MIL_TECH_LEVEL_CAP;
+        }
+    }
+
+    public short getMilTechLevelCap() {
+        return MIL_TECH_LEVEL_CAP;
     }
 }

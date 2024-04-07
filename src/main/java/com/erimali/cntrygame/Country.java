@@ -2,6 +2,8 @@ package com.erimali.cntrygame;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Country implements Serializable {
     //private World world;
@@ -15,7 +17,7 @@ public class Country implements Serializable {
     private double area;
     private boolean landlocked; // if false -> no navy // River Flotilla !!!
     private EnumSet<Continent> continents;
-    private String capital;
+    private AdmDiv capital;
     private String[] infoElectronic;
     private List<Short> languages;
     private String admDivisionType; // county,district,etc.
@@ -32,6 +34,7 @@ public class Country implements Serializable {
     private Map<Integer, CSubject> subjects;
     private CSubject subjectOf;
     private List<Union> uni;
+    //private List<short[]> availableBuildings;
 
     private EnumMap<Building, Short> availableBuildings;
     // SOME COUNTRIES CAN START AS SUBJECTS OF OTHERS;
@@ -45,7 +48,6 @@ public class Country implements Serializable {
         this.population = population;
         this.populationIncrease = populationIncrease;
         this.landlocked = landlocked;
-        this.capital = capital;
         this.infoElectronic = infoElectronic;
         this.admDivisionType = admDivisionType;
         this.admDivisions = admDivisions;
@@ -55,6 +57,8 @@ public class Country implements Serializable {
         this.dip = dip;
         this.mil = mil;
         this.neighbours = neighbours;
+        AdmDiv cap = getAdmDiv(capital);
+        this.capital = cap != null ? cap : admDivisions.getFirst();
 
         this.subjects = new HashMap<>();
         this.uni = new LinkedList<>();
@@ -71,7 +75,6 @@ public class Country implements Serializable {
         this.population = population;
         this.populationIncrease = populationIncrease;
         this.landlocked = landlocked;
-        this.capital = capital;
         this.infoElectronic = infoElectronic;
         this.admDivisionType = admDivisionType;
         this.admDivisions = admDivisions;
@@ -86,6 +89,9 @@ public class Country implements Serializable {
             int ind = CountryArray.getIndex(n);
             this.neighbours.add(ind);
         }
+
+        AdmDiv cap = getAdmDiv(capital);
+        this.capital = cap != null ? cap : admDivisions.getFirst();
 
         this.subjects = new HashMap<>();
         this.uni = new LinkedList<>();
@@ -391,7 +397,7 @@ public class Country implements Serializable {
     }
 
     // WAR FOR INDEPENDENCE?!?
-    public void releaseSubject(String iso2) {
+    public void releaseSubject(int iso2) {
         subjects.remove(iso2);
     }
 
@@ -572,11 +578,11 @@ public class Country implements Serializable {
         this.languages = languages;
     }
 
-    public String getCapital() {
+    public AdmDiv getCapital() {
         return capital;
     }
 
-    public void setCapital(String capital) {
+    public void setCapital(AdmDiv capital) {
         this.capital = capital;
     }
 
@@ -629,6 +635,10 @@ public class Country implements Serializable {
         this.countryId = CountryArray.getIndex(iso2);
     }
 
+    public void setIso2(int iso2) {
+        this.iso2 = CountryArray.getIndexISO2(iso2);
+        this.countryId = iso2;
+    }
     public int getCountryId() {
         return countryId;
     }
@@ -637,4 +647,110 @@ public class Country implements Serializable {
         return languages.getFirst();
     }
 
+    public short[] calcTotalBuildings() {
+        return calcTotalBuildings(admDivisions);
+    }
+    //on subjugate
+
+    public static short[] calcTotalBuildings(List<AdmDiv> admDivisions) {
+        short[] bArr = new short[Building.values().length];
+        Arrays.fill(bArr, (short) 0);
+        for (AdmDiv a : admDivisions) {
+            for (Building b : a.getBuildings()) {
+                bArr[b.ordinal()]++;
+            }
+        }
+        return bArr;
+    }
+
+    //world / countryarray for new country if its being formed
+    public void grantAdmDivIndependence(int indCountry, int... indAdmDiv) {
+        List<AdmDiv> independentList = removeAndGetProvinces(admDivisions, indAdmDiv);
+
+
+    }
+
+    public static List<AdmDiv> removeAndGetProvinces(List<AdmDiv> admDivisions, int... indAdmDiv){
+        Collections.sort(admDivisions);
+        Arrays.sort(indAdmDiv);
+        ListIterator<AdmDiv> iterator = admDivisions.listIterator();
+        List<AdmDiv> independentList = new ArrayList<>();
+        int i = 0;
+        while (iterator.hasNext() && i < indAdmDiv.length) {
+            AdmDiv a = iterator.next();
+            if (a.getProvId() == indAdmDiv[i]) {
+                independentList.add(a);
+                iterator.remove();
+                i++;
+            }
+        }
+        return independentList;
+    }
+
+    public static long calcTotalPop(List<AdmDiv> admDivs) {
+        long pop = 0;
+        for (AdmDiv a : admDivs) {
+            pop += a.getPopulation();
+        }
+        return pop;
+    }
+
+    public static double calcTotalArea(List<AdmDiv> admDivs) {
+        double area = 0;
+        for (AdmDiv a : admDivs) {
+            area += a.getPopulation();
+        }
+        return area;
+    }
+
+    public static List<Short> calcTotalLanguages(List<AdmDiv> admDivs) {
+        Map<Short, Integer> count = new HashMap<>();
+        for (AdmDiv a : admDivs) {
+            short ml = a.getMainLanguage();
+            if (count.containsKey(ml)) {
+                count.put(ml, count.get(ml) + 1);
+            } else {
+                count.put(ml, 1);
+            }
+        }
+        Stream<Map.Entry<Short, Integer>> sorted = count.entrySet().stream().sorted(Collections.reverseOrder(Map.Entry.comparingByValue()));
+        List<Short> l = sorted.map(Map.Entry::getKey).collect(Collectors.toList());
+
+        return l;
+    }
+
+    public static Country formCountryFromProvinces(CountryArray cArray, int iso2, String name,  List<AdmDiv> admDivs) {
+        double area = calcTotalArea(admDivs);
+        long population = calcTotalPop(admDivs);
+        List<Short> languages = calcTotalLanguages(admDivs);
+        Country c = new Country(name, area, population, 0.1, true, "", null, "", admDivs, languages, null, null, null, null, null);
+        c.setIso2(iso2);
+        return c;
+    }
+
+
+    public AdmDiv getAdmDiv(int index) {
+        return admDivisions.get(index);
+    }
+
+    public AdmDiv getAdmDiv(String name) {
+        for (AdmDiv a : admDivisions) {
+            if (a.getName().equalsIgnoreCase(name)) {
+                return a;
+            }
+        }
+        return null;
+    }
+
+    public AdmDiv getAdmDivProvId(int provId) {
+        for (AdmDiv a : admDivisions) {
+            if (a.getProvId() == provId)
+                return a;
+        }
+        return null;
+    }
+
+    public boolean hasAdmDiv(AdmDiv a) {
+        return admDivisions.contains(a);
+    }
 }

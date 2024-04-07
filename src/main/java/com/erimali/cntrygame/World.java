@@ -13,7 +13,6 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class World implements Serializable {
-    private WorldMap worldMap;
     private GLogic game;
     private String name;
     private double totalLandArea;
@@ -32,7 +31,6 @@ public class World implements Serializable {
     // DEFAULT DATA
     public World(GLogic game) {
         this.game = game;
-        this.worldMap = game.getWorldMap();
         try {
             name = "Earth";
             totalLandArea = 148940000;
@@ -522,7 +520,7 @@ public class World implements Serializable {
                 // or maybe when finished recruiting/building show
                 // if units.size() of province > 0 show milimg
                 //friendly dependent on owner id
-                worldMap.makeMilSVG(provinces[provId].getUnitRecruitingBuild().getType(), provId, 0);
+                //worldMap.makeMilSVG(provinces[provId].getUnitRecruitingBuild().getType(), provId, 0);
 
             }
         }
