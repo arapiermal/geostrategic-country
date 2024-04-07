@@ -1,22 +1,42 @@
 package com.erimali.cntrygame;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
+import javafx.beans.InvalidationListener;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
+
+import java.util.*;
+
 //POPUP??
 public class ErrorLog {
-	private static Deque<String> errors = new ArrayDeque<>();
+    private static ObservableList<String> errors = FXCollections.observableArrayList();
 
-	public static void logError(String errorMessage) {
-		errors.add(errorMessage);
-	}
-	public static void logError(Exception e) {
-		errors.add(e.getMessage());
-	}
-	public static String retrieveErrors() {
-		StringBuilder sb = new StringBuilder();
-		while(!errors.isEmpty()) {
-			sb.append(errors.poll()).append("\n");
-		}
-		return sb.toString();
-	}
+    static {
+        errors.addListener((InvalidationListener) observable -> showAlertErrors());
+    }
+
+    public static void logError(String errorMessage) {
+        errors.add(errorMessage);
+    }
+
+    public static void logError(Exception e) {
+        errors.add(e.getMessage());
+    }
+
+    public static String retrieveErrors() {
+        StringBuilder sb = new StringBuilder();
+        for (String error : errors) {
+            sb.append(error).append("\n");
+        }
+        errors.clear();
+        return sb.toString();
+    }
+
+    private static void showAlertErrors() {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setContentText(retrieveErrors());
+        alert.show();
+    }
 }

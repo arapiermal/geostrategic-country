@@ -360,7 +360,7 @@ public class EriScript {
                         int index = Integer.parseInt(parts[0].substring(2));
                         regDouble[index] = solveMath(parts[1]);
                     } catch (NumberFormatException e) {
-
+                        ErrorLog.logError(e);
                     }
                 }
             } else if (command.charAt(1) == 'r') {
@@ -411,12 +411,12 @@ public class EriScript {
                     forLoops.push(i + 1);
                     if (a < b)
                         for (int i = a; i < b; i++) {
-                            variables.put(varName, Double.valueOf(i));
+                            variables.put(varName, (double) i);
                             execute(forLoops.peek());
                         }
                     else if (a > b)
-                        for (int i = b; i > a; i--) {
-                            variables.put(varName, Double.valueOf(i));
+                        for (int i = a; i > b; i--) {
+                            variables.put(varName, (double) i);
                             execute(forLoops.peek());
                         }
                     else {
@@ -511,12 +511,16 @@ public class EriScript {
                 // input:%x
                 // EriScriptGUI.showPopupStageInput(InputApp.getDoubleInput());
                 String varName = parts[1].trim();
+                String desc = null;
+                if(parts.length > 2){
+                    desc = parts[2].trim();
+                }
                 if (varName.charAt(0) == '$') {
-                    double input = EriScriptGUI.showDoubleInputDialog(EriScriptGUI.mainEriGUI);
+                    double input = EriScriptGUI.showDoubleInputDialog(desc);
                     variables.put(varName.substring(1), input);
 
                 } else if (varName.charAt(0) == '#') {
-                    double[] values = EriScriptGUI.showDoubleArrInputDialog(EriScriptGUI.mainEriGUI);
+                    double[] values = EriScriptGUI.showDoubleArrInputDialog(desc);
                     if (values != null) {
                         setArr(varName.substring(1), values);
                     } else {
@@ -525,7 +529,7 @@ public class EriScript {
                 } else if (varName.charAt(0) == '%') {
 
                 } else {
-                    double input = EriScriptGUI.showDoubleInputDialog(EriScriptGUI.mainEriGUI);
+                    double input = EriScriptGUI.showDoubleInputDialog(desc);
 
                     variables.put(varName, input);
                 }
@@ -576,6 +580,9 @@ public class EriScript {
                 break;
             case "tostring":
                 printed.add(this.toString());
+                break;
+            case "error":
+                ErrorLog.logError(parts[1]);
                 break;
             default:
                 if (parts.length < 2)

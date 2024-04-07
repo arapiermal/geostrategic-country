@@ -206,6 +206,8 @@ public class GameStage extends Stage {
         initVBoxLeftOptions();
 
         leftGeneral = new VBox(selectedCountryInfo, countryOptTypes[0], selectedProvInfo, provOptTypes[0]);
+        leftGeneral.getChildren().get(1).setVisible(false);
+        leftGeneral.getChildren().get(3).setVisible(false);
         leftGeneral.setSpacing(10);
 
         leftScrollPane.setContent(leftGeneral);
@@ -219,8 +221,8 @@ public class GameStage extends Stage {
             URL imgSrcSettings = getClass().getResource("img/settings.png");
             if(imgSrcSettings != null) {
                 ImageView imgViewSettings = new ImageView(imgSrcSettings.toExternalForm());
-                imgViewSettings.setFitHeight(32);
-                imgViewSettings.setFitWidth(32);
+                imgViewSettings.setFitHeight(24);
+                imgViewSettings.setFitWidth(24);
                 gsOptions.setGraphic(imgViewSettings);
                 gsOptions.setText(null);
             }
@@ -637,7 +639,8 @@ public class GameStage extends Stage {
             return;
         game.selectPlayer(selectedCountry);
         countryName.setText(game.getPlayer().getName());// !!!!!!!!
-        //map.setPlayerCountry(selectedCountry);
+        leftGeneral.getChildren().get(1).setVisible(true);
+        leftGeneral.getChildren().get(3).setVisible(true);
         chooseCountryButton.setVisible(false);
         tableViewBuildings.setVisible(true);
         isPlayingCountry = true;

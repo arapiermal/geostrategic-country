@@ -216,7 +216,7 @@ public class World implements Serializable {
 
     public Economy economyFromFile(BufferedReader br) {
         try {
-            return null;
+            return new Economy();
         } catch (Exception e) {
             return null; //assume new economy based on population and area (?)
         }

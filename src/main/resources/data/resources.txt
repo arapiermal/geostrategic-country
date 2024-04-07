@@ -1,1 +1,6 @@
-gold:1000
+metal:gold:71726
+metal:steel:1
+metal:tungsten:250
+metal:titanium:8
+metal:copper:1
+radioactive_metal:uranium-235:15000000
