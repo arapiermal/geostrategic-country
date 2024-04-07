@@ -1,4 +1,4 @@
-CHESSTOURNAMENT,FIDE World Championship 2024,5/2/2024,is not RU
+CHESSTOURNAMENT,FIDE World Championship 2024,6/1/2024,is not RU
 In light of the new chess world tournament, Putin invites you to a game of chess. ~ Defeating him in this game could be a great opportunity to boost our reputation.
 `!{translate to self:Certainly}`, accept it.
 play chess XK

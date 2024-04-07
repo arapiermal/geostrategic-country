@@ -2,89 +2,92 @@
 <html>
 
 <head>
-  <link rel="stylesheet" href="css/chessboard-1.0.0.min.css">
-  <style type="text/css">
-    body {
-      margin: 0;
-    }
-    .highlight-white {
-      box-shadow: inset 0 0 3px 3px yellow;
-    }
+    <link rel="stylesheet" href="css/chessboard-1.0.0.min.css">
+    <style type="text/css">
+        body {
+          margin: 0;
+        }
+        .highlight-white {
+          box-shadow: inset 0 0 3px 3px yellow;
+        }
 
-    .highlight-black {
-      box-shadow: inset 0 0 3px 3px blue;
-    }
+        .highlight-black {
+          box-shadow: inset 0 0 3px 3px blue;
+        }
 
-    #container {
-      display: flex;
-    }
+        #container {
+          display: flex;
+        }
 
-    #col1 {
-      flex: 1;
-    }
+        #col1 {
+          flex: 1;
+        }
 
-    #col2 {
-      flex: 1;
-      padding: 10px;
-    }
+        #col2 {
+          flex: 1;
+          padding: 10px;
+        }
 
-    #playingField {
-      display: flex;
-      flex-direction: column;
-      justify-content: top;
-      align-items: center;
-      height: 100vh;
-    }
+        #playingField {
+          display: flex;
+          flex-direction: column;
+          justify-content: top;
+          align-items: center;
+          height: 100vh;
+        }
 
-    #TITLE {
-      margin-top: 8px;
-      margin-bottom: 8px;
-    }
-    
-    .PLAYERS {
-      margin-top: 8px;
-      margin-bottom: 8px;
-    }
+        #TITLE {
+          margin-top: 8px;
+          margin-bottom: 8px;
+        }
 
-    .back-button {
-      text-decoration: none;
-      color: black;
-      background-color: lightskyblue;
-      display: inline;
-      padding: 8px;
-    }
-  </style>
+        .PLAYERS {
+          margin-top: 8px;
+          margin-bottom: 8px;
+        }
+
+        .back-button {
+          text-decoration: none;
+          color: black;
+          background-color: lightskyblue;
+          display: inline;
+          padding: 8px;
+        }
+    </style>
 </head>
 
 <body>
-  <div id="container">
+<div id="container">
     <div id="col1">
-      <div id="playingField">
-        <h1 id="TITLE">Chess</h1>
-        <p id="OPPONENT" class="PLAYERS">Opponent</p>
-        <div id="myBoard" style="width: 480px;"></div>
-        <p id="PLAYER" class="PLAYERS">Player</p>
-      </div>
+        <div id="playingField">
+            <h1 id="TITLE">Chess</h1>
+            <p id="OPPONENT" class="PLAYERS">Opponent</p>
+            <div id="myBoard" style="width: 480px;"></div>
+            <p id="PLAYER" class="PLAYERS">Player</p>
+        </div>
 
     </div>
     <div id="col2">
-      <h2>Information</h2>
-      <label>Status:</label>
-      <div id="status"></div>
-      <details>
-        <summary>FEN: (Show/Hide Content)</summary>
-        <div id="fen">GAME NOT STARTED</div>
-      </details>
-      <details>
-        <summary>PGN: (Show/Hide Content)</summary>
-        <div id="pgn">GAME NOT STARTED</div>
-      </details>
+        <h2>Information</h2>
+        <label>Status:</label>
+        <div id="status"></div>
+        <details>
+            <summary>FEN: (Show/Hide Content)</summary>
+            <div id="fen">GAME NOT STARTED</div>
+        </details>
+        <details>
+            <summary>PGN: (Show/Hide Content)</summary>
+            <div id="pgn">GAME NOT STARTED</div>
+        </details>
+        <details>
+            <p id="javaResult">cancellable</p>
+        </details>
     </div>
-  </div>
-  <script src="js/jquery-3.5.1.min.js"></script>
-  <script src="js/chessboard-1.0.0.min.js"></script>
-  <script src="js/chess.js"></script>
-  <script>
+</div>
+<script src="js/jquery-3.5.1.min.js"></script>
+<script src="js/chessboard-1.0.0.min.js"></script>
+<script src="js/chess.js"></script>
+<script>
     var board = null
     var $board = $('#myBoard')
     var game = new Chess()
@@ -199,11 +202,15 @@
       // checkmate?
       if (game.in_checkmate()) {
         status = 'Game over, ' + moveColor + ' is in checkmate.'
+        let javaResult = document.getElementById('javaResult');
+        javaResult.innerHTML = 'checkmate ' + moveColor;
       }
 
       // draw?
       else if (game.in_draw()) {
         status = 'Game over, drawn position'
+        let javaResult = document.getElementById('javaResult')
+        javaResult.innerHTML = 'draw';
       }
 
       // game still on
@@ -246,6 +253,7 @@
     //////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////
     //ERIMALI
+
     function processQueryParameters() {
       let params = new URLSearchParams(document.location.search);
       let PLAYER = params.get("player");
@@ -279,22 +287,22 @@
           body.style.backgroundSize = "cover";
           body.style.color = "white";
           body.style.textShadow = "2px 2px 4px black";
-          
+
         }
       }
 
     }
-    function saveResult() {
+    function saveResult(res) {
       //when quiting -> lose
       //show alert
       //when game end
       //JavaFX (INJECT)
       //WEBVIEW .execute()
-
+      
     }
     window.addEventListener("DOMContentLoaded", processQueryParameters);
 
-  </script>
+</script>
 </body>
 
 </html>

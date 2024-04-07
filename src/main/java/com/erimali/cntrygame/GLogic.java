@@ -88,7 +88,7 @@ public class GLogic implements Serializable {
 
         interval = Duration.seconds(intervalInSeconds);
         keyframe = new KeyFrame(interval, event -> {
-            if (gs.isPaused) {
+            if (gs.paused) {
 
             } else {
                 dailyTick();

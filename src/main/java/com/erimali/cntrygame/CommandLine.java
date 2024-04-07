@@ -240,8 +240,9 @@ public class CommandLine {
             case "PLAY":
                 switch (k[1]) {
                     case "CHESS":
-                        gs.popupChess(k[2]);
-                        break;
+                        //!Stops execution till game finishes!
+                        int res = gs.popupChess(k[2]);
+                        return res == 0 ? "DRAW" : res > 0 ? "WON" : "LOST";
                     case "TICTACTOE":
                         // DEFAULT
                         if (k.length == 2) {

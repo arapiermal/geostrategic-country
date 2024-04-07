@@ -8,13 +8,11 @@ import com.erimali.cntrymilitary.MilUnitData;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableIntegerValue;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
@@ -31,7 +29,7 @@ public class GameStage extends Stage {
     private Label pausation;
     private Button pauseButton;
     private Button chooseCountryButton;
-    protected boolean isPaused;
+    protected boolean paused;
     protected boolean isPlayingCountry;
     // Map related
     private WorldMap map;
@@ -171,7 +169,7 @@ public class GameStage extends Stage {
         this.countryName = new Label("Select Country");
         this.date = new Label("Default Date");
         this.pauseButton = new Button("Play");
-        this.isPaused = true;
+        this.paused = true;
         this.pauseButton.setOnAction(e -> pausePlayDate());
         this.pausation = new Label("New game");
 
@@ -214,10 +212,20 @@ public class GameStage extends Stage {
         gameLayout.setLeft(leftScrollPane);
 //////////////////////////////////////////////////////////////
         //Bottom
-        hoveringCountry = new Label("Hovering");
-        HBox hBottomLeft = new HBox(hoveringCountry);
+        //hoveringCountry = new Label("Hovering");
+        //HBox hBottomLeft = new HBox(hoveringCountry);
+
+        Button gsComputer = new Button("Computer");
         Button gsOptions = new Button("Settings");
         try {
+            URL imgSrcComputer = getClass().getResource("img/monitor_with_button.png");
+            if(imgSrcComputer != null) {
+                ImageView imgViewSettings = new ImageView(imgSrcComputer.toExternalForm());
+                imgViewSettings.setFitHeight(24);
+                imgViewSettings.setFitWidth(24);
+                gsComputer.setGraphic(imgViewSettings);
+                gsComputer.setText(null);
+            }
             URL imgSrcSettings = getClass().getResource("img/settings.png");
             if(imgSrcSettings != null) {
                 ImageView imgViewSettings = new ImageView(imgSrcSettings.toExternalForm());
@@ -229,13 +237,15 @@ public class GameStage extends Stage {
         } catch(Exception e){
 
         }
+        gsComputer.setOnAction(e -> popupWebDesktop());
         gsOptions.setOnAction(e -> showGameStageOptions());
-        ToolBar tBottomRight = new ToolBar(gsOptions);
-        Region regBottom = new Region();
-        HBox bottom = new HBox(hBottomLeft, regBottom, tBottomRight);
-        HBox.setHgrow(regBottom, Priority.ALWAYS);
+        ToolBar toolBarBottom = new ToolBar(gsComputer,gsOptions);
 
-        gameLayout.setBottom(bottom);
+        //Region regBottom = new Region();
+        //HBox bottom = new HBox(hBottomLeft, regBottom, toolBarBottom);
+        //HBox.setHgrow(regBottom, Priority.ALWAYS);
+
+        gameLayout.setBottom(toolBarBottom);
         // maybe Button[], setOnAction( i ...);
 
 
@@ -651,8 +661,8 @@ public class GameStage extends Stage {
     public void pausePlayDate() {
         if (!isPlayingCountry)
             return;
-        isPaused = !isPaused;
-        if (isPaused) {
+        paused = !paused;
+        if (paused) {
             pausation.setVisible(true);
             pauseButton.setText("Play");
         } else {
@@ -664,12 +674,12 @@ public class GameStage extends Stage {
     public void pausePlayDate(boolean b) {
         if (!isPlayingCountry)
             return;
-        if (isPaused && !b) {
-            isPaused = false;
+        if (paused && !b) {
+            paused = false;
             pausation.setVisible(true);
             pauseButton.setText("Play");
-        } else if (!isPaused && b) {
-            isPaused = true;
+        } else if (!paused && b) {
+            paused = true;
             pausation.setVisible(false);
             pauseButton.setText("Pause");
         }
@@ -936,7 +946,20 @@ public class GameStage extends Stage {
         popupStage.show();
     }
 
-    public void popupChess(String cName) {
+    public void popupWebDesktop() {
+        File file = new File(GLogic.RESOURCESPATH + "web/pcdesktop.html");
+        String filePath = file.toURI().toString();
+
+        WebView webView = new WebView();
+        webView.getEngine().load(filePath);
+
+        Stage popupStage = new Stage();
+        popupStage.setScene(new Scene(webView, 800, 600));
+        popupStage.setTitle("Desktop");
+        popupStage.initModality(Modality.APPLICATION_MODAL);
+        popupStage.show();
+    }
+    public int popupChess(String cName) {
         pausePlayDate(true);
 
         String PLAYER = game.getPlayer().getGovernment().toStringMainRuler();
@@ -946,15 +969,35 @@ public class GameStage extends Stage {
 
         WebView webView = new WebView();
         webView.getEngine().load(filePath);
-
         Stage popupStage = new Stage();
         popupStage.setScene(new Scene(webView, 1000, 700));
         popupStage.setTitle("Chess Battle");
         popupStage.initModality(Modality.APPLICATION_MODAL);
-        //popupStage.show();
-        Platform.runLater(popupStage::showAndWait);
+        popupStage.showAndWait();
+        pausePlayDate(false);
+        //Platform.runLater(popupStage::showAndWait);
+        String result = (String) webView.getEngine().executeScript("document.getElementById('javaResult').textContent");
+        return parseChessResult(result);
     }
-
+    public int parseChessResult(String in){
+        if(in.startsWith("checkmate")){
+            String colorLost = in.substring(10);
+            TESTING.print(colorLost);
+            if(colorLost.equalsIgnoreCase("White")){
+                return -8;
+            } else if(colorLost.equalsIgnoreCase("Black")){
+                return 8;
+            } else{
+                return -128;
+            }
+        } else if(in.equalsIgnoreCase("draw")){
+            return 0;
+        } else if(in.equalsIgnoreCase("cancellable")){
+            return -32;
+        } else{
+            return -256;
+        }
+    }
     public void showAlert(Alert.AlertType alertType, String title, String message) {
         Alert alert = new Alert(alertType);
         alert.initOwner(this);
@@ -996,8 +1039,7 @@ public class GameStage extends Stage {
 
     private void showErrorPopup(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(null);
+        alert.setTitle("Game Error");
         alert.setContentText(message);
         alert.showAndWait();
     }
