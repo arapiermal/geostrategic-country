@@ -4,10 +4,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import com.erimali.cntrygame.CommandLine;
-import com.erimali.cntrygame.ErrorLog;
-import com.erimali.cntrygame.GUtils;
-import com.erimali.cntrygame.GameAudio;
+import com.erimali.cntrygame.*;
 
 //PSEUDOCOMPILATION
 //SWITCH CASE OF STRINGS COULD BECOME NUMBERS FOR TYPE OF FUNC?
@@ -230,10 +227,17 @@ public class EriScript {
     }
 
     public void execute(int startArg, String... args) {
-        //Allow for other than double params (?)
-        double[] dParams = new double[args.length-startArg];
+        //Allow for other than double params (!)
+        double[] dParams = new double[args.length - startArg];
+        int j = 0;
         for (int i = startArg; i < args.length; i++) {
-            dParams[i-startArg] = GUtils.parseD(args[i]);
+            if(Character.isLetter(args[i].charAt(0))){
+                if(j < params.length)
+                    putEriString(params[j], new EriWord(args[i]));
+                dParams[j] = 0;
+            } else
+                dParams[j] = GUtils.parseD(args[i]);
+            j++;
         }
         execute(dParams);
     }
@@ -486,7 +490,11 @@ public class EriScript {
                 break;
             // improve
             case "exec":
-                printed.add(CommandLine.executeAllLines(parts[1], true));
+                if (parts.length == 2)
+                    printed.add(CommandLine.executeAllLines(parseCMDExec(parts[1]), true));
+                else if (parts.length == 3) {
+                    putEriString(parts[1], new EriWord(CommandLine.executeAllLines(parseCMDExec(parts[2]), true)));
+                }
                 break;
             case "clr":
                 clearSpecific(parts[1]);
@@ -512,7 +520,7 @@ public class EriScript {
                 // EriScriptGUI.showPopupStageInput(InputApp.getDoubleInput());
                 String varName = parts[1].trim();
                 String desc = null;
-                if(parts.length > 2){
+                if (parts.length > 2) {
                     desc = parts[2].trim();
                 }
                 if (varName.charAt(0) == '$') {
@@ -570,6 +578,12 @@ public class EriScript {
                     ErrorLog.logError(e);
                 }
                 break;
+            case "fx":
+                switch(parts[1].toLowerCase()){
+                    case "alert":
+
+                        break;
+                }
             case "img":
                 EriIMG e = new EriIMG(Paths.get(parts[1]));
                 EriScriptGUI.showPopupStage(e.generateStage());
@@ -606,7 +620,30 @@ public class EriScript {
         }
         return sb.toString();
     }
+    public String parseCMDExec(String in){
+        if(in.indexOf('`') < 0)
+            return in;
+        int i = 0;
+        StringBuilder sb = new StringBuilder();
+        while(i < in.length()){
+            char c = in.charAt(i);
+            if(c == '`'){
+                int start = ++i;
+                while (i < in.length()){
+                    if(in.charAt(i) == '`') {
+                        break;
+                    }
+                    i++;
+                }
+                sb.append(parsePrint(in.substring(start,i)));
 
+            } else{
+                sb.append(c);
+            }
+            i++;
+        }
+        return sb.toString();
+    }
     // can be used when run on top of already run?
     public void parseDevCommand(String leftSide, String rightSide) {
         rightSide = rightSide.replace("\\:", ":");
@@ -841,7 +878,10 @@ public class EriScript {
     // if true -> to end; if false, else if true -> to end
     private void execIf() {
         boolean isTrue = false;
-        if (parseBool(rows.get(i)[1])) {
+        if (rows.get(i).length == 2 && parseBool(rows.get(i)[1])) {
+            isTrue = true;
+            execute(++i);
+        } else if (rows.get(i).length > 2 && parseBoolString(rows.get(i))) {
             isTrue = true;
             execute(++i);
         } else {
@@ -853,7 +893,10 @@ public class EriScript {
             if (isTrue) {
                 skip();
             } else {
-                if (parseBool(rows.get(i)[1])) {
+                if (rows.get(i).length == 2 && parseBool(rows.get(i)[1])) {
+                    isTrue = true;
+                    execute(++i);
+                } else if (rows.get(i).length > 2 && parseBoolString(rows.get(i))) {
                     isTrue = true;
                     execute(++i);
                 } else {
@@ -912,6 +955,20 @@ public class EriScript {
 
     public boolean parseBool(String input) {
         return BooleanSolver.solve(input, variables);
+    }
+
+    private boolean parseBoolString(String[] s) {
+        if (s.length == 3) {
+            //return getEriString(s[1]).equals(getEriString(s[2]));
+            //make more efficient
+            //TESTING.print(parsePrint(s[1]),parsePrint(s[2]));
+            //THERES A NEWLINE \n ?!??!!?!?
+            return parsePrint(s[1]).trim().equals(parsePrint(s[2]).trim());
+        } else if (s.length == 4) {
+            String comp = s[2];
+
+            return false;
+        } else return false;
     }
 
     // c = @func
