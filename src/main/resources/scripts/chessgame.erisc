@@ -1,0 +1,10 @@
+params:c,winner,draw,loser
+exec:res:play chess `%c`
+exec:alert INFORMATION `%res`
+if:%res:WON
+exec:`%winner`
+.else if:%res:LOST
+exec:`%loser`
+.else
+exec:`%draw`
+.
