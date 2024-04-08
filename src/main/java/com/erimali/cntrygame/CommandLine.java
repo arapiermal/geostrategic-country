@@ -297,13 +297,20 @@ public class CommandLine {
     public static String executeAllLines(String in, boolean admin) {
         StringBuilder result = new StringBuilder();
         String[] commands = in.split(COMMAND_SEPARATOR);//
-        for (String command : commands) {
-            // changeable separator
-            result.append(execute(command, admin)).append(System.lineSeparator());
+        result.append(execute(commands[0], admin));
+        for(int i = 1; i < commands.length; i++){
+            result.append('\n').append(execute(commands[i],admin));
         }
         return result.toString();
     }
-
+    public static String[] executeAllLinesArr(String in, boolean admin) {
+        String[] commands = in.split(COMMAND_SEPARATOR);
+        String[] result = new String[commands.length];
+        for(int i = 1; i < commands.length; i++){
+            result[i] = execute(commands[i],admin);
+        }
+        return result;
+    }
     public static void executeAllNoResult(String in) {
         if (in.contains(COMMAND_SEPARATOR)) {
             String[] commands = in.split(COMMAND_SEPARATOR);
