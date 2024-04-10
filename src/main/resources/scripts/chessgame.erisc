@@ -3,8 +3,11 @@ exec:res:play chess `%c`
 exec:alert INFORMATION `%res`
 if:%res:WON
 exec:`%winner`
+exec:`%c` `%loser`
 .else if:%res:LOST
 exec:`%loser`
+exec:`%c` `%winner`
 .else
 exec:`%draw`
+exec:`%c` `%draw`
 .

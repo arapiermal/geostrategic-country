@@ -1,25 +1,25 @@
 CHESSTOURNAMENT,FIDE World Championship 2024,6/1/2024,is not RU
 In light of the new chess world tournament, Putin invites you to a game of chess. ~ Defeating him in this game could be a great opportunity to boost our reputation.
 `!{translate to self:Certainly}`, accept it.
-script chessgame XK "ALERT INFORMATION You won" "ALERT INFORMATION Draw" "ALERT INFORMATION You lost"
+script chessgame XK "add respect 10" "0" "add respect -10"
 Deny, we have better things to do. The year is !{DATE NOW:yyyy}
-alert INFORMATION Reputation-- "We have lost reputation"
+alert INFORMATION Reputation-- "We have lost reputation";add respect -5
 ~~~
 NEWS,Ukraine war,15/6/2024,is not RU|UA
 The ukrainian war continues ~ What should we do about it ~ Zelenski or Putin?
 Send help to Ukraine and be part of sanctioning Russia
-
-Never send help to Ukraine and never be part of sanctioning Russia
-
+give money 0.1% UA; sanction RU
+Don't send help to Ukraine and don't be part of sanctioning Russia
+0
 Help Russia (Crazy option)
-
+give money 0.1% RU
 ~~~
 VACCINE,VoCid 91 truths,10/2/2024,none
 Would you like to release the truths about VoCid 91 vaccines?
 Yes, the truth needs to be out.
-command
+add gov opinion 5
 No, keep it a secret. The public needs not to know.
-command
+add gov opinion -random(5)
 ~~~
 WORLDCUP,FIFA World Cup 2026,2/3/2024,none
 FIFA World Cup -> football tournament
@@ -28,10 +28,10 @@ command here
 Option 2
 command here
 ~~~
-ADVTECHNOLOGICAL,Industrial Revolution,2/4/2024,none
+ADVTECH,Industrial Revolution,2/4/2024,none
 How to make trigerable, based on world progress~A new industrial revolution is taking place. 
 Continue the technological progress, it's only going to get better.
-
+add tech progress 100
 Try your best to stop the world from going through this dystopic world!
 
 ~~~

@@ -332,7 +332,7 @@ public class MathSolver {
 		case "SUMUPTO":
 			return sumUpTo((long) val);
 		case "INFINITY":
-			return ((int) val) > 0 ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY;
+			return ((int) val) >= 0 ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY;
 		default:
 			throw new IllegalArgumentException("INVALID FUNCTION");
 		}
@@ -399,11 +399,6 @@ public class MathSolver {
 
 	private static final String ARRSOLVESEPARATOR = "~";
 
-	/*
-	 * public GDate(double[] values){ this.day = (int) values[0]; this.month = (int)
-	 * values[1]; this.year = (int) values[2];
-	 * 
-	 */
 	public static double[] solveArr(String in) {
 		String a[] = in.split(ARRSOLVESEPARATOR);
 		double[] vals = new double[a.length];

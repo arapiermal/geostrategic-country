@@ -1,13 +1,13 @@
 package com.erimali.cntrygame;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 
 import com.erimali.cntrymilitary.MilUnitData;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableIntegerValue;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -15,12 +15,15 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+
+import javax.tools.Tool;
 
 public class GameStage extends Stage {
     // POP UP WHEN FULLSCREEN PROBLEM
@@ -139,8 +142,8 @@ public class GameStage extends Stage {
         Label speedData = new Label("1.0");
         Text speedDataInfo = new Text("days/sec");
         Button speedUp = new Button("+");
-        speedUp.setPrefHeight(20);
-        speedUp.setPrefWidth(30);
+        speedUp.setPrefHeight(18);
+        speedUp.setPrefWidth(26);
         speedUp.setStyle("-fx-background-color: lightblue; -fx-shape: 'M 0 50 L 25 0 L 50 50 Z'");
         speedUp.setOnAction(e -> {
             game.increaseSpeed();
@@ -148,8 +151,8 @@ public class GameStage extends Stage {
         });
 
         Button speedDown = new Button("-");
-        speedDown.setPrefHeight(20);
-        speedDown.setPrefWidth(30);
+        speedDown.setPrefHeight(18);
+        speedDown.setPrefWidth(26);
         speedDown.setStyle("-fx-background-color: lightblue; -fx-shape: 'M 0 0 L 25 50 L 50 0 Z'");
         speedDown.setOnAction(e -> {
             game.decreaseSpeed();
@@ -171,7 +174,7 @@ public class GameStage extends Stage {
         this.pauseButton = new Button("Play");
         this.paused = true;
         this.pauseButton.setOnAction(e -> pausePlayDate());
-        this.pausation = new Label("New game");
+        this.pausation = new Label("Paused");
 
         chooseCountryButton = new Button("Confirm");
         chooseCountryButton.setOnAction(e -> startGame());
@@ -239,8 +242,9 @@ public class GameStage extends Stage {
         }
         gsComputer.setOnAction(e -> popupWebDesktop());
         gsOptions.setOnAction(e -> showGameStageOptions());
-        ToolBar toolBarBottom = new ToolBar(gsComputer,gsOptions);
-
+        Region tReg = new Region();
+        ToolBar toolBarBottom = new ToolBar(gsComputer,tReg,gsOptions);
+        HBox.setHgrow(tReg, Priority.ALWAYS);
         //Region regBottom = new Region();
         //HBox bottom = new HBox(hBottomLeft, regBottom, toolBarBottom);
         //HBox.setHgrow(regBottom, Priority.ALWAYS);
@@ -249,7 +253,7 @@ public class GameStage extends Stage {
         // maybe Button[], setOnAction( i ...);
 
 
-        TabPane tabPaneRight = makeRighTabPane();
+        TabPane tabPaneRight = makeRightTabPane();
 
         Region regRight = new Region();
         Label label = new Label("Map modes");
@@ -258,6 +262,7 @@ public class GameStage extends Stage {
         VBox vBoxRight = new VBox(tabPaneRight, regRight, label, mapChoices);
         vBoxRight.setPadding(new Insets(4));
         VBox.setVgrow(regRight, Priority.ALWAYS);
+        VBox.setVgrow(tabPaneRight, Priority.ALWAYS);
 
         // rightScrollPane.setContent(rightInfo);
         // gameLayout.setRight(rightScrollPane);
@@ -304,7 +309,7 @@ public class GameStage extends Stage {
         return flowPane;
     }
 
-    private TabPane makeRighTabPane() {
+    private TabPane makeRightTabPane() {
         TabPane tabPane = new TabPane();
 
         tabPane.setMinWidth(280);
@@ -340,7 +345,7 @@ public class GameStage extends Stage {
                 game.makeMilUnit(game.getPlayerId(), selectedProv, selUnit);
             }
         });
-        VBox vBox = new VBox(treeUnitTypes, unitInfo, recruitBuildButton);
+        VBox vBox = new VBox(treeUnitTypes,recruitBuildButton, unitInfo);
         VBox.setVgrow(unitInfo, Priority.ALWAYS); //
         recruitBuildButton.setVisible(false);
         Tab tab = new Tab("Military", vBox);
@@ -883,15 +888,16 @@ public class GameStage extends Stage {
         }
     }
 
-    // boolean pauseGame (should it be paused while popping up or not)
+    // boolean pauseGame (should it be paused while popping up or not) canBePaused
     public void popupGEvent(GEvent gEvent) {
         pausePlayDate(true);
         // Create a new stage for the popup
         Stage popupStage = new Stage();
         popupStage.initModality(Modality.APPLICATION_MODAL);
+        popupStage.initOwner(this);
+        popupStage.initStyle(StageStyle.UNDECORATED);
         popupStage.setTitle("Game Event");
 
-        // Create the content for the popup
         Label titleLabel = new Label("Title: " + gEvent.getTitle());
         Label dateLabel = new Label("Date: " + gEvent.getDate());
         Label descriptionLabel = new Label("Description\n" + game.parseGEventText(gEvent.getDescription()));
@@ -904,6 +910,8 @@ public class GameStage extends Stage {
         Button[] optButton = new Button[opt.length];
         for (int i = 0; i < opt.length; i++) {
             optButton[i] = new Button(game.parseGEventText(opt[i]));
+            Tooltip tooltip = new Tooltip(gEvent.getCommands()[i]);
+            Tooltip.install(optButton[i],tooltip);
             optButton[i].setPrefWidth(400); // related to max text?
             optButton[i].setStyle("-fx-background-color: #00FF00;-fx-text-fill: #000000;");
             ;
@@ -925,12 +933,29 @@ public class GameStage extends Stage {
         popupRoot.setSpacing(10);
         StackPane container = new StackPane(popupRoot);
         StackPane.setMargin(popupRoot, new Insets(20));
-        Scene popupScene = new Scene(container);
+        Scene popupScene = makeGEventScene(container, popupStage);
+
 
         popupStage.setScene(popupScene);
-
         Platform.runLater(popupStage::showAndWait);
     }
+
+    private Scene makeGEventScene(StackPane container, Stage popupStage) {
+        Scene popupScene = new Scene(container);
+        final Delta dragDelta = new Delta();
+        popupScene.setOnMousePressed(mouseEvent -> {
+            dragDelta.x = popupStage.getX() - mouseEvent.getScreenX();
+            dragDelta.y = popupStage.getY() - mouseEvent.getScreenY();
+        });
+        popupScene.setOnMouseDragged(mouseEvent -> {
+            popupStage.setX(mouseEvent.getScreenX() + dragDelta.x);
+            popupStage.setY(mouseEvent.getScreenY() + dragDelta.y);
+        });
+        return popupScene;
+    }
+
+    static class Delta { double x, y; }
+
 
     public void popupWebNews() {
         File file = new File(GLogic.RESOURCESPATH + "web/news.html");
@@ -1011,7 +1036,7 @@ public class GameStage extends Stage {
         // alert.getDialogPane().getStyleClass().add("your-custom-style-class");
         ButtonType closeButton = new ButtonType("Close");
         alert.getButtonTypes().add(closeButton);
-
+        //ButtonType.CLOSE
         Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
         dialogStage.setOnCloseRequest(event -> alert.setResult(closeButton));
 

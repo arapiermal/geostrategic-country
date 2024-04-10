@@ -356,11 +356,11 @@ public class Country implements Serializable {
         dip.improveRelations(c, val);
     }
 
-    public int getRelations(String c) {
+    public short getRelations(String c) {
         return dip.getRelations(CountryArray.getIndexShort(c));
     }
 
-    public int getRelations(int c) {
+    public short getRelations(int c) {
         return dip.getRelations(c);
     }
 

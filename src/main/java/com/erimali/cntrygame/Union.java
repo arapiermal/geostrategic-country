@@ -58,7 +58,7 @@ public class Union {
     private String shortName;
     private String name;
     private World world; //CountryArray...
-    private int stability;
+    private int stability;//?
     private float centralization;
     private Set<Short> unionCountries;
     private byte[] influence;
@@ -189,5 +189,20 @@ public class Union {
 
     public Set<Short> getUnionCountries() {
         return unionCountries;
+    }
+
+    public void voteAI(Country player,int vote, int choice){
+        //AI calc based on rel and vote on influence
+        short[] v = votes.get(vote);
+        int cId = player.getCountryId();
+        v[choice] += influence[cId];
+        for(short i : unionCountries){
+            short rel = player.getRelations(i);
+            if(Math.random()*rel>Math.sqrt(rel)){
+                v[choice] += influence[i];
+            }else{
+                v[(int) (Math.random()*v.length)] += influence[i];
+            }
+        }
     }
 }

@@ -49,11 +49,11 @@ public class Diplomacy implements Serializable {
     }
 
     // Relations
-    public int getRelations(int c) {
+    public short getRelations(int c) {
         if (c >= 0 && c <= relations.length)
             return relations[c];
         else
-            return Integer.MIN_VALUE;
+            return Short.MIN_VALUE;
     }
 
     public void improveRelations(int c) {
