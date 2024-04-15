@@ -70,3 +70,12 @@
 .progress-button-table-cell .Demolish {
 
 }
+
+.alliance-request-button {
+    -fx-background-color: lightblue;
+    -fx-text-fill: #000000;
+}
+
+.alliance-request-button .text {
+    -fx-font-weight: bold;
+}

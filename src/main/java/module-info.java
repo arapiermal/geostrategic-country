@@ -17,5 +17,6 @@ module com.erimali.cntrygame {
     exports com.erimali.minigames;
     exports com.erimali.compute;
     opens com.erimali.minigames to javafx.fxml;
+    opens com.erimali.cntrymilitary to javafx.fxml;
 
 }

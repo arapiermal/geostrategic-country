@@ -9,44 +9,11 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 //move stuff related to country in military class
-public class MilDiv implements MilAttack, Serializable {
-    protected static List<MilUnitData>[] unitTypes;
-    protected static String DIR_UNIT_TYPES = "src/main/resources/data/units";
+public class MilDiv implements Serializable {
 
-    //call after loading save game
-    public static void loadAllUnitData(List<MilUnitData>[] unitTypes) {
-        if(unitTypes == null) {
-            //noinspection unchecked
-            MilDiv.unitTypes = (List<MilUnitData>[]) new ArrayList[MilUnitData.MAX_TYPES];
-            unitTypes = MilDiv.unitTypes;
-        }
-        for (int i = 0; i < MilUnitData.MAX_TYPES; i++) {
-            unitTypes[i] = new ArrayList<>();
-
-        }
-        Path dir = Paths.get(DIR_UNIT_TYPES);
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
-            for (Path entry : stream) {
-                try {
-                    MilUnitData d = new MilUnitData(entry.toString());
-                    unitTypes[d.type].add(d);
-                } catch (Exception e) {
-                    ErrorLog.logError(e);
-                }
-            }
-            for (int i = 0; i < MilUnitData.MAX_TYPES; i++) {
-                Collections.sort(unitTypes[i]);
-            }
-        } catch (IOException e) {
-            ErrorLog.logError(e);
-        }
-    }
 
     public void correlateUnitData(List<MilUnitData>[] unitTypes) {
         int n = MilUnitData.MAX_TYPES;
@@ -59,11 +26,6 @@ public class MilDiv implements MilAttack, Serializable {
         }
     }
 
-    //Use in military for GUI
-    public static List<MilUnitData> getUnitTypesList(int type) {
-        return unitTypes[type];
-    }
-
     //TreeTableView here(?)
 
     //////////////////////////////////////////////////////////////
@@ -74,28 +36,107 @@ public class MilDiv implements MilAttack, Serializable {
 
     public MilDiv(String name) {
         this.name = name;
-        this.units = new LinkedList<>();
+        this.units = new ArrayList<>();
     }
 
     public MilDiv(String name, MilLeader leader) {
         this.name = name;
         this.leader = leader;
-        this.units = new LinkedList<>();
+        this.units = new ArrayList<>();
     }
 
-    public void addMilUnit(MilUnit... milUnits) {
-        Collections.addAll(units, milUnits);
+    public MilUnit getUnit(int i) {
+        if (i >= 0 && i < units.size()) {
+            return units.get(i);
+        } else {
+            return null;
+        }
+    }
+
+    public List<MilUnit> getUnits() {
+        return units;
+    }
+
+    public void addUnit(MilUnit u) {
+        if (leader != null)
+            u.setBonuses(leader.atkBonus(), leader.defBonus());
+        units.add(u);
     }
 
     public MilUnit removeMilUnit(int i) {
-        if (i >= 0 && i < units.size())
-            return units.remove(i);
-        else
+        if (i >= 0 && i < units.size()) {
+            MilUnit u = units.remove(i);
+            u.resetBonuses();
+            return u;
+        } else
             return null;
     }
 
     public boolean removeMilUnit(MilUnit i) {
         return units.remove(i);
+    }
+
+    //double m1 = calcMorale(u);
+    //double m2 = calcMorale(o);
+    public static int attack(List<MilUnit> u, List<MilUnit> o) {
+        int n = Math.max(u.size(), o.size());
+        int i = 0;
+        int a1 = 0, a2 = 0;
+        int res = 0;
+        while (i < n) {
+            res = u.get(a1).attack(o.get(a2));
+            if (res == -2) {
+                u.remove(a1);
+                //(?)
+                if (u.isEmpty())
+                    return res;
+            } else if (res == 2) {
+                o.remove(a2);
+                if (o.isEmpty())
+                    return res;
+            }
+            a1++;
+            a2++;
+            a1 %= u.size();
+            a2 %= o.size();
+            i++;
+        }
+        return res;
+    }
+
+    public static double calcMorale(List<MilUnit> l) {
+        int n = l.size();
+        double sum = 0;
+        for (MilUnit u : l) {
+            sum += u.morale;
+        }
+        return sum / n;
+    }
+
+    public static int attackOld(List<MilUnit> u, List<MilUnit> o) {
+        int n = Math.max(u.size(), o.size());
+        int i = 0;
+        int a1 = 0, a2 = 0;
+        int res = 0;
+        while (i < n && res == 0) {
+            res = u.get(a1).attack(o.get(a2));
+            if (res == -2) {
+                u.remove(a1);
+                //(?)
+                if (u.isEmpty())
+                    return res;
+            } else if (res == 2) {
+                o.remove(a2);
+                if (o.isEmpty())
+                    return res;
+            }
+            a1++;
+            a2++;
+            a1 %= u.size();
+            a2 %= o.size();
+            i++;
+        }
+        return res;
     }
 
     public int attack(MilDiv o) {
@@ -125,58 +166,12 @@ public class MilDiv implements MilAttack, Serializable {
         return res;
     }
 
-    //Potential bullying (!)
-    public int attack(MilUnit o) {
-        int n = units.size();
-        int i = 0;
-        int a1 = 0;
-        int res = 0;
-        while (i < n && res == 0) {
-            res = units.get(a1).attack(o);
-            if (res == -2) {
-                units.remove(a1);
-            } else if (res == 2) {
-                return res;
-            }
-            a1++;
-            a1 %= units.size();
-            i++;
-        }
-        return res;
-    }
-
-    @Override
-    public int attack(MilAttack o) {
-        return o instanceof MilDiv ? attack((MilDiv) o) : attack((MilUnit) o);
-    }
-
 
     @Override
     public String toString() {
         return this.name;
     }
 
-    public static MilUnit makeUnit(int ownerId,int type, int index) {
-        MilUnitData data = unitTypes[type].get(index);
-        MilUnit unit = (type % 2 == 0) ? new MilSoldiers(data,ownerId) : new MilVehicles(data,ownerId);
-        return unit;
-    }
-
-    public static void main(String[] args) {
-        loadAllUnitData(null);
-
-        MilUnit u = makeUnit(0, 0,0);
-        MilUnit o = makeUnit(1, 0,0);
-        u.incSize(1000);
-        o.incSize(500);
-        //u.incLevel(1);
-        o.incLevel(2);
-        int res;
-        while ((res = u.attack(o)) == 0) {
-            TESTING.print(u.size + " " + u.morale, o.size + " " + o.morale);
-        }
-        TESTING.print(res > 0 ? "WIN" : "LOST");
-    }
 
     public boolean hasLeader() {
         return leader != null;
@@ -197,5 +192,13 @@ public class MilDiv implements MilAttack, Serializable {
      * 0 0 0
      * make combinations 0 <-> 0
      * */
+
+    public void train(int amount) {
+        for (MilUnit u : units) {
+            if (u instanceof MilSoldiers) {
+                ((MilSoldiers) u).train(amount);
+            }
+        }
+    }
 
 }

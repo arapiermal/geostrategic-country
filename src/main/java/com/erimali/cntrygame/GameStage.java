@@ -335,6 +335,7 @@ public class GameStage extends Stage {
             if (selectedItem != null) {
                 MilUnitData selUnit = selectedItem.getValue();
                 unitInfo.setText(selUnit.toStringLong());
+                unitInfo.setTooltip(new Tooltip(selUnit.getDesc()));
                 recruitBuildButton.setText(selUnit.isVehicle() ? "Build" : "Recruit");
             }
         });
@@ -529,7 +530,6 @@ public class GameStage extends Stage {
     }
 
     private VBox makeVBoxCountryOptions() {
-
         Label optionsText = new Label("Options");
         Label optionsWar = new Label("War");
         Button declareWar = new Button("Declare War");
@@ -540,7 +540,7 @@ public class GameStage extends Stage {
         sponsorRebels.getStyleClass().add("sponsor-rebels-button");
 
         VBox vboxWar = new VBox(optionsWar, declareWar, sponsorRebels);
-
+        vboxWar.setSpacing(8);
         Label preInfoRelations = new Label("Relations ");
         infoRelations = new Label();
         HBox optionsRelations = new HBox(preInfoRelations, infoRelations);
@@ -559,6 +559,7 @@ public class GameStage extends Stage {
         });
 
         sendAllianceRequest = new Button("Alliance request");
+        sendAllianceRequest.getStyleClass().add("alliance-request-button");
         sendAllianceRequest.setOnAction(e -> {
             sendAllianceRequest();
         });
@@ -567,13 +568,17 @@ public class GameStage extends Stage {
             sendDonation();
         });
         VBox vboxRelations = new VBox(optionsRelations, improveRelations, sendAllianceRequest, sendDonation);
+        vboxRelations.setSpacing(8);
         return new VBox(optionsText, vboxWar, vboxRelations);
     }
 
     private VBox makeVBoxPlayerProvOptions() {
         Button raiseFunds = new Button("Raise municipal funds");
         Button investInProv = new Button("Invest");
-        return new VBox(raiseFunds, investInProv);
+        VBox vBox = new VBox(raiseFunds, investInProv);
+        vBox.setSpacing(8);
+
+        return vBox;
     }
 
     private VBox makeVBoxOtherProvOptions() {
@@ -613,6 +618,7 @@ public class GameStage extends Stage {
         } else {
 
             if (game.sendAllianceRequest(selectedCountry)) {
+                showAlert(Alert.AlertType.CONFIRMATION, "Accepted alliance request", game.getCountry(selectedCountry).getName() + " has accepted our alliance request.");
                 sendAllianceRequest.setText("Break alliance");
             } else {
 
@@ -1032,8 +1038,8 @@ public class GameStage extends Stage {
         alert.initModality(Modality.APPLICATION_MODAL);
 
         // Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-        // stage.getIcons().add(new javafx.scene.image.Image("your_icon.png"));
-        // alert.getDialogPane().getStyleClass().add("your-custom-style-class");
+        // stage.getIcons().add(new javafx.scene.image.Image("icon.png"));
+        // alert.getDialogPane().getStyleClass().add("custom-style-class");
         ButtonType closeButton = new ButtonType("Close");
         alert.getButtonTypes().add(closeButton);
         //ButtonType.CLOSE

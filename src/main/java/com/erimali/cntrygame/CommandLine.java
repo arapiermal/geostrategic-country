@@ -52,8 +52,8 @@ public class CommandLine {
 
     //
     private static Map<String, EriScript> eriScripts;
-    //Make changeable in options (?)
-    private static String scriptsPath = GLogic.RESOURCESPATH + "scripts";
+    //Make changeable in GOptions (?)
+    private static String scriptsPath = GLogic.RESOURCESPATH + "scripts/";
 
     public static void loadEriScripts() {
         eriScripts = new HashMap<>();

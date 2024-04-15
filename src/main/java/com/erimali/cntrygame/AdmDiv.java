@@ -20,7 +20,7 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
     private String nativeName; // Durrës vs Durres ?
     private double area;
     private int population;
-    private boolean landlocked;
+    private boolean waterAccess;
     private short mainLanguage; // + culture?, PopDistFloat/Double..., can be [][] and static methods there.
     private short infrastructure;
     //based on stability, rebellion can happen or if > 64
@@ -39,7 +39,8 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
 //train more than recruit/build (maybe train division)
     //private MilUnit unitTrainingUpgrade;
 
-    private List<MilUnit> units; // unit vs div or new interface
+    private List<MilUnit> friendlyUnits; // unit vs div or new interface
+    private List<MilUnit> enemyUnits;
 //boolean or sth
 
     public String toString() {
@@ -56,15 +57,15 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
         return sb;
     }
 
-    public AdmDiv(String name, double area, int population,boolean landlocked, short mainLanguage) {
+    public AdmDiv(String name, double area, int population,boolean waterAccess, short mainLanguage) {
         this.name = name;
         this.area = area;
         this.population = population;
-        this.landlocked = landlocked;
+        this.waterAccess = waterAccess;
         this.mainLanguage = mainLanguage;
         this.buildings = EnumSet.noneOf(Building.class);
         this.buildingBuildings = new EnumMap<>(Building.class);
-        this.units = new LinkedList<>();
+        this.friendlyUnits = new LinkedList<>();
         this.rebellion = new byte[RebelType.values().length];
         resetRebellion();
     }
@@ -74,7 +75,7 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
         this.mainLanguage = mainLanguage;
         this.buildings = EnumSet.noneOf(Building.class);
         this.buildingBuildings = new EnumMap<>(Building.class);
-        this.units = new LinkedList<>();
+        this.friendlyUnits = new LinkedList<>();
         this.rebellion = new byte[RebelType.values().length];
         resetRebellion();
         try {
@@ -257,14 +258,14 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
         if (unitRecruitingBuild instanceof MilSoldiers milSoldiers) {
             int extra = milSoldiers.recruit(100);
             if (extra > 0) {
-                units.add(unitRecruitingBuild);
+                friendlyUnits.add(unitRecruitingBuild);
                 unitRecruitingBuild = null;
             }
             return extra;//fix based on max
         } else if (unitRecruitingBuild instanceof MilVehicles milVehicles) {
             int extra = milVehicles.build(10);
             if (extra > 0) {
-                units.add(unitRecruitingBuild);
+                friendlyUnits.add(unitRecruitingBuild);
                 unitRecruitingBuild = null;
             }
             return extra;
@@ -308,19 +309,24 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
     }
 
     public void addUnit(MilUnit u) {
-        units.add(u);
+        friendlyUnits.add(u);
     }
 
     public boolean removeUnit(MilUnit u) {
-        return units.remove(u);
+        return friendlyUnits.remove(u);
     }
 
     public MilUnit removeUnit(int i) {
-        return units.remove(i);
+        return friendlyUnits.remove(i);
     }
 
     @Override
     public int compareTo(AdmDiv o) {
         return Integer.compare(this.provId, o.provId);
     }
+
+    public boolean hasWaterAccess() {
+        return waterAccess;
+    }
+
 }

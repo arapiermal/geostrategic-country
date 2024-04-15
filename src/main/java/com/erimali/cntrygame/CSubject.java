@@ -51,11 +51,11 @@ public class CSubject implements Serializable {
 	}
 
 	// WAR FOR INDEPENDENCE
-	public void declareIndependence() {
+	public War declareIndependence() {
 		main.releaseSubject(subject.getCountryId());
 		War independenceWar = new War(subject, main, CasusBelli.INDEPENDENCE);
-		//CommandLine.getGs().getGame()
-		//where to put war
+
+		return independenceWar;
 	}
 
 	public void changeSubjectType(int i){

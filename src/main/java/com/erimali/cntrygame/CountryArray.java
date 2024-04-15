@@ -26,7 +26,10 @@ public class CountryArray implements Iterable<Country>, Serializable {
         countries[getIndex(iso2)] = country;
         countriesISO2.add(iso2);
     }
-
+    public void put(int iso2, Country country){
+        countries[iso2] = country;
+        countriesISO2.add(getIndexISO2(iso2));
+    }
 
     public void addCountry(String iso2, Country country) {
         int index = getIndex(iso2);

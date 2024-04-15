@@ -1,9 +1,6 @@
 package com.erimali.cntrygame;
 
-import com.erimali.cntrymilitary.MilSoldiers;
-import com.erimali.cntrymilitary.MilUnit;
-import com.erimali.cntrymilitary.MilUnitData;
-import com.erimali.cntrymilitary.MilVehicles;
+import com.erimali.cntrymilitary.*;
 
 import java.io.*;
 import java.nio.file.DirectoryStream;
@@ -513,7 +510,7 @@ public class World implements Serializable {
         for (int provId : activeRecruitingBuildProv) {
             if (provinces[provId].recruitBuild() > 0) {
                 //take care of extra manpower/resources (!)
-                game.makeMilUnit(provId);
+                game.contMilUnit(provId);
 
             } else{
                 //FIX!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -526,4 +523,29 @@ public class World implements Serializable {
         }
 
     }
+
+    public void proceduralCountryMakeover(){
+        SVGProvince[] svgMap = game.getWorldMap().getMapSVG();
+        double mapW = game.getWorldMap().getWidth();
+        double mapH = game.getWorldMap().getHeight();
+        int worldPopDensity = 16;
+        for(SVGProvince svg: svgMap){
+            int o = svg.getOwnerId();
+            int p = svg.getProvId();
+            if(!countries.containsKey(o)){
+                String iso2 = CountryArray.getIndexISO2(o);
+                Country c = new Country(iso2);
+                c.setIso2(iso2);
+                //either no lang or english as default
+                countries.put(o, c);
+            }
+            if(provinces[p] == null){
+                double area = svg.calcAvgArea(mapW, mapH);
+                provinces[p] = new AdmDiv(svg.getId(),area, (int) (area*worldPopDensity),true, (short) -1);
+                countries.get(o).addAdmDiv(provinces[p]);
+            }
+        }
+    }
+
+
 }

@@ -34,7 +34,9 @@ public class BaseEvent implements Serializable {
 	public String[] getOptions() {
 		return options;
 	}
-
+	public String getOption(int i) {
+		return options[i];
+	}
 	public void setOptions(String[] options) {
 		this.options = options;
 	}
@@ -45,6 +47,9 @@ public class BaseEvent implements Serializable {
 
 	public String[] getCommands() {
 		return commands;
+	}
+	public String getCommand(int i) {
+		return commands[i];
 	}
 
 	public void setCommands(String[] commands) {

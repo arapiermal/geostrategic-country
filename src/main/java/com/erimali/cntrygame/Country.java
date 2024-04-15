@@ -1,5 +1,7 @@
 package com.erimali.cntrygame;
 
+import com.erimali.cntrymilitary.Military;
+
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,6 +41,8 @@ public class Country implements Serializable {
     private EnumMap<Building, Short> availableBuildings;
     // SOME COUNTRIES CAN START AS SUBJECTS OF OTHERS;
 
+
+    private boolean randGenerated;
     // Constructors
     public Country(String name, double area, long population, double populationIncrease, boolean landlocked, String capital,
                    String[] infoElectronic, String admDivisionType, List<AdmDiv> admDivisions, List<Short> languages,
@@ -405,6 +409,10 @@ public class Country implements Serializable {
         // CHECK FOR REBELLION
     }
 
+    public War declareIndependence(){
+        return subjectOf == null ? null : subjectOf.declareIndependence();
+    }
+
     public Map<Integer, CSubject> getSubjects() {
         return subjects;
     }
@@ -494,11 +502,14 @@ public class Country implements Serializable {
     }
 
     //Country c as input for more ?
-    public boolean sendAllianceRequest(int c) {
-        boolean goodRelations = false; //other reasons, why would AI accept
+    public boolean sendAllianceRequest(CountryArray cArr, int c) {
+        Country o = cArr.get(c);
+        //other reasons, why would AI accept
+        boolean goodRelations = (this.getMainLanguage() == o.getMainLanguage());
 
-        if (this.getRelations(c) > 100 || goodRelations) {
+        if (o.isNotSubject() && (this.getRelations(c) > 100 || goodRelations)) {
             this.addAlly(c);
+            o.addAlly(this.countryId);
             return true;
         } else {
             return false;
@@ -752,5 +763,22 @@ public class Country implements Serializable {
 
     public boolean hasAdmDiv(AdmDiv a) {
         return admDivisions.contains(a);
+    }
+
+    public boolean isRandGenerated() {
+        return randGenerated;
+    }
+
+    public void setRandGenerated(boolean randGenerated) {
+        this.randGenerated = randGenerated;
+    }
+
+    public void addAdmDiv(AdmDiv a) {
+        admDivisions.add(a);
+        population += a.getPopulation();
+        area+= a.getArea();
+        //if (landlocked && a.hasWaterAccess()){landlocked = false;}
+        landlocked = landlocked && !a.hasWaterAccess();
+
     }
 }

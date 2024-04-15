@@ -603,7 +603,7 @@ public class GLogic implements Serializable {
     }
 
     public boolean sendAllianceRequest(int c) {
-        return player.sendAllianceRequest(c);
+        return player.sendAllianceRequest(world.getCountries(),c);
     }
 
     public Currencies getCurrencies() {
@@ -647,7 +647,7 @@ public class GLogic implements Serializable {
     public void loadAllUnitData() {
         //noinspection unchecked
         unitTypes = (List<MilUnitData>[]) new ArrayList[MilUnitData.getMaxTypes()];
-        MilDiv.loadAllUnitData(unitTypes);
+        Military.loadAllUnitData(unitTypes);
     }
 
     public void correlateAllUnitData() {
@@ -690,9 +690,8 @@ public class GLogic implements Serializable {
             world.recruitBuildMilUnit(u, provId);
             recruitingBuildUnits.put(provId, new LinkedList<>());
         }
-
     }
-    public void makeMilUnit(int provId){
+    public void contMilUnit(int provId){
         if(recruitingBuildUnits.containsKey(provId)){
             List<MilUnit> l = recruitingBuildUnits.get(provId);
             if(l.isEmpty()){

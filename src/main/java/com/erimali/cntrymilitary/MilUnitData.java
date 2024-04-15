@@ -3,6 +3,7 @@ package com.erimali.cntrymilitary;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,10 +15,9 @@ public class MilUnitData implements Comparable<MilUnitData> {
     private static final int MAX_SUBTYPES = 4096;
 
     protected final int type;
-
+    protected int subtype;
     protected String name;
     protected String desc;
-    protected int subtype;
     protected int speed;
     //protected int range; //in a matrix [][] artillery at the back can shoot at the front
 
@@ -45,6 +45,20 @@ public class MilUnitData implements Comparable<MilUnitData> {
             }
             minValues();
         }
+    }
+
+    public MilUnitData(int type, int subtype, String name, String desc, int speed, int[] atk, int[] def, int hp, int maxSize, int minMilTech, boolean[] canCarry) {
+        this.type = type;
+        this.subtype = subtype;
+        this.name = name;
+        this.desc = desc;
+        this.speed = speed;
+        this.atk = atk;
+        this.def = def;
+        this.hp = hp;
+        this.maxSize = maxSize;
+        this.minMilTech = minMilTech;
+        this.canCarry = canCarry;
     }
 
     public static int parseIntOrDef(String in, int def) {
@@ -190,7 +204,15 @@ public class MilUnitData implements Comparable<MilUnitData> {
         sb.append("Name: ").append(name).append('\n');
         sb.append("Desc: ").append(desc).append('\n');
         sb.append("Speed: ").append(speed).append('\n');
-        sb.append("Size: ").append(maxSize);
+        sb.append("Size: ").append(maxSize).append('\n');
+        sb.append("Tech: ").append(minMilTech).append('\n');
+        sb.append("HP: ").append(hp).append('\n');
+        sb.append("ATK: ").append(Arrays.toString(atk)).append('\n');
+        sb.append("DEF: ").append(Arrays.toString(def)).append('\n');
         return sb.toString();
+    }
+
+    public String getDesc() {
+        return desc;
     }
 }

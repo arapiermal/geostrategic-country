@@ -58,7 +58,7 @@ public class GEvent extends BaseEvent implements Comparable<GEvent> {
     }
 
     public void run(int i) {
-        CommandLine.execute(getCommands()[i], true);
+        CommandLine.execute(getCommand(i), true);
     }
 
     public String getRequirements() {

@@ -50,4 +50,18 @@ public class SVGProvince extends SVGPath {
         return provY;
     }
 
+
+    //ellipse like
+    public double getAvgRadius() {
+        return (getBoundsInLocal().getWidth() + getBoundsInLocal().getHeight()) / 4;
+    }
+
+    //Not accurate
+    public double calcAvgArea(double mapW, double mapH) {
+        double radiusX = getBoundsInLocal().getWidth() / 2;
+        double radiusY = getBoundsInLocal().getHeight() / 2;
+        double area = Math.PI * radiusX * radiusY;
+        return area * (mapW * mapH) / (getBoundsInLocal().getWidth() * getBoundsInLocal().getHeight());
+    }
 }
+

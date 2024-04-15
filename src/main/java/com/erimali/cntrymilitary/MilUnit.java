@@ -13,13 +13,11 @@ public abstract class MilUnit implements Serializable {
     protected final int id;
     //////////////////////////////////////////////////////////////////////
     protected float morale;
-    //protected int maxHealth=hp*maxSize;
-    //protected double totalHealth;
-    //by this logic there's a direct interdependency between hp and size
-    //
     protected int size;
     protected int xp;
     protected int lvl;
+    protected double bonusAtk;
+    protected double bonusDef;
 
     public MilUnit(MilUnitData data, int ownerId) {
         this.data = data;
@@ -120,10 +118,35 @@ public abstract class MilUnit implements Serializable {
     }
     @Override
     public String toString(){
-        return data.name;
+        return size + "x " + data.name;
     }
 
     public int getType(){
         return data.type;
+    }
+
+    public void setBonuses(double bonusAtk, double bonusDef){
+        this.bonusAtk = bonusAtk;
+        this.bonusDef = bonusDef;
+    }
+    public void resetBonuses(){
+        this.bonusAtk = 0;
+        this.bonusDef = 0;
+    }
+
+    public void maximizeSize() {
+        this.size = data.maxSize;
+    }
+    public void setSize(int val){
+        if(val < 0)
+            size = 0;
+        else if(val > data.maxSize)
+            size = data.maxSize;
+        else
+            size = val;
+    }
+
+    public MilUnitData getData() {
+        return data;
     }
 }

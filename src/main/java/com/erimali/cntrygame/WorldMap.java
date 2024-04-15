@@ -471,4 +471,14 @@ public class WorldMap {
     }
 
 
+    public void printFileAllProvData(){
+
+    }
+
+    public double getWidth() {
+        return mapWidth;
+    }
+    public double getHeight() {
+        return mapHeight;
+    }
 }

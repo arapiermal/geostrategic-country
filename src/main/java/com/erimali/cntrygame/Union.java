@@ -1,5 +1,7 @@
 package com.erimali.cntrygame;
 
+import com.erimali.cntrymilitary.Military;
+
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
