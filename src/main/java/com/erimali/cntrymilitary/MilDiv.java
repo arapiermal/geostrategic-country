@@ -144,26 +144,54 @@ public class MilDiv implements Serializable {
         int n = Math.max(units.size(), o.units.size());
         int i = 0;
         int a1 = 0, a2 = 0;
+        int score = 0;
         int res = 0;
-        while (i < n && res == 0) {
-            res = units.get(a1).attack(o.units.get(a2));
-            if (res == -2) {
-                units.remove(a1);
-                //(?)
-                if (units.isEmpty())
-                    return res;
-            } else if (res == 2) {
-                o.units.remove(a2);
-                if (o.units.isEmpty())
-                    return res;
+        int retreat1 = 0;
+        int retreat2 = 0;
+        while (i < n) {
+            MilUnit u1 = units.get(a1);
+            MilUnit u2 = units.get(a2);
+            if (u1.isRetreating() && u2.isRetreating()) {
+                a1++;
+                a2++;
+                a1 %= units.size();
+                a2 %= o.units.size();
+            } else if (u1.isRetreating()) {
+                a1++;
+                a1 %= units.size();
+            } else if (u2.isRetreating()) {
+                a2++;
+                a2 %= units.size();
+            } else {
+                res = u1.attack(u2);
+                if (res == -2) {
+                    score -= 2;
+                    units.remove(a1);
+                    if (units.isEmpty())
+                        return Integer.MIN_VALUE;
+                } else if (res == -1) {
+                    score--;
+                    retreat1++;
+                    u1.setRetreating(true);
+                } else if (res == 1) {
+                    score++;
+                    retreat2++;
+                    u2.setRetreating(true);
+                } else if (res == 2) {
+                    score += 2;
+                    o.units.remove(a2);
+                    if (o.units.isEmpty())
+                        return Integer.MAX_VALUE;
+                }
+                a1++;
+                a2++;
+                a1 %= units.size();
+                a2 %= o.units.size();
             }
-            a1++;
-            a2++;
-            a1 %= units.size();
-            a2 %= o.units.size();
+
             i++;
         }
-        return res;
+        return score;
     }
 
 
@@ -172,6 +200,14 @@ public class MilDiv implements Serializable {
         return this.name;
     }
 
+    public String toStringUnits() {
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        for (MilUnit u : units) {
+            sb.append(i++).append(')').append(u.toString()).append('\n');
+        }
+        return sb.toString();
+    }
 
     public boolean hasLeader() {
         return leader != null;
@@ -201,4 +237,10 @@ public class MilDiv implements Serializable {
         }
     }
 
+    public int getTotalSize() {
+        int s = 0;
+        for (MilUnit u : units)
+            s += u.size;
+        return s;
+    }
 }

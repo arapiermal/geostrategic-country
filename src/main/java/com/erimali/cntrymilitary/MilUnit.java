@@ -19,6 +19,7 @@ public abstract class MilUnit implements Serializable {
     protected double bonusAtk;
     protected double bonusDef;
 
+    private boolean retreating;
     public MilUnit(MilUnitData data, int ownerId) {
         this.data = data;
         this.ownerId = ownerId;
@@ -72,9 +73,7 @@ public abstract class MilUnit implements Serializable {
     public static double dmgCalc(MilUnit a, MilUnit o) {
         double ATK = a.size * ((double) (a.data.atk[o.data.type] / o.data.def[a.data.type]))
                 * Math.sqrt((double) (a.lvl * (a.data.minMilTech + 1)) / (o.lvl * (o.data.minMilTech + 1)) + (a.data.speed - o.data.speed));
-        //* Math.sqrt(1 + a.morale / o.morale);
         ATK += ATK * Math.random() / 2;
-        TESTING.print(a.id + ") ATK = " + ATK);
 
         return ATK;
     }
@@ -118,7 +117,7 @@ public abstract class MilUnit implements Serializable {
     }
     @Override
     public String toString(){
-        return size + "x " + data.name;
+        return size + "x " + data.name + (lvl > 1 ? (" Lvl " + lvl) : "");
     }
 
     public int getType(){
@@ -149,4 +148,16 @@ public abstract class MilUnit implements Serializable {
     public MilUnitData getData() {
         return data;
     }
+
+    public boolean isRetreating() {
+        return retreating;
+    }
+
+    public void setRetreating(boolean retreating) {
+        if(!retreating){
+            this.morale = 100;
+        }
+        this.retreating = retreating;
+    }
+
 }

@@ -1,5 +1,7 @@
 package com.erimali.cntrymilitary;
 
+import com.erimali.cntrygame.TESTING;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.Serializable;
@@ -31,11 +33,14 @@ public class MilUnitData implements Comparable<MilUnitData> {
     protected int minMilTech;
 
     private boolean[] canCarry; //problematic if small vehicle carry big one
-    public MilUnitData(){
+
+    public MilUnitData() {
         this.type = -1;
     }
+
     public MilUnitData(String loc) throws Exception {
         this.type = (byte) (loc.charAt(loc.length() - 1) - '0');
+        initEmptyAtkDef();
         if (type >= MAX_TYPES)
             throw new IllegalArgumentException("TYPE CAN BE FROM 0 UP TO " + (MAX_TYPES - 1));
         try (BufferedReader br = new BufferedReader(new FileReader(loc))) {
@@ -46,7 +51,14 @@ public class MilUnitData implements Comparable<MilUnitData> {
             minValues();
         }
     }
-
+    public void initEmptyAtkDef(){
+        if(atk == null)
+            atk = new int[MAX_TYPES];
+        Arrays.fill(atk, 1);
+        if(def == null)
+            def = new int[MAX_TYPES];
+        Arrays.fill(def, 1);
+    }
     public MilUnitData(int type, int subtype, String name, String desc, int speed, int[] atk, int[] def, int hp, int maxSize, int minMilTech, boolean[] canCarry) {
         this.type = type;
         this.subtype = subtype;
@@ -96,16 +108,29 @@ public class MilUnitData implements Comparable<MilUnitData> {
                 this.speed = parseIntOrDef(in[1], 1); //speed based on environment?!?
                 break;
             case "atk":
-                this.atk = new int[in.length - 1];
-                for (int i = 1; i < in.length; i++) {
-                    this.atk[i - 1] = Math.max(1, parseIntOrDef(in[i], 1));
+                int personnelAtk = Math.max(1, parseIntOrDef(in[1], 1));
+                for (int i = 0; i < atk.length; i += 2) {
+                    atk[i] = personnelAtk;
                 }
+                int j = 1;
+                for (int i = 2; i < in.length; i++) {
+                    atk[j] = Math.max(1, parseIntOrDef(in[i], 1));
+                    j += 2;
+                }
+                TESTING.print(Arrays.toString(atk));
                 break;
             case "def":
-                this.def = new int[in.length - 1];
-                for (int i = 1; i < in.length; i++) {
-                    this.def[i - 1] = Math.max(1, parseIntOrDef(in[i], 1));
+                int personnelDef = Math.max(1, parseIntOrDef(in[1], 1));
+                for (int i = 0; i < def.length; i += 2) {
+                    def[i] = personnelDef;
                 }
+                int k = 1;
+                for (int i = 2; i < in.length; i++) {
+                    def[k] = Math.max(1, parseIntOrDef(in[i], 1));
+                    k += 2;
+                }
+                TESTING.print(Arrays.toString(def));
+
                 break;
             case "hp":
                 this.hp = parseIntOrDef(in[1], 1);

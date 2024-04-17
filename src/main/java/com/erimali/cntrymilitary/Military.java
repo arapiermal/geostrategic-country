@@ -141,6 +141,8 @@ public class Military implements Serializable {
     public static MilUnit makeUnit(int ownerId, int type, int index) {
         if (type < 0 || type >= unitTypes.length || index < 0 || index > unitTypes[type].size())
             return null;
+        if(unitTypes[type].isEmpty())
+            return null;
         MilUnitData data = unitTypes[type].get(index);
         MilUnit unit = (type % 2 == 0) ? new MilSoldiers(data, ownerId) : new MilVehicles(data, ownerId);
         return unit;
@@ -161,15 +163,17 @@ public class Military implements Serializable {
         }
         TESTING.print(res > 0 ? "WIN" : "LOST");
     }
-
-    public static String unitDataTypesToString(List<MilUnitData>[] a) {
+    public String unitDataTypesToString(List<MilUnitData>[] a) {
+        return unitDataTypesToString(milTechLevel, a);
+    }
+    public static String unitDataTypesToString(short[] milTechLevel, List<MilUnitData>[] a) {
         StringBuilder sb = new StringBuilder();
         int i = 0;
         for (List<MilUnitData> l : unitTypes) {
             sb.append("Type ").append(i).append(':').append(MilUnitData.getUnitTypeName(i++)).append('\n');
-            int j = 0;
             for (MilUnitData d : l) {
-                sb.append(j++).append(')').append(d).append('\n');
+                if(milTechLevel[d.type] >= d.minMilTech)
+                    sb.append(d.subtype).append(')').append(d).append('\n');
             }
         }
         return sb.toString();
@@ -186,5 +190,20 @@ public class Military implements Serializable {
         }
 
         return sb.toString();
+    }
+    public String toStringDivs(){
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        for(MilDiv d : divisions){
+            sb.append(i++).append(')').append(d.toString()).append('\n');
+        }
+        return sb.toString();
+    }
+    public int attack(){
+        return 0;
+    }
+
+    public MilDiv getDivision(int i) {
+        return divisions.get(i);
     }
 }

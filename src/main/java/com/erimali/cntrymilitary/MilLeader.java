@@ -14,13 +14,13 @@ public class MilLeader extends Person implements Serializable {
     public MilLeader(String input) {
         super(input.substring(input.indexOf("->") + 2));//!!!!!!!!!!!!!
         int index = input.indexOf("->");
-        this.type = MilLeaderType.valueOf(input.substring(0, index).trim());
+        this.type = MilLeaderType.valueOf(input.substring(0, index).trim().toUpperCase());
         this.strategy = 1 + (int) (Math.random() * 10);
         this.strategy = 1 + (int) (Math.random() * 10);
     }
 
     public MilLeader() {
-        super("Filan", "Fisteku " + CURR_ID++);
+        super("Filan" + CURR_ID, "Fisteku " + CURR_ID++);
         this.type = MilLeaderType.values()[(int) (Math.random() * MilLeaderType.values().length)];
         this.strategy = 1 + (int) (Math.random() * 10);
         this.strategy = 1 + (int) (Math.random() * 10);
