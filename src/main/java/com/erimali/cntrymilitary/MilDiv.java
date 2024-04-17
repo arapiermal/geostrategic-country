@@ -199,7 +199,7 @@ public class MilDiv implements Serializable {
 
     @Override
     public String toString() {
-        return this.name;
+        return name + ((leader != null) ? leader.toString() : "");
     }
 
     public String toStringUnits() {

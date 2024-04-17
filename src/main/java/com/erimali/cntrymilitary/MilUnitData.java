@@ -229,11 +229,24 @@ public class MilUnitData implements Comparable<MilUnitData> {
         sb.append("Size: ").append(maxSize).append('\n');
         sb.append("Tech: ").append(minMilTech).append('\n');
         sb.append("HP: ").append(hp).append('\n');
-        sb.append("ATK: ").append(Arrays.toString(atk)).append('\n');
-        sb.append("DEF: ").append(Arrays.toString(def)).append('\n');
+        sb.append("ATK: ").append(toStringArr(atk)).append('\n');
+        sb.append("DEF: ").append(toStringArr(def)).append('\n');
         return sb.toString();
     }
-
+    public static String toStringArr(int[] a) {
+        if (a == null)
+            return "null";
+        int iMax = a.length - 1;
+        if (iMax == -1)
+            return "";
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; ; i++) {
+            b.append(a[i]);
+            if (i == iMax)
+                return b.toString();
+            b.append(':');
+        }
+    }
     public String getDesc() {
         return desc;
     }

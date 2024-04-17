@@ -124,6 +124,12 @@ public class MilTest {
                         MilDiv remDiv = selectMilDiv(scan, player);
                         player.removeMilDiv(remDiv);
                         break;
+                    case "8":
+                        MilUnitData uInfo = selectMilUnitData(scan);
+                        if(uInfo != null)
+                            println(uInfo.toStringLong());
+                        else
+                            println("No such unit data type");
                     case "9":
                         running = false;
                         break;
@@ -137,6 +143,15 @@ public class MilTest {
                 e.printStackTrace();
             }
         }
+    }
+
+    private static MilUnitData selectMilUnitData(Scanner scan) {
+        print("type: ");
+        int type = getIndex(scan);
+        print("subtype/index: ");
+        int index = getIndex(scan);
+        List<MilUnitData> temp = Military.getUnitTypesList(type);
+        return temp != null ? temp.get(index) : null;
     }
 
     private static void unitVsUnit(MilUnit u, MilUnit o) {
@@ -215,7 +230,7 @@ public class MilTest {
         println("5) Erase opponent military");
         println("6) Remove player unit");
         println("7) Remove player division");
-
+        println("8) Get unit data extended info");
         println("9) Go back");
     }
     public static void stopAllRetreat(){

@@ -37,7 +37,7 @@ public class MilLeader extends Person implements Serializable {
 
     @Override
     public String toString() {
-        return type + " - " + super.toString();
+        return type + " - " + super.toString() + " " + strategy +"/" +logistics;
     }
 
     public double atkBonus() {
