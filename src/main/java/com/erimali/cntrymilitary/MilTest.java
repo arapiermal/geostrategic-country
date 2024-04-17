@@ -106,11 +106,23 @@ public class MilTest {
                             res = divVsDiv(d1, d2);
                         } while (res == 0 && getYesNo(scan, "Continue battle?"));
                         break;
-                    case "6":
+                    case "3":
                         stopAllRetreat();
                         break;
-                    case "7":
+                    case "4":
                         maximizeAllUnits();
+                        break;
+                    case "5":
+                        opponent.getDivisions().clear();
+                        break;
+                    case "6":
+                        MilDiv selDiv = selectMilDiv(scan, player);
+                        MilUnit remUnit = selectMilUnit(scan, player,selDiv);
+                        selDiv.removeMilUnit(remUnit);
+                        break;
+                    case "7":
+                        MilDiv remDiv = selectMilDiv(scan, player);
+                        player.removeMilDiv(remDiv);
                         break;
                     case "9":
                         running = false;
@@ -130,9 +142,9 @@ public class MilTest {
     private static void unitVsUnit(MilUnit u, MilUnit o) {
         int res;
         while ((res = u.attack(o)) == 0) {
-            println("Us:\t" + u.size + " , morale: " + u.morale, "Them:\t" + o.size + " , morale: " + o.morale);
+            println("Us: \t" + u.size + " , morale: " + u.morale, "Them:\t" + o.size + " , morale: " + o.morale);
         }
-        println("Us:\t" + u.size + " , morale: " + u.morale, "Them:\t" + o.size + " , morale: " + o.morale);
+        println("Us: \t" + u.size + " , morale: " + u.morale, "Them:\t" + o.size + " , morale: " + o.morale);
         println(res > 0 ? "WIN" : "LOST");
     }
 
@@ -198,8 +210,12 @@ public class MilTest {
     public static void printBattleOptions() {
         println("1) MilUnit vs MilUnit");
         println("2) MilDiv vs MilDiv");
-        println("6) Stop all retreat");
-        println("7) Maximize all units (size)");
+        println("3) Stop all retreat");
+        println("4) Maximize all units (size)");
+        println("5) Erase opponent military");
+        println("6) Remove player unit");
+        println("7) Remove player division");
+
         println("9) Go back");
     }
     public static void stopAllRetreat(){
@@ -216,6 +232,12 @@ public class MilTest {
     }
     public static MilUnit selectMilUnit(Scanner scan, Military m) {
         MilDiv d = selectMilDiv(scan, m);
+        println(d.toStringUnits());
+        print("Unit Index: ");
+        return d.getUnit(getIndex(scan));
+    }
+
+    public static MilUnit selectMilUnit(Scanner scan, Military m, MilDiv d) {
         println(d.toStringUnits());
         print("Unit Index: ");
         return d.getUnit(getIndex(scan));

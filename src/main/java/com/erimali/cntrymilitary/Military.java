@@ -206,4 +206,8 @@ public class Military implements Serializable {
     public MilDiv getDivision(int i) {
         return divisions.get(i);
     }
+
+    public boolean removeMilDiv(MilDiv remDiv) {
+        return divisions.remove(remDiv);
+    }
 }
