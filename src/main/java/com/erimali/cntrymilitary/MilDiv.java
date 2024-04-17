@@ -140,17 +140,20 @@ public class MilDiv implements Serializable {
     }
 
     public int attack(MilDiv o) {
+        if(this.units.isEmpty() || o.units.isEmpty())
+            throw new IllegalArgumentException("Empty division!");
         //take care when units is empty (?)
         int n = Math.max(units.size(), o.units.size());
         int i = 0;
-        int a1 = 0, a2 = 0;
+        int a1 = 0;
+        int a2 = 0;
         int score = 0;
         int res = 0;
         int retreat1 = 0;
         int retreat2 = 0;
         while (i < n) {
             MilUnit u1 = units.get(a1);
-            MilUnit u2 = units.get(a2);
+            MilUnit u2 = o.units.get(a2);
             if (u1.isRetreating() && u2.isRetreating()) {
                 a1++;
                 a2++;
@@ -161,7 +164,7 @@ public class MilDiv implements Serializable {
                 a1 %= units.size();
             } else if (u2.isRetreating()) {
                 a2++;
-                a2 %= units.size();
+                a2 %= o.units.size();
             } else {
                 res = u1.attack(u2);
                 if (res == -2) {
@@ -188,7 +191,6 @@ public class MilDiv implements Serializable {
                 a1 %= units.size();
                 a2 %= o.units.size();
             }
-
             i++;
         }
         return score;
@@ -242,5 +244,15 @@ public class MilDiv implements Serializable {
         for (MilUnit u : units)
             s += u.size;
         return s;
+    }
+
+    public void stopAllRetreating(){
+        for(MilUnit u : units)
+            u.setRetreating(false);
+    }
+
+    public void maximizeSizeAllUnits(){
+        for(MilUnit u : units)
+            u.maximizeSize();
     }
 }

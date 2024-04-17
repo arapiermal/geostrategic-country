@@ -32,9 +32,9 @@ public class MilTest {
                         if (u == null)
                             throw new IllegalArgumentException("Either you don't have access because of tech or wrong type:index");
                         recruitBuild(scan, u);
-                        if(tempDivs.size() > 1){
+                        if (tempDivs.size() > 1) {
                             println("Which division would you like to add this unit in?");
-                            int ind = Math.max(0, Math.min(tempDivs.size() -1, scan.nextInt()));
+                            int ind = Math.max(0, Math.min(tempDivs.size() - 1, getIndex(scan)));
                             tempDivs.get(ind).addUnit(u);
                         } else {
                             defUnits.add(u);
@@ -77,7 +77,7 @@ public class MilTest {
                 }
             } catch (InputMismatchException inputMismatchException) {
                 println("Wrong input");
-            } catch(IllegalArgumentException illegalArgumentException){
+            } catch (IllegalArgumentException illegalArgumentException) {
                 println(illegalArgumentException);
             } catch (Exception e) {
                 println("ERROR: " + e.getMessage());
@@ -88,24 +88,35 @@ public class MilTest {
 
     private static void battleMode(Scanner scan) {
         boolean running = true;
+        printBattleOptions();
         while (running) {
-            printBattleOptions();
             print("Input: ");
             try {
-                switch (scan.nextInt()) {
-                    case 1:
+                switch (scan.nextLine()) {
+                    case "1":
                         MilUnit u1 = selectMilUnit(scan, player);
                         MilUnit u2 = selectMilUnit(scan, opponent);
-                        unitVsUnit(u1,u2);
+                        unitVsUnit(u1, u2);
                         break;
-                    case 2:
+                    case "2":
                         MilDiv d1 = selectMilDiv(scan, player);
                         MilDiv d2 = selectMilDiv(scan, opponent);
-                        divVsDiv(d1,d2);
+                        int res;
+                        do {
+                            res = divVsDiv(d1, d2);
+                        } while (res == 0 && getYesNo(scan, "Continue battle?"));
                         break;
-                    case 9:
+                    case "6":
+                        stopAllRetreat();
+                        break;
+                    case "7":
+                        maximizeAllUnits();
+                        break;
+                    case "9":
                         running = false;
                         break;
+                    default:
+                        printBattleOptions();
                 }
             } catch (InputMismatchException inputMismatchException) {
                 println("Wrong input");
@@ -119,23 +130,26 @@ public class MilTest {
     private static void unitVsUnit(MilUnit u, MilUnit o) {
         int res;
         while ((res = u.attack(o)) == 0) {
-            println(u.size + " " + u.morale, o.size + " " + o.morale);
+            println("Us:\t" + u.size + " , morale: " + u.morale, "Them:\t" + o.size + " , morale: " + o.morale);
         }
+        println("Us:\t" + u.size + " , morale: " + u.morale, "Them:\t" + o.size + " , morale: " + o.morale);
         println(res > 0 ? "WIN" : "LOST");
     }
 
-    private static void divVsDiv(MilDiv d, MilDiv o) {
+    private static int divVsDiv(MilDiv d, MilDiv o) {
         int res = d.attack(o);
-        println(d.getTotalSize(), o.getTotalSize());
-        println(res > 0 ? "WIN" : "LOST");
+        println(d.getTotalSize() + " our units left", o.getTotalSize() + " their units left");
+        println("Score: " + res);
+        println(res == 0 ? "DRAW" : res > 0 ? "WIN" : "LOST");
+        return res;
     }
 
     private static void trainTroops(Scanner scan) {
         println(player.toStringDivs());
         println("Which division to train?");
-        int i = scan.nextInt();
+        int i = getIndex(scan);
         println("How much to train?");
-        int amount = scan.nextInt();
+        int amount = getIndex(scan);
         player.getDivisions().get(i).train(amount);
         println("Results");
         println(player.getDivisions().get(i).toStringUnits());
@@ -145,7 +159,7 @@ public class MilTest {
         boolean vehicle = u.getData().isVehicle();
         println("Max Size: " + u.getData().maxSize);
         print("How much to " + (vehicle ? "build" : "recruit") + ": ");
-        int val = Math.max(0, scan.nextInt());
+        int val = Math.max(0, getIndex(scan));
         if (u instanceof MilSoldiers) {
             ((MilSoldiers) u).recruit(val);
         } else if (u instanceof MilVehicles) {
@@ -175,7 +189,7 @@ public class MilTest {
 
     public static void improveTech(Scanner scan) {
         print("MilTech type: ");
-        int type = scan.nextInt();
+        int type = getIndex(scan);
         print("Progress amount (100 per level up): ");
         short amount = scan.nextShort();
         player.addMilTechProgress(type, amount);
@@ -184,25 +198,48 @@ public class MilTest {
     public static void printBattleOptions() {
         println("1) MilUnit vs MilUnit");
         println("2) MilDiv vs MilDiv");
+        println("6) Stop all retreat");
+        println("7) Maximize all units (size)");
         println("9) Go back");
     }
-
+    public static void stopAllRetreat(){
+        for(MilDiv d : player.getDivisions())
+            d.stopAllRetreating();
+        for(MilDiv d : opponent.getDivisions())
+            d.stopAllRetreating();
+    }
+    public static void maximizeAllUnits(){
+        for(MilDiv d : player.getDivisions())
+            d.maximizeSizeAllUnits();
+        for(MilDiv d : opponent.getDivisions())
+            d.maximizeSizeAllUnits();
+    }
     public static MilUnit selectMilUnit(Scanner scan, Military m) {
         MilDiv d = selectMilDiv(scan, m);
-        println(d.toStringUnits(), "Index: ");
-        return d.getUnit(scan.nextInt());
+        println(d.toStringUnits());
+        print("Unit Index: ");
+        return d.getUnit(getIndex(scan));
     }
 
     public static MilDiv selectMilDiv(Scanner scan, Military m) {
-        println(m.toStringDivs(), "Index: ");
-        return m.getDivision(scan.nextInt());
+        println(m.toStringDivs());
+        print("Div Index: ");
+        return m.getDivision(getIndex(scan));
     }
-
+    public static int getIndex(Scanner scan){
+        String s = scan.nextLine().trim();
+        try{
+            int val = Integer.parseInt(s);
+            return val;
+        } catch(NumberFormatException e){
+            return 0;
+        }
+    }
     public static MilUnit makeMilUnit(Scanner scan) {
-        println("type:");
-        int type = scan.nextInt();
-        println("subtype/index:");
-        int index = scan.nextInt();
+        print("type: ");
+        int type = getIndex(scan);
+        print("subtype/index: ");
+        int index = getIndex(scan);
         if (player.getMilTechLevel(type) >= Military.getUnitTypesList(type).get(index).minMilTech)
             return Military.makeUnit(0, type, index);
         else
@@ -223,10 +260,10 @@ public class MilTest {
     }
 
     public static void genOpponentMil(Scanner scan) {
-        println("How many divisions: ");
-        int nD = scan.nextInt();
-        println("How many units per division: ");
-        int nU = scan.nextInt();
+        print("How many divisions: ");
+        int nD = getIndex(scan);
+        print("How many units per division: ");
+        int nU = getIndex(scan);
         for (int i = 0; i < nD; i++) {
             MilDiv d;
             if (Math.random() < 0.5)
@@ -242,7 +279,10 @@ public class MilTest {
         }
     }
 
-    public static boolean getYesNo(Scanner scan) {
+    public static boolean getYesNo(Scanner scan, String... arg) {
+        for(String s : arg){
+            println(s);
+        }
         print("(y)es/(n)o: ");
         String s = scan.nextLine();
         if (s.isBlank())

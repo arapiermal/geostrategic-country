@@ -117,7 +117,6 @@ public class MilUnitData implements Comparable<MilUnitData> {
                     atk[j] = Math.max(1, parseIntOrDef(in[i], 1));
                     j += 2;
                 }
-                TESTING.print(Arrays.toString(atk));
                 break;
             case "def":
                 int personnelDef = Math.max(1, parseIntOrDef(in[1], 1));
@@ -129,8 +128,6 @@ public class MilUnitData implements Comparable<MilUnitData> {
                     def[k] = Math.max(1, parseIntOrDef(in[i], 1));
                     k += 2;
                 }
-                TESTING.print(Arrays.toString(def));
-
                 break;
             case "hp":
                 this.hp = parseIntOrDef(in[1], 1);
