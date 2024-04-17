@@ -56,10 +56,10 @@ public class MilTest {
                         improveTech(scan);
                         break;
                     case "5":
-                        genOpponentMil(scan);
+                        battleMode(scan);
                         break;
                     case "6":
-                        battleMode(scan);
+                        genOpponentMil(scan);
                         break;
                     case "7":
                         println("Player Military");
@@ -179,8 +179,8 @@ public class MilTest {
         println("2) Make MilDiv");
         println("3) Train troops");
         println("4) Improve tech");
-        println("5) Generate Opponent Military");
-        println("6) Battle");
+        println("5) Battle");
+        println("6) Generate Opponent Military");
         println("7) View Player Military");
         println("8) View Opponent Military");
         println("9) Exit");

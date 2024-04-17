@@ -1,8 +1,5 @@
 package com.erimali.cntrymilitary;
 
-import com.erimali.cntrygame.Person;
-
-import java.io.Serial;
 import java.io.Serializable;
 
 public class MilLeader extends Person implements Serializable {

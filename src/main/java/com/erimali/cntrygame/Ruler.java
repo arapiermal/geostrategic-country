@@ -1,4 +1,7 @@
 package com.erimali.cntrygame;
+
+import com.erimali.cntrymilitary.Person;
+
 enum RulerType {
 
 }

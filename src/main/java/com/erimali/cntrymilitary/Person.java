@@ -1,4 +1,4 @@
-package com.erimali.cntrygame;
+package com.erimali.cntrymilitary;
 
 import java.io.Serializable;
 

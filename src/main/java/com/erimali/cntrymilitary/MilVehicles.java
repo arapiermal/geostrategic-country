@@ -17,6 +17,15 @@ public class MilVehicles extends MilUnit {
             carryingVehicles = new ArrayList<>();
         }
     }
+    public MilVehicles(MilUnitData data, int ownerId, MilSoldiers personnel) {
+        super(data, ownerId);
+        this.personnel = personnel;
+        if (data.canCarryPersonnel()) {
+            carryingPersonnel = new LinkedList<>();
+        } else if (data.canCarryVehicles()) {
+            carryingVehicles = new ArrayList<>();
+        }
+    }
 
     //Using factories of provinces (?) RESOURCES
     public int build(int amount) {
@@ -36,6 +45,15 @@ public class MilVehicles extends MilUnit {
             this.xp -= lvlCap;
         }
     }
-
+    public boolean carry(MilUnit u){
+        if(data.canCarry(u.getType())){
+            if(u instanceof MilSoldiers)
+                carryingPersonnel.add((MilSoldiers) u);
+            else if(u instanceof MilVehicles)
+                carryingVehicles.add((MilVehicles) u);
+            return true;
+        }
+        return false;
+    }
 
 }
