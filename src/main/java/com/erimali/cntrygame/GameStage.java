@@ -213,7 +213,7 @@ public class GameStage extends Stage {
 
         leftScrollPane.setContent(leftGeneral);
         gameLayout.setLeft(leftScrollPane);
-//////////////////////////////////////////////////////////////
+
         //Bottom
         //hoveringCountry = new Label("Hovering");
         //HBox hBottomLeft = new HBox(hoveringCountry);
@@ -238,7 +238,7 @@ public class GameStage extends Stage {
                 gsOptions.setText(null);
             }
         } catch(Exception e){
-
+            ErrorLog.logError(e);
         }
         gsComputer.setOnAction(e -> popupWebDesktop());
         gsOptions.setOnAction(e -> showGameStageOptions());

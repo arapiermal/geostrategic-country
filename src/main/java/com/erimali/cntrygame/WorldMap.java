@@ -150,8 +150,8 @@ public class WorldMap {
             ScrollPane scrollPane = new ZoomableScrollPane(mapGroup);
             this.lines = new ArrayList<>();
             //int l = drawLine(3198, 3031);
-            //int[] l = drawLines(3031, 3030, 2993, 2994, 2991, 2992, 3198);
-            //makeMilSVG(0, 3198, 0);
+            int[] l = drawLines(3031, 3030, 2993, 2994, 2991, 2992, 3198);
+            makeMilSVG(0, 3198, 0);
             //scrollPane.removeLine(l);
             //scrollPane.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
             ContextMenu cm = new ContextMenu();

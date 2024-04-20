@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class Currencies implements Serializable {
-	private static final String DEFAULT_CURR_LOC = "src/main/resources/data/";
+	private static final String DEFAULT_CURR_LOC = GLogic.RESOURCESPATH + "data/";
 	private Map<String, Double> unitsPerXAU;
 	private String mainCurrency = "USD";
 	private String playerCurrency;
@@ -20,7 +20,6 @@ public class Currencies implements Serializable {
 
 	public Currencies(String subpath) {
 		unitsPerXAU = new HashMap<>();
-
 		readCsvFile(DEFAULT_CURR_LOC + subpath);
 	}
 
@@ -79,7 +78,7 @@ public class Currencies implements Serializable {
 
 	// CSV
 	private void readCsvFile(String path) {
-		if (unitsPerXAU != null) {
+		if (unitsPerXAU != null && !unitsPerXAU.isEmpty()) {
 			unitsPerXAU.clear();
 		}
 		// Just in case
@@ -99,12 +98,10 @@ public class Currencies implements Serializable {
 					unitsPerXAU.put(currency, units);
 				}
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
+		} catch (IOException | NumberFormatException e) {
+			ErrorLog.logError(e);
 		}
-	}
+    }
 
 	public static String getCurrencySign(String s) {
         return switch (s) {

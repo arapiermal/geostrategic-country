@@ -7,6 +7,8 @@ public class MilLeader extends Person implements Serializable {
     private MilLeaderType type;
     private int strategy;
     private int logistics;
+    private double atkBonus;
+    private double defBonus;
 
     public MilLeader(String input) {
         super(input.substring(input.indexOf("->") + 2));//!!!!!!!!!!!!!
@@ -30,7 +32,12 @@ public class MilLeader extends Person implements Serializable {
     public int getRank() {
         return type.ordinal();
     }
-
+    public void incRank(){
+        int i = type.ordinal() + 1;
+        if(i < MilLeaderType.values().length)
+            type = MilLeaderType.values()[i];
+        setBonuses();
+    }
     public void setType(MilLeaderType type) {
         this.type = type;
     }
@@ -40,11 +47,21 @@ public class MilLeader extends Person implements Serializable {
         return type + " - " + super.toString() + " " + strategy +"/" +logistics;
     }
 
-    public double atkBonus() {
+    public double getAtkBonus(){
+        return atkBonus;
+    }
+    public double getDefBonus(){
+        return defBonus;
+    }
+    public void setBonuses(){
+        atkBonus = calcAtkBonus();
+        defBonus = calcDefBonus();
+    }
+    public double calcAtkBonus() {
         return type.ordinal() * strategy * 0.1;
     }
 
-    public double defBonus() {
+    public double calcDefBonus() {
         return type.ordinal() * logistics * 0.1;
     }
 

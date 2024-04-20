@@ -2,6 +2,7 @@ package com.erimali.cntrygame;
 
 import com.erimali.cntrymilitary.Military;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -10,10 +11,20 @@ enum UnionPolicies {
     FREE_TRADE(Union.ECONOMIC),
     COMMON_CURRENCY(Union.ECONOMIC),
     INFRASTRUCTURE_INVESTMENT(Union.ECONOMIC), //double unionFunds; (?)
-    SHARE_MIL_TECH(Union.MILITARY); //Every year set mil tech to country with the biggest/ or +1
-    int type;
+    MIL_PROTECTION(Union.MILITARY),
+    MIL_SHARE_TECH(Union.MILITARY); //Every year set mil tech to country with the biggest/ or +1
+    final int type;
     UnionPolicies(int type) {
         this.type = type;
+    }
+
+    public static EnumSet<UnionPolicies> getPoliciesType(int i){
+        EnumSet<UnionPolicies> set = EnumSet.noneOf(UnionPolicies.class);
+        for(UnionPolicies p : UnionPolicies.values()){
+            if(p.type == i)
+                set.add(p);
+        }
+        return set;
     }
 }
 

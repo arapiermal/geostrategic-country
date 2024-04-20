@@ -1,7 +1,5 @@
 package com.erimali.cntrymilitary;
 
-import com.erimali.cntrygame.TESTING;
-
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
@@ -118,11 +116,11 @@ public class MilTest {
                     case "6":
                         MilDiv selDiv = selectMilDiv(scan, player);
                         MilUnit remUnit = selectMilUnit(scan, player,selDiv);
-                        selDiv.removeMilUnit(remUnit);
+                        selDiv.removeUnit(remUnit);
                         break;
                     case "7":
                         MilDiv remDiv = selectMilDiv(scan, player);
-                        player.removeMilDiv(remDiv);
+                        player.removeDivision(remDiv);
                         break;
                     case "8":
                         MilUnitData uInfo = selectMilUnitData(scan);

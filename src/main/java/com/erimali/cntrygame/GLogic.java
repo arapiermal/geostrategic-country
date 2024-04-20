@@ -88,9 +88,7 @@ public class GLogic implements Serializable {
 
         interval = Duration.seconds(intervalInSeconds);
         keyframe = new KeyFrame(interval, event -> {
-            if (gs.paused) {
-
-            } else {
+            if (!gs.paused) {
                 dailyTick();
             }
         });
@@ -133,10 +131,6 @@ public class GLogic implements Serializable {
         if (timeline != null) {
             timeline.stop();
         }
-    }
-
-    public void changeTimer() {
-
     }
 
     ///////////////////////////////////////////////////////
@@ -207,7 +201,7 @@ public class GLogic implements Serializable {
     }
 
     public CountryArray getWorldCountries() {
-        return this.world.getCountries();
+        return world.getCountries();
     }
 
     public int getPlayerId() {
@@ -227,7 +221,7 @@ public class GLogic implements Serializable {
     }
 
     public void addGEvent(GEvent gEvent) {
-        this.gameEvents.add(gEvent);
+        gameEvents.add(gEvent);
     }
 
     public void selectPlayer(int cPlayer) {
@@ -691,6 +685,7 @@ public class GLogic implements Serializable {
             recruitingBuildUnits.put(provId, new LinkedList<>());
         }
     }
+
     public void contMilUnit(int provId){
         if(recruitingBuildUnits.containsKey(provId)){
             List<MilUnit> l = recruitingBuildUnits.get(provId);

@@ -22,6 +22,7 @@ public class GDateInGame extends GDate {
 		this.game = game;
 	}
 
+	@Override
 	public void nextDay() {
 		dayOfWeek = (dayOfWeek + 1) % 7;
 		if(dayOfWeek == 0){

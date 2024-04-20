@@ -10,9 +10,6 @@ import java.util.stream.Stream;
 public class Country implements Serializable {
     //private World world;
     private String name;
-    private String iso2;
-
-
     private int countryId;
     private long population;
     private double populationIncrease;
@@ -38,11 +35,12 @@ public class Country implements Serializable {
     private List<Union> uni;
     //private List<short[]> availableBuildings;
 
-    private EnumMap<Building, Short> availableBuildings;
+    private short[] availableBuildings;
     // SOME COUNTRIES CAN START AS SUBJECTS OF OTHERS;
 
 
     private boolean randGenerated;
+
     // Constructors
     public Country(String name, double area, long population, double populationIncrease, boolean landlocked, String capital,
                    String[] infoElectronic, String admDivisionType, List<AdmDiv> admDivisions, List<Short> languages,
@@ -69,6 +67,8 @@ public class Country implements Serializable {
 
         // FOR CONSISTENCY
         fixPopulation();
+
+        initAvailableBuildings();
     }
 
     public Country(String name, double area, long population, double populationIncrease, boolean landlocked, String capital,
@@ -103,6 +103,7 @@ public class Country implements Serializable {
         // FOR CONSISTENCY
         fixPopulation();
 
+        initAvailableBuildings();
     }
 
     public Country(String name) {
@@ -115,6 +116,9 @@ public class Country implements Serializable {
         gov.reduceOneYearFromPolicies();
     }
 
+    public void monthlyTick() {
+        //mil/tech progress
+    }
     // toString()...
     @Override
     public String toString() {
@@ -210,9 +214,10 @@ public class Country implements Serializable {
         this.admDivisions.addAll(op.admDivisions);
         addLanguages(op.getLanguages());
         // Get the economy
+
         annexAllAdmDivs(op);
         // Get the military equipment of the one who lost/got annexed
-        //this.uniteMilVehicles(op);
+        mil.seizeVehicles(op.mil);
         // Soldiers disbanded (EXCEPT when union)
         switch (cond.length) {
             case 3:
@@ -275,7 +280,6 @@ public class Country implements Serializable {
     public void setAdmDivType(String admDivisionType) {
         this.admDivisionType = admDivisionType;
     }
-
 
     public List<AdmDiv> getAdmDivs() {
         return admDivisions;
@@ -391,7 +395,7 @@ public class Country implements Serializable {
             }
         }
         CSubject cs = makeSubject(op, type);
-        subjects.put(CountryArray.getIndex(op.getIso2()), cs);
+        subjects.put(op.getCountryId(), cs);
     }
 
     public CSubject makeSubject(Country c, SubjectType type) {
@@ -409,7 +413,7 @@ public class Country implements Serializable {
         // CHECK FOR REBELLION
     }
 
-    public War declareIndependence(){
+    public War declareIndependence() {
         return subjectOf == null ? null : subjectOf.declareIndependence();
     }
 
@@ -638,40 +642,23 @@ public class Country implements Serializable {
     }
 
     public String getIso2() {
-        return iso2;
+        return CountryArray.getIndexISO2(countryId);
     }
 
     public void setIso2(String iso2) {
-        this.iso2 = iso2.toUpperCase();
         this.countryId = CountryArray.getIndex(iso2);
     }
 
     public void setIso2(int iso2) {
-        this.iso2 = CountryArray.getIndexISO2(iso2);
         this.countryId = iso2;
     }
+
     public int getCountryId() {
         return countryId;
     }
 
     public short getMainLanguage() {
         return languages.getFirst();
-    }
-
-    public short[] calcTotalBuildings() {
-        return calcTotalBuildings(admDivisions);
-    }
-    //on subjugate
-
-    public static short[] calcTotalBuildings(List<AdmDiv> admDivisions) {
-        short[] bArr = new short[Building.values().length];
-        Arrays.fill(bArr, (short) 0);
-        for (AdmDiv a : admDivisions) {
-            for (Building b : a.getBuildings()) {
-                bArr[b.ordinal()]++;
-            }
-        }
-        return bArr;
     }
 
     //world / countryarray for new country if its being formed
@@ -681,7 +668,7 @@ public class Country implements Serializable {
 
     }
 
-    public static List<AdmDiv> removeAndGetProvinces(List<AdmDiv> admDivisions, int... indAdmDiv){
+    public static List<AdmDiv> removeAndGetProvinces(List<AdmDiv> admDivisions, int... indAdmDiv) {
         Collections.sort(admDivisions);
         Arrays.sort(indAdmDiv);
         ListIterator<AdmDiv> iterator = admDivisions.listIterator();
@@ -730,7 +717,7 @@ public class Country implements Serializable {
         return l;
     }
 
-    public static Country formCountryFromProvinces(CountryArray cArray, int iso2, String name,  List<AdmDiv> admDivs) {
+    public static Country formCountryFromProvinces(CountryArray cArray, int iso2, String name, List<AdmDiv> admDivs) {
         double area = calcTotalArea(admDivs);
         long population = calcTotalPop(admDivs);
         List<Short> languages = calcTotalLanguages(admDivs);
@@ -776,9 +763,70 @@ public class Country implements Serializable {
     public void addAdmDiv(AdmDiv a) {
         admDivisions.add(a);
         population += a.getPopulation();
-        area+= a.getArea();
+        area += a.getArea();
         //if (landlocked && a.hasWaterAccess()){landlocked = false;}
         landlocked = landlocked && !a.hasWaterAccess();
 
+    }
+
+    public void initAvailableBuildings() {
+        this.availableBuildings = new short[Building.values().length];
+        Arrays.fill(availableBuildings, (short) 0);
+    }
+
+    public void addAvailableBuilding(Building b) {
+        availableBuildings[b.ordinal()]++;
+        if(subjectOf != null){
+            subjectOf.getMain().addAvailableBuilding(b);
+        }
+    }
+
+    public void addAvailableBuildings(Building b, short amount) {
+        if (amount > 0) {
+            availableBuildings[b.ordinal()] += amount;
+            if(subjectOf != null){
+                subjectOf.getMain().addAvailableBuildings(b,amount);
+            }
+        }
+    }
+
+    public void removeAvailableBuilding(Building b) {
+        availableBuildings[b.ordinal()]--;
+        if(subjectOf != null){
+            subjectOf.getMain().removeAvailableBuilding(b);
+        }
+    }
+
+    public void removeAvailableBuildings(Building b, short amount) {
+        if (amount > 0) {
+            availableBuildings[b.ordinal()] -= amount;
+            if(subjectOf != null){
+                subjectOf.getMain().removeAvailableBuildings(b,amount);
+            }
+        }
+    }
+
+    public boolean hasBuildingType(Building b) {
+        return availableBuildings[b.ordinal()] > 0;
+    }
+
+    public short[] calcTotalBuildings() {
+        return calcTotalBuildings(admDivisions);
+    }
+    //on subjugate
+
+    public static short[] calcTotalBuildings(List<AdmDiv> admDivisions) {
+        short[] bArr = new short[Building.values().length];
+        Arrays.fill(bArr, (short) 0);
+        for (AdmDiv a : admDivisions) {
+            for (Building b : a.getBuildings()) {
+                bArr[b.ordinal()]++;
+            }
+        }
+        return bArr;
+    }
+
+    public short[] getAvailableBuildings() {
+        return availableBuildings;
     }
 }

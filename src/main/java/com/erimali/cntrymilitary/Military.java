@@ -22,6 +22,7 @@ public class Military implements Serializable {
 
 
     public Military() {
+        this.manpower = 0;
         divisions = new ArrayList<>();
         atWarWith = new HashSet<>();
         milTechProgress = new short[MilUnitData.getMaxTypes()];
@@ -51,8 +52,6 @@ public class Military implements Serializable {
     public void addDivision(MilDiv d) {
         divisions.add(d);
     }
-
-    //public void seizeVehicles(MilDiv d){}
 
     public List<MilDiv> getDivisions() {
         return divisions;
@@ -207,7 +206,33 @@ public class Military implements Serializable {
         return divisions.get(i);
     }
 
-    public boolean removeMilDiv(MilDiv remDiv) {
+    public boolean removeDivision(MilDiv remDiv) {
         return divisions.remove(remDiv);
+    }
+
+    public void seizeVehicles(Military o) {
+        List<MilUnit> vehicles = new ArrayList<>();
+        for(MilDiv d : o.divisions){
+            for(MilUnit u : d.getUnits()){
+                if(u instanceof MilVehicles){
+                    vehicles.add(u);
+                    d.removeUnit(u);
+                }
+            }
+        }
+        divisions.add(new MilDiv("Seized vehicles" , vehicles));
+    }
+
+    public void changeUnitDiv(MilDiv d1, MilUnit u, MilDiv d2){
+        d1.removeUnit(u);
+        d2.addUnit(u);
+    }
+
+    public long getManpower() {
+        return manpower;
+    }
+
+    public void setManpower(long manpower) {
+        this.manpower = manpower;
     }
 }

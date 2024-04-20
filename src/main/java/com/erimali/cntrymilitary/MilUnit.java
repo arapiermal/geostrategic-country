@@ -8,7 +8,7 @@ public abstract class MilUnit implements Serializable {
     protected transient MilUnitData data;
     protected int dataId;
     protected int ownerId; //rebellious units -> change ownerId
-    //even provId (?) for movement
+    //provId (?) for movement
     private static int CURR_ID = 0;
     protected final int id;
     //////////////////////////////////////////////////////////////////////
@@ -16,6 +16,7 @@ public abstract class MilUnit implements Serializable {
     protected int size;
     protected int xp;
     protected int lvl;
+
     protected double bonusAtk;
     protected double bonusDef;
 
@@ -71,7 +72,7 @@ public abstract class MilUnit implements Serializable {
     }
 
     public static double dmgCalc(MilUnit a, MilUnit o) {
-        double ATK = a.size * ((double) (a.data.atk[o.data.type] / o.data.def[a.data.type]))
+        double ATK = a.size * ((a.data.atk[o.data.type] + a.bonusAtk)/ (o.data.def[a.data.type]+ a.bonusDef))
                 * Math.sqrt((double) (a.lvl * (a.data.minMilTech + 1)) / (o.lvl * (o.data.minMilTech + 1)) + (a.data.speed - o.data.speed));
         ATK += ATK * Math.random() / 2;
 

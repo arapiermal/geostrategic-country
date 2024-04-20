@@ -84,7 +84,11 @@ public class Economy implements Serializable {
     }
 
     public void giveMoney(Country o, double amount) {
-
+        if(treasury >= amount){
+            treasury -= amount;
+            o.getEconomy().treasury += amount;
+            o.getDiplomacy().improveRelations(o.getCountryId(), (short) Math.log(amount));
+        }
     }
 
     public void incTaxation(double amount) {
