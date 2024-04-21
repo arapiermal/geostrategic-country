@@ -34,7 +34,6 @@ public class World implements Serializable {
             countries = new CountryArray();
             Path dir = Paths.get(GLogic.RESOURCESPATH + "countries");
             loadLanguages();
-            this.unions = new HashMap<>();
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
                 for (Path entry : stream) {
                     try {
@@ -52,6 +51,8 @@ public class World implements Serializable {
             } catch (IOException e) {
                 ErrorLog.logError(e);
             }
+            this.unions = new HashMap<>();
+            loadUnions();
         } catch (Exception e) {
             ErrorLog.logError(e);
         }
@@ -395,6 +396,9 @@ public class World implements Serializable {
     public int binarySearchLanguage(String s) {
         return Collections.binarySearch(languages, new Language(s));
     }
+    public Language searchLanguage(String name){
+        return languages.get(binarySearchLanguage(name));
+    }
 
     public int binarySearchLanguage(Language l) {
         return Collections.binarySearch(languages, l);
@@ -468,7 +472,37 @@ public class World implements Serializable {
         short[] c = CountryArray.getShortArrFromStringArr(countries);
         Union u = new Union(this, shortName, name, t, c);
         unions.put(shortName, u);
-        TESTING.print(u);
+    }
+
+    public void loadUnions(){
+        if(unions == null)
+            unions = new HashMap<>();
+        Path dir = Paths.get(GLogic.RESOURCESPATH+"/countries/unions");
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+            for (Path entry : stream) {
+                try {
+                    String shortName = entry.getFileName().toString();
+                    if (!shortName.endsWith(".txt"))
+                        continue;
+                    shortName = shortName.substring(0, shortName.length() - 4).trim().toUpperCase();
+                    unionFromFile(shortName, entry.toFile());
+                } catch (Exception e) {
+                    ErrorLog.logError(e);
+                }
+            }
+        } catch (IOException e) {
+            ErrorLog.logError(e);
+        }
+    }
+
+    private void unionFromFile(String shortName, File file) throws IOException {
+        try(BufferedReader br = new BufferedReader(new FileReader(file))){
+            String name = br.readLine();
+            int t = Union.genType(br.readLine());
+            short[] c = CountryArray.getShortArrFromStringArr(br.readLine());
+            Union u = new Union(this, shortName, name, t, c);
+            unions.put(shortName, u);
+        }
     }
 
     public void addUnion(Union u) {

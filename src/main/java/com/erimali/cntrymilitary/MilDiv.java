@@ -5,26 +5,10 @@ import java.util.*;
 
 //move stuff related to country in military class
 public class MilDiv implements Serializable {
-
-
-    public void correlateUnitData(List<MilUnitData>[] unitTypes) {
-        int n = MilUnitData.MAX_TYPES;
-        for (MilUnit u : units) {
-            try {
-                u.data = unitTypes[u.dataId / n].get(u.dataId % n);
-            } catch (Exception e) {
-                units.remove(u);
-            }
-        }
-    }
-
-    //TreeTableView here(?)
-
-    //////////////////////////////////////////////////////////////
-    protected String name;
-    protected MilLeader leader;
-    protected List<MilUnit> units;
-    protected int speed; //Math.min of all milunits?
+    private String name;
+    private MilLeader leader;
+    private List<MilUnit> units;
+    private int speed; //Math.min of all milunits?
 
     public MilDiv(String name) {
         this.name = name;
@@ -207,4 +191,16 @@ public class MilDiv implements Serializable {
         for(MilUnit u : units)
             u.maximizeSize();
     }
+    //////////////////////////////////////////////////////////
+    public void correlateUnitData(List<MilUnitData>[] unitTypes) {
+        int n = MilUnitData.MAX_TYPES;
+        for (MilUnit u : units) {
+            try {
+                u.data = unitTypes[u.dataId / n].get(u.dataId % n);
+            } catch (Exception e) {
+                units.remove(u);
+            }
+        }
+    }
+    //////////////////////////////////////////////////////////////
 }

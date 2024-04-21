@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 enum WarObjectives {
+    //if all provinces selected -> full annexation
     //There can be partly annexation! cost cannot be a stuck value, what can be better
     ANNEX(100) {
         //flip flop warState, if negative but the opponent is player, make positive?
@@ -20,7 +21,7 @@ enum WarObjectives {
             Country c1 = cArr1.get(ind1);
             Country c2 = cArr2.get(ind2);
             if (warState > this.getCost()) {
-                c1.annexCountry(cArr2, ind2);
+                c1.annexCountry(cArr2, ind2, false);
             }
         }
         public void action(Country c1, Country c2, float warState, int... args) {
@@ -35,7 +36,7 @@ enum WarObjectives {
 
         }
     },
-    REGIMECHANGE(70) {
+    REGIME_CHANGE(70) {
         @Override
         public void action(Country c1, Country c2, float warState, int... args) {
             //make same regime as self
@@ -45,7 +46,7 @@ enum WarObjectives {
         }
     },
     //handle better
-    DISMANTLEMILITARY(80) {
+    DISMANTLE_MILITARY(80) {
         public void action(Country c1, Country c2, float warState, int... args) {
             c2.setMilitary(null);
             int years = args[0];
@@ -185,6 +186,11 @@ public class War implements Serializable {
             }
         }
         return lv;
+    }
+
+    @Override
+    public String toString(){
+        return declaringCountry.getName() + " vs " + opposingCountry.getName() + " - " + casusBelli.toString();
     }
 
 }

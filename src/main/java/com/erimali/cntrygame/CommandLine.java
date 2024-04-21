@@ -195,7 +195,7 @@ public class CommandLine {
                 break;
             case "ANNEX":
                 if (k.length == 2) {
-                    mainCountry.annexCountry(countries, CountryArray.getIndex(k[1]));
+                    mainCountry.annexCountry(countries, CountryArray.getIndex(k[1]), true);
                     result = shortName + " annexed " + k[1];
                     gs.getMap().refreshMap();
                 }

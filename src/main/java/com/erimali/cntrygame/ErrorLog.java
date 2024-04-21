@@ -10,7 +10,7 @@ import java.util.*;
 
 //POPUP??
 public class ErrorLog {
-    private static ObservableList<String> errors = FXCollections.observableArrayList();
+    private static final ObservableList<String> errors = FXCollections.observableArrayList();
 
     static {
         errors.addListener((InvalidationListener) observable -> showAlertErrors());
@@ -22,6 +22,7 @@ public class ErrorLog {
 
     public static void logError(Exception e) {
         errors.add(e.getMessage());
+        e.printStackTrace();
     }
 
     public static String retrieveErrors() {

@@ -27,13 +27,11 @@ public class Diplomacy implements Serializable {
 
     private Set<Short> allies;
     private Set<Short> rivals;
-    private Set<Short> subjects;
 
     public Diplomacy() {
         this.improveRelationsSize = DEF_IMPROVE_RELATIONS_SIZE;
         this.allies = new HashSet<>();
         this.rivals = new HashSet<>();
-        this.subjects = new HashSet<>();
         this.relations = new short[CountryArray.maxISO2Countries];
         resetRelations(); //Countries which don't exist are also reset (?)
     }

@@ -41,7 +41,7 @@ public class MilUnitData implements Comparable<MilUnitData> {
     public MilUnitData(String loc) throws Exception {
         this.type = (byte) (loc.charAt(loc.length() - 1) - '0');
         initEmptyAtkDef();
-        if (type >= MAX_TYPES)
+        if (type < 0 || type >= MAX_TYPES)
             throw new IllegalArgumentException("TYPE CAN BE FROM 0 UP TO " + (MAX_TYPES - 1));
         try (BufferedReader br = new BufferedReader(new FileReader(loc))) {
             String line;

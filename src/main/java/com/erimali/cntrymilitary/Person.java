@@ -3,12 +3,13 @@ package com.erimali.cntrymilitary;
 import java.io.Serializable;
 
 public class Person implements Serializable {
+    private static final char MALE = 'M';
+    private static final char FEMALE = 'F';
+
     private String firstName;
     private String middleName;
     private String lastName;
     private char gender;
-    private static final char MALE = 'M';
-    private static final char FEMALE = 'F';
 
     public Person(String firstName, String lastName) {
         this.firstName = firstName;
@@ -100,5 +101,11 @@ public class Person implements Serializable {
         return FEMALE;
     }
 
+    public boolean isMale(){
+        return gender == MALE;
+    }
 
+    public boolean isFemale(){
+        return gender == FEMALE;
+    }
 }

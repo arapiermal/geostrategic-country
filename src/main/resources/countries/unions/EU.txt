@@ -1,5 +1,13 @@
 European Union
-type:economic,...
-membercountries:IT,...
-policies:free trade (or index of sth in the code?),free movement,...
+type:economic,political
+members:IT,FR,GR,
+policies:FREE_TRADE,COMMON_CURRENCY
 events:more centralized?,immigration (make panel for EU and other unions like hre in EU4?
+Panel
+Vote:Allow more emigrants
+Yes
+command 1
+No
+command 2
+Vote:
+...

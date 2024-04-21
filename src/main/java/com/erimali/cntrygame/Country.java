@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Country implements Serializable {
+public class Country implements Serializable, Comparable<Country> {
     //private World world;
     private String name;
     private int countryId;
@@ -33,7 +33,6 @@ public class Country implements Serializable {
     private Map<Integer, CSubject> subjects;
     private CSubject subjectOf;
     private List<Union> uni;
-    //private List<short[]> availableBuildings;
 
     private short[] availableBuildings;
     // SOME COUNTRIES CAN START AS SUBJECTS OF OTHERS;
@@ -119,6 +118,7 @@ public class Country implements Serializable {
     public void monthlyTick() {
         //mil/tech progress
     }
+
     // toString()...
     @Override
     public String toString() {
@@ -216,8 +216,7 @@ public class Country implements Serializable {
         // Get the economy
 
         annexAllAdmDivs(op);
-        // Get the military equipment of the one who lost/got annexed
-        mil.seizeVehicles(op.mil);
+
         // Soldiers disbanded (EXCEPT when union)
         switch (cond.length) {
             case 3:
@@ -225,7 +224,12 @@ public class Country implements Serializable {
             case 2:
 
             case 1:
-                //this.uniteMilPersonnel(op);
+                if (cond[0])
+                    //Peaceful annexation
+                    mil.takeDivisions(op.mil);
+                else
+                    // Get the military equipment of the one who lost/got annexed
+                    mil.seizeVehicles(op.mil);
                 break;
             default:
 
@@ -386,27 +390,38 @@ public class Country implements Serializable {
     }
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!
-    // !!!!!!!!!!!!!!!!!!!!!!!!!
     public void subjugateCountry(Country op, SubjectType type) {
-        // gain access to water for navy
-        if (this.landlocked) {
-            if (!op.landlocked) {
-                this.landlocked = false;
+        if (subjectOf == null) {
+            // gain access to water for navy
+            if (this.landlocked) {
+                if (!op.landlocked) {
+                    this.landlocked = false;
+                }
             }
+            incAvailableBuildings(op);
+            CSubject cs = makeSubject(op, type);
+            subjects.put(op.getCountryId(), cs);
+        } else {
+            subjugateCountry(subjectOf.getMain(), type);
         }
-        CSubject cs = makeSubject(op, type);
-        subjects.put(op.getCountryId(), cs);
     }
+
 
     public CSubject makeSubject(Country c, SubjectType type) {
         c.clearAlliesAndRivals();
-        //gain their subjects?
+        //taking subjects
+        for (Map.Entry<Integer, CSubject> entry : c.subjects.entrySet()) {
+            entry.getValue();
+        }
         return new CSubject(this, c, type);
     }
 
     // WAR FOR INDEPENDENCE?!?
     public void releaseSubject(int iso2) {
-        subjects.remove(iso2);
+        if (subjects.containsKey(iso2)) {
+            decAvailableBuildings(subjects.get(iso2).getSubject());
+            subjects.remove(iso2);
+        }
     }
 
     public void checkSubjects() {
@@ -429,7 +444,7 @@ public class Country implements Serializable {
         this.name = name;
         for (int i : countries) {
             if (cArray.containsKey(i))
-                this.annexCountry(cArray, i);
+                this.annexCountry(cArray, i, true);
         }
     }
 
@@ -437,7 +452,7 @@ public class Country implements Serializable {
         this.name = name;
         for (short i : countries) {
             if (cArray.containsKey(i))
-                this.annexCountry(cArray, i);
+                this.annexCountry(cArray, i, true);
         }
     }
 
@@ -495,10 +510,6 @@ public class Country implements Serializable {
 
     public void setSubjectOf(CSubject subjectOf) {
         this.subjectOf = subjectOf;
-    }
-
-    public boolean hasSubject(String iso2) {
-        return subjects.containsKey(CountryArray.getIndex(iso2));
     }
 
     public boolean hasSubject(int c) {
@@ -776,23 +787,24 @@ public class Country implements Serializable {
 
     public void addAvailableBuilding(Building b) {
         availableBuildings[b.ordinal()]++;
-        if(subjectOf != null){
+        if (subjectOf != null) {
             subjectOf.getMain().addAvailableBuilding(b);
         }
     }
 
+    //might be redundant
     public void addAvailableBuildings(Building b, short amount) {
         if (amount > 0) {
             availableBuildings[b.ordinal()] += amount;
-            if(subjectOf != null){
-                subjectOf.getMain().addAvailableBuildings(b,amount);
+            if (subjectOf != null) {
+                subjectOf.getMain().addAvailableBuildings(b, amount);
             }
         }
     }
 
     public void removeAvailableBuilding(Building b) {
         availableBuildings[b.ordinal()]--;
-        if(subjectOf != null){
+        if (subjectOf != null) {
             subjectOf.getMain().removeAvailableBuilding(b);
         }
     }
@@ -800,9 +812,21 @@ public class Country implements Serializable {
     public void removeAvailableBuildings(Building b, short amount) {
         if (amount > 0) {
             availableBuildings[b.ordinal()] -= amount;
-            if(subjectOf != null){
-                subjectOf.getMain().removeAvailableBuildings(b,amount);
+            if (subjectOf != null) {
+                subjectOf.getMain().removeAvailableBuildings(b, amount);
             }
+        }
+    }
+
+    private void incAvailableBuildings(Country sub) {
+        for (int i = 0; i < availableBuildings.length; i++) {
+            availableBuildings[i] += sub.availableBuildings[i];
+        }
+    }
+
+    public void decAvailableBuildings(Country sub) {
+        for (int i = 0; i < availableBuildings.length; i++) {
+            availableBuildings[i] -= sub.availableBuildings[i];
         }
     }
 
@@ -828,5 +852,10 @@ public class Country implements Serializable {
 
     public short[] getAvailableBuildings() {
         return availableBuildings;
+    }
+
+    @Override
+    public int compareTo(Country o) {
+        return Integer.compare(countryId, o.countryId);
     }
 }

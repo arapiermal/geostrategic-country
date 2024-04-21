@@ -75,8 +75,10 @@ public class CountryArray implements Iterable<Country>, Serializable {
     }
 
     public void remove(int i) {
-        countries[i] = null;
-        countriesISO2.remove(getIndexISO2(i));
+        if(i >= 0 && i < maxISO2Countries) {
+            countries[i] = null;
+            countriesISO2.remove(getIndexISO2(i));
+        }
     }
 
     public Country get(String iso2) {
@@ -166,11 +168,6 @@ public class CountryArray implements Iterable<Country>, Serializable {
         return arr;
     }
 
-    public static void main(String... args) {
-        TESTING.print(getIndex("al"), getIndex("AL"));
-        TESTING.print(GUtils.doubleToString(100));
-    }
-
     @Override
     public Iterator<Country> iterator() {
         return new Iterator<>() {
@@ -190,6 +187,11 @@ public class CountryArray implements Iterable<Country>, Serializable {
                     throw new NoSuchElementException();
                 }
                 return countries[currentIndex++];
+            }
+
+            @Override
+            public void remove(){
+                CountryArray.this.remove(currentIndex);
             }
         };
     }

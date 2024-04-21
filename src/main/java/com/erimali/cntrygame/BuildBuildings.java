@@ -129,7 +129,6 @@ public class BuildBuildings extends Application {
 
     }
 
-    // Task class representing each task
     public static class BuildBuilding extends GTask {
         private final Building building;
         private final SimpleDoubleProperty progress;
@@ -208,7 +207,6 @@ public class BuildBuildings extends Application {
 
                         bVal++;
                         currBuildingBuildings.put(b, bVal);
-
                     }
                     //Demolish
                     else if (bVal == b.stepsToBuild) {

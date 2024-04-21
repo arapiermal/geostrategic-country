@@ -430,8 +430,11 @@ public class GLogic implements Serializable {
             return string;
         }
         try {
+            //AL:country rel:XK
+
             String[] commands = parts[0].split("\\s+");
             StringBuilder replace = new StringBuilder();
+            //make like command prompt regarding ISO2 or not at beginning?
             switch (commands[0].toUpperCase()) {
                 case "COUNTRY":
                     String reference = parts[1].trim().toUpperCase();
@@ -460,6 +463,13 @@ public class GLogic implements Serializable {
                                 default:
                                     break;
                             }
+                            break;
+                        case "REL":
+                            if(parts.length >= 3){
+                                int relC = CountryArray.getIndex(parts[2].trim());
+                                replace.append(c.getRelations(relC));
+                            }
+                            break;
                         default:
                             break;
                     }
@@ -481,7 +491,7 @@ public class GLogic implements Serializable {
                             if (commands[2].equalsIgnoreCase("SELF")) {
                                 l = world.getLanguages().get(lang);
                             } else {
-                                l = world.getLanguages().get(world.binarySearchLanguage(commands[2]));/////
+                                l = world.searchLanguage(commands[2]);//XK -> main lang of xk
                             }
                             if (l != null) {
                                 replace.append(l.translateFromEnglishPhrases(parts[1]));
@@ -503,6 +513,7 @@ public class GLogic implements Serializable {
                     } else {
                         switch (commands[1].toUpperCase()) {
                             case "NOW":
+                                //date now:dd mm yyyy
                                 replace.append(replaceTextWithDate(parts[1], inGDate));
                                 break;
                             default:
@@ -521,8 +532,8 @@ public class GLogic implements Serializable {
     }
 
     public static String replaceTextWithDate(String in, GDate date) {
-        String result = in.replace("dd", "" + date.getDay()).replace("mm", "" + date.getMonth()).replace("yyyy",
-                "" + date.getYear()).replace("mlong", date.getMonthName());
+        String result = in.replace("dd", String.valueOf(date.getDay())).replace("mm", String.valueOf(date.getMonth())).replace("yyyy",
+                String.valueOf(date.getYear())).replace("mlong", date.getMonthName());
         return result;
     }
 
@@ -554,26 +565,19 @@ public class GLogic implements Serializable {
 
     // WAR
 //////////////////////////////////////////////////
-//
 
+    //CountryArray !!!!!, would take care of stuff
     public void declareWar(int a, int o, CasusBelli casusBelli) {
-        String warName = "";// Albania vs OpponentName - casusBelli
         War w = world.getCountry(a).declareWar(world.getCountry(o), casusBelli);
         wars.add(w);
     }
 
     public void declareWar(int o, CasusBelli casusBelli) {
-        String warName = "";// Albania vs OpponentName - casusBelli
         War w = player.declareWar(world.getCountry(o), casusBelli);
         wars.add(w);
-        System.out.println("Player declared war - " + casusBelli);
     }
 // FIX
     //public void finishWar(int index) {finishedWars.add( wars.remove(index).toString() + "Won/Lost");}
-
-    public boolean isSubjectOfPlayer(String c) {
-        return player.hasSubject(c);
-    }
 
     public boolean isSubjectOfPlayer(int c) {
         return player.hasSubject(c);

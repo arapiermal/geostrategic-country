@@ -223,6 +223,12 @@ public class Military implements Serializable {
         divisions.add(new MilDiv("Seized vehicles" , vehicles));
     }
 
+    public void takeDivisions(Military o) {
+        while(!o.divisions.isEmpty()){
+            divisions.add(o.divisions.removeFirst());
+        }
+    }
+
     public void changeUnitDiv(MilDiv d1, MilUnit u, MilDiv d2){
         d1.removeUnit(u);
         d2.addUnit(u);
@@ -235,4 +241,5 @@ public class Military implements Serializable {
     public void setManpower(long manpower) {
         this.manpower = manpower;
     }
+
 }

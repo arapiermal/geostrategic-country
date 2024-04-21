@@ -23,6 +23,7 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
     private boolean waterAccess;
     private short mainLanguage; // + culture?, PopDistFloat/Double..., can be [][] and static methods there.
     private short infrastructure;
+    private short defense; // or short[] and Enum with types (?)
     //based on stability, rebellion can happen or if > 64
     //when annexing during war set rebellion to 16 32 or 64 (except provinces which consider us liberators)
     private byte[] rebellion; //types: separatism, autonomy,...

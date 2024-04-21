@@ -28,7 +28,7 @@ public class EriScript {
     private Map<String, Double> variables;
     private Map<String, List<Double>> varArr;
 
-    private Map<String, EriString> varString;
+    private Map<String, String> varString;
     private Map<String, EriScript> functions;
     private int i;
     private boolean hasReturned;
@@ -231,9 +231,9 @@ public class EriScript {
         double[] dParams = new double[args.length - startArg];
         int j = 0;
         for (int i = startArg; i < args.length; i++) {
-            if(Character.isLetter(args[i].charAt(0))){
-                if(j < params.length)
-                    putEriString(params[j], new EriWord(args[i]));
+            if (Character.isLetter(args[i].charAt(0))) {
+                if (j < params.length)
+                    putEriString(params[j], args[i]);
                 dParams[j] = 0;
             } else
                 dParams[j] = GUtils.parseD(args[i]);
@@ -493,7 +493,7 @@ public class EriScript {
                 if (parts.length == 2)
                     printed.add(CommandLine.executeAllLines(parseCMDExec(parts[1]), true));
                 else if (parts.length == 3) {
-                    putEriString(parts[1], new EriWord(CommandLine.executeAllLines(parseCMDExec(parts[2]), true)));
+                    putEriString(parts[1], CommandLine.executeAllLines(parseCMDExec(parts[2]), true));
                 }
                 break;
             case "clr":
@@ -579,7 +579,7 @@ public class EriScript {
                 }
                 break;
             case "fx":
-                switch(parts[1].toLowerCase()){
+                switch (parts[1].toLowerCase()) {
                     case "alert":
 
                         break;
@@ -591,6 +591,16 @@ public class EriScript {
             case "sound":
                 if (parts.length == 2)
                     GameAudio.playShortSound(parts[1]);
+                break;
+            case "parse":
+                if(parts.length == 3){
+                    String toParse = varString.get(parts[2]).toString();
+                    if(toParse.indexOf(',') > 0){
+                        setArr(parts[1], toParse);
+                    } else {
+                        variables.put(parts[1], solveMath(toParse));
+                    }
+                }
                 break;
             case "tostring":
                 printed.add(this.toString());
@@ -620,30 +630,32 @@ public class EriScript {
         }
         return sb.toString();
     }
-    public String parseCMDExec(String in){
-        if(in.indexOf('`') < 0)
+
+    public String parseCMDExec(String in) {
+        if (in.indexOf('`') < 0)
             return in;
         int i = 0;
         StringBuilder sb = new StringBuilder();
-        while(i < in.length()){
+        while (i < in.length()) {
             char c = in.charAt(i);
-            if(c == '`'){
+            if (c == '`') {
                 int start = ++i;
-                while (i < in.length()){
-                    if(in.charAt(i) == '`') {
+                while (i < in.length()) {
+                    if (in.charAt(i) == '`') {
                         break;
                     }
                     i++;
                 }
-                sb.append(parsePrint(in.substring(start,i)));
+                sb.append(parsePrint(in.substring(start, i)));
 
-            } else{
+            } else {
                 sb.append(c);
             }
             i++;
         }
         return sb.toString();
     }
+
     // can be used when run on top of already run?
     public void parseDevCommand(String leftSide, String rightSide) {
         rightSide = rightSide.replace("\\:", ":");
@@ -858,7 +870,7 @@ public class EriScript {
                     a++;
                 }
                 String stringName = in.substring(t + 1, a);
-                sb.append(varString.get(stringName).getChars());
+                sb.append(varString.getOrDefault(stringName, "null"));
                 t = a - 1;
 
             } else {
@@ -982,11 +994,20 @@ public class EriScript {
     }
 
     public char[] getReturnCharArr() {
-        return varString.get(RETURN).getChars();
+        return varString.get(RETURN).toCharArray();
     }
 
     public static int[] getAllIndexes(String inputString, char targetChar) {
         return IntStream.range(0, inputString.length()).filter(i -> inputString.charAt(i) == targetChar).toArray();
+    }
+
+    public String parseVarName(String in){
+
+        if(in.indexOf('[') > 0){
+
+        }
+
+        return in;
     }
 
     //put List<> outside and clear inside?
@@ -1097,7 +1118,7 @@ public class EriScript {
             if (hasEriString(index, input)) {
                 varName = input.substring(0, index).trim();
                 String rightSide = input.substring(index + 1);
-                parseEriString2(varName, rightSide);
+                parseEriString(varName, rightSide);
                 return;
             }
             // LESS TRIM????
@@ -1252,60 +1273,10 @@ public class EriScript {
     }
 
     public boolean isEriStringSign(char c) {
-        return c == '\'' || c == '\"' || c == '`';
+        return c == '\'' || c == '\"';
     }
 
     public void parseEriString(String varName, String in) {
-        // '' for Word "" for Sentence `` for Text
-        // use parsePrint?
-        // 'hi'+10+'hi'
-        char type = (char) 0;
-        int start = 0;
-        int end = in.length() - 1;
-        int highest = 0;
-        List<EriString> toJoin = new LinkedList<>();
-        // join based on highest?
-        for (int i = 0; i < in.length(); i++) {
-
-            if (type == 0) {
-                if (in.charAt(i) == '\'') {
-                    start = i + 1;
-                    type = '\'';
-                    highest = Math.max(highest, 1);
-                } else if (in.charAt(i) == '\"') {
-                    start = i + 1;
-                    type = '\"';
-                    highest = Math.max(highest, 2);
-                } else if (in.charAt(i) == '`') {
-                    start = i + 1;
-                    type = '`';
-                    highest = Math.max(highest, 3);
-                } else if (in.charAt(i) == '+') {
-                    // ' ' + i + ' '
-                    // in case + => prepare for else
-
-                }
-            } else {
-                if (in.charAt(i) == type) {
-                    end = i;
-                    EriString es = genEriString(type, in.substring(start, end));
-                    type = (char) 0;
-                    toJoin.add(es);
-                }
-            }
-        }
-        // ignoring highest
-        for (int i = 1; i < toJoin.size(); i++) {
-            toJoin.get(0).joinWith(toJoin.get(i));
-        }
-        // FIX
-        if (toJoin.size() == 0)
-            putEriString(varName, new EriWord(""));
-        else
-            putEriString(varName, toJoin.get(0));
-    }
-
-    public void parseEriString2(String varName, String in) {
         char type = (char) 0;
         int start = 0;
         int end = in.length() - 1;
@@ -1323,9 +1294,6 @@ public class EriScript {
                 } else if (in.charAt(i) == '\"') {
                     type = '\"';
                     highest = Math.max(highest, 2);
-                } else if (in.charAt(i) == '`') {
-                    type = '`';
-                    highest = Math.max(highest, 3);
                 } else if (in.charAt(i) == '+') {
                     type = '+';
 
@@ -1333,7 +1301,7 @@ public class EriScript {
                     if (!Character.isWhitespace(in.charAt(i)))
                         sbFunc.append(in.charAt(i));
                 }
-                if (sbFunc.length() > 0 && isStringSymbol(type)) {
+                if (!sbFunc.isEmpty() && isStringSymbol(type)) {
                     String strFunc = sbFunc.toString();
                     sbFunc.setLength(0);
                     i = parseStringFunc(strFunc, in, sb, i);
@@ -1359,7 +1327,7 @@ public class EriScript {
         }
 
         // putEriString(varName, genEriString(STRTYPES[highest], sb.toString()));
-        putEriString(varName, new EriWord(sb.toString()));
+        putEriString(varName, sb.toString());
     }
 
     public static int parseStringFunc(String func, String in, StringBuilder sb, int start) {
@@ -1405,7 +1373,7 @@ public class EriScript {
     }
 
     public static boolean isStringSymbol(char c) {
-        return c == '\'' || c == '\"' || c == '`';
+        return c == '\'' || c == '\"';
     }
 
     private String parseTypedVar(StringBuilder sb) {
@@ -1425,28 +1393,12 @@ public class EriScript {
         }
     }
 
-    private EriString genEriString(char type, String string) {
-        switch (type) {
-            case '\'':
-                return new EriWord(string);
-            case '\"':
-                return new EriWord(string);
-            case '`':
-                return new EriWord(string);
-            default:
-                return null;
-        }
-    }
-
-    public void putEriString(String var, EriString e) {
+    public void putEriString(String var, String e) {
         varString.put(var, e);
     }
 
     public String getEriString(String var) {
-        if (varString.containsKey(var))
-            return varString.get(var).toString();
-        else
-            return "INVALID ERISTRING VARIABLE";
+        return varString.getOrDefault(var, "null");
     }
 
     public void setArr(String name, String in) {

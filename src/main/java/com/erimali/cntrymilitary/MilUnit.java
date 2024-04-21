@@ -64,24 +64,12 @@ public abstract class MilUnit implements Serializable {
 
     }
 
-    public static double dmgCalcOld(MilUnit a, MilUnit o) {
-        double mATK = a.data.atk[o.data.type] * a.size * Math.sqrt(a.lvl + a.data.speed) * (0.5 + a.morale / 100) + a.xp;
-        mATK += mATK * Math.random();
-        double oDEF = o.data.def[a.data.type] * o.size * Math.sqrt(o.lvl + o.data.speed) * (0.5 + o.morale / 100) + o.xp;
-        return mATK - oDEF;
-    }
-
     public static double dmgCalc(MilUnit a, MilUnit o) {
         double ATK = a.size * ((a.data.atk[o.data.type] + a.bonusAtk)/ (o.data.def[a.data.type]+ a.bonusDef))
                 * Math.sqrt((double) (a.lvl * (a.data.minMilTech + 1)) / (o.lvl * (o.data.minMilTech + 1)) + (a.data.speed - o.data.speed));
         ATK += ATK * Math.random() / 2;
 
         return ATK;
-    }
-
-    public void attackAll(MilUnit... opponents) {
-        for (MilUnit o : opponents)
-            this.attack(o);
     }
 
     public boolean stillStanding() {

@@ -10,7 +10,7 @@ import java.util.TreeSet;
 enum UnionPolicies {
     FREE_TRADE(Union.ECONOMIC),
     COMMON_CURRENCY(Union.ECONOMIC),
-    INFRASTRUCTURE_INVESTMENT(Union.ECONOMIC), //double unionFunds; (?)
+    INFRASTRUCTURE_INVESTMENT(Union.ECONOMIC),
     MIL_PROTECTION(Union.MILITARY),
     MIL_SHARE_TECH(Union.MILITARY); //Every year set mil tech to country with the biggest/ or +1
     final int type;
@@ -30,6 +30,7 @@ enum UnionPolicies {
 
 //if UN -> fully centralized => WorldGovernment (!!!!!!!!!!!!!!!!!!!!!)
 public class Union {
+    protected final static int DISUNITED = 0; //DisUnited Nations
     protected final static int ECONOMIC = 1;
     protected final static int POLITICAL = 2; //Diplomatic+Government
     protected final static int MILITARY = 4;
@@ -52,7 +53,9 @@ public class Union {
     protected static int genType(String in) {
         int type = 0;
         String[] s = in.trim().toUpperCase().split("\\s*,\\s*");
-        for (int i = 0; i < MAX_TYPES; i++) {
+        for (int i = 0; i < s.length; i++) {
+            if(s[i].length() < 3)
+                continue;
             int val = switch (s[i].substring(0, 3)) {
                 case "ECO" -> ECONOMIC;
                 case "POL" -> POLITICAL;
@@ -73,6 +76,8 @@ public class Union {
     private World world; //CountryArray...
     private int stability;//?
     private float centralization;
+
+    private double funds;
     private Set<Short> unionCountries;
     private byte[] influence;
     //invest can increase influence ... power of country...
@@ -204,6 +209,14 @@ public class Union {
         return unionCountries;
     }
 
+    public double getFunds() {
+        return funds;
+    }
+
+    public void setFunds(double funds) {
+        this.funds = funds;
+    }
+
     public void voteAI(Country player,int vote, int choice){
         //AI calc based on rel and vote on influence
         short[] v = votes.get(vote);
@@ -215,6 +228,14 @@ public class Union {
                 v[choice] += influence[i];
             }else{
                 v[(int) (Math.random()*v.length)] += influence[i];
+            }
+        }
+    }
+
+    public void yearlyTick(){
+        if(hasType(ECONOMIC)){
+            if(funds > 0 && policies.contains(UnionPolicies.INFRASTRUCTURE_INVESTMENT)){
+                //invest infrastructure
             }
         }
     }
