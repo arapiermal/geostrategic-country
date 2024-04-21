@@ -18,6 +18,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -83,7 +84,7 @@ public class GameStage extends Stage {
         Scene gameScene = new Scene(gameLayout);
         setScene(gameScene);
         URL cssGameScene = getClass().getResource("css/gameStage.css");
-        if(cssGameScene != null)
+        if (cssGameScene != null)
             gameScene.getStylesheets().add(cssGameScene.toExternalForm());
         //Initiate
         game.getWorld().initiateProvinces(map.getMapSVG());
@@ -222,7 +223,7 @@ public class GameStage extends Stage {
         Button gsOptions = new Button("Settings");
         try {
             URL imgSrcComputer = getClass().getResource("img/monitor_with_button.png");
-            if(imgSrcComputer != null) {
+            if (imgSrcComputer != null) {
                 ImageView imgViewSettings = new ImageView(imgSrcComputer.toExternalForm());
                 imgViewSettings.setFitHeight(24);
                 imgViewSettings.setFitWidth(24);
@@ -230,20 +231,20 @@ public class GameStage extends Stage {
                 gsComputer.setText(null);
             }
             URL imgSrcSettings = getClass().getResource("img/settings.png");
-            if(imgSrcSettings != null) {
+            if (imgSrcSettings != null) {
                 ImageView imgViewSettings = new ImageView(imgSrcSettings.toExternalForm());
                 imgViewSettings.setFitHeight(24);
                 imgViewSettings.setFitWidth(24);
                 gsOptions.setGraphic(imgViewSettings);
                 gsOptions.setText(null);
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             ErrorLog.logError(e);
         }
         gsComputer.setOnAction(e -> popupWebDesktop());
         gsOptions.setOnAction(e -> showGameStageOptions());
         Region tReg = new Region();
-        ToolBar toolBarBottom = new ToolBar(gsComputer,tReg,gsOptions);
+        ToolBar toolBarBottom = new ToolBar(gsComputer, tReg, gsOptions);
         HBox.setHgrow(tReg, Priority.ALWAYS);
         //Region regBottom = new Region();
         //HBox bottom = new HBox(hBottomLeft, regBottom, toolBarBottom);
@@ -330,15 +331,16 @@ public class GameStage extends Stage {
         recruitBuildButton = new Button("Recruit");
         TreeView<MilUnitData> treeUnitTypes = game.makeTreeViewUnitTypes();
 
-        treeUnitTypes.setOnMouseClicked(e -> {
-            TreeItem<MilUnitData> selectedItem = treeUnitTypes.getSelectionModel().getSelectedItem();
-            if (selectedItem != null) {
-                MilUnitData selUnit = selectedItem.getValue();
-                unitInfo.setText(selUnit.toStringLong());
-                unitInfo.setTooltip(new Tooltip(selUnit.getDesc()));
-                recruitBuildButton.setText(selUnit.isVehicle() ? "Build" : "Recruit");
-            }
-        });
+        treeUnitTypes.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> {
+                    if (newValue != null && newValue != oldValue) {
+                        MilUnitData selUnit = newValue.getValue();
+                        unitInfo.setText(selUnit.toStringLong());
+                        unitInfo.setTooltip(new Tooltip(selUnit.getDesc()));
+                        recruitBuildButton.setText(selUnit.isVehicle() ? "Build" : "Recruit");
+                    }
+                }
+        );
         recruitBuildButton.setOnAction(e -> {
             TreeItem<MilUnitData> selectedItem = treeUnitTypes.getSelectionModel().getSelectedItem();
             if (selectedItem != null) {
@@ -346,7 +348,7 @@ public class GameStage extends Stage {
                 game.makeMilUnit(game.getPlayerId(), selectedProv, selUnit);
             }
         });
-        VBox vBox = new VBox(treeUnitTypes,recruitBuildButton, unitInfo);
+        VBox vBox = new VBox(treeUnitTypes, recruitBuildButton, unitInfo);
         VBox.setVgrow(unitInfo, Priority.ALWAYS); //
         recruitBuildButton.setVisible(false);
         Tab tab = new Tab("Military", vBox);
@@ -388,9 +390,11 @@ public class GameStage extends Stage {
             // -2 for save (String currentSaveName) & exit
         }
     }
-    public String getCurrDefSaveGameName(){
-        return isPlayingCountry ? game.getPlayer().getIso2() +"-" + game.inGDateInfo('_') : "";
+
+    public String getCurrDefSaveGameName() {
+        return isPlayingCountry ? game.getPlayer().getIso2() + "-" + game.inGDateInfo('_') : "";
     }
+
     private Scene makeSaveSceneOptions() {
         saveTextField = new TextField();
         Button saveSubmit = new Button("Enter");
@@ -917,7 +921,7 @@ public class GameStage extends Stage {
         for (int i = 0; i < opt.length; i++) {
             optButton[i] = new Button(game.parseGEventText(opt[i]));
             Tooltip tooltip = new Tooltip(gEvent.getCommands()[i]);
-            Tooltip.install(optButton[i],tooltip);
+            Tooltip.install(optButton[i], tooltip);
             optButton[i].setPrefWidth(400); // related to max text?
             optButton[i].setStyle("-fx-background-color: #00FF00;-fx-text-fill: #000000;");
             ;
@@ -960,7 +964,9 @@ public class GameStage extends Stage {
         return popupScene;
     }
 
-    static class Delta { double x, y; }
+    static class Delta {
+        double x, y;
+    }
 
 
     public void popupWebNews() {
@@ -982,14 +988,17 @@ public class GameStage extends Stage {
         String filePath = file.toURI().toString();
 
         WebView webView = new WebView();
-        webView.getEngine().load(filePath);
-
+        webView.setContextMenuEnabled(false);
+        WebEngine webEngine = webView.getEngine();
+        webEngine.load(filePath);
+        webEngine.setUserAgent("countrysim"); //in javascript navigator.userAgent
         Stage popupStage = new Stage();
         popupStage.setScene(new Scene(webView, 800, 600));
         popupStage.setTitle("Desktop");
         popupStage.initModality(Modality.APPLICATION_MODAL);
         popupStage.show();
     }
+
     public int popupChess(String cName) {
         pausePlayDate(true);
 
@@ -999,7 +1008,8 @@ public class GameStage extends Stage {
         String filePath = file.toURI() + "?player=" + PLAYER + "&opponent=" + OPPONENT + "&src=countrysim";
 
         WebView webView = new WebView();
-        webView.getEngine().load(filePath);
+        WebEngine webEngine = webView.getEngine();
+        webEngine.load(filePath);
         Stage popupStage = new Stage();
         popupStage.setScene(new Scene(webView, 1000, 700));
         popupStage.setTitle("Chess Battle");
@@ -1007,28 +1017,30 @@ public class GameStage extends Stage {
         popupStage.showAndWait();
         pausePlayDate(false);
         //Platform.runLater(popupStage::showAndWait);
-        String result = (String) webView.getEngine().executeScript("document.getElementById('javaResult').textContent");
+        String result = (String) webEngine.executeScript("document.getElementById('javaResult').textContent");
         return parseChessResult(result);
     }
-    public int parseChessResult(String in){
-        if(in.startsWith("checkmate")){
+
+    public int parseChessResult(String in) {
+        if (in.startsWith("checkmate")) {
             String colorLost = in.substring(10);
             TESTING.print(colorLost);
-            if(colorLost.equalsIgnoreCase("White")){
+            if (colorLost.equalsIgnoreCase("White")) {
                 return -8;
-            } else if(colorLost.equalsIgnoreCase("Black")){
+            } else if (colorLost.equalsIgnoreCase("Black")) {
                 return 8;
-            } else{
+            } else {
                 return -128;
             }
-        } else if(in.equalsIgnoreCase("draw")){
+        } else if (in.equalsIgnoreCase("draw")) {
             return 0;
-        } else if(in.equalsIgnoreCase("cancellable")){
+        } else if (in.equalsIgnoreCase("cancellable")) {
             return -32;
-        } else{
+        } else {
             return -256;
         }
     }
+
     public void showAlert(Alert.AlertType alertType, String title, String message) {
         Alert alert = new Alert(alertType);
         alert.initOwner(this);
@@ -1065,6 +1077,9 @@ public class GameStage extends Stage {
 
     public void popupGlobeViewer(int type) {
         Stage popupStage = new GlobeViewer(type);
+        popupStage.initOwner(this);
+        popupStage.show();
+
     }
 
 
@@ -1118,7 +1133,6 @@ public class GameStage extends Stage {
             selectedProv = provId;
             changeSelectedProvInfo();
         }
-
     }
 
     //
@@ -1144,6 +1158,10 @@ public class GameStage extends Stage {
         changeSelectedCountryInfo();
     }
 
+    public void setSelectedCountry(String owner) {
+        selectedCountry = CountryArray.getIndex(owner);
+        changeSelectedCountryInfo();
+    }
 
     public void correlateProvinces(SVGProvince[] mapSVG) {
         game.getWorld().initiateProvinces(mapSVG);

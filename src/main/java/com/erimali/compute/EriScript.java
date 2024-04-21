@@ -205,7 +205,7 @@ public class EriScript {
             String fName = splitted.get(i).substring(1, hasInputs);
             String[] params = splitted.get(i).substring(hasInputs + 1).trim().split("\\s*,\\s*");
 
-            List<String[]> fRows = new ArrayList<String[]>();
+            List<String[]> fRows = new ArrayList<>();
             for (String row : splitted) {
                 row = row.trim();
                 if (row.startsWith("##@")) {
@@ -338,9 +338,7 @@ public class EriScript {
     }
 
     public void initRegDouble(double val) {
-        for (int i = 0; i < regDouble.length; i++) {
-            regDouble[i] = val;
-        }
+        Arrays.fill(regDouble, val);
     }
 
     public void execFuncRow() {
@@ -593,9 +591,9 @@ public class EriScript {
                     GameAudio.playShortSound(parts[1]);
                 break;
             case "parse":
-                if(parts.length == 3){
+                if (parts.length == 3) {
                     String toParse = varString.get(parts[2]).toString();
-                    if(toParse.indexOf(',') > 0){
+                    if (toParse.indexOf(',') > 0) {
                         setArr(parts[1], toParse);
                     } else {
                         variables.put(parts[1], solveMath(toParse));
@@ -900,7 +898,6 @@ public class EriScript {
             skip();
         }
 
-        int b;
         while (i < rows.size() && rows.get(i).length > 1) {
             if (isTrue) {
                 skip();
@@ -970,17 +967,33 @@ public class EriScript {
     }
 
     private boolean parseBoolString(String[] s) {
+        //make more efficient
+        String p1 = parsePrint(s[1]).trim();
+        String p2;
         if (s.length == 3) {
-            //return getEriString(s[1]).equals(getEriString(s[2]));
-            //make more efficient
-            //TESTING.print(parsePrint(s[1]),parsePrint(s[2]));
-            //THERES A NEWLINE \n ?!??!!?!?
-            return parsePrint(s[1]).trim().equals(parsePrint(s[2]).trim());
+            p2 = parsePrint(s[2]).trim();
+            return p1.equals(p2);
         } else if (s.length == 4) {
-            String comp = s[2];
+            String comp = s[2].trim().toLowerCase();
+            p2 = parsePrint(s[3]).trim();
+            switch (comp) {
+                case "startswith":
+                    return p1.startsWith(p2);
+                case "endswith":
+                    return p1.endsWith(p2);
+                case "contains":
+                    return p1.contains(p2);
+                case "<":
+                    return p1.compareTo(p2) < 0;
+                case ">":
+                    return p1.compareTo(p2) > 0;
 
+                default:
+                    return p1.equalsIgnoreCase(p2);
+            }
+        } else {
             return false;
-        } else return false;
+        }
     }
 
     // c = @func
@@ -1001,9 +1014,9 @@ public class EriScript {
         return IntStream.range(0, inputString.length()).filter(i -> inputString.charAt(i) == targetChar).toArray();
     }
 
-    public String parseVarName(String in){
+    public String parseVarName(String in) {
 
-        if(in.indexOf('[') > 0){
+        if (in.indexOf('[') > 0) {
 
         }
 
@@ -1359,7 +1372,7 @@ public class EriScript {
                     if (isStringSymbol(ch)) {
                         break;
                     } else if (Character.isDigit(ch)) {
-                        sb.append(EriString.numberToLetters(ch));
+                        sb.append(GUtils.numberToLetters(ch));
                     } else {
                         sb.append(ch);
                     }

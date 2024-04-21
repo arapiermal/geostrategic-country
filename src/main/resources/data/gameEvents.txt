@@ -1,8 +1,8 @@
 CHESSTOURNAMENT,FIDE World Championship 2024,6/1/2024,is not RU
 In light of the new chess world tournament, Putin invites you to a game of chess. ~ Defeating him in this game could be a great opportunity to boost our reputation.
-`!{translate to self:Certainly}`, accept it.
+`!{translate.self.Certainly}`, accept it.
 script chessgame XK "add respect 10" "0" "add respect -10"
-Deny, we have better things to do. The year is !{DATE NOW:yyyy}
+Deny, we have better things to do. The year is !{DATE.NOW.yyyy}
 alert INFORMATION Reputation-- "We have lost reputation";add respect -5
 ~~~
 NEWS,Ukraine war,15/6/2024,is not RU|UA
@@ -37,7 +37,7 @@ Try your best to stop the world from going through this dystopic world!
 ~~~
 SPEEDUP,Chinese companies,4/2/2024,is not CN
 Chinese companies seek to buy some property in Albania and they would also not mind working to speed up constructions. ~ Accepting them can put us on a road of dependency to China.
-`!{translate to self:Accept}`, 2x building speed is cool!
+`!{translate.self.Accept}`, 2x building speed is cool!
 add building speed 1 [until now+1/now+1/now+1]
 Deny, better to rely on ourselves.
 

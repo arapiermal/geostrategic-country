@@ -160,21 +160,14 @@ public class MathSolver {
 // 0len(a)
 	public static double parseFuncStringArr(String substring, String arr, Map<String, Double> vars)
 			throws IllegalArgumentException {
-		switch (substring.toUpperCase()) {
-		case "LEN":
-			return fakeArrLen(arr, vars);
-		case "MAX":
-			// max in array
-			return fakeArrMax(arr, vars);
-		case "MIN":
-			return fakeArrMin(arr, vars);
-		case "SUM":
-			return fakeArrSum(arr,vars);
-		case "AVG":
-			return fakeArrAverage(arr,vars);
-		default:
-			throw new IllegalArgumentException("INVALID FUNCTION");
-		}
+        return switch (substring.toUpperCase()) {
+            case "LEN" -> fakeArrLen(arr, vars);
+            case "MAX" -> fakeArrMax(arr, vars);
+            case "MIN" -> fakeArrMin(arr, vars);
+            case "SUM" -> fakeArrSum(arr, vars);
+            case "AVG" -> fakeArrAverage(arr, vars);
+            default -> throw new IllegalArgumentException("INVALID FUNCTION");
+        };
 	}
 
 
@@ -365,16 +358,13 @@ public class MathSolver {
 		case '*':
 			return leftOperand * rightOperand;
 		case '/':
-			if (rightOperand == 0) {
-				// throw new ArithmeticException("Division by zero is not allowed.");
-			}
+			//if (rightOperand == 0) {throw new ArithmeticException("Division by zero is not allowed.");}
 			return leftOperand / rightOperand;
 		case '%':
-			if (rightOperand == 0) {
-				// throw new ArithmeticException("Modulo by zero is not allowed.");
-			}
+			//if (rightOperand == 0) {throw new ArithmeticException("Modulo by zero is not allowed.");}
 			return leftOperand % rightOperand;
 		case '^':
+
 			return Math.pow(leftOperand, rightOperand);
 		default:
 			throw new IllegalArgumentException("Invalid operator");

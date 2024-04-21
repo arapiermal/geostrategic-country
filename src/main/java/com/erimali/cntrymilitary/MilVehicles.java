@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class MilVehicles extends MilUnit {
-    protected MilSoldiers personnel;
+    protected MilSoldiers personnel;//can be redundant
     protected List<MilSoldiers> carryingPersonnel;
     protected List<MilVehicles> carryingVehicles; //prevent carry on carry on carry on carry...
 
@@ -17,6 +17,7 @@ public class MilVehicles extends MilUnit {
             carryingVehicles = new ArrayList<>();
         }
     }
+
     public MilVehicles(MilUnitData data, int ownerId, MilSoldiers personnel) {
         super(data, ownerId);
         this.personnel = personnel;
@@ -45,11 +46,12 @@ public class MilVehicles extends MilUnit {
             this.xp -= lvlCap;
         }
     }
-    public boolean carry(MilUnit u){
-        if(data.canCarry(u.getType())){
-            if(u instanceof MilSoldiers)
+
+    public boolean carry(MilUnit u) {
+        if (data.canCarry(u.getType())) {
+            if (u instanceof MilSoldiers)
                 carryingPersonnel.add((MilSoldiers) u);
-            else if(u instanceof MilVehicles)
+            else if (u instanceof MilVehicles)
                 carryingVehicles.add((MilVehicles) u);
             return true;
         }

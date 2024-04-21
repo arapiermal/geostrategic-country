@@ -120,9 +120,7 @@ public class CommandLine {
         }
 
         String shortName;
-
         int endISO2 = beginsWithISO2(in);
-//shortName is inside country...
         Country mainCountry;
         if (endISO2 > 0) {
             shortName = in.substring(0, 2).toUpperCase();
@@ -135,7 +133,7 @@ public class CommandLine {
             return result;// or other types of commands (separated)
         }
         //union EU "European Union"... preserves case inside ""
-        String[] k = tokenize(in);       //in.split("\\s+");
+        String[] k = tokenize(in);
         int cIndex = CountryArray.getIndex(shortName);
 
         if (k.length < 2)
@@ -156,7 +154,7 @@ public class CommandLine {
                         }
                         break;
                     default:
-                        return "Invalid command";// secondary command
+                        return "Invalid command";
                 }
                 break;
             case "CHANGE":

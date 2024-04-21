@@ -287,7 +287,7 @@ public class GUtils {
 			if (Character.isDigit(c)) {
 				day *= 10;
 				day += c - '0';
-			} else if (sep == 0) {
+			} else if (!Character.isLetter(c)){
 				sep = c;
 				i++;
 				break;
@@ -317,6 +317,34 @@ public class GUtils {
 			i++;
 		}
 		return new int[] { day, month, year };
+	}
+
+
+	public static String numberToLetters(char c) {
+		switch (c) {
+			case '0':
+				return "zero";
+			case '1':
+				return "one";
+			case '2':
+				return "two";
+			case '3':
+				return "three";
+			case '4':
+				return "four";
+			case '5':
+				return "five";
+			case '6':
+				return "six";
+			case '7':
+				return "seven";
+			case '8':
+				return "eight";
+			case '9':
+				return "nine";
+			default:
+				return String.valueOf(c);
+		}
 	}
 
 }

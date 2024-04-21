@@ -354,7 +354,6 @@ public class GLogic implements Serializable {
         return n;
     }
 
-    //WITH MORE STUFF IN MathSolver, now and rand became more useless
     public GDate specialDate(String input) {
         String[] s = input.toLowerCase().split("/");
         for (int i = 0; i < s.length; i++) {
@@ -399,12 +398,9 @@ public class GLogic implements Serializable {
                         StringBuilder w = new StringBuilder();
                         for (int k = j + 2; k < rows[i].length(); k++) {
                             char c3 = rows[i].charAt(k);
-
                             if (c3 == '}') {
-
                                 break;
                             }
-
                             w.append(c3);
                         }
                         String ww = w.toString();
@@ -424,18 +420,16 @@ public class GLogic implements Serializable {
     }
 
     public String parseTextCommand(String string) {
-        // translate to [Italian]:
-        String[] parts = string.split(":");
+        // translate.self.Yes
+        String[] parts = string.split("\\.");
         if (parts.length < 2) {
             return string;
         }
         try {
-            //AL:country rel:XK
-
-            String[] commands = parts[0].split("\\s+");
+            //or country.self.name
+            //country.self.rel.xk
             StringBuilder replace = new StringBuilder();
-            //make like command prompt regarding ISO2 or not at beginning?
-            switch (commands[0].toUpperCase()) {
+            switch (parts[0].toUpperCase()) {
                 case "COUNTRY":
                     String reference = parts[1].trim().toUpperCase();
                     Country c;
@@ -446,13 +440,13 @@ public class GLogic implements Serializable {
                     }
                     if (c == null)
                         return "NULL";
-                    switch (commands[1].toUpperCase()) {
+                    switch (parts[2].toUpperCase()) {
                         case "NAME":
                             replace.append(c.getName());
                             break;
                         case "GOV":
                             Government gov = c.getGovernment();
-                            switch (commands[2].toUpperCase()) {
+                            switch (parts[3].toUpperCase()) {
                                 case "TYPE":
                                     replace.append(gov.getType());
                                     break;
@@ -465,18 +459,18 @@ public class GLogic implements Serializable {
                             }
                             break;
                         case "REL":
-                            if(parts.length >= 3){
-                                int relC = CountryArray.getIndex(parts[2].trim());
-                                replace.append(c.getRelations(relC));
-                            }
+                            int relC = CountryArray.getIndex(parts[3].trim());
+                            replace.append(c.getRelations(relC));
                             break;
                         default:
                             break;
                     }
                     break;
                 case "TRANSLATE":
+                    String ref2 = parts[1].trim().toUpperCase();
+
                     if (!GOptions.isTranslateGEvent()) {
-                        return parts[1];
+                        return parts[2];
                     }
                     short lang = -1;
                     try {
@@ -484,37 +478,26 @@ public class GLogic implements Serializable {
                     } catch (Exception e) {
 
                     }
-                    switch (commands[1].toUpperCase()) {
-                        // FROM => ENGLISH
-                        case "TO":
-                            Language l = null;
-                            if (commands[2].equalsIgnoreCase("SELF")) {
-                                l = world.getLanguages().get(lang);
-                            } else {
-                                l = world.searchLanguage(commands[2]);//XK -> main lang of xk
-                            }
-                            if (l != null) {
-                                replace.append(l.translateFromEnglishPhrases(parts[1]));
-                            } else {
-                                replace.append(parts[1]);
-                            }
-                            break;
-                        // OTHER FROM
-                        case "FROM":
-                            break;
-
-                        default:
-                            break;
+                    Language l;
+                    if (ref2.equalsIgnoreCase("SELF")) {
+                        l = world.getLanguages().get(lang);
+                    } else {
+                        l = world.searchLanguage(parts[2]);
+                    }
+                    if (l != null) {
+                        replace.append(l.translateFromEnglishPhrases(parts[2]));
+                    } else {
+                        replace.append(parts[2]);
                     }
                     break;
                 case "DATE":
-                    if (commands.length == 1) {
+                    if (parts.length == 2) {
                         replace.append(specialDate(parts[1]).toString());
                     } else {
-                        switch (commands[1].toUpperCase()) {
+                        switch (parts[1].toUpperCase()) {
                             case "NOW":
-                                //date now:dd mm yyyy
-                                replace.append(replaceTextWithDate(parts[1], inGDate));
+                                //date.now.dd/mm/yyyy
+                                replace.append(replaceTextWithDate(parts[2], inGDate));
                                 break;
                             default:
                                 break;
