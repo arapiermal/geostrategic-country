@@ -262,7 +262,6 @@ public class EriScript {
     }
 
     public void execute(int startArg, String... args) {
-        //Allow for other than double params (!)
         double[] dParams = new double[args.length - startArg];
         int j = 0;
         for (int i = startArg; i < args.length; i++) {
@@ -666,7 +665,7 @@ public class EriScript {
                 if (parts.length < 2)
                     executeFunction(parts[0]);
                 else {
-                    executeFunction(parts[0], parseDoubleArr(parts[1]));
+                    executeFunction(parts[0], 0, parts[1].trim().split("\\s*,\\s*"));
                 }
         }
     }
@@ -988,6 +987,18 @@ public class EriScript {
         return arr;
     }
 
+    public EriScript executeFunction(String name, int index, String... values) {
+        if (functions.containsKey(name)) {
+            EriScript f = functions.get(name);
+            f.execute(index, values);
+            printed.addAll(f.printed);
+            f.printed.clear();
+
+            return f;
+        } else {
+            return null;
+        }
+    }
     public EriScript executeFunction(String name, double... values) {
         if (functions.containsKey(name)) {
             EriScript f = functions.get(name);
