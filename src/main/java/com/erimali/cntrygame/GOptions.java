@@ -1,55 +1,65 @@
 package com.erimali.cntrygame;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.Stage;
+
+import java.io.*;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
 enum Settings {
-    FULLSCREEN, VOLUME, CLI, TRANSLATEGEVENT;
+    FULLSCREEN, VOLUME, CLI, TRANSLATEGEVENT, MODS;
+
+    int defValue;
 }
 
 public class GOptions {
-    private static final String DEF_SETTINGSPATH = GLogic.RESOURCESPATH + "settings.ini";
+    private static final String DEF_SETTINGS_PATH = GLogic.RESOURCESPATH + "settings.ini";
+    private static String modsPath = "mods/";
+
     private static boolean fullScreen = false;
     private static double volume = 0.5;
     private static boolean translateGEvent = true;
     private static boolean allowCLI = true;
+    private static boolean allowMods = false;
+
+
     public static void loadGOptions() {
-        try (BufferedReader br = new BufferedReader(new FileReader(DEF_SETTINGSPATH))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(DEF_SETTINGS_PATH))) {
             Map<String, Integer> settings = new HashMap<>();
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.isBlank())
                     continue;
                 try {
-                    String[] setting = line.split(":");
-                    if (setting.length == 2) {
+                    String[] setting = line.trim().split("\\s*:\\s*", 3);
+
+                    if (setting.length == 3) {
+                        if (setting[0].equalsIgnoreCase("MODS")) {
+                            modsPath = readStringTrim(setting[2]);
+                        }
+                    }
+                    if (setting.length >= 2) {
                         try {
-                            String v = setting[1].trim();
+                            String v = setting[1];
                             if (v.equals("DEFAULT")) {
                                 continue;
                             }
                             int value = Integer.parseInt(v);
-                            settings.put(setting[0].trim().toUpperCase(), value);
+                            settings.put(setting[0].toUpperCase(), value);
                         } catch (NumberFormatException nfe) {
-                            throw new IllegalArgumentException(setting[0].trim().toUpperCase() + " not Integer");
+                            throw new IllegalArgumentException(setting[0].toUpperCase() + " not Integer");
                         }
 
-                    } else {
-                        throw new IllegalArgumentException("Not of type -> SETTING:VALUE");
                     }
                 } catch (IllegalArgumentException iae) {
                     ErrorLog.logError(iae);
                 }
             }
             setSettingsFromMap(settings);
-
         } catch (Exception e) {
-            defaultSettings();
+            saveToFile();
         }
     }
 
@@ -67,29 +77,43 @@ public class GOptions {
         allowCLI = enCLI != 0;
         int trGEvent = settings.getOrDefault(Settings.TRANSLATEGEVENT.toString(), 1);
         translateGEvent = trGEvent != 0;
-
-
-    }
-
-    //Unnecessary if we have .getOrDefault() and have initialized them with default values (instead of 0 use default?!?)
-    public static void defaultSettings() {
-        //empty settings.ini so the default values can be retrieved on restart (?)
+        int enMods = settings.getOrDefault(Settings.MODS.toString(), 0);
+        allowMods = enMods != 0;
     }
 
     public static void saveToFile() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(DEF_SETTINGSPATH))) {
-            writer.write(Settings.FULLSCREEN + (fullScreen ? ":1" : ":0"));
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(DEF_SETTINGS_PATH))) {
+            writer.write(Settings.FULLSCREEN + boolToIntString(fullScreen));
             writer.newLine();
             writer.write(Settings.VOLUME + ":" + (int) (volume * 100));
             writer.newLine();
-            writer.write(Settings.CLI + (allowCLI ? ":1" : ":0"));
+            writer.write(Settings.CLI + boolToIntString(allowCLI));
             writer.newLine();
-            writer.write(Settings.TRANSLATEGEVENT + (translateGEvent ? ":1" : ":0"));
+            writer.write(Settings.TRANSLATEGEVENT + boolToIntString(translateGEvent));
             writer.newLine();
-
+            writer.write(Settings.MODS + boolToIntString(allowMods) + ":\"" + modsPath + "\"");
+            writer.newLine();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static String readStringTrim(String in) {
+        int start = in.indexOf('\"') + 1;
+        int end = in.lastIndexOf('\"') - 1;
+        if (end > start) {
+            while(start < end && Character.isWhitespace(in.charAt(start))){
+                start++;
+            }
+            while(end > start && Character.isWhitespace(in.charAt(end))){
+                end--;
+            }
+            return in.substring(start, end + 1);
+        } else
+            return in;
+    }
+    public static String boolToIntString(boolean b) {
+        return b ? ":1" : ":0";
     }
 
     public static boolean isFullScreen() {
@@ -127,4 +151,31 @@ public class GOptions {
     public static void setAllowCLI(boolean allowCLI) {
         GOptions.allowCLI = allowCLI;
     }
+
+
+    public static void changeDirectoryPath(Stage stage) {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Mods Directory");
+        directoryChooser.setInitialDirectory(Paths.get(modsPath).toFile());
+        File selectedDirectory = directoryChooser.showDialog(stage);
+        if (selectedDirectory != null) {
+            modsPath = selectedDirectory.getAbsolutePath();
+        } else {
+
+        }
+    }
+
+    public static boolean hasMods() {
+        //check filesystem
+        return false;
+    }
+
+    public static boolean isAllowMods() {
+        return allowMods;
+    }
+
+    public static void setAllowMods(boolean allowMods) {
+        GOptions.allowMods = allowMods;
+    }
+
 }

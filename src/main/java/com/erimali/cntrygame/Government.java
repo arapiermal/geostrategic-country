@@ -14,9 +14,10 @@ public class Government implements Serializable {
     private boolean isHeadOfStateStronger;
     private Ruler headOfGovernment;
     private int stability;
-    private double corruption;
-
+    private float corruption;
+    private float corruptionGrowth;
     private int publicOpinion;
+
     // Import from txt? default policies for all countries, specific
     // policies that execute CommandLine? every year/month/day
     // private List<Policy> policies;
@@ -73,6 +74,7 @@ public class Government implements Serializable {
         this.stability = stability;
     }
 
+
     public String toStringRulers() {
         StringBuilder sb = new StringBuilder();
         if (bothTheSame) {
@@ -121,9 +123,7 @@ public class Government implements Serializable {
         }
     }
 
-    //by default CPolicy not removable (?)
     public void reduceOneYearFromPolicies() {
-        //for(Map.Entry<CPolicy, Integer> entry : this.policies)
         for (GovPolicy p : policies.keySet()) {
             int yearsLeft = policies.get(p) - 1;
             if (yearsLeft < 0) {
@@ -151,4 +151,7 @@ public class Government implements Serializable {
         this.headOfGovernment = headOfGovernment;
     }
 
+    public boolean canDeclareWar() {
+        return !(policies.containsKey(GovPolicy.NEUTRALITY) || policies.containsKey(GovPolicy.FORCED_NEUTRALITY) || policies.containsKey(GovPolicy.BANNED_MILITARY));
+    }
 }

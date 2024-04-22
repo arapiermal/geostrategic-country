@@ -158,7 +158,6 @@ public class CountryArray implements Iterable<Country>, Serializable {
         return null;
     }
 
-
     public Set<String> getAllISO2() {
         return countriesISO2;
     }

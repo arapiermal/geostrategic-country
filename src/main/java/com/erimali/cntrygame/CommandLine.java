@@ -4,15 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.Period;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.erimali.cntrymilitary.MilUnitData;
 import com.erimali.compute.EriScript;
 import javafx.scene.control.Alert;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.Stage;
 
 
 class Command {
@@ -43,6 +44,34 @@ class Command {
 }
 
 public class CommandLine {
+    public static class PeriodicCommand {
+        String command;
+        boolean admin;
+        int times;
+
+        PeriodicCommand(String command, boolean admin, int times) {
+            this.command = command;
+            this.admin = admin;
+            this.times = times;
+        }
+
+        public boolean run() {
+            execute(command, admin);
+            return (--times) <= 0;
+        }
+
+
+        public static int getPeriod(String in) {
+            return switch (in.trim().toUpperCase()) {
+                case "YEARLY", "YEAR" -> 3;
+                case "MONTHLY", "MONTH" -> 2;
+                case "WEEKLY", "WEEK" -> 1;
+                case "DAILY", "DAY" -> 0;
+                default -> Integer.MIN_VALUE;
+            };
+        }
+    }
+
     private static final String COMMAND_SEPARATOR = ";";
 
     private static GameStage gs;
@@ -115,8 +144,13 @@ public class CommandLine {
         if (in.length() > 6 && in.substring(0, 5).equalsIgnoreCase("PARSE")) {
             return gs.getGame().parseTextCommand(in.substring(6));
         }
+
         if (!GOptions.isAllowCLI() && !admin) {
             return "NOT ALLOWED (TURNED OFF IN OPTIONS)";
+        }
+        if (in.length() > 10 && in.substring(0, 8).equalsIgnoreCase("PERIODIC")) {
+            gs.getGame().addPeriodicCommand(in.substring(9), admin);
+            return "PERIODIC COMMAND ADDED";
         }
 
         String shortName;

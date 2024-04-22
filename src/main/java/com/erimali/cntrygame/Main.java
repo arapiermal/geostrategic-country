@@ -22,6 +22,7 @@ public class Main extends Application {
     protected static final String APP_NAME = "Strategical Geopolitics Simulator";
     private Stage primaryStage;
     private Stage gameStage;
+
     @Override
     public void start(Stage primaryStage) {
         GOptions.loadGOptions();
@@ -163,11 +164,18 @@ public class Main extends Application {
         trGEvent.setOnAction(event -> {
             GOptions.setTranslateGEvent(trGEvent.isSelected());
         });
+        CheckBox allowMods = new CheckBox("Allow Mods");
+        allowMods.setSelected(GOptions.isAllowMods());
+        allowMods.setOnAction(event -> {
+            GOptions.setAllowMods(allowMods.isSelected());
+        });
+        Button changeModsDir = new Button("Change Mods Dir");
+        changeModsDir.setOnAction(e -> GOptions.changeDirectoryPath(optionsStage));
 
         Button closeButton = new Button("Save & Close");
         closeButton.setOnAction(e -> optionsStage.close());
 
-        optionsLayout.getChildren().addAll(fullScreen, volumeHBox, slider, allowCLI, trGEvent, closeButton);
+        optionsLayout.getChildren().addAll(fullScreen, volumeHBox, slider, allowCLI, trGEvent, allowMods, changeModsDir, closeButton);
 
         return optionsLayout;
     }
@@ -189,7 +197,7 @@ public class Main extends Application {
         eriScriptGUI.show();
     }
 
-    public void loadGame(){
+    public void loadGame() {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Load save-game");
         ListView<String> listView = new ListView<>(SaveGame.saves);

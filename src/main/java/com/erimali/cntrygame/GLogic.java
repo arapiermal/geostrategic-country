@@ -15,11 +15,6 @@ import javafx.util.Duration;
 
 public class GLogic implements Serializable {
     protected static final String RESOURCESPATH = "src/main/resources/";
-
-    public void setGameStage(GameStage gs) {
-        this.gs = gs;
-    }
-
     private transient GameStage gs; // keep reference
 
     private transient Timeline timeline;
@@ -51,6 +46,7 @@ public class GLogic implements Serializable {
     private Country player;
     // Game Events
     private PriorityQueue<GEvent> gameEvents;
+    public List<CommandLine.PeriodicCommand>[] periodicCommands;
     //after removed put in stack/deque/list?
     private static final String DEF_GAMEEVENTSPATH = RESOURCESPATH + "data/gameEvents.txt";
     // Game news
@@ -72,6 +68,7 @@ public class GLogic implements Serializable {
         this.world = new World(this);
         CommandLine.initCMD(world.getCountries());
         this.gameEvents = loadGameEvents(DEF_GAMEEVENTSPATH);
+        initPeriodicCommands();
         this.currencies = new Currencies();
         this.improvingRelations = new HashMap<>();
         this.wars = new LinkedList<>();
@@ -132,6 +129,10 @@ public class GLogic implements Serializable {
         }
     }
 
+    public void setGameStage(GameStage gs) {
+        this.gs = gs;
+    }
+
     ///////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////
 
@@ -148,18 +149,26 @@ public class GLogic implements Serializable {
         }
         gs.changeDate(inGDateInfo());
         if (!gameEvents.isEmpty()) {
-            if (gameEvents.peek().getDate().equals(inGDate)) {
+            GEvent gEvent = gameEvents.peek();
+            if (gEvent.getDate().equals(inGDate)) {
                 //isCanHappen PROBLEMATIC
-                if (gameEvents.peek().isCanHappen()) {
+                if (gEvent.isCanHappen()) {
                     gs.popupGEvent(gameEvents.poll());
+                } else{
+                    //......
+                    gameEvents.poll();
                 }
             }
         }
+
+        execPeriodicCommands(0);
+
     }
 
     public void weeklyTick() {
         world.weeklyMilTick(recruitingBuildUnits.keySet());
 
+        execPeriodicCommands(1);
     }
 
     public void monthlyTick() {
@@ -170,10 +179,15 @@ public class GLogic implements Serializable {
         world.monthlyUpdate();
         gs.changeSelectedProvInfo();
         gs.changeSelectedCountryInfo();
+
+        execPeriodicCommands(2);
     }
 
     public void yearlyTick() {
         world.yearlyUpdate();
+
+        execPeriodicCommands(3);
+
     }
 
     public Country getCountry(String c) {
@@ -550,13 +564,13 @@ public class GLogic implements Serializable {
 
     //CountryArray !!!!!, would take care of stuff
     public void declareWar(int a, int o, CasusBelli casusBelli) {
-        War w = world.getCountry(a).declareWar(world.getCountry(o), casusBelli);
-        wars.add(w);
+        War w = getCountry(a).declareWar(getCountry(o),casusBelli);
+        if(w != null)
+            wars.add(w);
     }
 
     public void declareWar(int o, CasusBelli casusBelli) {
-        War w = player.declareWar(world.getCountry(o), casusBelli);
-        wars.add(w);
+        declareWar(playerId,o, casusBelli);
     }
 // FIX
     //public void finishWar(int index) {finishedWars.add( wars.remove(index).toString() + "Won/Lost");}
@@ -686,5 +700,29 @@ public class GLogic implements Serializable {
 
     public WorldMap getWorldMap() {
         return gs.getMap();
+    }
+
+
+    public void initPeriodicCommands() {
+        //noinspection unchecked
+        periodicCommands = (List<CommandLine.PeriodicCommand>[]) new List[4];
+        for (int i = 0; i < periodicCommands.length; i++) {
+            periodicCommands[i] = new LinkedList<>();
+        }
+    }
+
+    public void execPeriodicCommands(int i) {
+        periodicCommands[i].removeIf(CommandLine.PeriodicCommand::run);
+    }
+
+    public void addPeriodicCommand(String string, boolean admin) {
+        String[] k = string.split("\\s+", 3);
+        if(k.length == 3) {
+            TESTING.print(k[0],k[1],k[2]);
+            int i = CommandLine.PeriodicCommand.getPeriod(k[0]);
+            int times = GUtils.parseI(k[1]);
+            if (i >= 0 && i < periodicCommands.length  && times > 0)
+                periodicCommands[i].add(new CommandLine.PeriodicCommand(k[2], admin, times));
+        }
     }
 }

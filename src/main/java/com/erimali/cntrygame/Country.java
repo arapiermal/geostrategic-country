@@ -185,7 +185,9 @@ public class Country implements Serializable, Comparable<Country> {
 
     // War
     public War declareWar(Country op, CasusBelli casusBelli) {
-        return new War(this, op, casusBelli);
+        if(gov.canDeclareWar())
+            return new War(this, op, casusBelli);
+        return null;
     }
 
     //Neighbours
@@ -301,6 +303,11 @@ public class Country implements Serializable, Comparable<Country> {
         for (AdmDiv a : admDivisions) {
             this.population += a.incPopulation(populationIncrease);
         }
+    }
+
+    public void incPopulationIncrease(double amount) {
+        if (amount > 0.0)
+            populationIncrease += amount;
     }
 
     public double getPopulationIncrease() {
@@ -858,4 +865,5 @@ public class Country implements Serializable, Comparable<Country> {
     public int compareTo(Country o) {
         return Integer.compare(countryId, o.countryId);
     }
+
 }
