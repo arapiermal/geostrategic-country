@@ -455,10 +455,14 @@ public class EriScript {
                 else if (parts.length == 1)
                     addPrintedLines("");
                 else if (parts.length == 3) {
+                    parts[1] = parts[1].replaceAll("\\s+", "");
                     int ind;
                     if (parts[1].isBlank())
                         ind = printed.size() - 1;
-                    else
+                    else if(parts[1].charAt(0) == '%') {
+                        putEriString(parts[1].substring(1), parsePrint(parts[2]));
+                        break;
+                    }else
                         ind = (int) solveMath(parts[1]);
                     if (ind < 0) {
                         ind = 0;
@@ -1128,10 +1132,10 @@ public class EriScript {
         int index = input.indexOf('=');
         input = replaceFuncsWithVals(input); // make more efficient
         if (index != -1) {
-            if (hasEriString(index, input)) {
+            if (hasEriString(index + 1, input)) {
                 varName = input.substring(0, index).trim();
-                String rightSide = input.substring(index + 1);
-                parseEriString(varName, rightSide);
+                //String rightSide = input.substring(index + 1);
+                parseEriString(varName, input, index + 1);
                 return;
             }
             // LESS TRIM????
@@ -1277,7 +1281,17 @@ public class EriScript {
     }
 
     public boolean hasEriString(int index, String in) {
-        for (int i = index; i < in.length(); i++) {
+        int j = index;
+        while (j < in.length()) {
+            char c = in.charAt(j);
+            if (Character.isWhitespace(c))
+                j++;
+            else if (c == '%') {
+                return true;
+            } else
+                break;
+        }
+        for (int i = j; i < in.length(); i++) {
             if (isEriStringSign(in.charAt(i))) {
                 return true;
             }
@@ -1289,52 +1303,45 @@ public class EriScript {
         return c == '\'' || c == '\"';
     }
 
-    public void parseEriString(String varName, String in) {
+    public void parseEriString(String varName, String in, int start) {
         char type = (char) 0;
-        int start = 0;
-        int end = in.length() - 1;
-        int highest = 0;
         StringBuilder sb = new StringBuilder();
         StringBuilder sbVar = new StringBuilder();
         StringBuilder sbFunc = new StringBuilder();
-        // join based on highest?
-        for (int i = 0; i < in.length(); i++) {
+        for (int i = start; i < in.length(); i++) {
+            char ch = in.charAt(i);
+            TESTING.print(ch);
             if (type == 0) {
-
-                if (in.charAt(i) == '\'') {
-                    type = '\'';
-                    highest = Math.max(highest, 1);
-                } else if (in.charAt(i) == '\"') {
-                    type = '\"';
-                    highest = Math.max(highest, 2);
-                } else if (in.charAt(i) == '+') {
-                    type = '+';
-
+                if (isEriStringSign(ch)) {
+                    type = ch;
+                } else if (isVarSign(ch)) {
+                    int j = i + 1;
+                    while (j < in.length()) {
+                        if (isValidVarChar(in.charAt(j))) {
+                            sbVar.append(in.charAt(j));
+                        } else {
+                            break;
+                        }
+                        j++;
+                    }
+                    //move to make compatible with stringFunc
+                    sb.append(parseTypedVar(ch,sbVar));
+                    sbVar.setLength(0);
+                    i = j;
                 } else {
-                    if (!Character.isWhitespace(in.charAt(i)))
-                        sbFunc.append(in.charAt(i));
+                    if (Character.isLetter(ch))
+                        sbFunc.append(ch);
                 }
-                if (!sbFunc.isEmpty() && isStringSymbol(type)) {
+                if (!sbFunc.isEmpty()) {
                     String strFunc = sbFunc.toString();
                     sbFunc.setLength(0);
                     i = parseStringFunc(strFunc, in, sb, i);
                 }
             } else {
-                if (in.charAt(i) == type) {
-                    if (type == '+') {
-                        sb.append(parseTypedVar(sbVar));
-                        sbVar.setLength(0);
-                    }
+                if (ch == type) {
                     type = (char) 0;
                 } else {
-                    // can be made faster with while()
-                    if (type == '+') {
-                        if (!Character.isWhitespace(in.charAt(i))) {
-                            sbVar.append(in.charAt(i));
-                        }
-                    } else {
-                        sb.append(in.charAt(i));
-                    }
+                    sb.append(ch);
                 }
             }
         }
@@ -1389,21 +1396,21 @@ public class EriScript {
         return c == '\'' || c == '\"';
     }
 
-    private String parseTypedVar(StringBuilder sb) {
-        String varName = sb.substring(1, sb.length());
-        switch (sb.charAt(0)) {
+    private String parseTypedVar(char ch, StringBuilder sb) {
+        String varName = sb.toString();
+        switch (ch) {
             case '$':
-                if (sb.charAt(1) == '$') {
-                    return String.valueOf(variables.get(varName.substring(1)).intValue());// INNEFFICIENT
-                }
-                return variables.get(varName).toString();
+                return variables.getOrDefault(varName, 0.0).toString();
             case '#':
                 return Arrays.toString(getArr(varName));
             case '%':
-                return varString.get(varName).toString();
+                return varString.getOrDefault(varName, "null");
             default:
                 return "";
         }
+    }
+    public static boolean isVarSign(char c) {
+        return c == '$' || c == '#' || c == '%';
     }
 
     public void putEriString(String var, String e) {
@@ -1495,7 +1502,7 @@ public class EriScript {
     }
 
     public int solveMathInt(String in) {
-        return (int) MathSolver.solve(in, variables, regDouble);
+        return (int) solveMath(in);
     }
 
     public String toPrint() {
@@ -1553,5 +1560,9 @@ public class EriScript {
 
         }
         return sb.toString();
+    }
+
+    public boolean isValidVarChar(char c) {
+        return Character.isLetterOrDigit(c) || c == '_';
     }
 }
