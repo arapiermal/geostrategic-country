@@ -3,6 +3,7 @@ package com.erimali.cntrygame;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,25 +52,24 @@ public class CommandLine {
     private static String playerISO2;
 
     //
-    private static Map<String, EriScript> eriScripts;
+    private static Map<String, EriScript> eriScripts = new HashMap<>();
     //Make changeable in GOptions (?)
     private static String scriptsPath = GLogic.RESOURCESPATH + "scripts/";
 
-    public static void loadEriScripts() {
-        eriScripts = new HashMap<>();
+    public static void loadEriScripts(Map<String, EriScript> eriScripts, String scriptsPath) {
         File filesPath = new File(scriptsPath);
         if (!filesPath.exists() || !filesPath.isDirectory()) {
             ErrorLog.logError("Error in file path.");
             return;
         }
         File[] arrFiles = filesPath.listFiles();
+
         if (arrFiles != null) {
             for (File file : arrFiles) {
                 if (file.isFile() && (file.getName().endsWith(".erisc") || file.getName().endsWith(".eriscript"))) {
                     try {
-                        String name = file.getName().substring(0, file.getName().lastIndexOf('.')).toUpperCase();
-                        String string = new String(Files.readAllBytes(file.toPath()));
-                        EriScript script = new EriScript(string);
+                        String name = file.getName().substring(0, file.getName().lastIndexOf('.')).replaceAll("\\s+", "").toUpperCase();
+                        EriScript script = new EriScript(file.toPath());
                         eriScripts.put(name, script);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -239,6 +239,7 @@ public class CommandLine {
                 switch (k[1]) {
                     case "CHESS":
                         //!Stops execution till game finishes!
+
                         int res = gs.popupChess(k[2]);
                         return res == 0 ? "DRAW" : res > 0 ? "WON" : "LOST";
                     case "TICTACTOE":
@@ -296,19 +297,21 @@ public class CommandLine {
         StringBuilder result = new StringBuilder();
         String[] commands = in.split(COMMAND_SEPARATOR);//
         result.append(execute(commands[0], admin));
-        for(int i = 1; i < commands.length; i++){
-            result.append('\n').append(execute(commands[i],admin));
+        for (int i = 1; i < commands.length; i++) {
+            result.append('\n').append(execute(commands[i], admin));
         }
         return result.toString();
     }
+
     public static String[] executeAllLinesArr(String in, boolean admin) {
         String[] commands = in.split(COMMAND_SEPARATOR);
         String[] result = new String[commands.length];
-        for(int i = 1; i < commands.length; i++){
-            result[i] = execute(commands[i],admin);
+        for (int i = 1; i < commands.length; i++) {
+            result[i] = execute(commands[i], admin);
         }
         return result;
     }
+
     public static void executeAllNoResult(String in) {
         if (in.contains(COMMAND_SEPARATOR)) {
             String[] commands = in.split(COMMAND_SEPARATOR);
@@ -467,6 +470,25 @@ public class CommandLine {
         }
 
         return tokens.toArray(new String[0]);
+    }
+
+    public static void initCMD(CountryArray countries) {
+        setCountries(countries);
+        CommandLine.loadEriScripts(eriScripts, scriptsPath);
+    }
+
+    public static EriScript getEriScript(String impName, Path p) {
+        if (eriScripts == null)
+            return null;
+        String name = impName.toUpperCase();
+        if (eriScripts.containsKey(name)) {
+            if (eriScripts.get(name).isInCurrPath(p))
+                return eriScripts.get(name);
+            else
+                return null;
+        } else {
+            return null;
+        }
     }
 
 }

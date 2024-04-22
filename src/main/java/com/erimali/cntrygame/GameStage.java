@@ -999,11 +999,15 @@ public class GameStage extends Stage {
         popupStage.show();
     }
 
-    public int popupChess(String cName) {
+    public int popupChess(String cName){
+        TESTING.print(cName);
+        return popupChess(CountryArray.getIndexOrInt(cName));
+    }
+    public int popupChess(int cId) {
         pausePlayDate(true);
 
         String PLAYER = game.getPlayer().getGovernment().toStringMainRuler();
-        String OPPONENT = game.getWorldCountries().get(cName).getGovernment().toStringMainRuler();
+        String OPPONENT = game.getWorldCountries().get(cId).getGovernment().toStringMainRuler();
         File file = new File(GLogic.RESOURCESPATH + "web/chess/chess.html");
         String filePath = file.toURI() + "?player=" + PLAYER + "&opponent=" + OPPONENT + "&src=countrysim";
 

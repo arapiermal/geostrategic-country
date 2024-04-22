@@ -17,6 +17,15 @@ public class CountryArray implements Iterable<Country>, Serializable {
         return (short) getIndex(iso2);
     }
 
+    public static int getIndexOrInt(String iso2) {
+        try {
+            int index = Integer.parseInt(iso2);
+            return index;
+        } catch (NumberFormatException e) {
+            return getIndex(iso2);
+        }
+    }
+
     public static int getIndex(String iso2) {
         return (Character.toUpperCase(iso2.charAt(0)) - 'A') * 26 + (Character.toUpperCase(iso2.charAt(1)) - 'A');
     }
@@ -75,7 +84,7 @@ public class CountryArray implements Iterable<Country>, Serializable {
     }
 
     public void remove(int i) {
-        if(i >= 0 && i < maxISO2Countries) {
+        if (i >= 0 && i < maxISO2Countries) {
             countries[i] = null;
             countriesISO2.remove(getIndexISO2(i));
         }
@@ -190,7 +199,7 @@ public class CountryArray implements Iterable<Country>, Serializable {
             }
 
             @Override
-            public void remove(){
+            public void remove() {
                 CountryArray.this.remove(currentIndex);
             }
         };

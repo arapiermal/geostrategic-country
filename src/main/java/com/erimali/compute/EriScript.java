@@ -1,5 +1,9 @@
 package com.erimali.compute;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.IntStream;
@@ -17,6 +21,7 @@ public class EriScript {
     // class which is just a function that doesn't forget previous state?
     private static final String RETURN = "return";
     private static final String EXTRAARG = "EXTRA";
+    private Path currPath;
     private String separator = "\n";// System.lineSeparator();
     private List<String[]> rows;
     private String[] params;
@@ -74,7 +79,16 @@ public class EriScript {
         this.params = in.trim().split("\\s*,\\s*");
     }
 
+    public EriScript(Path path) throws IOException {
+        this((new String(Files.readAllBytes(path))).split(System.lineSeparator()));
+        currPath = path;
+    }
+
     public EriScript(String string) {
+        this(string.split("\n"));
+    }
+
+    public EriScript(String[] splitted) {
         this.forLoops = new Stack<>();
         this.variables = new HashMap<>();
         this.varArr = new HashMap<>();
@@ -83,7 +97,6 @@ public class EriScript {
         this.rows = new ArrayList<>();
         this.printed = new LinkedList<>();
         this.regDouble = new double[64];
-        String[] splitted = string.split(separator);
         int beginFrom = 0;
         String temp;
         if ((temp = trimNoComments(splitted[0]).toLowerCase()).startsWith("params")) {
@@ -100,8 +113,6 @@ public class EriScript {
             if (splitted[i].isBlank())
                 continue;
             if (splitted[i].startsWith("@")) {
-                //Add import like @import@hello.txt,mali.erisc
-
                 loadFunction(splitted);
             } else if (splitted[i].length() > 2 && splitted[i].charAt(splitted[i].length() - 2) == '~') {
                 StringBuilder sb = new StringBuilder(splitted[i].substring(0, splitted[i].length() - 2));
@@ -161,6 +172,7 @@ public class EriScript {
 
     public void loadFunction(String[] splitted) {
         int hasInputs = splitted[i].indexOf(':');
+
         if (hasInputs == -1) {
             String fName = splitted[i].substring(1);
             List<String[]> fRows = new ArrayList<>();
@@ -170,8 +182,31 @@ public class EriScript {
             functions.put(fName, new EriScript(fRows, null));
         } else {
             String fName = splitted[i].substring(1, hasInputs);
-            String[] params = splitted[i].substring(hasInputs + 1).trim().split("\\s*,\\s*");
 
+            String[] params = splitted[i].substring(hasInputs + 1).trim().split("\\s*,\\s*");
+            if (fName.equalsIgnoreCase("import")) {
+                for (String src : params) {
+                    Path p;
+                    if(currPath == null)
+                        p = Paths.get(src);
+                    else
+                        p = currPath.resolve(src);
+                    String impName = p.getFileName().toString();
+                    int endImpName = impName.lastIndexOf('.');
+                    if(endImpName > 0)
+                        impName = impName.substring(0, endImpName);
+                    impName = impName.replaceAll("\\s+", "");
+                    try {
+                        EriScript impEriScript = CommandLine.getEriScript(impName,p);
+                        if(impEriScript == null)
+                            impEriScript = new EriScript(p);
+                        functions.put(impName, impEriScript);
+                    } catch(IOException e){
+                        ErrorLog.logError("IMPORT FAILED: " + src);
+                    }
+                }
+                return;
+            }
             List<String[]> fRows = new ArrayList<>();
             while (++i < splitted.length && !(splitted[i] = splitted[i].trim()).startsWith("#@")) {
                 if (splitted[i].isBlank())
@@ -371,6 +406,23 @@ public class EriScript {
             return;
         }
         switch (command.toLowerCase()) {
+            case "while":
+                forLoops.push(i + 1);
+                parts[1] = parts[1].replace("\\s+", "");
+                //LIMITED FOR SAFETY
+                int maxWhile = 0;
+                if (parseBool(parts[1]))
+                    while (parseBool(parts[1])) {
+                        //implement break?
+                        execute(forLoops.peek());
+                        if(maxWhile++ > 1000000)
+                            break;
+                    }
+                else {
+                    skip();
+                }
+                forLoops.pop();
+                break;
             case "for":
                 if (parts.length == 2) {
                     String[] in = parts[1].split("\\s*,\\s*");
@@ -459,10 +511,10 @@ public class EriScript {
                     int ind;
                     if (parts[1].isBlank())
                         ind = printed.size() - 1;
-                    else if(parts[1].charAt(0) == '%') {
+                    else if (parts[1].charAt(0) == '%') {
                         putEriString(parts[1].substring(1), parsePrint(parts[2]));
                         break;
-                    }else
+                    } else
                         ind = (int) solveMath(parts[1]);
                     if (ind < 0) {
                         ind = 0;
@@ -855,9 +907,9 @@ public class EriScript {
 
                 }
                 if (toInt == 1)
-                    sb.append(String.valueOf((int) val));
+                    sb.append((int) val);
                 else
-                    sb.append(String.valueOf(val));
+                    sb.append(val);
             } else if (ch == '#') {
                 int a = t + 1;
                 while (a < in.length() && !Character.isWhitespace(in.charAt(a))) {
@@ -980,21 +1032,18 @@ public class EriScript {
         } else if (s.length == 4) {
             String comp = s[2].trim().toLowerCase();
             p2 = parsePrint(s[3]).trim();
-            switch (comp) {
-                case "startswith":
-                    return p1.startsWith(p2);
-                case "endswith":
-                    return p1.endsWith(p2);
-                case "contains":
-                    return p1.contains(p2);
-                case "<":
-                    return p1.compareTo(p2) < 0;
-                case ">":
-                    return p1.compareTo(p2) > 0;
-
-                default:
-                    return p1.equalsIgnoreCase(p2);
-            }
+            return switch (comp) {
+                case "startswith" -> p1.startsWith(p2);
+                case "endswith" -> p1.endsWith(p2);
+                case "contains" -> p1.contains(p2);
+                case "<" -> p1.compareTo(p2) < 0;
+                case ">" -> p1.compareTo(p2) > 0;
+                case "=" -> p1.compareTo(p2) == 0;
+                case "~<" -> p1.compareToIgnoreCase(p2) < 0;
+                case "~>" -> p1.compareToIgnoreCase(p2) > 0;
+                case "~=" -> p1.compareToIgnoreCase(p2) == 0;
+                default -> p1.equalsIgnoreCase(p2);
+            };
         } else {
             return false;
         }
@@ -1035,7 +1084,7 @@ public class EriScript {
         int j;
         List<String> varNames = null;
         List<Double> values = null;
-
+//or check for first = first then go backwards to find
         for (j = 0; j < in.length(); j++) {
             char c = in.charAt(j);
             if (MathSolver.isOperator(c)) {
@@ -1075,7 +1124,7 @@ public class EriScript {
                     k++;
                 }
                 int arrInd = solveMathInt(in.substring(j + 1, last));
-                sbVarName.append(String.valueOf(arrInd));
+                sbVarName.append(arrInd);
 
                 j = k;
             }
@@ -1085,7 +1134,7 @@ public class EriScript {
             }
         }
         int ind = j; // index of first '='
-        String varName = sbVarName.length() != 0 ? sbVarName.toString() : null;
+        String varName = sbVarName.isEmpty() ? null : sbVarName.toString();
         // if no ','
         if (firstThing == '=') {
             StringBuilder valString = new StringBuilder();
@@ -1109,6 +1158,9 @@ public class EriScript {
                 // deal with ++ -- ** maybe in MathSolver itself???
             } else {
                 // deal with += -= *= /= ^=
+
+                //char lastValidChar = ...
+                // if lastValidChar is + and currChar is + make ++...
             }
         }
 
@@ -1325,7 +1377,7 @@ public class EriScript {
                         j++;
                     }
                     //move to make compatible with stringFunc
-                    sb.append(parseTypedVar(ch,sbVar));
+                    sb.append(parseTypedVar(ch, sbVar));
                     sbVar.setLength(0);
                     i = j;
                 } else {
@@ -1409,6 +1461,7 @@ public class EriScript {
                 return "";
         }
     }
+
     public static boolean isVarSign(char c) {
         return c == '$' || c == '#' || c == '%';
     }
@@ -1564,5 +1617,9 @@ public class EriScript {
 
     public boolean isValidVarChar(char c) {
         return Character.isLetterOrDigit(c) || c == '_';
+    }
+
+    public boolean isInCurrPath(Path p) {
+        return currPath.equals(p);
     }
 }
