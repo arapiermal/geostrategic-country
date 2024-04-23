@@ -1,31 +1,43 @@
 package com.erimali.cntrygame;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class Economy implements Serializable {
     private double treasury;
-    // TRADE??
     private String currency;// USD, EUR, ALL,...
     private String currencyLongName;
-    private double inflationRate;
+
+    private double inflationRate; //devaluation of currency
 
     private double gdp; //$
     private double economicGrowthRate; // increase of GDP in a year
     private double taxation; //Government budget...
 
     private double unemploymentRate;
+
+
     //private List<Industry> industries;
     // EXPORT VS IMPORT
-    private double totalExport;
-    private double totalImport;
-    //List of trades with other countries,
-    List<Trade.TradeAgreement> tradeAgreements;
+    private final TradeManagement tradeManagement;
+
 
     public Economy() {
 
+        tradeManagement = new TradeManagement();
     }
 
+    public void monthlyTreasuryUpdate() {
+        //revenue vs expenditures
+        double revenue = taxation * (gdp / 12);
+
+        double expenditures = 0;//research spendings, soldiers upkeep, gov spendings
+
+        treasury  += tradeManagement.diffExportImport() + revenue - expenditures;
+    }
+    public void yearlyTick(){
+
+        gdp += (economicGrowthRate - inflationRate) * gdp;
+    }
     public String getCurrency() {
         return currency;
     }
@@ -83,6 +95,12 @@ public class Economy implements Serializable {
         return GUtils.doubleToString(gdp);
     }
 
+    public void annex(Economy eco) {
+        this.gdp += eco.gdp;
+        this.treasury += eco.treasury;
+        this.unemploymentRate = (this.unemploymentRate + eco.unemploymentRate) / 2;
+    }
+
     public void giveMoney(Country o, double amount) {
         if(treasury >= amount){
             treasury -= amount;
@@ -105,8 +123,16 @@ public class Economy implements Serializable {
         return taxation;
     }
 
-    public void monthlyTreasuryUpdate() {
-        //revenue vs expenditures
 
+    public double getInflationRate() {
+        return inflationRate;
+    }
+
+    public void setInflationRate(double inflationRate) {
+        this.inflationRate = inflationRate;
+    }
+
+    public TradeManagement getTradeManagement() {
+        return tradeManagement;
     }
 }

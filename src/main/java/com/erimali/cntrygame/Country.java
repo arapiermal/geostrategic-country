@@ -203,7 +203,7 @@ public class Country implements Serializable, Comparable<Country> {
         return neighbours;
     }
 
-    // Annexation
+    // Full Annexation
     public void annexCountry(CountryArray cArray, int ind, boolean... cond) {
         Country op = cArray.get(ind);
         if (this.landlocked) {
@@ -216,7 +216,7 @@ public class Country implements Serializable, Comparable<Country> {
         this.admDivisions.addAll(op.admDivisions);
         addLanguages(op.getLanguages());
         // Get the economy
-
+        eco.annex(op.eco);
         annexAllAdmDivs(op);
 
         // Soldiers disbanded (EXCEPT when union)
@@ -680,13 +680,18 @@ public class Country implements Serializable, Comparable<Country> {
     }
 
     //world / countryarray for new country if its being formed
-    public void grantAdmDivIndependence(int indCountry, int... indAdmDiv) {
-        List<AdmDiv> independentList = removeAndGetProvinces(admDivisions, indAdmDiv);
-
+    public void grantAdmDivIndependence(Country o, int... indAdmDiv) {
+        List<AdmDiv> independentList = removeAndGetAdmDivs(admDivisions, indAdmDiv);
+        o.addAdmDivs(independentList);
 
     }
 
-    public static List<AdmDiv> removeAndGetProvinces(List<AdmDiv> admDivisions, int... indAdmDiv) {
+    private void addAdmDivs(List<AdmDiv> admDivs) {
+        for(AdmDiv d : admDivs)
+            addAdmDiv(d);
+    }
+
+    public static List<AdmDiv> removeAndGetAdmDivs(List<AdmDiv> admDivisions, int... indAdmDiv) {
         Collections.sort(admDivisions);
         Arrays.sort(indAdmDiv);
         ListIterator<AdmDiv> iterator = admDivisions.listIterator();
@@ -783,6 +788,7 @@ public class Country implements Serializable, Comparable<Country> {
         population += a.getPopulation();
         area += a.getArea();
         //if (landlocked && a.hasWaterAccess()){landlocked = false;}
+        int landlockedProvinces = 0;
         landlocked = landlocked && !a.hasWaterAccess();
 
     }
