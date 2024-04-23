@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URL;
 
 import com.erimali.cntrymilitary.MilUnitData;
+import com.erimali.minigames.MG2048Stage;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableIntegerValue;
 import javafx.event.ActionEvent;
@@ -122,7 +123,9 @@ public class GameStage extends Stage {
         CommandLine.setGameStage(this);
         Scene gameScene = new Scene(gameLayout);
         setScene(gameScene);
-        gameScene.getStylesheets().add(getClass().getResource("css/gameStage.css").toExternalForm());
+        URL cssURL = getClass().getResource("css/gameStage.css");
+        if (cssURL != null)
+            gameScene.getStylesheets().add(cssURL.toExternalForm());
         //Correlate
         game.getWorld().correlateProvinces(map.getMapSVG());
 
@@ -195,7 +198,8 @@ public class GameStage extends Stage {
         gameLayout.setTop(htop);
 
         // CENTER
-        gameLayout.setCenter(map.start());
+        ZoomableScrollPane scrollPane = map.start();
+        gameLayout.setCenter(scrollPane);
 
         // LEFT
         // close X
@@ -219,33 +223,7 @@ public class GameStage extends Stage {
         //hoveringCountry = new Label("Hovering");
         //HBox hBottomLeft = new HBox(hoveringCountry);
 
-        Button gsComputer = new Button("Computer");
-        Button gsOptions = new Button("Settings");
-        try {
-            URL imgSrcComputer = getClass().getResource("img/monitor_with_button.png");
-            if (imgSrcComputer != null) {
-                ImageView imgViewSettings = new ImageView(imgSrcComputer.toExternalForm());
-                imgViewSettings.setFitHeight(24);
-                imgViewSettings.setFitWidth(24);
-                gsComputer.setGraphic(imgViewSettings);
-                gsComputer.setText(null);
-            }
-            URL imgSrcSettings = getClass().getResource("img/settings.png");
-            if (imgSrcSettings != null) {
-                ImageView imgViewSettings = new ImageView(imgSrcSettings.toExternalForm());
-                imgViewSettings.setFitHeight(24);
-                imgViewSettings.setFitWidth(24);
-                gsOptions.setGraphic(imgViewSettings);
-                gsOptions.setText(null);
-            }
-        } catch (Exception e) {
-            ErrorLog.logError(e);
-        }
-        gsComputer.setOnAction(e -> popupWebDesktop());
-        gsOptions.setOnAction(e -> showGameStageOptions());
-        Region tReg = new Region();
-        ToolBar toolBarBottom = new ToolBar(gsComputer, tReg, gsOptions);
-        HBox.setHgrow(tReg, Priority.ALWAYS);
+        ToolBar toolBarBottom = makeBottomToolbar();
         //Region regBottom = new Region();
         //HBox bottom = new HBox(hBottomLeft, regBottom, toolBarBottom);
         //HBox.setHgrow(regBottom, Priority.ALWAYS);
@@ -258,7 +236,7 @@ public class GameStage extends Stage {
 
         Region regRight = new Region();
         Label label = new Label("Map modes");
-        FlowPane mapChoices = makeRightMapModesFlowPane();
+        FlowPane mapChoices = makeRightMapModesFlowPane(scrollPane);
 
         VBox vBoxRight = new VBox(tabPaneRight, regRight, label, mapChoices);
         vBoxRight.setPadding(new Insets(4));
@@ -291,9 +269,50 @@ public class GameStage extends Stage {
         return gameLayout;
     }
 
-    private FlowPane makeRightMapModesFlowPane() {
+    private ToolBar makeBottomToolbar() {
+
+        Button gsComputer = new Button("Computer");
+        Button gsOptions = new Button("Settings");
+        try {
+            URL imgSrcComputer = getClass().getResource("img/monitor_with_button.png");
+            if (imgSrcComputer != null) {
+                ImageView imgViewSettings = new ImageView(imgSrcComputer.toExternalForm());
+                imgViewSettings.setFitHeight(24);
+                imgViewSettings.setFitWidth(24);
+                gsComputer.setGraphic(imgViewSettings);
+                gsComputer.setText(null);
+            }
+            URL imgSrcSettings = getClass().getResource("img/settings.png");
+            if (imgSrcSettings != null) {
+                ImageView imgViewSettings = new ImageView(imgSrcSettings.toExternalForm());
+                imgViewSettings.setFitHeight(24);
+                imgViewSettings.setFitWidth(24);
+                gsOptions.setGraphic(imgViewSettings);
+                gsOptions.setText(null);
+            }
+        } catch (Exception e) {
+            ErrorLog.logError(e);
+        }
+        gsComputer.setOnAction(e -> popupWebDesktop());
+        gsOptions.setOnAction(e -> showGameStageOptions());
+        Region tReg = new Region();
+        ToolBar toolBar = new ToolBar(gsComputer, tReg, gsOptions);
+        HBox.setHgrow(tReg, Priority.ALWAYS);
+        return toolBar;
+    }
+
+    private FlowPane makeRightMapModesFlowPane(ZoomableScrollPane scrollPane) {
         FlowPane flowPane = new FlowPane(Orientation.HORIZONTAL, 10, 10);
         flowPane.setPrefWidth(240);
+        /*
+        Button zoomIn = new Button();
+        zoomIn.setGraphic(WorldMap.loadSVGPath("img/zoom_in.svg"));
+        zoomIn.setOnAction(e -> scrollPane.zoomIn());
+        Button zoomOut = new Button();
+        zoomOut.setGraphic(WorldMap.loadSVGPath("img/zoom_out.svg"));
+        zoomOut.setOnAction(e -> scrollPane.zoomOut());
+
+         */
         Button[] mapModes = new Button[2];
         //enum MapModes (?)
         mapModes[0] = new Button("Default");// change to img
@@ -304,7 +323,7 @@ public class GameStage extends Stage {
         mapModes[1].setOnAction(event -> {
             map.switchMapMode(1);
         });
-
+        //flowPane.getChildren().addAll(zoomIn, zoomOut);
         flowPane.getChildren().addAll(mapModes);
 
         return flowPane;
@@ -999,10 +1018,18 @@ public class GameStage extends Stage {
         popupStage.show();
     }
 
-    public int popupChess(String cName){
+    public int popupMG2048(){
+        MG2048Stage mg2048 = new MG2048Stage();
+        mg2048.initOwner(this);
+        mg2048.showAndWait();
+        return mg2048.getScore();
+    }
+
+    public int popupChess(String cName) {
         TESTING.print(cName);
         return popupChess(CountryArray.getIndexOrInt(cName));
     }
+
     public int popupChess(int cId) {
         pausePlayDate(true);
 

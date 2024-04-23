@@ -290,6 +290,8 @@ public class CommandLine {
                             }
                         }
                         break;
+                    case "2048":
+                        return String.valueOf(gs.popupMG2048());
                     default:
                         return "No such game available";
                 }

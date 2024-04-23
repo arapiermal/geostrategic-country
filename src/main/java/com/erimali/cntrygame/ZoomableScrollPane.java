@@ -1,4 +1,5 @@
 package com.erimali.cntrygame;
+
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
@@ -9,6 +10,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 public class ZoomableScrollPane extends ScrollPane {
     private double scaleValue = 1; //was 0.7
@@ -36,7 +38,7 @@ public class ZoomableScrollPane extends ScrollPane {
         //Node outerNode = centeredNode(node);
         VBox vBox = new VBox(node);
         vBox.setAlignment(Pos.CENTER);
-        vBox.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
+        vBox.setBackground(new Background(new BackgroundFill(Paint.valueOf("#C2DFFF"), null, null)));
 
         vBox.setOnScroll(e -> {
             e.consume();
@@ -45,13 +47,14 @@ public class ZoomableScrollPane extends ScrollPane {
         return vBox;
     }
 
-    private Node centeredNode(Node node) {
-        VBox vBox = new VBox(node);
-        vBox.setAlignment(Pos.CENTER);
-        vBox.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
-        return vBox;
-    }
-
+    /*
+        private Node centeredNode(Node node) {
+            VBox vBox = new VBox(node);
+            vBox.setAlignment(Pos.CENTER);
+            vBox.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
+            return vBox;
+        }
+    */
     private void updateScale() {
         target.setScaleX(scaleValue);
         target.setScaleY(scaleValue);
@@ -83,4 +86,19 @@ public class ZoomableScrollPane extends ScrollPane {
         this.setHvalue((valX + adjustment.getX()) / (updatedInnerBounds.getWidth() - viewportBounds.getWidth()));
         this.setVvalue((valY + adjustment.getY()) / (updatedInnerBounds.getHeight() - viewportBounds.getHeight()));
     }
+
+    //FAIL
+    public void zoomIn() {
+        double viewportCenterX = getViewportBounds().getWidth() / 2.0;
+        double viewportCenterY = getViewportBounds().getHeight() / 2.0;
+        onScroll(25, new Point2D(viewportCenterX, viewportCenterY));
+
+    }
+
+    public void zoomOut() {
+        double viewportCenterX = getViewportBounds().getWidth() / 2.0;
+        double viewportCenterY = getViewportBounds().getHeight() / 2.0;
+        onScroll(-25, new Point2D(viewportCenterX, viewportCenterY));
+    }
+
 }

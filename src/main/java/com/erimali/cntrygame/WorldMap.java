@@ -13,10 +13,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.SVGPath;
+import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.shape.StrokeLineJoin;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -25,8 +29,6 @@ import java.util.List;
 public class WorldMap {
     protected static double mapWidth = 12200;
     protected static double mapHeight = 6149.8;
-    // can make Color and simply take care when adding/changing/removing
-    //private Map<String, Paint> colors;// save as OCEAN,#ADD8E6?
     private Paint[] colors;
     private Color backgroundColor = Color.valueOf("#ADD8E6");
     private Color colDefTransparent = new Color(0, 0, 0, 0);
@@ -64,15 +66,15 @@ public class WorldMap {
     private SVGPath[] milSVG;
 
     public void loadMilSVGData() {
-        URL p =  getClass().getResource("img/milsvgdata.txt");
-        if(p == null){
+        URL p = getClass().getResource("img/milsvgdata.txt");
+        if (p == null) {
             throw new IllegalArgumentException("img/milsvgdata.txt not found");
         }
         try (BufferedReader br = new BufferedReader(new FileReader(p.getFile()))) {
             milSVG = new SVGPath[8];
             int i = 0;
             String s;
-            while((s = br.readLine()) != null){
+            while ((s = br.readLine()) != null) {
                 milSVG[i] = new SVGPath();
                 milSVG[i].setContent(s);
                 i++;
@@ -88,8 +90,8 @@ public class WorldMap {
         this.gs = gs;
     }
 
-    public ScrollPane start() {
-        try (BufferedReader br = new BufferedReader(new FileReader("src/main/resources/map/mcBig.svg"))) {
+    public ZoomableScrollPane start() {
+        try (BufferedReader br = new BufferedReader(new FileReader("src/main/resources/map/illustMap.svg"))) {
             // Load SVG file
             List<SVGProvince> svgPaths = new LinkedList<>(); //LINKED LIST MORE EFFICIENT?!? SINCE WILL BE CONVERTED TO ARRAY?
             //List<SVGPath> countryPaths = new ArrayList<>();
@@ -135,19 +137,22 @@ public class WorldMap {
                     }
                 }
             }
-
-            //If number of Paths already known, no need
             this.mapSVG = svgPaths.toArray(new SVGProvince[0]);
             this.mapGroup = new Group(mapSVG);
+            //SVGPath bg = makeBackground();
+            //mapGroup.getChildren().add(bg);
+            //mapGroup.getChildren().addAll();
+            //If number of Paths already known, no need
             mapGroup.setOnMouseClicked(this::onPathClicked);
 
             //mapGroup.setOnMouseEntered(this::onMouseHover);
+
 
             mapGroup.setCursor(Cursor.HAND);
 
             // better solution?
             //Pane stackPane = new Pane(mapGroup);
-            ScrollPane scrollPane = new ZoomableScrollPane(mapGroup);
+            ZoomableScrollPane scrollPane = new ZoomableScrollPane(mapGroup);
             this.lines = new ArrayList<>();
             //int l = drawLine(3198, 3031);
             int[] l = drawLines(3031, 3030, 2993, 2994, 2991, 2992, 3198);
@@ -155,15 +160,15 @@ public class WorldMap {
             //scrollPane.removeLine(l);
             //scrollPane.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
             ContextMenu cm = new ContextMenu();
-            MenuItem menuItem1 = new MenuItem("Recruit troops");
-            MenuItem menuItem2 = new MenuItem("Construct building");
+            MenuItem menuItem1 = new MenuItem("Manage divisions");
+            MenuItem menuItem2 = new MenuItem("");
             MenuItem menuItem3 = new MenuItem("");
             cm.getItems().addAll(menuItem1, menuItem2, menuItem3);
             scrollPane.setContextMenu(cm);
             scrollPane.setHvalue(scrollPane.getHmax() / 2);
             scrollPane.setVvalue(scrollPane.getVmax() / 2);
             URL css = getClass().getResource("css/worldMap.css");
-            if(css != null)
+            if (css != null)
                 scrollPane.getStylesheets().add(css.toExternalForm());
             return scrollPane;
         } catch (Exception e) {
@@ -171,7 +176,17 @@ public class WorldMap {
             return null;
         }
     }
-
+    public SVGPath makeBackground(){
+        // Set background to water color
+        SVGPath bg = new SVGPath();
+        bg.setContent("M0,"+mapHeight+"V0h"+ mapWidth+ "v"+mapHeight+"H0z");
+        bg.setFill(backgroundColor);
+        bg.setStroke(Paint.valueOf("black"));
+        bg.setStrokeLineCap(StrokeLineCap.ROUND);
+        bg.setStrokeLineJoin(StrokeLineJoin.ROUND);
+        bg.setStrokeWidth(0.2);
+        return bg;
+    }
     public void loadColors() {
         colors = new Paint[CountryArray.maxISO2Countries];
         try (BufferedReader br = new BufferedReader(new FileReader(GLogic.RESOURCESPATH + "map/colors.csv"))) {
@@ -397,6 +412,7 @@ public class WorldMap {
                 break;
         }
     }
+
     //0.0 0.1 0.2 0.3, 1.0 1.1 1.2 1.3  ...
     //0                4                ...
     //how to keep track of removable lines
@@ -471,14 +487,59 @@ public class WorldMap {
     }
 
 
-    public void printFileAllProvData(){
+    public void printFileAllProvData() {
 
     }
 
     public double getWidth() {
         return mapWidth;
     }
+
     public double getHeight() {
         return mapHeight;
     }
+
+
+    public static void main(String... args) {
+        SVGPath a = loadSVGPath("img/zoom_in.svg");
+        TESTING.print(a.getContent());
+    }
+
+    public static SVGPath loadSVGPath(String path) {
+        InputStream inputStream = WorldMap.class.getResourceAsStream(path);
+        if (inputStream != null)
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
+                StringBuilder content = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    int check = line.indexOf('<');
+                    if (check >= 0 && line.length() > 10 && line.substring(check + 1, check + 5).equalsIgnoreCase("path")) {
+                        int d0 = line.indexOf("d=\"");
+                        if (d0 > 0) {
+                            d0 += 3;
+                            stringBuilderTillStringEnd(d0, line, content);
+                        }
+                        content.append(' ');
+                    }
+
+                }
+                SVGPath svgPath = new SVGPath();
+                svgPath.setContent(content.toString());
+                return svgPath;
+            } catch (IOException ioe) {
+                return null;
+            }
+        return null;
+    }
+
+    public static void stringBuilderTillStringEnd(int i, String line, StringBuilder sb) {
+        while (i < line.length()) {
+            char c = line.charAt(i);
+            if (c == '\"')
+                return;
+            sb.append(c);
+            i++;
+        }
+    }
+
 }

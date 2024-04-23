@@ -29,7 +29,6 @@ public class Military implements Serializable {
         Arrays.fill(milTechProgress, (short) 0);
         milTechLevel = new short[MilUnitData.getMaxTypes()];
         Arrays.fill(milTechLevel, (short) 0);
-
     }
 
     //if true pop up benefits/new available units
