@@ -38,6 +38,9 @@ public class GOptions {
                     if (setting.length == 3) {
                         if (setting[0].equalsIgnoreCase("MODS")) {
                             modsPath = readStringTrim(setting[2]);
+                            if (!modsPath.endsWith("/")) {
+                                modsPath += "/";
+                            }
                         }
                     }
                     if (setting.length >= 2) {
@@ -93,8 +96,8 @@ public class GOptions {
             writer.newLine();
             writer.write(Settings.MODS + boolToIntString(allowMods) + ":\"" + modsPath + "\"");
             writer.newLine();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ioe) {
+            ErrorLog.logError(ioe);
         }
     }
 
@@ -102,16 +105,17 @@ public class GOptions {
         int start = in.indexOf('\"') + 1;
         int end = in.lastIndexOf('\"') - 1;
         if (end > start) {
-            while(start < end && Character.isWhitespace(in.charAt(start))){
+            while (start < end && Character.isWhitespace(in.charAt(start))) {
                 start++;
             }
-            while(end > start && Character.isWhitespace(in.charAt(end))){
+            while (end > start && Character.isWhitespace(in.charAt(end))) {
                 end--;
             }
             return in.substring(start, end + 1);
         } else
             return in;
     }
+
     public static String boolToIntString(boolean b) {
         return b ? ":1" : ":0";
     }
@@ -160,11 +164,17 @@ public class GOptions {
         File selectedDirectory = directoryChooser.showDialog(stage);
         if (selectedDirectory != null) {
             modsPath = selectedDirectory.getAbsolutePath();
+            if (!modsPath.endsWith("/"))
+                modsPath += "/";
         } else {
 
         }
     }
 
+    public static String getModsPath() {
+        return modsPath;
+    }
+    
     public static boolean hasMods() {
         //check filesystem
         return false;

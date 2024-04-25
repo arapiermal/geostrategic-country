@@ -1,7 +1,9 @@
 package com.erimali.cntrygame;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
+import java.util.LinkedList;
 
 import com.erimali.cntrymilitary.MilUnitData;
 import com.erimali.minigames.MG2048Stage;
@@ -14,6 +16,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
@@ -25,9 +28,54 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import javax.tools.Tool;
+class LimitedSizeList<T> {
+    private final int maxSize;
+    private final LinkedList<T> list;
+    private int index;
+
+    public LimitedSizeList(int maxSize) {
+        this.maxSize = maxSize;
+        this.list = new LinkedList<>();
+    }
+
+    public void add(T el) {
+        if (list.size() >= maxSize) {
+            list.removeLast();
+        }
+        list.addFirst(el);
+        //reset
+        index = list.size() - 1;
+    }
+
+    //iterator for speed?
+    public T get(int i) {
+        if (i < 0 || i >= list.size())
+            return null;
+        return list.get(i);
+    }
+
+    public T getUp() {
+        index++;
+        index %= list.size();
+        return get(index);
+    }
+
+    public T getDown() {
+        index--;
+        if (index < 0)
+            index = list.size() - 1;
+        return get(index);
+    }
+}
 
 public class GameStage extends Stage {
+    private static Image gameIcon;
+    static {
+        InputStream inputStream = GameStage.class.getResourceAsStream("img/gameIcon.png");
+        if(inputStream != null)
+            gameIcon = new Image(inputStream);
+    }
+
     // POP UP WHEN FULLSCREEN PROBLEM
     private Label countryName;
     private Label date;
@@ -61,6 +109,7 @@ public class GameStage extends Stage {
     //
     private ToggleButton improveRelations;
     private Stage commandLineStage;
+    private LimitedSizeList<String> lastCommands;
     private Label infoRelations;
     private Button sendAllianceRequest;
 
@@ -71,6 +120,7 @@ public class GameStage extends Stage {
 
     public GameStage() {
         setTitle(Main.APP_NAME + " - Game");
+        loadGameIcon(this);
         setOnCloseRequest(e -> close());
         this.selectedCountry = -1;
         this.map = new WorldMap(this);
@@ -103,7 +153,8 @@ public class GameStage extends Stage {
     //Load game
     public GameStage(GLogic game) {
         setTitle(Main.APP_NAME + " - Game");
-        setOnCloseRequest(e -> close());//...
+        loadGameIcon(this);
+        setOnCloseRequest(e -> close());
         this.selectedCountry = -1;
         game.setGameStage(this);
         game.startTimer();
@@ -130,6 +181,11 @@ public class GameStage extends Stage {
         game.getWorld().correlateProvinces(map.getMapSVG());
 
         this.setFullScreen(GOptions.isFullScreen());
+    }
+
+    public static void loadGameIcon(Stage stage) {
+        stage.getIcons().add(gameIcon);
+
     }
 
     private void updateGameLayout() {
@@ -240,8 +296,8 @@ public class GameStage extends Stage {
 
         VBox vBoxRight = new VBox(tabPaneRight, regRight, label, mapChoices);
         vBoxRight.setPadding(new Insets(4));
-        VBox.setVgrow(regRight, Priority.ALWAYS);
-        VBox.setVgrow(tabPaneRight, Priority.ALWAYS);
+        VBox.setVgrow(regRight, Priority.SOMETIMES);
+        VBox.setVgrow(tabPaneRight, Priority.SOMETIMES);
 
         // rightScrollPane.setContent(rightInfo);
         // gameLayout.setRight(rightScrollPane);
@@ -316,13 +372,9 @@ public class GameStage extends Stage {
         Button[] mapModes = new Button[2];
         //enum MapModes (?)
         mapModes[0] = new Button("Default");// change to img
-        mapModes[0].setOnAction(event -> {
-            map.switchMapMode(0);
-        });
+        mapModes[0].setOnAction(event -> map.switchMapMode(0));
         mapModes[1] = new Button("Allies");
-        mapModes[1].setOnAction(event -> {
-            map.switchMapMode(1);
-        });
+        mapModes[1].setOnAction(event -> map.switchMapMode(1));
         //flowPane.getChildren().addAll(zoomIn, zoomOut);
         flowPane.getChildren().addAll(mapModes);
 
@@ -334,10 +386,11 @@ public class GameStage extends Stage {
 
         tabPane.setMinWidth(280);
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-        Tab[] tabs = new Tab[2];
+        Tab[] tabs = new Tab[3];
         tabs[0] = makeTabMilitary();
         tabs[1] = makeTabBuildings();
-        //tabPane.setStyle("-fx-tab-min-width: 0;");
+        tabs[2] = makeTabUnions();
+
 
         tabPane.getTabs().addAll(tabs);
         return tabPane;
@@ -382,6 +435,12 @@ public class GameStage extends Stage {
 
         Tab tab = new Tab("Buildings", tableViewBuildings);
 
+        return tab;
+    }
+
+    private Tab makeTabUnions() {
+
+        Tab tab = new Tab("Unions");
         return tab;
     }
 
@@ -493,7 +552,9 @@ public class GameStage extends Stage {
     //or keep variable outside
     //private int optStageScene;
 
+
     private Stage makeCommandLineStage() {
+        lastCommands = new LimitedSizeList<>(10);
         // Autocomplete for already entered commands (?) !ControlsFX!
         TextField commandLine = new TextField();
         Button commandSubmit = new Button("Enter");
@@ -502,26 +563,33 @@ public class GameStage extends Stage {
         HBox commandHBox = new HBox(commandLine, commandSubmit);
         Label commandResult = new Label();
         VBox commandVBox = new VBox(commandHBox, commandResult);
-
+        HBox.setHgrow(commandLine, Priority.ALWAYS);
         commandLine.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ENTER) {
+            KeyCode keyCode = event.getCode();
+            if (keyCode == KeyCode.ENTER) {
                 if (!commandLine.getText().isBlank()) {
                     try {
                         String res = CommandLine.execute(commandLine.getText());
+                        lastCommands.add(commandLine.getText());
                         commandResult.setText(res);
                         commandLine.setText("");
                     } catch (Exception e) {
                         commandResult.setText(e.toString());
                     }
                 }
-            } else if (event.getCode() == KeyCode.ESCAPE) {
+            } else if (keyCode == KeyCode.ESCAPE) {
                 commandLineStage.hide();
+            } else if (keyCode == KeyCode.UP) {
+                commandLine.setText(lastCommands.getUp());
+            } else if (keyCode == KeyCode.DOWN) {
+                commandLine.setText(lastCommands.getDown());
             }
         });
         commandSubmit.setOnAction(event -> {
             if (!commandLine.getText().isBlank()) {
                 try {
                     String res = CommandLine.execute(commandLine.getText());
+                    lastCommands.add(commandLine.getText());
                     commandResult.setText(res);
                     commandLine.setText("");
                 } catch (Exception e) {
@@ -621,7 +689,7 @@ public class GameStage extends Stage {
     public void sendDonation() {
         // selected country -> treasury += input
         //max should be governmentBudget (not spent) / 40
-        Double result = showNumberInputDialog(10000000);
+        Double result = showNumberInputDialog("Donation", 1000, 10000000);
         //game.getPlayer().getEconomy().getGDP()/10
         if (result != null) {
             displayNumberInputResult(result);
@@ -635,18 +703,24 @@ public class GameStage extends Stage {
 
     public void sendAllianceRequest() {
         if (game.isAllyWith(selectedCountry)) {
-
-
-            sendAllianceRequest.setText("Alliance request");
+            if (game.breakAlliance(selectedCountry)) {
+                showAlert(Alert.AlertType.CONFIRMATION, "Broken alliance", game.getCountry(selectedCountry).getName() + " is not our ally any longer.");
+                sendAllianceRequest.setText("Alliance request");
+            } else {
+                showAlert(Alert.AlertType.CONFIRMATION, "Couldn't break alliance", game.getCountry(selectedCountry).getName() + " is still our ally.");
+            }
         } else {
-
             if (game.sendAllianceRequest(selectedCountry)) {
                 showAlert(Alert.AlertType.CONFIRMATION, "Accepted alliance request", game.getCountry(selectedCountry).getName() + " has accepted our alliance request.");
                 sendAllianceRequest.setText("Break alliance");
             } else {
-
+                showAlert(Alert.AlertType.WARNING, "Denied alliance request", game.getCountry(selectedCountry).getName() + " has denied our alliance request.");
             }
         }
+    }
+
+    public void sendMakeSubjectRequest() {
+
     }
 
     public void declareWar() {
@@ -845,15 +919,16 @@ public class GameStage extends Stage {
                         dialog.setHeaderText("Pick a rebel type.");
                         event.consume();
                     } else {
-                        Double money = showNumberInputDialog(1000000, 100000000);
+                        Double money = showNumberInputDialog("Sponsor Rebels", 1000000, 100000000);
                         if (money == null) {
                             dialog.setHeaderText("Money is a number!");
                             event.consume();
+                        } else {
+                            double amount = money.doubleValue();
+                            //TESTING.print(amount);
+                            //game.sponsorRebels(rt, selectedCountry, money);
+                            GameAudio.playShortSound("low-impact.mp3");
                         }
-                        double amount = money.doubleValue();
-                        TESTING.print(amount);
-                        //game.sponsorRebels(rt, selectedCountry, money);
-                        GameAudio.playShortSound("low-impact.mp3");
                     }
                 }
         );
@@ -1018,7 +1093,7 @@ public class GameStage extends Stage {
         popupStage.show();
     }
 
-    public int popupMG2048(){
+    public int popupMG2048() {
         MG2048Stage mg2048 = new MG2048Stage();
         mg2048.initOwner(this);
         mg2048.showAndWait();
@@ -1122,26 +1197,30 @@ public class GameStage extends Stage {
     }
 
     private Double showNumberInputDialog(double maxSliderVal) {
-        return showNumberInputDialog(0, maxSliderVal);
+        return showNumberInputDialog("Number Input", 0, maxSliderVal);
     }
 
-    private Double showNumberInputDialog(double minSliderVal, double maxSliderVal) {
+    private Double showNumberInputDialog(String title) {
+        return showNumberInputDialog(title, 100000, game.getPlayer().getTreasury());
+    }
+
+    private Double showNumberInputDialog(String title, double minSliderVal, double maxSliderVal) {
         Stage dialogStage = new Stage();
         dialogStage.initModality(Modality.APPLICATION_MODAL);
         Slider slider = new Slider(minSliderVal, maxSliderVal, 0);
-
         Label label = new Label("Enter amount:");
         TextField inputField = new TextField(Double.toString(minSliderVal));
-        slider.valueProperty().addListener((observable, oldValue, newValue) -> inputField.setText(newValue.toString()));
+        slider.valueProperty().addListener((observable, oldValue, newValue) -> inputField.setText(String.valueOf(newValue.intValue())));
         Button okButton = new Button("OK");
         okButton.setOnAction(e -> dialogStage.close());
 
         VBox vbox = new VBox(10, slider, label, inputField, okButton);
-        vbox.setStyle("-fx-padding: 10px;");
+        //vbox.setStyle("-fx-padding: 10px;");
+        vbox.setPadding(new Insets(10));
         vbox.setPrefSize(200, 150);
 
         dialogStage.setScene(new Scene(vbox));
-        dialogStage.setTitle("Number Input");
+        dialogStage.setTitle(title);
         dialogStage.showAndWait();
 
         try {

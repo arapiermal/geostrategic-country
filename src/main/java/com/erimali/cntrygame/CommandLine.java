@@ -44,6 +44,8 @@ class Command {
 }
 
 public class CommandLine {
+
+
     public static class PeriodicCommand {
         String command;
         boolean admin;
@@ -85,8 +87,13 @@ public class CommandLine {
     //Make changeable in GOptions (?)
     private static String scriptsPath = GLogic.RESOURCESPATH + "scripts/";
 
-    public static void loadEriScripts(Map<String, EriScript> eriScripts, String scriptsPath) {
+    public static void loadEriScripts(String scriptsPath) {
         File filesPath = new File(scriptsPath);
+        loadEriScripts(eriScripts, filesPath);
+    }
+
+    public static void loadEriScripts(Map<String, EriScript> eriScripts, File filesPath) {
+        TESTING.print(filesPath);
         if (!filesPath.exists() || !filesPath.isDirectory()) {
             ErrorLog.logError("Error in file path.");
             return;
@@ -101,7 +108,7 @@ public class CommandLine {
                         EriScript script = new EriScript(file.toPath());
                         eriScripts.put(name, script);
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        ErrorLog.logError(e);
                     }
                 }
             }
@@ -321,6 +328,8 @@ public class CommandLine {
                 break;
             case "SCRIPT":
                 EriScript script = eriScripts.get(k[1]);
+                if(script == null)
+                    return "NO SUCH SCRIPT LOADED";
                 script.execute(2, k);
                 return script.toPrintClear();
             default:
@@ -510,7 +519,7 @@ public class CommandLine {
 
     public static void initCMD(CountryArray countries) {
         setCountries(countries);
-        CommandLine.loadEriScripts(eriScripts, scriptsPath);
+        CommandLine.loadEriScripts(scriptsPath);
     }
 
     public static EriScript getEriScript(String impName, Path p) {

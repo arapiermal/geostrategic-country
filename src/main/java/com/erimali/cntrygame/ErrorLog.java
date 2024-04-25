@@ -8,7 +8,6 @@ import javafx.scene.control.Alert;
 
 import java.util.*;
 
-//POPUP??
 public class ErrorLog {
     private static final ObservableList<String> errors = FXCollections.observableArrayList();
 
@@ -22,6 +21,7 @@ public class ErrorLog {
 
     public static void logError(Exception e) {
         errors.add(e.getMessage());
+        //
         e.printStackTrace();
     }
 

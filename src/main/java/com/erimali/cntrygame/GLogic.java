@@ -1,8 +1,8 @@
 package com.erimali.cntrygame;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.Serializable;
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 import com.erimali.cntrymilitary.*;
@@ -67,14 +67,18 @@ public class GLogic implements Serializable {
         startTimer();
         this.world = new World(this);
         CommandLine.initCMD(world.getCountries());
-        this.gameEvents = loadGameEvents(DEF_GAMEEVENTSPATH);
+        this.gameEvents = new PriorityQueue<>();
+        loadGameEvents(DEF_GAMEEVENTSPATH);
         initPeriodicCommands();
         this.currencies = new Currencies();
         this.improvingRelations = new HashMap<>();
         this.wars = new LinkedList<>();
         loadAllUnitData();
         this.recruitingBuildUnits = new HashMap<>();
+        if (GOptions.isAllowMods())
+            loadMods();
     }
+
 
     public void startTimer() {
         startTimer(gameSpeedInterval);
@@ -144,7 +148,7 @@ public class GLogic implements Serializable {
         if (inGDate.isFirstDayOfMonth()) {
             monthlyTick();
         }
-        if(inGDate.isFirstDayOfWeek()){
+        if (inGDate.isFirstDayOfWeek()) {
             weeklyTick();
         }
         gs.changeDate(inGDateInfo());
@@ -154,7 +158,7 @@ public class GLogic implements Serializable {
                 //isCanHappen PROBLEMATIC
                 if (gEvent.isCanHappen()) {
                     gs.popupGEvent(gameEvents.poll());
-                } else{
+                } else {
                     //......
                     gameEvents.poll();
                 }
@@ -205,6 +209,7 @@ public class GLogic implements Serializable {
     public String inGDateInfo(char sep) {
         return inGDate.toString(sep);
     }
+
     public String toStringCountry(int c) {
         Country country = world.getCountry(c);
         if (country != null) {
@@ -313,14 +318,17 @@ public class GLogic implements Serializable {
 
 
     // Game Events
+    private void loadGameEvents(String path) {
+        loadGameEvents(new File(path));
+    }
 
-    private PriorityQueue<GEvent> loadGameEvents(String path) {
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-            PriorityQueue<GEvent> gEvents = new PriorityQueue<>();
+    private void loadGameEvents(File file) {
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
             ArrayList<String> options = new ArrayList<>();
             ArrayList<String> commands = new ArrayList<>();
             while ((line = br.readLine()) != null) {
+
                 String[] data = line.split(",");
                 String description = "";
                 if ((line = br.readLine()) != null) {
@@ -344,20 +352,18 @@ public class GLogic implements Serializable {
                     continue;
                 }
                 if (data.length == 3)
-                    gEvents.add(new GEvent(data[1], new GDate(data[2]), description,
+                    gameEvents.add(new GEvent(data[1], new GDate(data[2]), description,
                             options.toArray(new String[options.size()]),
                             commands.toArray(new String[commands.size()])));
                 else if (data.length == 4)
-                    gEvents.add(new GEvent(data[1], new GDate(data[2]), data[3], description,
+                    gameEvents.add(new GEvent(data[1], new GDate(data[2]), data[3], description,
                             options.toArray(new String[options.size()]),
                             commands.toArray(new String[commands.size()])));
                 options.clear();
                 commands.clear();
             }
-            return gEvents;
         } catch (Exception e) {
-            TESTING.print("EVENT LOADING ERROR");
-            return new PriorityQueue<GEvent>();
+            TESTING.print("EVENT LOADING CRITICAL ERROR");
         }
     }
 
@@ -564,13 +570,13 @@ public class GLogic implements Serializable {
 
     //CountryArray !!!!!, would take care of stuff
     public void declareWar(int a, int o, CasusBelli casusBelli) {
-        War w = getCountry(a).declareWar(getCountry(o),casusBelli);
-        if(w != null)
+        War w = getCountry(a).declareWar(getCountry(o), casusBelli);
+        if (w != null)
             wars.add(w);
     }
 
     public void declareWar(int o, CasusBelli casusBelli) {
-        declareWar(playerId,o, casusBelli);
+        declareWar(playerId, o, casusBelli);
     }
 // FIX
     //public void finishWar(int index) {finishedWars.add( wars.remove(index).toString() + "Won/Lost");}
@@ -597,7 +603,11 @@ public class GLogic implements Serializable {
     }
 
     public boolean sendAllianceRequest(int c) {
-        return player.sendAllianceRequest(world.getCountries(),c);
+        return player.sendAllianceRequest(world.getCountries(), c);
+    }
+
+    public boolean breakAlliance(int c) {
+        return player.breakAlliance(world.getCountries(), c);
     }
 
     public Currencies getCurrencies() {
@@ -678,20 +688,20 @@ public class GLogic implements Serializable {
         //no units, one unit (only key should be and empty list), more than one -> one recruiting/getting built rest in queue
         //
         MilUnit u = d.isVehicle() ? new MilVehicles(d, ownerId) : new MilSoldiers(d, ownerId);
-        if(recruitingBuildUnits.containsKey(provId)){
+        if (recruitingBuildUnits.containsKey(provId)) {
             recruitingBuildUnits.get(provId).add(u);
-        } else{
+        } else {
             world.recruitBuildMilUnit(u, provId);
             recruitingBuildUnits.put(provId, new LinkedList<>());
         }
     }
 
-    public void contMilUnit(int provId){
-        if(recruitingBuildUnits.containsKey(provId)){
+    public void contMilUnit(int provId) {
+        if (recruitingBuildUnits.containsKey(provId)) {
             List<MilUnit> l = recruitingBuildUnits.get(provId);
-            if(l.isEmpty()){
+            if (l.isEmpty()) {
                 recruitingBuildUnits.remove(provId);
-            } else{
+            } else {
                 MilUnit u = recruitingBuildUnits.get(provId).removeFirst();
                 world.recruitBuildMilUnit(u, provId);
             }
@@ -717,12 +727,23 @@ public class GLogic implements Serializable {
 
     public void addPeriodicCommand(String string, boolean admin) {
         String[] k = string.split("\\s+", 3);
-        if(k.length == 3) {
-            TESTING.print(k[0],k[1],k[2]);
+        if (k.length == 3) {
+            TESTING.print(k[0], k[1], k[2]);
             int i = CommandLine.PeriodicCommand.getPeriod(k[0]);
             int times = GUtils.parseI(k[1]);
-            if (i >= 0 && i < periodicCommands.length  && times > 0)
+            if (i >= 0 && i < periodicCommands.length && times > 0)
                 periodicCommands[i].add(new CommandLine.PeriodicCommand(k[2], admin, times));
         }
+    }
+
+    public void loadMods() {
+        String modsPath = GOptions.getModsPath();
+        File modsDir = new File(modsPath);
+        File[] events = modsDir.listFiles((dir, name) -> dir.isFile() && name.toUpperCase().contains("EVENTS"));
+        if (events != null)
+            for (File ev : events)
+                loadGameEvents(ev);
+        CommandLine.loadEriScripts(modsPath + "scripts/");
+
     }
 }

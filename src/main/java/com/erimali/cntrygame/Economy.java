@@ -135,4 +135,8 @@ public class Economy implements Serializable {
     public TradeManagement getTradeManagement() {
         return tradeManagement;
     }
+
+    public double getTreasury() {
+        return treasury;
+    }
 }

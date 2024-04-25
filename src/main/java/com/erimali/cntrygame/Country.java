@@ -393,9 +393,12 @@ public class Country implements Serializable, Comparable<Country> {
     }
 
     public void addAlly(String c) {
-        dip.addAlly((short) CountryArray.getIndex(c));
+        dip.addAlly(CountryArray.getIndexShort(c));
     }
 
+    public void removeAlly(int c){
+        dip.removeAlly(c);
+    }
     // !!!!!!!!!!!!!!!!!!!!!!!!!
     public void subjugateCountry(Country op, SubjectType type) {
         if (subjectOf == null) {
@@ -537,6 +540,17 @@ public class Country implements Serializable, Comparable<Country> {
             return false;
         }
 
+    }
+
+    public boolean breakAlliance(CountryArray cArr, int c) {
+        Country o = cArr.get(c);
+        if(isAllyWith(c)){
+            removeAlly(c);
+            o.removeAlly(countryId);
+            improveRelations(c,  (short) -10);
+            return true;
+        }
+        return false;
     }
 
     public void addContinent(Continent cont) {
@@ -870,6 +884,9 @@ public class Country implements Serializable, Comparable<Country> {
     @Override
     public int compareTo(Country o) {
         return Integer.compare(countryId, o.countryId);
+    }
+    public double getTreasury(){
+        return eco.getTreasury();
     }
 
 }

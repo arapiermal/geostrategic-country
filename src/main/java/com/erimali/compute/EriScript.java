@@ -47,22 +47,6 @@ public class EriScript {
 
     private static final String tempInd = "IND";
 
-    public void addPrintedLines(String... toPrint) {
-        Collections.addAll(printed, toPrint);
-    }
-
-    public void printPrinted() {
-        for (String s : printed) {
-            System.out.println(s);
-        }
-    }
-
-    public void printVariables() {
-        for (Map.Entry<String, Double> entry : variables.entrySet()) {
-            System.out.println(entry);
-        }
-    }
-
     public void initThings() {
         this.regDouble = new double[64];
         this.varArr = new HashMap<>();
@@ -97,16 +81,20 @@ public class EriScript {
         this.rows = new ArrayList<>();
         this.printed = new LinkedList<>();
         this.regDouble = new double[64];
-        int beginFrom = 0;
         String temp;
-        if ((temp = trimNoComments(splitted[0]).toLowerCase()).startsWith("params")) {
+        i = 0;
+        while(trimNoComments(splitted[i]).isBlank()){
+            i++;
+        }
+        int beginFrom = i;
+        if ((temp = trimNoComments(splitted[i]).toLowerCase()).startsWith("params")) {
             int index = temp.indexOf(':');
             if (index != -1) {
                 extractParamNames(temp.substring(index + 1));
             } else {
                 extractParamNames(temp.substring(7));
             }
-            beginFrom = 1;
+            beginFrom = i + 1;
         }
         for (i = beginFrom; i < splitted.length; i++) {
             splitted[i] = trimNoComments(splitted[i]);
@@ -168,6 +156,12 @@ public class EriScript {
             if (endSign != -1)
                 sb.append(splitted[i], 0, endSign);
         }
+    }
+
+    public EriScript(List<String[]> fRows, String[] params) {
+        initThings();
+        this.rows = fRows;
+        this.params = params;
     }
 
     public void loadFunction(String[] splitted) {
@@ -255,25 +249,41 @@ public class EriScript {
         }
     }
 
-    public EriScript(List<String[]> fRows, String[] params) {
-        initThings();
-        this.rows = fRows;
-        this.params = params;
+
+    public void addPrintedLines(String... toPrint) {
+        Collections.addAll(printed, toPrint);
+    }
+
+    public void printPrinted() {
+        for (String s : printed) {
+            System.out.println(s);
+        }
+    }
+
+    public void printVariables() {
+        for (Map.Entry<String, Double> entry : variables.entrySet()) {
+            System.out.println(entry);
+        }
     }
 
     public void execute(int startArg, String... args) {
-        double[] dParams = new double[args.length - startArg];
-        int j = 0;
-        for (int i = startArg; i < args.length; i++) {
-            if (Character.isLetter(args[i].charAt(0))) {
-                if (j < params.length)
-                    putEriString(params[j], args[i]);
-                dParams[j] = 0;
-            } else
-                dParams[j] = GUtils.parseD(args[i]);
-            j++;
+        int n = args.length - startArg;
+        if(n <= 0){
+            execute();
+        } else {
+            double[] dParams = new double[n];
+            int j = 0;
+            for (int i = startArg; i < args.length; i++) {
+                if (Character.isLetter(args[i].charAt(0))) {
+                    if (j < params.length)
+                        putEriString(params[j], args[i]);
+                    dParams[j] = 0;
+                } else
+                    dParams[j] = GUtils.parseD(args[i]);
+                j++;
+            }
+            execute(dParams);
         }
-        execute(dParams);
     }
 
     public void execute(double... dParams) {
@@ -284,7 +294,7 @@ public class EriScript {
                 variables.put(params[j], dParams[j]);
             }
             int m = Math.max(dParams.length, params.length);
-            if (m > n) {
+            if (dParams.length > params.length) {
                 int k = 0;
                 for (; j < m; j++) {
                     variables.put(EXTRAARG + k, dParams[j]);
@@ -306,7 +316,7 @@ public class EriScript {
         while (variables.containsKey(RETURN + n)) {
             n++;
         }
-        double out[] = new double[n];
+        double[] out = new double[n];
         for (int j = 0; j < n; j++) {
             out[j] = variables.get(RETURN + j);
         }
@@ -345,7 +355,7 @@ public class EriScript {
             if (hasReturned) {
                 return;
             }
-            String row[] = rows.get(i);
+            String[] row = rows.get(i);
             // presuming TRIM()
             if (row[0].charAt(0) == '.') {
                 return;
@@ -647,7 +657,7 @@ public class EriScript {
                 break;
             case "parse":
                 if (parts.length == 3) {
-                    String toParse = varString.get(parts[2]).toString();
+                    String toParse = varString.get(parts[2]);
                     if (toParse.indexOf(',') > 0) {
                         setArr(parts[1], toParse);
                     } else {

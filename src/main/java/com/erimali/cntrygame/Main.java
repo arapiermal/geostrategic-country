@@ -32,7 +32,7 @@ public class Main extends Application {
 
         //primaryStage.initStyle(StageStyle.UNDECORATED); //Removes borders
         primaryStage.setTitle(APP_NAME + " - Main Menu");
-
+        GameStage.loadGameIcon(primaryStage);
         Button startButton = createButton("New Game", this::startGame);
         Button loadButton = createButton("Load Game", this::loadGame);
 
