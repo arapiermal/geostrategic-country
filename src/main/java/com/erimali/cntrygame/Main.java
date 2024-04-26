@@ -11,6 +11,8 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -18,21 +20,35 @@ import javafx.stage.Stage;
 import java.io.InputStream;
 
 public class Main extends Application {
-
     protected static final String APP_NAME = "Strategical Geopolitics Simulator";
+    private static Image gameIcon;
+
+    static {
+        InputStream inputStream = GameStage.class.getResourceAsStream("img/gameIcon.png");
+        if (inputStream != null)
+            gameIcon = new Image(inputStream);
+
+    }
+
     private Stage primaryStage;
     private Stage gameStage;
+    private SVGPath trashIcon;
 
     @Override
     public void start(Stage primaryStage) {
+        trashIcon = WorldMap.loadSVGPath("img/trash.svg");
+        if(trashIcon != null){
+            trashIcon.setStrokeWidth(2);
+            trashIcon.setStroke(Color.BLACK);
+            trashIcon.setFill(Color.TRANSPARENT);
+        }
         GOptions.loadGOptions();
         SaveGame.loadSaveGamePaths();
 
         this.primaryStage = primaryStage;
 
-        //primaryStage.initStyle(StageStyle.UNDECORATED); //Removes borders
         primaryStage.setTitle(APP_NAME + " - Main Menu");
-        GameStage.loadGameIcon(primaryStage);
+        loadGameIcon(primaryStage);
         Button startButton = createButton("New Game", this::startGame);
         Button loadButton = createButton("Load Game", this::loadGame);
 
@@ -93,6 +109,7 @@ public class Main extends Application {
     private BorderPane createRootContainer(VBox centerLayout) {
         BorderPane root = new BorderPane();
         root.setCenter(centerLayout);
+        root.setBottom(trashIcon);
         root.setPadding(new Insets(40));
         return root;
     }
@@ -110,7 +127,7 @@ public class Main extends Application {
         optStage.setTitle("Options");
 
         VBox optLayout = createOptionsLayout(optStage);
-        Scene optScene = new Scene(optLayout, 400, 300);
+        Scene optScene = new Scene(optLayout);
         optStage.setScene(optScene);
         optStage.initModality(Modality.APPLICATION_MODAL);
 
@@ -201,10 +218,31 @@ public class Main extends Application {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Load save-game");
         ListView<String> listView = new ListView<>(SaveGame.saves);
+        listView.setCellFactory(param -> new ListCell<>() {
+            private final Button removeButton = new Button(trashIcon == null ? "Delete" : null, trashIcon);
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    setText(item);
+                    removeButton.setOnAction(event -> {
+                        String fileName = getItem();
+                        if(SaveGame.deleteSaveGame(fileName))
+                            getListView().getItems().remove(fileName);
+                    });
+                    setGraphic(removeButton);
+                }
+            }
+        });
         dialog.getDialogPane().setContent(listView);
 
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
         final Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        okButton.setText("Select");
         okButton.addEventFilter(
                 ActionEvent.ACTION,
                 event -> {
@@ -224,5 +262,10 @@ public class Main extends Application {
         );
 
         dialog.showAndWait();
+    }
+
+    public static void loadGameIcon(Stage stage) {
+        stage.getIcons().add(gameIcon);
+
     }
 }

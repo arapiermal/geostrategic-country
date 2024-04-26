@@ -1,7 +1,6 @@
 package com.erimali.cntrygame;
 
 import java.io.File;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.LinkedList;
 
@@ -10,16 +9,15 @@ import com.erimali.minigames.MG2048Stage;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableIntegerValue;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
@@ -27,6 +25,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 
 class LimitedSizeList<T> {
     private final int maxSize;
@@ -69,14 +68,8 @@ class LimitedSizeList<T> {
 }
 
 public class GameStage extends Stage {
-    private static Image gameIcon;
-    static {
-        InputStream inputStream = GameStage.class.getResourceAsStream("img/gameIcon.png");
-        if(inputStream != null)
-            gameIcon = new Image(inputStream);
-    }
-
     // POP UP WHEN FULLSCREEN PROBLEM
+    private final Scene gameScene;
     private Label countryName;
     private Label date;
     private Label pausation;
@@ -120,41 +113,33 @@ public class GameStage extends Stage {
 
     public GameStage() {
         setTitle(Main.APP_NAME + " - Game");
-        loadGameIcon(this);
+        Main.loadGameIcon(this);
         setOnCloseRequest(e -> close());
+        setWidth(1280);
+        setHeight(720);
         this.selectedCountry = -1;
         this.map = new WorldMap(this);
         this.game = new GLogic(this);
 
         BorderPane gameLayout = createGameLayout();
-        setWidth(1280);
-        setHeight(720);
         changeDate(game.inGDateInfo());
         CommandLine.setGameStage(this);
 
-        Scene gameScene = new Scene(gameLayout);
+        gameScene = new Scene(gameLayout);
         setScene(gameScene);
-        URL cssGameScene = getClass().getResource("css/gameStage.css");
-        if (cssGameScene != null)
-            gameScene.getStylesheets().add(cssGameScene.toExternalForm());
+        loadGameStageCSS();
+        initFullScreen();
         //Initiate
         game.getWorld().initiateProvinces(map.getMapSVG());
-
-        this.setFullScreen(GOptions.isFullScreen());
-        // showPopupMGTicTacToe(false,2);
-        /*
-         * GEvent gEvent = new GEvent("Title", new GDate("1/1/2024"), "Hello there", new
-         * String[] { "Opt 1", "Opt 2", "Opt 3" }, new String[] { "Opt 1", "Opt 2",
-         * "Opt 3" }); popupGEvent(gEvent);
-         */
-        // popupWebNews();
     }
 
     //Load game
     public GameStage(GLogic game) {
         setTitle(Main.APP_NAME + " - Game");
-        loadGameIcon(this);
+        Main.loadGameIcon(this);
         setOnCloseRequest(e -> close());
+        setWidth(1280);
+        setHeight(720);
         this.selectedCountry = -1;
         game.setGameStage(this);
         game.startTimer();
@@ -167,25 +152,28 @@ public class GameStage extends Stage {
         updateGameLayout();
         CommandLine.setCountries(game.getWorldCountries());
         CommandLine.setPlayerCountry(game.getPlayerId());
-        setWidth(1280);
-        setHeight(720);
-
 
         CommandLine.setGameStage(this);
-        Scene gameScene = new Scene(gameLayout);
+        gameScene = new Scene(gameLayout);
         setScene(gameScene);
+        loadGameStageCSS();
+        initFullScreen();
+
+        //Correlate
+        game.getWorld().correlateProvinces(map.getMapSVG());
+    }
+
+    private void loadGameStageCSS() {
         URL cssURL = getClass().getResource("css/gameStage.css");
         if (cssURL != null)
             gameScene.getStylesheets().add(cssURL.toExternalForm());
-        //Correlate
-        game.getWorld().correlateProvinces(map.getMapSVG());
-
-        this.setFullScreen(GOptions.isFullScreen());
     }
 
-    public static void loadGameIcon(Stage stage) {
-        stage.getIcons().add(gameIcon);
+    private void initFullScreen() {
 
+        this.setFullScreen(GOptions.isFullScreen());
+        this.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+        //this.setFullScreenExitHint("F11 to toggle fullscreen");
     }
 
     private void updateGameLayout() {
@@ -312,7 +300,10 @@ public class GameStage extends Stage {
                     break;
                 case KeyCode.ESCAPE:
                     showGameStageOptions();
-
+                    //if fullscreen stage problem
+                    break;
+                case KeyCode.F11:
+                    setFullScreen(GOptions.toggleFullScreen());
                     break;
             }
         });
@@ -456,7 +447,6 @@ public class GameStage extends Stage {
         vBox.setAlignment(Pos.CENTER);
         vBox.setPadding(new Insets(20));
         Scene scene = new Scene(vBox, 400, 300);
-
         return scene;
     }
 
@@ -479,38 +469,31 @@ public class GameStage extends Stage {
         saveTextField.setPrefWidth(240);
         saveSubmit.setPrefWidth(60);
         HBox hBox = new HBox(saveTextField, saveSubmit);
+        HBox.setHgrow(saveTextField, Priority.ALWAYS);
         ListView<String> listView = new ListView<>(SaveGame.saves);
         VBox vBox = new VBox(listView, hBox); //add listview
-
+        VBox.setVgrow(listView, Priority.ALWAYS);
         saveTextField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
-                if (!saveTextField.getText().isBlank()) {
-                    try {
-                        String save = saveTextField.getText();
-                        SaveGame.saveGame(save, game);
-
-                        saveTextField.setText("");
-                    } catch (Exception e) {
-                    }
-                }
-            } else if (event.getCode() == KeyCode.ESCAPE) {
-                gsOptionsStage.hide();
+                saveGameFromTextField();
             }
         });
-        saveSubmit.setOnAction(event -> {
-            if (!saveTextField.getText().isBlank()) {
-                try {
-                    String save = saveTextField.getText();
-                    SaveGame.saveGame(save, game);
-                    saveTextField.setText("");
-                } catch (Exception e) {
-                }
-            }
-        });
+        saveSubmit.setOnAction(event -> saveGameFromTextField());
         saveTextField.setPromptText("Save-game name");
         Scene scene = new Scene(vBox);
 
         return scene;
+    }
+
+    private void saveGameFromTextField() {
+        if (!saveTextField.getText().isBlank()) {
+            try {
+                String save = saveTextField.getText();
+                SaveGame.saveGame(save, game);
+                saveTextField.setText("");
+            } catch (Exception e) {
+            }
+        }
     }
 
     private void showGameStageOptions() {
@@ -538,6 +521,7 @@ public class GameStage extends Stage {
         stage.initOwner(this);
         stage.initStyle(StageStyle.UTILITY);
         stage.setScene(gsOptionsScenes[0]);
+
         stage.setOnCloseRequest(e -> {
             Scene scene = stage.getScene();
             if (scene.equals(gsOptionsScenes[0])) {
@@ -547,11 +531,18 @@ public class GameStage extends Stage {
                 e.consume();
             }
         });
+        for (Scene scene : gsOptionsScenes) {
+            scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+                if (event.getCode() == KeyCode.ESCAPE) {
+                    WindowEvent.fireEvent(stage, new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
+                    //event.consume();
+                }
+            });
+        }
         return stage;
     }
     //or keep variable outside
     //private int optStageScene;
-
 
     private Stage makeCommandLineStage() {
         lastCommands = new LimitedSizeList<>(10);

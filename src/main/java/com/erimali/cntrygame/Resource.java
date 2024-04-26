@@ -1,5 +1,6 @@
 package com.erimali.cntrygame;
 
+import java.io.Serializable;
 import java.util.List;
 
 enum ResourceCategory{
@@ -11,7 +12,7 @@ enum ResourceCategory{
     //private String/int unitOfMeasurement;
 
 }
-public class Resource implements Comparable<Resource>{
+public class Resource implements Comparable<Resource>, Serializable {
     private ResourceCategory category;
     private String name;
     private String desc;

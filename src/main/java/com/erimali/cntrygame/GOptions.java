@@ -188,4 +188,8 @@ public class GOptions {
         GOptions.allowMods = allowMods;
     }
 
+    public static boolean toggleFullScreen() {
+        fullScreen = !fullScreen;
+        return fullScreen;
+    }
 }

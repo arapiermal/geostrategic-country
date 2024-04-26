@@ -1,20 +1,61 @@
 package com.erimali.cntrygame;
 
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 
 import java.io.*;
+import java.util.LinkedList;
+import java.util.List;
 
 public class SaveGame {
     //does every class/object inside need serializable!??!?!
     protected static String saveGamePath = "saveGames/";
     protected static final String saveExtension = ".save";
     protected static final ObservableList<String> saves = FXCollections.observableArrayList();
+
+    public static boolean deleteSaveGame(String fileName) {
+        try {
+            File file = new File(saveGamePath + fileName);
+            if (file.exists()) {
+                if (alertConfirmation("Delete", "Delete save-game: " + fileName + "?")) {
+                    if (file.delete()) {
+                        return true;
+                    } else {
+                        ErrorLog.logError("Failed to delete file");
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            } else {
+                ErrorLog.logError("File does not exist");
+                return true;
+            }
+        } catch (SecurityException e) {
+            ErrorLog.logError("Security exception occurred while deleting file - " + fileName);
+            return false;
+        }
+    }
+
+    public static List<String> deleteSaveGames(List<? extends String> list) {
+        List<String> failed = new LinkedList<>();
+        for (String fileName : list) {
+
+        }
+        return failed;
+    }
+
+    public static boolean alertConfirmation(String title, String desc) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setContentText(desc);
+        alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
+        ButtonType result = alert.showAndWait().orElse(ButtonType.NO);
+        return result == ButtonType.YES;
+    }
 
     public static void saveGame(String name, GLogic g) {
         try {

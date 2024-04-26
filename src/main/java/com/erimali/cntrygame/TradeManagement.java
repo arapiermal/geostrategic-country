@@ -1,9 +1,10 @@
 package com.erimali.cntrygame;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TradeManagement {
+public class TradeManagement implements Serializable {
     static class TradeAgreement {
         Resource resource;
         int amount;

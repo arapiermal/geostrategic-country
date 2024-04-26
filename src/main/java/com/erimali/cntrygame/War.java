@@ -1,6 +1,7 @@
 package com.erimali.cntrygame;
 
 import com.erimali.cntrymilitary.MilDiv;
+import com.erimali.cntrymilitary.MilUnit;
 import javafx.scene.control.ListView;
 
 
@@ -75,15 +76,15 @@ public class War implements Serializable {
     static class Battle implements Serializable{
         //if many MilDiv in the same province, after one is defeated, check province to fight the rest
         int provId;
-        MilDiv a;
-        MilDiv o;
-        public Battle(int provId, MilDiv a, MilDiv o){
+        List<MilUnit> a;
+        List<MilUnit> o;
+        public Battle(int provId, List<MilUnit> a, List<MilUnit> o){
             this.provId = provId;
             this.a = a;
             this.o = o;
         }
         public int dayTick(){
-            return a.attack(o);
+            return MilDiv.attack(a, o);
         }
 
     }

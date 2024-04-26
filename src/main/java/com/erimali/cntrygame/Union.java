@@ -2,6 +2,7 @@ package com.erimali.cntrygame;
 
 import com.erimali.cntrymilitary.Military;
 
+import java.io.Serializable;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -29,7 +30,7 @@ enum UnionPolicies {
 }
 
 //if UN -> fully centralized => WorldGovernment (!!!!!!!!!!!!!!!!!!!!!)
-public class Union {
+public class Union  implements Serializable {
     protected final static int DISUNITED = 0; //DisUnited Nations
     protected final static int ECONOMIC = 1;
     protected final static int POLITICAL = 2; //Diplomatic+Government
