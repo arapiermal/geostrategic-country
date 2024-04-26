@@ -1,6 +1,8 @@
 package com.erimali.cntrygame;
 
 import com.erimali.cntrymilitary.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 
 import java.io.*;
 import java.nio.file.DirectoryStream;
@@ -18,7 +20,7 @@ public class World implements Serializable {
 
     private CountryArray countries;
     //private Map<String, Country> countries;//only one to be left?
-    private Map<String, Union> unions;
+    private ObservableMap<String, Union> unions;
     private AdmDiv[] provinces;
     //set from world map
     private short[][] initialProvinces;
@@ -51,7 +53,8 @@ public class World implements Serializable {
             } catch (IOException e) {
                 ErrorLog.logError(e);
             }
-            this.unions = new HashMap<>();
+            //this.unions = new HashMap<>();
+            this.unions = FXCollections.observableMap(new HashMap<>());
             loadUnions();
         } catch (Exception e) {
             ErrorLog.logError(e);
@@ -359,12 +362,8 @@ public class World implements Serializable {
         this.languages = languages;
     }
 
-    public Map<String, Union> getUnions() {
+    public ObservableMap<String, Union> getUnions() {
         return unions;
-    }
-
-    public void setUnions(Map<String, Union> unions) {
-        this.unions = unions;
     }
 
 
@@ -476,7 +475,7 @@ public class World implements Serializable {
 
     public void loadUnions(){
         if(unions == null)
-            unions = new HashMap<>();
+            unions = FXCollections.observableMap(new HashMap<>());
         Path dir = Paths.get(GLogic.RESOURCESPATH+"/countries/unions");
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
             for (Path entry : stream) {
@@ -511,7 +510,7 @@ public class World implements Serializable {
 
     public void removeUnion(String shortName) {
         Union u = unions.remove(shortName);
-        for (short i : u.getUnionCountries()) {
+        for (int i : u.getUnionCountries()) {
             Country c = countries.get(i);
             if (c != null) {
                 c.removeUnion(u);
@@ -582,4 +581,7 @@ public class World implements Serializable {
     }
 
 
+    public Union getUnion(String s) {
+        return unions.get(s);
+    }
 }

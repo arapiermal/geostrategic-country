@@ -1,6 +1,7 @@
 package com.erimali.cntrygame;
 
 import com.erimali.cntrymilitary.Military;
+import javafx.scene.paint.Paint;
 
 import java.io.Serializable;
 import java.util.EnumSet;
@@ -13,16 +14,24 @@ enum UnionPolicies {
     COMMON_CURRENCY(Union.ECONOMIC),
     INFRASTRUCTURE_INVESTMENT(Union.ECONOMIC),
     MIL_PROTECTION(Union.MILITARY),
-    MIL_SHARE_TECH(Union.MILITARY); //Every year set mil tech to country with the biggest/ or +1
+    //Every year set mil tech to country with the biggest/ or +1
+    MIL_SHARE_TECH(Union.MILITARY) {
+        public void action() {
+
+        }
+    },
+    //COMMON_GOV(Union.ECONOMIC | Union.POLITICAL) //2 in 1
+    ;
     final int type;
+
     UnionPolicies(int type) {
         this.type = type;
     }
 
-    public static EnumSet<UnionPolicies> getPoliciesType(int i){
+    public static EnumSet<UnionPolicies> getPoliciesType(int i) {
         EnumSet<UnionPolicies> set = EnumSet.noneOf(UnionPolicies.class);
-        for(UnionPolicies p : UnionPolicies.values()){
-            if(p.type == i)
+        for (UnionPolicies p : UnionPolicies.values()) {
+            if (p.type == i)
                 set.add(p);
         }
         return set;
@@ -30,36 +39,40 @@ enum UnionPolicies {
 }
 
 //if UN -> fully centralized => WorldGovernment (!!!!!!!!!!!!!!!!!!!!!)
-public class Union  implements Serializable {
-    protected final static int DISUNITED = 0; //DisUnited Nations
-    protected final static int ECONOMIC = 1;
-    protected final static int POLITICAL = 2; //Diplomatic+Government
-    protected final static int MILITARY = 4;
+public class Union implements Serializable {
     protected final static int MAX_TYPES = 3;
-    int type;
+    protected final static int DISUNITED = 0; //DisUnited Nations
+    protected final static int POLITICAL = 1; //Diplomatic+Government
+    protected final static int ECONOMIC = 2;
+    protected final static int MILITARY = 4;
+    protected final static int ALL_TYPES = addTypes(ECONOMIC, POLITICAL, MILITARY);
 
-    //Bitwise operations
-    public boolean hasType(int check) {
-        return (type & check) != 0;
+    public static String typeToString(int type) {
+        return switch (type) {
+            case POLITICAL -> "Political";
+            case ECONOMIC -> "Economic";
+            case MILITARY -> "Military";
+            default -> "";
+        };
     }
 
-    public void addType(int add) {
-        type |= add;
-    }
-
-    public void removeType(int remove) {
-        type &= ~remove;
+    public static int addTypes(int... types) {
+        int type = 0;
+        for (int i : types)
+            if (i > 0 && (type & i) == 0)
+                type |= i;
+        return type;
     }
 
     protected static int genType(String in) {
         int type = 0;
         String[] s = in.trim().toUpperCase().split("\\s*,\\s*");
         for (int i = 0; i < s.length; i++) {
-            if(s[i].length() < 3)
+            if (s[i].length() < 3)
                 continue;
             int val = switch (s[i].substring(0, 3)) {
-                case "ECO" -> ECONOMIC;
                 case "POL" -> POLITICAL;
+                case "ECO" -> ECONOMIC;
                 case "MIL" -> MILITARY;
                 default -> 0;
             };
@@ -72,14 +85,17 @@ public class Union  implements Serializable {
         return type;
     }
 
-    private String shortName;
+    private final String shortName;
+    private final World world; //CountryArray...
+    private EnumSet<Continent> validContinents;
+    private int type;
     private String name;
-    private World world; //CountryArray...
-    private int stability;//?
+    private Paint color;
+    private int stability; // for the UN -> the lower, the less
     private float centralization;
-
     private double funds;
-    private Set<Short> unionCountries;
+
+    private Set<Integer> unionCountries;
     private byte[] influence;
     //invest can increase influence ... power of country...
 
@@ -87,11 +103,11 @@ public class Union  implements Serializable {
     private Government govUnion; //can be null
     //UnionGovernment extends Government, UnionGovPolicies
     private Military milUnion; // can be null
-    Set<UnionPolicies> policies;
+    private EnumSet<UnionPolicies> policies;
     // private UPanel panel;//accessible by the player for choices inside the union
     // event-like?
-    String[][] choices;
-    String[][] commands; // hmmm
+    private String[][] choices;
+    private String[][] commands; // hmmm
     // Acts you can take
 
     List<short[]> votes;
@@ -105,7 +121,7 @@ public class Union  implements Serializable {
         this.type = type;
         this.stability = 50;
         unionCountries = new TreeSet<>();
-        for (short i : countries) {
+        for (int i : countries) {
             Country c = world.getCountry(i);
             if (c != null) {
                 unionCountries.add(i);
@@ -123,7 +139,7 @@ public class Union  implements Serializable {
 
     public void initInfluence() {
         influence = new byte[CountryArray.maxISO2Countries];
-        for (short i = 0; i < influence.length; i++) {
+        for (int i = 0; i < influence.length; i++) {
             influence[i] = unionCountries.contains(i) ? (byte) 1 : (byte) -1;
         }
     }
@@ -132,8 +148,19 @@ public class Union  implements Serializable {
         CountryArray cArray = world.getCountries();
         Country c = cArray.get(mainCountry);
         c.uniteWith(name, cArray, unionCountries);
-        // DISSOLVE UNION
+        world.removeUnion(shortName);
+    }
 
+    public boolean canUnite() {
+        return type == ALL_TYPES && centralization >= 100;
+    }
+
+    public boolean canJoin(int i) {
+        Country c = world.getCountry(i);
+        if (c != null) {
+
+        }
+        return false;
     }
 
     // change
@@ -155,6 +182,23 @@ public class Union  implements Serializable {
         if (c < 0 || c > influence.length)
             return false;
         return influence[c] > 85;
+    }
+
+    public void giveFunds(short cId, double amount) {
+        if (unionCountries.contains(cId) && amount >= funds) {
+            Country c = world.getCountry(cId);
+            funds -= amount;
+            c.getEconomy().incTreasury(amount);
+        }
+    }
+
+    public void gainFunds(double amount) {
+        for (int i : unionCountries) {
+            Country c = world.getCountry(i);
+            funds += amount;
+            c.getEconomy().decTreasury(amount);
+
+        }
     }
 
     public void forceDismantle() {
@@ -183,7 +227,7 @@ public class Union  implements Serializable {
         if (amount < 0 || i < 0 || i >= influence.length || !unionCountries.contains(i)) //or allow other countries to increase influence to join
             return;
         influence[i] += amount;
-        if(influence[i] > 100)
+        if (influence[i] > 100)
             influence[i] = 100;
     }
 
@@ -191,9 +235,10 @@ public class Union  implements Serializable {
         if (amount > 0 || i < 0 || i >= influence.length || !unionCountries.contains(i))
             return;
         influence[i] += amount;
-        if(influence[i] < 0)
+        if (influence[i] < 0)
             influence[i] = 0;
     }
+
     public boolean hasGovernment() {
         return govUnion != null;
     }
@@ -206,7 +251,7 @@ public class Union  implements Serializable {
         return shortName;
     }
 
-    public Set<Short> getUnionCountries() {
+    public Set<Integer> getUnionCountries() {
         return unionCountries;
     }
 
@@ -218,26 +263,95 @@ public class Union  implements Serializable {
         this.funds = funds;
     }
 
-    public void voteAI(Country player,int vote, int choice){
+    //vote to add type military to EU
+    //POL + ECO + new MIL + 100% centralization = European Country
+    public void voteAI(Country player, int vote, int choice) {
         //AI calc based on rel and vote on influence
         short[] v = votes.get(vote);
         int cId = player.getCountryId();
         v[choice] += influence[cId];
-        for(short i : unionCountries){
+        for (int i : unionCountries) {
             short rel = player.getRelations(i);
-            if(Math.random()*rel>Math.sqrt(rel)){
+            if (Math.random() * rel > Math.sqrt(rel)) {
                 v[choice] += influence[i];
-            }else{
-                v[(int) (Math.random()*v.length)] += influence[i];
+            } else {
+                v[(int) (Math.random() * v.length)] += influence[i];
             }
         }
     }
 
-    public void yearlyTick(){
-        if(hasType(ECONOMIC)){
-            if(funds > 0 && policies.contains(UnionPolicies.INFRASTRUCTURE_INVESTMENT)){
-                //invest infrastructure
+    public void yearlyTick() {
+        int n = unionCountries.size();
+        if (hasType(ECONOMIC)) {
+            if (funds > 0 && policies.contains(UnionPolicies.INFRASTRUCTURE_INVESTMENT)) {
+                for (int i : unionCountries) {
+                    funds -= funds / n;
+                    Country c = world.getCountry(i);
+                    c.incInfrastructure(c.getAdmDivRandom());
+                    if (funds <= 0)
+                        break;
+                }
             }
         }
     }
+
+    public String toStringType() {
+        StringBuilder sb = new StringBuilder();
+        if (hasType(POLITICAL))
+            sb.append("Political");
+        if (hasType(ECONOMIC)) {
+            if (!sb.isEmpty())
+                sb.append(" & ");
+            sb.append("Economic");
+        }
+        if (hasType(MILITARY)) {
+            if (!sb.isEmpty())
+                sb.append(" & ");
+            sb.append("Military");
+        }
+        return sb.toString();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean containsCountry(int playerId) {
+        return unionCountries.contains(playerId);
+    }
+
+    public boolean applyToJoin(int playerId) {
+        return false;
+    }
+
+    public boolean applyToLeave(int playerId) {
+        return false;
+    }
+
+    //Bitwise operations
+    public boolean hasType(int check) {
+        return (type & check) != 0;
+    }
+
+    public void addType(int add) {
+        type |= add;
+    }
+
+    public void removeType(int remove) {
+        type &= ~remove;
+    }
+
+
+    public void setColor(Paint paint) {
+        this.color = paint;
+    }
+
+    public void setColor(String s) {
+        color = Paint.valueOf(s);
+    }
+
+    public Paint getColor() {
+        return color;
+    }
+    //on declared war on member of union -> stability hit
 }

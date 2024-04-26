@@ -6,7 +6,6 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -25,6 +24,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class WorldMap {
     protected static double mapWidth = 12200;
@@ -43,7 +43,7 @@ public class WorldMap {
     private Paint defSubBorderColor = Paint.valueOf(defSubBorderColorString);
     // default fill of country svg -> alpha 0
 
-    private Paint defaultAllyColor = Paint.valueOf("blue");
+    private Paint defAllyColor = Paint.valueOf("blue");
     private Paint defaultSubjectColor = Paint.valueOf("gray");
     private Paint defaultOwnerColor = Paint.valueOf("yellow");
     private Group mapGroup;
@@ -58,6 +58,7 @@ public class WorldMap {
     private List<Region> milUnits;
 
     private final GameStage gs;
+
 
     private int mapMode;
 
@@ -306,6 +307,8 @@ public class WorldMap {
         mapGroup.setCursor(c);
     }
 
+
+
     public void switchMapMode(int mode) {
         if (mapMode != mode) {
             mapMode = mode;
@@ -320,6 +323,24 @@ public class WorldMap {
         }
     }
 
+    public void paintMapUnions(Union union){
+        if(union != null){
+            Paint defUnionColor = union.getColor() == null ?  defAllyColor : union.getColor();
+            Set<Integer> set = union.getUnionCountries();
+            for (SVGProvince t : mapSVG) {
+                if (set.contains(t.getOwnerId())) {
+                    t.setFill(defUnionColor);
+                } else {
+                    t.setFill(defColor);
+                }
+            }
+        }
+    }
+    public void paintMapUnions(){
+        Union union = gs.getSelectedUnionFromWorld();
+        paintMapUnions(union);
+    }
+
     public void paintMapAllies() {
         int cId = gs.getSelectedCountry();
         Country c = gs.getGame().getCountry(cId);
@@ -330,7 +351,7 @@ public class WorldMap {
             if (c.isNotSubject()) {
                 for (SVGProvince t : mapSVG) {
                     if (c.isAllyWith(t.getOwnerId())) {
-                        t.setFill(defaultAllyColor);
+                        t.setFill(defAllyColor);
                     } else if (c.hasSubject(t.getOwnerId())) {
                         t.setFill(defaultSubjectColor);
 
@@ -342,7 +363,7 @@ public class WorldMap {
                 int mainId = c.getSubjectOf().getMainId();
                 for (SVGProvince t : mapSVG) {
                     if (c.isAllyWith(t.getOwnerId())) {
-                        t.setFill(defaultAllyColor);
+                        t.setFill(defAllyColor);
                     } else if (mainId == t.getOwnerId()) {
                         t.setFill(defaultOwnerColor);
 
@@ -395,20 +416,18 @@ public class WorldMap {
     public boolean containsColor(int id) {
         return id >= 0 && id < colors.length && colors[id] != null;
     }
-
     public void refreshMap() {
-        switch (this.mapMode) {
+        switch (mapMode) {
             case 0:
                 paintMapDefault();
                 break;
             case 1:
-
-                break;
-            case 2:
                 paintMapAllies();
                 break;
+            case 2:
+                paintMapUnions();
+                break;
             default:
-
                 break;
         }
     }
@@ -542,4 +561,7 @@ public class WorldMap {
         }
     }
 
+    public int getMapMode() {
+        return mapMode;
+    }
 }

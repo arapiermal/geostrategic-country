@@ -185,7 +185,7 @@ public class Country implements Serializable, Comparable<Country> {
 
     // War
     public War declareWar(Country op, CasusBelli casusBelli) {
-        if(gov.canDeclareWar())
+        if (gov.canDeclareWar())
             return new War(this, op, casusBelli);
         return null;
     }
@@ -396,9 +396,10 @@ public class Country implements Serializable, Comparable<Country> {
         dip.addAlly(CountryArray.getIndexShort(c));
     }
 
-    public void removeAlly(int c){
+    public void removeAlly(int c) {
         dip.removeAlly(c);
     }
+
     // !!!!!!!!!!!!!!!!!!!!!!!!!
     public void subjugateCountry(Country op, SubjectType type) {
         if (subjectOf == null) {
@@ -458,9 +459,9 @@ public class Country implements Serializable, Comparable<Country> {
         }
     }
 
-    public void uniteWith(String name, CountryArray cArray, Set<Short> countries) {
+    public void uniteWith(String name, CountryArray cArray, Set<Integer> countries) {
         this.name = name;
-        for (short i : countries) {
+        for (int i : countries) {
             if (cArray.containsKey(i))
                 this.annexCountry(cArray, i, true);
         }
@@ -544,10 +545,10 @@ public class Country implements Serializable, Comparable<Country> {
 
     public boolean breakAlliance(CountryArray cArr, int c) {
         Country o = cArr.get(c);
-        if(isAllyWith(c)){
+        if (isAllyWith(c)) {
             removeAlly(c);
             o.removeAlly(countryId);
-            improveRelations(c,  (short) -10);
+            improveRelations(c, (short) -10);
             return true;
         }
         return false;
@@ -701,7 +702,7 @@ public class Country implements Serializable, Comparable<Country> {
     }
 
     private void addAdmDivs(List<AdmDiv> admDivs) {
-        for(AdmDiv d : admDivs)
+        for (AdmDiv d : admDivs)
             addAdmDiv(d);
     }
 
@@ -885,8 +886,18 @@ public class Country implements Serializable, Comparable<Country> {
     public int compareTo(Country o) {
         return Integer.compare(countryId, o.countryId);
     }
-    public double getTreasury(){
+
+    public double getTreasury() {
         return eco.getTreasury();
     }
 
+    public AdmDiv getAdmDivRandom() {
+        return admDivisions.get((int) (Math.random() * admDivisions.size()));
+    }
+
+    public void incInfrastructure(AdmDiv admDiv) {
+        eco.addPercentGDP(1.0 / admDivisions.size());
+        admDiv.incInfrastructure();
+        //inc gdp here as well
+    }
 }

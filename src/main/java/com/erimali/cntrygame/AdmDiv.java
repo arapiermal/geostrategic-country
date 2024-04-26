@@ -330,4 +330,7 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
         return waterAccess;
     }
 
+    public void incInfrastructure() {
+        infrastructure++;
+    }
 }

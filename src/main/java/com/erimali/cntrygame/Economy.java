@@ -32,12 +32,14 @@ public class Economy implements Serializable {
 
         double expenditures = 0;//research spendings, soldiers upkeep, gov spendings
 
-        treasury  += tradeManagement.diffExportImport() + revenue - expenditures;
+        treasury += tradeManagement.diffExportImport() + revenue - expenditures;
     }
-    public void yearlyTick(){
+
+    public void yearlyTick() {
 
         gdp += (economicGrowthRate - inflationRate) * gdp;
     }
+
     public String getCurrency() {
         return currency;
     }
@@ -91,6 +93,9 @@ public class Economy implements Serializable {
         }
     }
 
+    public void addPercentGDP(double amount) {
+        gdp += amount * (gdp * 0.01);
+    }
     public String formattedGDP() {
         return GUtils.doubleToString(gdp);
     }
@@ -102,7 +107,7 @@ public class Economy implements Serializable {
     }
 
     public void giveMoney(Country o, double amount) {
-        if(treasury >= amount){
+        if (treasury >= amount) {
             treasury -= amount;
             o.getEconomy().treasury += amount;
             o.getDiplomacy().improveRelations(o.getCountryId(), (short) Math.log(amount));
@@ -139,4 +144,28 @@ public class Economy implements Serializable {
     public double getTreasury() {
         return treasury;
     }
+
+    public void incTreasury(double amount) {
+        if (amount > 0)
+            treasury += amount;
+    }
+
+    public void decTreasury(double amount) {
+        if (amount > 0)
+            treasury -= amount;
+    }
+
+    public double removeTreasury(double amount) {
+        if (amount > 0) {
+            if (treasury >= amount)
+                treasury -= amount;
+            else {
+                double extra = treasury;
+                treasury = 0;
+                return extra;
+            }
+        }
+        return 0;
+    }
+
 }

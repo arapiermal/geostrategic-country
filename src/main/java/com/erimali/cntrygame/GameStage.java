@@ -69,6 +69,7 @@ class LimitedSizeList<T> {
 
 public class GameStage extends Stage {
     // POP UP WHEN FULLSCREEN PROBLEM
+    private final Main application;
     private final Scene gameScene;
     private Label countryName;
     private Label date;
@@ -111,7 +112,8 @@ public class GameStage extends Stage {
     private TextField saveTextField;
     private Button recruitBuildButton;
 
-    public GameStage() {
+    public GameStage(Main application) {
+        this.application = application;
         setTitle(Main.APP_NAME + " - Game");
         Main.loadGameIcon(this);
         setOnCloseRequest(e -> close());
@@ -134,7 +136,8 @@ public class GameStage extends Stage {
     }
 
     //Load game
-    public GameStage(GLogic game) {
+    public GameStage(Main application, GLogic game) {
+        this.application = application;
         setTitle(Main.APP_NAME + " - Game");
         Main.loadGameIcon(this);
         setOnCloseRequest(e -> close());
@@ -316,30 +319,39 @@ public class GameStage extends Stage {
         return gameLayout;
     }
 
+    private ImageView loadImgView(String path, double height, double width) {
+        try {
+            URL imgURL = getClass().getResource(path);
+            if (imgURL != null) {
+                ImageView imgView = new ImageView(imgURL.toExternalForm());
+                imgView.setFitHeight(height);
+                imgView.setFitWidth(width);
+                return imgView;
+            } else {
+                ErrorLog.logError("INVALID IMG PATH: " + path);
+                return null;
+            }
+        } catch (Exception e) {
+            ErrorLog.logError(e);
+            return null;
+        }
+    }
+
     private ToolBar makeBottomToolbar() {
 
         Button gsComputer = new Button("Computer");
         Button gsOptions = new Button("Settings");
-        try {
-            URL imgSrcComputer = getClass().getResource("img/monitor_with_button.png");
-            if (imgSrcComputer != null) {
-                ImageView imgViewSettings = new ImageView(imgSrcComputer.toExternalForm());
-                imgViewSettings.setFitHeight(24);
-                imgViewSettings.setFitWidth(24);
-                gsComputer.setGraphic(imgViewSettings);
-                gsComputer.setText(null);
-            }
-            URL imgSrcSettings = getClass().getResource("img/settings.png");
-            if (imgSrcSettings != null) {
-                ImageView imgViewSettings = new ImageView(imgSrcSettings.toExternalForm());
-                imgViewSettings.setFitHeight(24);
-                imgViewSettings.setFitWidth(24);
-                gsOptions.setGraphic(imgViewSettings);
-                gsOptions.setText(null);
-            }
-        } catch (Exception e) {
-            ErrorLog.logError(e);
+        ImageView imgComputer = loadImgView("img/monitor_with_button.png", 24, 24);
+        if (imgComputer != null) {
+            gsComputer.setGraphic(imgComputer);
+            gsComputer.setText(null);
         }
+        ImageView imgSettings = loadImgView("img/settings.png", 24, 24);
+        if (imgSettings != null) {
+            gsOptions.setGraphic(imgSettings);
+            gsOptions.setText(null);
+        }
+
         gsComputer.setOnAction(e -> popupWebDesktop());
         gsOptions.setOnAction(e -> showGameStageOptions());
         Region tReg = new Region();
@@ -360,12 +372,14 @@ public class GameStage extends Stage {
         zoomOut.setOnAction(e -> scrollPane.zoomOut());
 
          */
-        Button[] mapModes = new Button[2];
+        Button[] mapModes = new Button[3];
         //enum MapModes (?)
         mapModes[0] = new Button("Default");// change to img
         mapModes[0].setOnAction(event -> map.switchMapMode(0));
         mapModes[1] = new Button("Allies");
         mapModes[1].setOnAction(event -> map.switchMapMode(1));
+        mapModes[2] = new Button("Unions");
+        mapModes[2].setOnAction(event -> map.switchMapMode(2));
         //flowPane.getChildren().addAll(zoomIn, zoomOut);
         flowPane.getChildren().addAll(mapModes);
 
@@ -429,9 +443,63 @@ public class GameStage extends Stage {
         return tab;
     }
 
-    private Tab makeTabUnions() {
+    private ListView<String> listViewUnions;
 
-        Tab tab = new Tab("Unions");
+    public String getSelectedUnion() {
+        return listViewUnions.getSelectionModel().getSelectedItem();
+    }
+    public Union getSelectedUnionFromWorld(){
+        String sel = getSelectedUnion();
+        if(sel != null)
+            return game.getWorld().getUnion(sel);
+        return null;
+    }
+    private Tab makeTabUnions() {
+        Button joinButton = new Button();
+        Button openPanel = new Button("Open Panel");
+        openPanel.setVisible(false);
+        listViewUnions = UnionStage.makeListViewUnionsString(game.getWorld().getUnions());
+
+        listViewUnions.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> {
+                    if (newValue != null && !newValue.equals(oldValue)) {
+                        Union u = game.getWorld().getUnion(newValue);
+                        if(map.getMapMode() == 2){
+                            map.paintMapUnions(u);
+                        }
+                        if (u.containsCountry(game.getPlayerId())) {
+                            joinButton.setText("Leave");
+                            openPanel.setVisible(true);
+                        } else {
+                            joinButton.setText("Join");
+                            openPanel.setVisible(false);
+                        }
+                    }
+                }
+        );
+
+        joinButton.setOnAction(e -> {
+            String selectedItem = listViewUnions.getSelectionModel().getSelectedItem();
+            if (selectedItem != null) {
+                Union u = game.getWorld().getUnion(selectedItem);
+                if (u.containsCountry(game.getPlayerId())) {
+                    if (u.applyToLeave(game.getPlayerId())) {
+
+                        joinButton.setText("Join");
+                        openPanel.setVisible(false);
+                    }
+                } else {
+                    if (u.applyToJoin(game.getPlayerId())) {
+
+                        joinButton.setText("Leave");
+                        openPanel.setVisible(true);
+                    }
+                }
+            }
+        });
+        HBox hBox = new HBox(joinButton, openPanel);
+        VBox vBox = new VBox(listViewUnions, hBox);
+        Tab tab = new Tab("Unions", vBox);
         return tab;
     }
 
@@ -442,12 +510,23 @@ public class GameStage extends Stage {
             gsOptionsStage.setScene(gsOptionsScenes[1]);
         });
 
-        Button exitToMain = new Button("Exit to main menu");
-        VBox vBox = new VBox(10, saveOptions, exitToMain);
+        Button exitToMainButton = new Button("Exit to main menu");
+        exitToMainButton.setOnAction(e -> exitToMain());
+        VBox vBox = new VBox(10, saveOptions, exitToMainButton);
         vBox.setAlignment(Pos.CENTER);
         vBox.setPadding(new Insets(20));
         Scene scene = new Scene(vBox, 400, 300);
         return scene;
+    }
+
+    private void exitToMain() {
+        if (isPlayingCountry) {
+            String autosave = "autosave-" + getCurrDefSaveGameName();
+            if (SaveGame.alertConfirmation("Save", "Save as " + autosave + " before closing?")) {
+                SaveGame.saveGame(autosave, game);
+            }
+        }
+        application.closeGameOpenPrimary();
     }
 
     private void changeGSOptionsScene(int i) {
@@ -541,8 +620,6 @@ public class GameStage extends Stage {
         }
         return stage;
     }
-    //or keep variable outside
-    //private int optStageScene;
 
     private Stage makeCommandLineStage() {
         lastCommands = new LimitedSizeList<>(10);
@@ -558,16 +635,7 @@ public class GameStage extends Stage {
         commandLine.setOnKeyPressed(event -> {
             KeyCode keyCode = event.getCode();
             if (keyCode == KeyCode.ENTER) {
-                if (!commandLine.getText().isBlank()) {
-                    try {
-                        String res = CommandLine.execute(commandLine.getText());
-                        lastCommands.add(commandLine.getText());
-                        commandResult.setText(res);
-                        commandLine.setText("");
-                    } catch (Exception e) {
-                        commandResult.setText(e.toString());
-                    }
-                }
+                executeCommand(commandLine, commandResult);
             } else if (keyCode == KeyCode.ESCAPE) {
                 commandLineStage.hide();
             } else if (keyCode == KeyCode.UP) {
@@ -576,18 +644,7 @@ public class GameStage extends Stage {
                 commandLine.setText(lastCommands.getDown());
             }
         });
-        commandSubmit.setOnAction(event -> {
-            if (!commandLine.getText().isBlank()) {
-                try {
-                    String res = CommandLine.execute(commandLine.getText());
-                    lastCommands.add(commandLine.getText());
-                    commandResult.setText(res);
-                    commandLine.setText("");
-                } catch (Exception e) {
-                    commandResult.setText(e.toString());
-                }
-            }
-        });
+        commandSubmit.setOnAction(event -> executeCommand(commandLine, commandResult));
         commandLine.setPromptText("Type your command here");
 
         Stage commandLineStage = new Stage();
@@ -597,6 +654,20 @@ public class GameStage extends Stage {
         commandLineStage.initStyle(StageStyle.UTILITY);
         commandLineStage.setScene(new Scene(commandVBox));
         return commandLineStage;
+    }
+
+    private void executeCommand(TextField commandLine, Label commandResult) {
+        try {
+            String commandText = commandLine.getText();
+            if (!commandText.isBlank()) {
+                String res = CommandLine.execute(commandText);
+                lastCommands.add(commandText);
+                commandResult.setText(res);
+                commandLine.setText("");
+            }
+        } catch (Exception e) {
+            commandResult.setText(e.toString());
+        }
     }
 
     private VBox makeVBoxPlayerOptions() {
@@ -1048,6 +1119,7 @@ public class GameStage extends Stage {
         });
         return popupScene;
     }
+
 
     static class Delta {
         double x, y;

@@ -22,6 +22,7 @@ import java.io.InputStream;
 public class Main extends Application {
     protected static final String APP_NAME = "Strategical Geopolitics Simulator";
     private static Image gameIcon;
+    private static Image settingsIcon;
 
     static {
         InputStream inputStream = GameStage.class.getResourceAsStream("img/gameIcon.png");
@@ -116,10 +117,9 @@ public class Main extends Application {
 
     private void startGame() {
         if (gameStage == null) {
-            gameStage = new GameStage();
+            gameStage = new GameStage(this);
         }
-        primaryStage.close();
-        gameStage.show();
+        closePrimaryOpenGame();
     }
 
     private void openOptions() {
@@ -217,6 +217,42 @@ public class Main extends Application {
     public void loadGame() {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Load save-game");
+        ListView<String> listView = makeSaveGameListView();
+        dialog.getDialogPane().setContent(listView);
+
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        final Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        okButton.setText("Select");
+        okButton.addEventFilter(
+                ActionEvent.ACTION,
+                event -> {
+                    String save = listView.getSelectionModel().getSelectedItem();
+                    if (save == null) {
+                        dialog.setHeaderText("Pick a save-game");
+                        event.consume();
+                    } else {
+                        GLogic loadGame = SaveGame.loadGame(save);
+                        if (gameStage == null && loadGame != null) {
+                            gameStage = new GameStage(this, loadGame);
+                            closePrimaryOpenGame();
+                        }
+                    }
+                }
+        );
+
+        dialog.showAndWait();
+    }
+    public void closePrimaryOpenGame(){
+        primaryStage.close();
+        gameStage.show();
+    }
+    public void closeGameOpenPrimary(){
+        gameStage.close();
+        gameStage = null;
+        primaryStage.show();
+    }
+
+    private ListView<String> makeSaveGameListView() {
         ListView<String> listView = new ListView<>(SaveGame.saves);
         listView.setCellFactory(param -> new ListCell<>() {
             private final Button removeButton = new Button(trashIcon == null ? "Delete" : null, trashIcon);
@@ -238,30 +274,7 @@ public class Main extends Application {
                 }
             }
         });
-        dialog.getDialogPane().setContent(listView);
-
-        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-        final Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
-        okButton.setText("Select");
-        okButton.addEventFilter(
-                ActionEvent.ACTION,
-                event -> {
-                    String save = listView.getSelectionModel().getSelectedItem();
-                    if (save == null) {
-                        dialog.setHeaderText("Pick a save-game");
-                        event.consume();
-                    } else {
-                        GLogic loadGame = SaveGame.loadGame(save);
-                        if (gameStage == null && loadGame != null) {
-                            gameStage = new GameStage(loadGame);
-                            primaryStage.close();
-                            gameStage.show();
-                        }
-                    }
-                }
-        );
-
-        dialog.showAndWait();
+        return listView;
     }
 
     public static void loadGameIcon(Stage stage) {
