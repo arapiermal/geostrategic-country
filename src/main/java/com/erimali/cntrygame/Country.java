@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Country implements Serializable, Comparable<Country> {
-    //private World world;
     private String name;
     private int countryId;
     private long population;
@@ -32,7 +31,7 @@ public class Country implements Serializable, Comparable<Country> {
 
     private Map<Integer, CSubject> subjects;
     private CSubject subjectOf;
-    private List<Union> uni;
+    private List<Union> unions;
 
     private short[] availableBuildings;
     // SOME COUNTRIES CAN START AS SUBJECTS OF OTHERS;
@@ -62,7 +61,7 @@ public class Country implements Serializable, Comparable<Country> {
         this.capital = cap != null ? cap : admDivisions.getFirst();
 
         this.subjects = new HashMap<>();
-        this.uni = new LinkedList<>();
+        this.unions = new LinkedList<>();
 
         // FOR CONSISTENCY
         fixPopulation();
@@ -97,7 +96,7 @@ public class Country implements Serializable, Comparable<Country> {
         this.capital = cap != null ? cap : admDivisions.getFirst();
 
         this.subjects = new HashMap<>();
-        this.uni = new LinkedList<>();
+        this.unions = new LinkedList<>();
 
         // FOR CONSISTENCY
         fixPopulation();
@@ -184,11 +183,35 @@ public class Country implements Serializable, Comparable<Country> {
     }
 
     // War
-    public War declareWar(Country op, CasusBelli casusBelli) {
-        if (gov.canDeclareWar())
+    public War declareWar(Country op, CountryArray cArr, CasusBelli casusBelli) {
+        if (gov.canDeclareWar()) {
+            for (Union u : unions) {
+                if (u.containsCountry(op.getCountryId())) {
+                    for (int i : u.getUnionCountries()) {
+                        if (i != countryId) {
+                            dip.worsenRelations(i, casusBelli.getPerceivedAggressiveness());
+                        }
+                    }
+                }
+            }
+            for (int i : neighbours) {
+                if (cArr.containsKey(i)) {
+                    Country c = cArr.get(i);
+                    if (c.getDiplomacy().isRivalWith(i)) {
+                        dip.improveRelations(i, casusBelli.getPerceivedAggressiveness());
+                    } else if (c.getDiplomacy().isAllyWith(i)) {
+                        dip.worsenRelations(i, (short) (2 * casusBelli.getPerceivedAggressiveness()));
+                    } else {
+                        dip.worsenRelations(i, casusBelli.getPerceivedAggressiveness());
+                    }
+                }
+            }
+
             return new War(this, op, casusBelli);
+        }
         return null;
     }
+
 
     //Neighbours
     public boolean hasNeighbour(String c) {
@@ -356,8 +379,9 @@ public class Country implements Serializable, Comparable<Country> {
         return admDivisionType + " of " + admDivisions.get(i).toStringLong();
     }
 
-    // isSubject -> instanceof CSubject
-
+    public boolean isAtWarWith(int selectedCountry) {
+        return mil.isAtWarWith(selectedCountry);
+    }
 
     public boolean isAllyWith(int c) {
         return dip.isAllyWith(c);
@@ -365,6 +389,10 @@ public class Country implements Serializable, Comparable<Country> {
 
     public boolean isAllyWith(short c) {
         return dip.isAllyWith(c);
+    }
+
+    private void worsenRelations(int c, short amount) {
+        dip.worsenRelations(c, amount);
     }
 
     public void improveRelations(int c) {
@@ -568,19 +596,19 @@ public class Country implements Serializable, Comparable<Country> {
     }
 
     public List<Union> getUnions() {
-        return uni;
+        return unions;
     }
 
     public Union getUnion(int i) {
-        return uni.get(i);
+        return unions.get(i);
     }
 
     public void addUnion(Union u) {
-        uni.add(u);
+        unions.add(u);
     }
 
     public void removeUnion(Union u) {
-        uni.remove(u);
+        unions.remove(u);
     }
 
     // Simple Getters/Setters
@@ -900,4 +928,5 @@ public class Country implements Serializable, Comparable<Country> {
         admDiv.incInfrastructure();
         //inc gdp here as well
     }
+
 }

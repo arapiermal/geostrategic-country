@@ -243,6 +243,19 @@ public class CommandLine {
                 // ANNEX DE
 
                 break;
+            case "OCCUPY":
+                if (k.length == 2) {
+                    try{
+                        int provId = Integer.parseInt(k[1]);
+                        gs.getGame().getWorld().occupyAdmDiv(cIndex, provId);
+                    } catch(NumberFormatException nfe){
+                        gs.getGame().getWorld().occupyAllAdmDiv(cIndex, k[1]);
+                    }
+                    gs.getMap().refreshMapIf(0);
+                    result = shortName + " occupied " + k[1];
+
+                }
+                break;
             case "ALLY":
                 if (countries.containsKey(k[1])) {
                     if (k.length == 2) {

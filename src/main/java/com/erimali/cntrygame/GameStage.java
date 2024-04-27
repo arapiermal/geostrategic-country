@@ -372,14 +372,13 @@ public class GameStage extends Stage {
         zoomOut.setOnAction(e -> scrollPane.zoomOut());
 
          */
-        Button[] mapModes = new Button[3];
-        //enum MapModes (?)
-        mapModes[0] = new Button("Default");// change to img
-        mapModes[0].setOnAction(event -> map.switchMapMode(0));
-        mapModes[1] = new Button("Allies");
-        mapModes[1].setOnAction(event -> map.switchMapMode(1));
-        mapModes[2] = new Button("Unions");
-        mapModes[2].setOnAction(event -> map.switchMapMode(2));
+        int mapModesSize = WorldMap.getMaxMapModes();
+        Button[] mapModes = new Button[mapModesSize];
+        for (int i = 0; i < mapModesSize; i++) {
+            mapModes[i] = new Button(WorldMap.getMapModeName(i));
+            int finalI = i;
+            mapModes[i].setOnAction(event -> map.switchMapMode(finalI));
+        }
         //flowPane.getChildren().addAll(zoomIn, zoomOut);
         flowPane.getChildren().addAll(mapModes);
 
@@ -448,12 +447,14 @@ public class GameStage extends Stage {
     public String getSelectedUnion() {
         return listViewUnions.getSelectionModel().getSelectedItem();
     }
-    public Union getSelectedUnionFromWorld(){
+
+    public Union getSelectedUnionFromWorld() {
         String sel = getSelectedUnion();
-        if(sel != null)
+        if (sel != null)
             return game.getWorld().getUnion(sel);
         return null;
     }
+
     private Tab makeTabUnions() {
         Button joinButton = new Button();
         Button openPanel = new Button("Open Panel");
@@ -464,7 +465,7 @@ public class GameStage extends Stage {
                 (observable, oldValue, newValue) -> {
                     if (newValue != null && !newValue.equals(oldValue)) {
                         Union u = game.getWorld().getUnion(newValue);
-                        if(map.getMapMode() == 2){
+                        if (map.getMapMode() == 2) {
                             map.paintMapUnions(u);
                         }
                         if (u.containsCountry(game.getPlayerId())) {
@@ -686,7 +687,7 @@ public class GameStage extends Stage {
         Label optionsText = new Label("Options");
         Label optionsWar = new Label("War");
         Button declareWar = new Button("Declare War");
-        declareWar.setOnAction(e -> declareWar());
+        declareWar.setOnAction(e -> declareWarOrPeace());
         declareWar.getStyleClass().add("declare-war-button");
         Button sponsorRebels = new Button("Sponsor Rebels");
         sponsorRebels.setOnAction(e -> sponsorRebels());
@@ -724,6 +725,7 @@ public class GameStage extends Stage {
         vboxRelations.setSpacing(8);
         return new VBox(optionsText, vboxWar, vboxRelations);
     }
+
 
     private VBox makeVBoxPlayerProvOptions() {
         Button raiseFunds = new Button("Raise municipal funds");
@@ -785,7 +787,20 @@ public class GameStage extends Stage {
 
     }
 
+    private void declareWarOrPeace() {
+        if (game.getPlayer().isAtWarWith(selectedCountry)) {
+            negotiatePeace();
+        } else {
+            declareWar();
+        }
+    }
+
+    public void negotiatePeace() {
+
+    }
+
     public void declareWar() {
+
         // pop up, choose casus belli (casus affects war objectives)
         //allies?
         Dialog<ButtonType> dialog = new Dialog<>();

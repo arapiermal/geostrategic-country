@@ -44,6 +44,7 @@ public class WorldMap {
     // default fill of country svg -> alpha 0
 
     private Paint defAllyColor = Paint.valueOf("blue");
+    private Paint defNeutralColor = Paint.valueOf("lightgreen");
     private Paint defaultSubjectColor = Paint.valueOf("gray");
     private Paint defaultOwnerColor = Paint.valueOf("yellow");
     private Group mapGroup;
@@ -65,6 +66,19 @@ public class WorldMap {
     private int lastClickedProvince;
 
     private SVGPath[] milSVG;
+    private static final String[] MAP_MODE_NAMES = new String[]{"Default", "Allies", "Unions", "Neighbours"};
+
+    public static int getMaxMapModes() {
+        return MAP_MODE_NAMES.length;
+    }
+
+    public static String getMapModeName(int i) {
+        if (i < 0 || i >= MAP_MODE_NAMES.length) {
+            return "";
+        } else {
+            return MAP_MODE_NAMES[i];
+        }
+    }
 
     public void loadMilSVGData() {
         URL p = getClass().getResource("img/milsvgdata.txt");
@@ -177,10 +191,11 @@ public class WorldMap {
             return null;
         }
     }
-    public SVGPath makeBackground(){
+
+    public SVGPath makeBackground() {
         // Set background to water color
         SVGPath bg = new SVGPath();
-        bg.setContent("M0,"+mapHeight+"V0h"+ mapWidth+ "v"+mapHeight+"H0z");
+        bg.setContent("M0," + mapHeight + "V0h" + mapWidth + "v" + mapHeight + "H0z");
         bg.setFill(backgroundColor);
         bg.setStroke(Paint.valueOf("black"));
         bg.setStrokeLineCap(StrokeLineCap.ROUND);
@@ -188,6 +203,7 @@ public class WorldMap {
         bg.setStrokeWidth(0.2);
         return bg;
     }
+
     public void loadColors() {
         colors = new Paint[CountryArray.maxISO2Countries];
         try (BufferedReader br = new BufferedReader(new FileReader(GLogic.RESOURCESPATH + "map/colors.csv"))) {
@@ -215,21 +231,21 @@ public class WorldMap {
         if (clickedNode instanceof SVGProvince clickedPath) {
             String pathId = clickedPath.getId();
             int pathOwn = clickedPath.getOwnerId();
+            int oldSel = gs.getSelectedCountry();
             gs.setSelectedCountry(pathOwn);
-            //TESTING.print(clickedPath.getOwnerId(),clickedPath.getProvId());
-            //gs.changeSelectedCountryInfo();
             gs.setSelectedProvince(clickedPath.getProvId());
-            //gs.changeSelectedProvinceInfclickedNode.getProo()  +; c
             System.out.println(clickedPath.getProvId() + " clicked - ID: " + pathId + ", Owner: " + pathOwn);
-            if (mapMode == 1) {
-                //Put CountryArray countries here...
-                //To access allies fast
-                //Would work when clicking after the first time going through Set (because all others have to be set default color)
-                paintMapAllies(); // CAN BECOME MORE EFFICIENT
-                // Only change the colors of the things which are
-                // in the previous and next Set<String/Integer> allies??
-                // insert SVGPath into country/admdiv???
+            if (pathOwn != oldSel) {
+                if (mapMode == 1)
+                    paintMapAllies();
+                else if (mapMode == 3)
+                    paintMapNeighbours();
             }
+            //Would work when clicking after the first time going through Set (because all others have to be set default color)
+            // CAN BECOME MORE EFFICIENT
+            // Only change the colors of the things which are
+            // in the previous and next Set<String/Integer> allies??
+
         }
     }
 
@@ -308,7 +324,6 @@ public class WorldMap {
     }
 
 
-
     public void switchMapMode(int mode) {
         if (mapMode != mode) {
             mapMode = mode;
@@ -317,26 +332,46 @@ public class WorldMap {
     }
 
     public void paintMapDefault() {
-
         for (SVGProvince t : mapSVG) {
-            t.setFill(getColor(t.getOwnerId()));
+            Paint ownerColor = getColor(t.getOwnerId());
+            if (t.isOccupied()) {
+                t.setFillExtra(ownerColor, getColor(t.getOccupierId()));
+            } else {
+                t.setFill(ownerColor);
+            }
         }
     }
 
-    public void paintMapUnions(Union union){
-        if(union != null){
-            Paint defUnionColor = union.getColor() == null ?  defAllyColor : union.getColor();
-            Set<Integer> set = union.getUnionCountries();
+    public void paintMapNeighbours() {
+        int cId = gs.getSelectedCountry();
+        Country c = gs.getGame().getCountry(cId);
+        if (c != null) {
+            Set<Integer> neighbours = c.getNeighbours();
             for (SVGProvince t : mapSVG) {
-                if (set.contains(t.getOwnerId())) {
-                    t.setFill(defUnionColor);
+                if (neighbours.contains(t.getOwnerId())) {
+                    t.setFill(defNeutralColor);
                 } else {
                     t.setFill(defColor);
                 }
             }
         }
     }
-    public void paintMapUnions(){
+
+    public void paintMapUnions(Union union) {
+        if (union != null) {
+            Paint unionColor = union.getColor() == null ? defAllyColor : union.getColor();
+            Set<Integer> set = union.getUnionCountries();
+            for (SVGProvince t : mapSVG) {
+                if (set.contains(t.getOwnerId())) {
+                    t.setFill(unionColor);
+                } else {
+                    t.setFill(defColor);
+                }
+            }
+        }
+    }
+
+    public void paintMapUnions() {
         Union union = gs.getSelectedUnionFromWorld();
         paintMapUnions(union);
     }
@@ -416,6 +451,7 @@ public class WorldMap {
     public boolean containsColor(int id) {
         return id >= 0 && id < colors.length && colors[id] != null;
     }
+
     public void refreshMap() {
         switch (mapMode) {
             case 0:
@@ -427,6 +463,8 @@ public class WorldMap {
             case 2:
                 paintMapUnions();
                 break;
+            case 3:
+                paintMapNeighbours();
             default:
                 break;
         }
@@ -563,5 +601,10 @@ public class WorldMap {
 
     public int getMapMode() {
         return mapMode;
+    }
+
+    public void refreshMapIf(int i) {
+        if(mapMode == i)
+            refreshMap();
     }
 }

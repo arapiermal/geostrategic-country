@@ -1,5 +1,9 @@
 package com.erimali.cntrygame;
 
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.SVGPath;
 
 
@@ -8,12 +12,16 @@ public class SVGProvince extends SVGPath {
     private double provX, provY;
     private int ownerId;
     private int provId;
+    private int occupierId;
+    //cache the color as well ?
+    private RadialGradient radialGradient; // Cache
 
     //private AdmDiv admDiv;
 
     public SVGProvince(int ownerId, int provId) {
         this.provId = provId;
         this.ownerId = ownerId;
+        this.occupierId = -1;
     }
 
     public int getOwnerId() {
@@ -62,6 +70,32 @@ public class SVGProvince extends SVGPath {
         double radiusY = getBoundsInLocal().getHeight() / 2;
         double area = Math.PI * radiusX * radiusY;
         return area * (mapW * mapH) / (getBoundsInLocal().getWidth() * getBoundsInLocal().getHeight());
+    }
+
+    public void setFillExtra(Paint owner, Paint occupier) {
+        if (owner instanceof Color && occupier instanceof Color) {
+            //linear gradient javafx.scene.paint.CycleMethod.REPEAT
+            if (radialGradient == null) {
+                radialGradient = new RadialGradient(0, 0, 0.5, 0.5, 0.5, true,
+                        javafx.scene.paint.CycleMethod.NO_CYCLE, new Stop(0, (Color) occupier), new Stop(1, (Color) owner));
+            }
+            setFill(radialGradient);
+        } else {
+            setFill(owner);
+        }
+    }
+
+    public boolean isOccupied() {
+        return occupierId >= 0;
+    }
+
+    public void setOccupierId(int occupierId) {
+        this.occupierId = occupierId;
+        radialGradient = null;
+    }
+
+    public int getOccupierId() {
+        return occupierId;
     }
 }
 

@@ -16,30 +16,30 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
     //private Country mainCountry; //update buildings on finished
     private int provId;
     private int ownerId;
+    private int occupierId = -1;
     private String name;
+
+
     private String nativeName; // Durrës vs Durres ?
     private double area;
     private int population;
     private boolean waterAccess;
     private short mainLanguage; // + culture?, PopDistFloat/Double..., can be [][] and static methods there.
     private short infrastructure;
-    private short defense; // or short[] and Enum with types (?)
     //based on stability, rebellion can happen or if > 64
     //when annexing during war set rebellion to 16 32 or 64 (except provinces which consider us liberators)
-    private byte[] rebellion; //types: separatism, autonomy,...
+    private final byte[] rebellion; //types: separatism, autonomy,...
     //treat like
-    private EnumSet<Building> buildings;
-    private EnumMap<Building, Byte> buildingBuildings;
+    private final EnumSet<Building> buildings;
+    private final EnumMap<Building, Byte> buildingBuildings;
 
     //private short[] claimedBy; (previous owners) ...
-    //Mil
-    //private List<MilUnit> unitsRecruitingBuild;
-    //private List<MilUnit> unitsTrainingUpgrade;
+
     //list in GLogic so only the ones necessary are updated.
     private MilUnit unitRecruitingBuild;
-//train more than recruit/build (maybe train division)
+    //train more than recruit/build (maybe train division)
     //private MilUnit unitTrainingUpgrade;
-
+//select based on multiple selection model?
     private List<MilUnit> friendlyUnits; // unit vs div or new interface
     private List<MilUnit> enemyUnits;
 //boolean or sth
@@ -58,15 +58,17 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
         return sb;
     }
 
-    public AdmDiv(String name, double area, int population,boolean waterAccess, short mainLanguage) {
+    public AdmDiv(String name, double area, int population, boolean waterAccess, short mainLanguage) {
         this.name = name;
         this.area = area;
         this.population = population;
         this.waterAccess = waterAccess;
         this.mainLanguage = mainLanguage;
+        this.infrastructure = 1;
         this.buildings = EnumSet.noneOf(Building.class);
         this.buildingBuildings = new EnumMap<>(Building.class);
         this.friendlyUnits = new LinkedList<>();
+        this.enemyUnits = new LinkedList<>();
         this.rebellion = new byte[RebelType.values().length];
         resetRebellion();
     }
@@ -74,16 +76,20 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
     public AdmDiv(String name, String area, String population, short mainLanguage) {
         this.name = name;
         this.mainLanguage = mainLanguage;
+        this.infrastructure = 1;
         this.buildings = EnumSet.noneOf(Building.class);
         this.buildingBuildings = new EnumMap<>(Building.class);
         this.friendlyUnits = new LinkedList<>();
+        this.enemyUnits = new LinkedList<>();
         this.rebellion = new byte[RebelType.values().length];
         resetRebellion();
         try {
             this.area = Double.parseDouble(area);
             this.population = Integer.parseInt(population);
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+            this.area = 10.0;
+            this.population = 1000;
+            ErrorLog.logError(name + " " + e);
         }
     }
 
@@ -92,12 +98,43 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
     }
 
     public void sponsorRebellion(RebelType rt, byte amount) {
-        if (amount > 0)
-            rebellion[rt.ordinal()] += amount;
+        if (amount > 0) {
+            int i = rt.ordinal();
+            rebellion[i] += amount;
+            checkRebellionArmy(i);
+        }
     }
 
-    public void fightRebellion(byte amount) {
+    public void checkRebellionArmy(int i) {
+        if (rebellion[i] >= 100) {
+            rebellion[i] = 0;
+            popupRebelArmy(i);
+        }
+    }
 
+    //based on the provinces gdp the sponsor part?
+    public void popupRebelArmy(int r) {
+        int n = population / 50000;
+        int size = MilRebels.getRebelSoldiersData().getMaxSize();
+        //at least one even on small provinces
+        if (n <= 0) {
+            n = 1;
+            MilRebels rebels = new MilRebels(-1, RebelType.values()[r]);
+            int amount = population / 10;
+            int extra = rebels.incSize(amount);
+            amount -= extra;
+            population -= amount;
+            enemyUnits.add(rebels);
+        } else {
+            for (int i = 0; i < n; i++) {
+                enemyUnits.add(new MilRebels(-1, RebelType.values()[r], true));
+            }
+        }
+    }
+
+    public void fightRebellion(RebelType rt, byte amount) {
+        if (amount > 0)
+            rebellion[rt.ordinal()] -= amount;
     }
 
     public void addPopulation(int pop) {
@@ -112,13 +149,27 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
             this.population = 0;
     }
 
-    public int incPopulation(double incPop) {
-        int pop = (int) (population * incPop);
+    public int incPopulation(double percent) {
+        int pop = (int) (population * percent);
         population += pop;
         return pop;
     }
 
-    public void monthlyTick() {
+    public void substractAllRebellion(byte a) {
+        for (int i = 0; i < rebellion.length; i++) {
+            rebellion[i] -= a;
+            if (rebellion[i] < 0)
+                rebellion[i] = 0;
+        }
+    }
+
+    public void yearlyTick() {
+        substractAllRebellion((byte) 10);
+
+    }
+
+    // (int amount) for speed ups
+    public void buildingTick() {
         for (EnumMap.Entry<Building, Byte> entry : buildingBuildings.entrySet()) {
             Building b = entry.getKey();
             byte val = (byte) (entry.getValue() + 1);
@@ -129,6 +180,7 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
                 entry.setValue(val);
             }
         }
+        //return buildingBuildings.isEmpty();
     }
 
     public void buildBuilding(Building b) {
@@ -194,6 +246,7 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
 
     public void setOwnerId(int ownerId) {
         this.ownerId = ownerId;
+        setUnoccupied();
         if (svgProvince != null)
             svgProvince.setOwnerId(ownerId);
     }
@@ -332,5 +385,47 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
 
     public void incInfrastructure() {
         infrastructure++;
+    }
+
+    public short getInfrastructure() {
+        return infrastructure;
+    }
+
+    public void setInfrastructure(short infrastructure) {
+        this.infrastructure = infrastructure;
+    }
+
+    public int getOccupierId() {
+        return occupierId;
+    }
+
+    public void setOccupierId(int occupierId) {
+        this.occupierId = occupierId;
+        if (svgProvince != null)
+            svgProvince.setOccupierId(occupierId);
+    }
+
+    public void setUnoccupied() {
+        this.occupierId = -1;
+        if (svgProvince != null)
+            svgProvince.setOccupierId(occupierId);
+    }
+
+    public boolean isOccupied() {
+        return occupierId >= 0;
+    }
+
+    public String getNativeName() {
+        return nativeName;
+    }
+
+    public void setNativeName(String nativeName) {
+        this.nativeName = nativeName;
+    }
+
+    public boolean sameName(String id) {
+        if(nativeName == null)
+            return id.equalsIgnoreCase(name);
+        return id.equalsIgnoreCase(name) || id.equalsIgnoreCase(nativeName);
     }
 }

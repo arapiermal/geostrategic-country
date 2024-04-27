@@ -2,6 +2,8 @@ package com.erimali.cntrymilitary;
 
 import com.erimali.cntrygame.ErrorLog;
 import com.erimali.cntrygame.TESTING;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -16,14 +18,15 @@ public class Military implements Serializable {
     private static final short MIL_TECH_LEVEL_CAP = 100;
     private short[] milTechProgress;
     private short[] milTechLevel;
-    private List<MilDiv> divisions;
+
+    private ObservableList<MilDiv> divisions;
     //Have at least 1 division in all times
-    private Set<Short> atWarWith;
+    private Set<Integer> atWarWith;
 
 
     public Military() {
         this.manpower = 0;
-        divisions = new ArrayList<>();
+        divisions = FXCollections.observableArrayList();
         atWarWith = new HashSet<>();
         milTechProgress = new short[MilUnitData.getMaxTypes()];
         Arrays.fill(milTechProgress, (short) 0);
@@ -52,21 +55,21 @@ public class Military implements Serializable {
         divisions.add(d);
     }
 
-    public List<MilDiv> getDivisions() {
+    public ObservableList<MilDiv> getDivisions() {
         return divisions;
     }
 
-    public Set<Short> getAtWarWith() {
+    public Set<Integer> getAtWarWith() {
         return atWarWith;
     }
 
-    public void addAtWarWith(short... o) {
-        for (short s : o) {
+    public void addAtWarWith(int... o) {
+        for (int s : o) {
             atWarWith.add(s);
         }
     }
 
-    public boolean isAtWarWith(short s) {
+    public boolean isAtWarWith(int s) {
         return atWarWith.contains(s);
     }
 

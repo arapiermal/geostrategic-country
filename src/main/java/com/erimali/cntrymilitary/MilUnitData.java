@@ -51,6 +51,8 @@ public class MilUnitData implements Comparable<MilUnitData> {
             minValues();
         }
     }
+
+
     public void initEmptyAtkDef(){
         if(atk == null)
             atk = new int[MAX_TYPES];
@@ -249,5 +251,9 @@ public class MilUnitData implements Comparable<MilUnitData> {
     }
     public String getDesc() {
         return desc;
+    }
+
+    public int getMaxSize() {
+        return maxSize;
     }
 }

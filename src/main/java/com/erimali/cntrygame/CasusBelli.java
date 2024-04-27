@@ -5,18 +5,18 @@ import java.util.List;
 
 public enum CasusBelli implements CValidatable {
     //Countries that have signed UN -> opinion --
-    IMPERIALISM("Imperialism") {
+    IMPERIALISM("Imperialism", 100) {
 
     },
     //Based on claims/previous owners of provinces
-    TERRITORY("Territorial dispute") {
+    TERRITORY("Territorial dispute", 50) {
         @Override
         public boolean isValid(Country c1, Country c2) {
             return false;
         }
     },
     //Linguistic territorial disputes (they have provinces with people that speak the same main language as ours...)
-    LINGUISTIC("Linguistic minority") {
+    LINGUISTIC("Linguistic minority", 30) {
         @Override
         public boolean isValid(Country c1, Country c2) {
             short c1Lang = c1.getMainLanguage();
@@ -30,7 +30,7 @@ public enum CasusBelli implements CValidatable {
         }
     },
     //Free countries from subjugation / release countries that have been annexed
-    LIBERATE("Liberation") {
+    LIBERATE("Liberation", 25) {
         @Override
         public boolean isValid(Country c1, Country c2) {
             //Check for releasable countries in c2
@@ -38,28 +38,28 @@ public enum CasusBelli implements CValidatable {
         }
     },
     //Change their gov type to the same as ours
-    REGIME("Regime change") {
+    REGIME("Regime change", 30) {
         @Override
         public boolean isValid(Country c1, Country c2) {
             return !c1.getGovernment().sameType(c2.getGovernment());
         }
     },
     //They have valuable resources (for ex.)
-    ECONOMICDOMINATION("Economic Domination") {
+    ECONOMIC_DOMINATION("Economic Domination", 40) {
         @Override
         public boolean isValid(Country c1, Country c2) {
             return false;
         }
     },
     //Help rebels take over the country, cannot annex provinces, maybe liberate
-    ASSISTREBELS("Assist our rebels") {
+    ASSIST_REBELS("Assist our rebels", 40) {
         @Override
         public boolean isValid(Country c1, Country c2) {
             return false;
         }
     },
     //They have sponsored rebel groups against us
-    SPONSOREDREBELS("Revenge their rebel support") {
+    SPONSOREDREBELS("Revenge their rebel support",40) {
         @Override
         public boolean isValid(Country c1, Country c2) {
             return false;
@@ -68,7 +68,7 @@ public enum CasusBelli implements CValidatable {
     //They have continuously carried cyberattacks on us
     //CYBERATTACKED,
     //Only declarable by subjects to the main country
-    INDEPENDENCE("Independence") {
+    INDEPENDENCE("Independence", 0) {
         @Override
         public boolean isValid(Country c1, Country c2) {
             if (!c1.isNotSubject())
@@ -79,18 +79,22 @@ public enum CasusBelli implements CValidatable {
     };
     //COUNTEROFFENSIVE/SELFDEFENSE
     private final String desc;
-    private EnumSet<WarObjectives> allowedObjectives;
-    private short perceivedAggressiveness;
+    private final short perceivedAggressiveness;
 
-    CasusBelli(String desc) {
+    private EnumSet<WarObjectives> allowedObjectives;
+
+    CasusBelli(String desc, int perceivedAggressiveness) {
         this.desc = desc;
+        this.perceivedAggressiveness = (short) perceivedAggressiveness;
     }
 
     @Override
     public String toString() {
         return this.desc;
     }
-
+    public short getPerceivedAggressiveness(){
+        return perceivedAggressiveness;
+    }
     @Override
     public boolean isValid(Country c1, Country c2) {
         return true;

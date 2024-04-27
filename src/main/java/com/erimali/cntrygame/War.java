@@ -53,7 +53,9 @@ enum WarObjectives {
             int years = args[0];
             c2.getGovernment().addPolicy(GovPolicy.BANNED_MILITARY, years);
         }
-    };
+    },
+    //SHARE_ECONOMIC_PROSPERITY(50){},
+    ;
     private float cost;
 
     WarObjectives(float cost) {
@@ -73,6 +75,7 @@ enum WarObjectives {
 
 
 public class War implements Serializable {
+    //if there's list in each province, no need for this stuff here.
     static class Battle implements Serializable{
         //if many MilDiv in the same province, after one is defeated, check province to fight the rest
         int provId;
@@ -95,6 +98,7 @@ public class War implements Serializable {
     public void dayTick(){
         for(Battle b : activeBattles){
             int res = b.dayTick();
+            //now there's res based on units destroyed/retreated, change formula
             switch (res){
                 case -2:
                     //Defeated
@@ -123,7 +127,7 @@ public class War implements Serializable {
     }
     // each country in war having warState?
     // if warState in disfavor, AI likely to accept terms
-    private CasusBelli casusBelli; //enum? array? //loadable casus bellis?
+    private final CasusBelli casusBelli; //enum? array? //loadable casus bellis?
     private WarObjectives[] allowedObjectives;//?? dependent on casusBelli
     private float warState; // from -100 to 100
     private Country declaringCountry;//what if Military, and in constructor get it
@@ -132,18 +136,21 @@ public class War implements Serializable {
     private Set<Country> opposingAllies;
     private List<Battle> activeBattles;
 
-    //if reference to Country inside military;
-    //private Military declaringCountry;
-    //private Military opposingCountry;
-    //private Set<Military> declaringAllies;
-    //private Set<Military> opposingAllies;
+    //if reference to Country inside military, Country <-> Military
     private String warResult; //...
 
     public War(Country declaringCountry, Country opposingCountry, CasusBelli casusBelli) {
         this.declaringCountry = declaringCountry;
         this.opposingCountry = opposingCountry;
+        declaringCountry.getMilitary().addAtWarWith(opposingCountry.getCountryId());
+        opposingCountry.getMilitary().addAtWarWith(declaringCountry.getCountryId());
         this.casusBelli = casusBelli;
         this.activeBattles = new LinkedList<>();
+
+    }
+    //which side is AI...
+    //private int player; //if >=0 there is at least the player that's not AI
+    public void calcAlliesAI(){
 
     }
     public void bringAlly(){
@@ -152,7 +159,8 @@ public class War implements Serializable {
     public float getWarState(Country c){
         return (c == declaringCountry || declaringAllies.contains(c)) ? warState : -warState;
     }
-    public void startBattle(int provId, MilDiv a, MilDiv o){
+
+    public void startBattle(int provId, List<MilUnit> a, List<MilUnit> o){
 
     }
 

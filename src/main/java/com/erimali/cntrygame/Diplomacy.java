@@ -63,6 +63,11 @@ public class Diplomacy implements Serializable {
         if (c >= 0 && c <= relations.length)
             relations[c] += amount;
     }
+
+    public void worsenRelations(int c, short amount) {
+        if (c >= 0 && c <= relations.length)
+            relations[c] -= amount;
+    }
     public boolean isAllyWith(int c) {
         return allies.contains((short) c);
     }
@@ -148,4 +153,10 @@ public class Diplomacy implements Serializable {
         this.improveRelationsSize = improveRelationsSize;
     }
 
+    public boolean isRivalWith(short i) {
+        return rivals.contains(i);
+    }
+    public boolean isRivalWith(int i) {
+        return rivals.contains((short) i);
+    }
 }

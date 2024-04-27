@@ -110,7 +110,7 @@ public class World implements Serializable {
                 if (countryAdmDivs == null)
                     continue;
                 for (AdmDiv a : countryAdmDivs) {
-                    if (wmProvinces[i].getId().equalsIgnoreCase(a.getName())) {
+                    if (a.sameName(wmProvinces[i].getId())) {
                         //CHANGED!!!
                         a.setFromSVGProvince(wmProvinces[i]);
                         provinces[i] = a;
@@ -264,6 +264,10 @@ public class World implements Serializable {
         return Arrays.stream(s.split(",")).map(String::trim).toArray(String[]::new);
     }
 
+    public static String[] getValues2(String s, String separator) {
+        return Arrays.stream(s.split(separator)).map(String::trim).toArray(String[]::new);
+    }
+
     public static String[] getValues3(String s) {
         return s.trim().split("\\s+,\\s+");
     }
@@ -293,13 +297,22 @@ public class World implements Serializable {
                 if (line.startsWith(ENDDELIMITER)) {
                     break;
                 }
-                String[] vals = getValues2(line);
+                String[][] vals = getValuesArrArr(line);
                 try {
-                    if (vals.length == 3) {
-                        list.add(new AdmDiv(vals[0], vals[1], vals[2], indexLangs.getFirst()));
-                    } else if (vals.length == 4) {
-                        list.add(new AdmDiv(vals[0], vals[1], vals[2], indexLangs.get(GUtils.parseI(vals[3]))));
+                    AdmDiv admDiv = null;
+                    if (vals.length >= 2) {
+                        if(vals[1].length == 2){
+                            admDiv = new AdmDiv(vals[0][0], vals[1][0], vals[1][1], indexLangs.getFirst());
+                        }else if (vals[1].length == 3) {
+                            admDiv = new AdmDiv(vals[0][0], vals[1][0], vals[1][1], indexLangs.get(GUtils.parseI(vals[1][2])));
+                        }
+                        if(admDiv != null) {
+                            if (vals[0].length == 2)
+                                admDiv.setNativeName(vals[0][1]);
+                            list.add(admDiv);
+                        }
                     }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -309,6 +322,15 @@ public class World implements Serializable {
         } catch (Exception e) {
             return new ArrayList<>();
         }
+    }
+
+    private String[][] getValuesArrArr(String line) {
+        String[] toSplit = line.split(":");
+        String[][] res = new String[toSplit.length][];
+        for(int i = 0; i < toSplit.length; i++){
+            res[i] = getValues2(toSplit[i]);
+        }
+        return res;
     }
 
     // LOAD RESOURCES/COUNTRIES
@@ -395,7 +417,8 @@ public class World implements Serializable {
     public int binarySearchLanguage(String s) {
         return Collections.binarySearch(languages, new Language(s));
     }
-    public Language searchLanguage(String name){
+
+    public Language searchLanguage(String name) {
         return languages.get(binarySearchLanguage(name));
     }
 
@@ -442,7 +465,7 @@ public class World implements Serializable {
         //keep track with set for less overhead
         for (AdmDiv a : provinces) {
             if (a != null) {
-                a.monthlyTick();
+                a.buildingTick();
             }
         }
     }
@@ -450,6 +473,11 @@ public class World implements Serializable {
     public void yearlyUpdate() {
         for (Country c : countries) {
             c.yearlyTick();
+        }
+        for (AdmDiv a : provinces) {
+            if (a != null) {
+                a.yearlyTick();
+            }
         }
     }
 
@@ -473,10 +501,10 @@ public class World implements Serializable {
         unions.put(shortName, u);
     }
 
-    public void loadUnions(){
-        if(unions == null)
+    public void loadUnions() {
+        if (unions == null)
             unions = FXCollections.observableMap(new HashMap<>());
-        Path dir = Paths.get(GLogic.RESOURCESPATH+"/countries/unions");
+        Path dir = Paths.get(GLogic.RESOURCESPATH + "/countries/unions");
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
             for (Path entry : stream) {
                 try {
@@ -495,7 +523,7 @@ public class World implements Serializable {
     }
 
     private void unionFromFile(String shortName, File file) throws IOException {
-        try(BufferedReader br = new BufferedReader(new FileReader(file))){
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String name = br.readLine();
             int t = Union.genType(br.readLine());
             short[] c = CountryArray.getShortArrFromStringArr(br.readLine());
@@ -545,7 +573,7 @@ public class World implements Serializable {
                 //take care of extra manpower/resources (!)
                 game.contMilUnit(provId);
 
-            } else{
+            } else {
                 //FIX!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 // or maybe when finished recruiting/building show
                 // if units.size() of province > 0 show milimg
@@ -557,24 +585,24 @@ public class World implements Serializable {
 
     }
 
-    public void proceduralCountryMakeover(){
+    public void proceduralCountryMakeover() {
         SVGProvince[] svgMap = game.getWorldMap().getMapSVG();
         double mapW = game.getWorldMap().getWidth();
         double mapH = game.getWorldMap().getHeight();
         int worldPopDensity = 16;
-        for(SVGProvince svg: svgMap){
+        for (SVGProvince svg : svgMap) {
             int o = svg.getOwnerId();
             int p = svg.getProvId();
-            if(!countries.containsKey(o)){
+            if (!countries.containsKey(o)) {
                 String iso2 = CountryArray.getIndexISO2(o);
                 Country c = new Country(iso2);
                 c.setIso2(iso2);
                 //either no lang or english as default
                 countries.put(o, c);
             }
-            if(provinces[p] == null){
+            if (provinces[p] == null) {
                 double area = svg.calcAvgArea(mapW, mapH);
-                provinces[p] = new AdmDiv(svg.getId(),area, (int) (area*worldPopDensity),true, (short) -1);
+                provinces[p] = new AdmDiv(svg.getId(), area, (int) (area * worldPopDensity), true, (short) -1);
                 countries.get(o).addAdmDiv(provinces[p]);
             }
         }
@@ -583,5 +611,34 @@ public class World implements Serializable {
 
     public Union getUnion(String s) {
         return unions.get(s);
+    }
+
+    public void moveMilUnits(int src, int dst) {
+        AdmDiv srcProv = provinces[src];
+        AdmDiv dstProv = provinces[dst];
+        List<MilUnit> l;
+    }
+
+    public void occupyAdmDiv(int occupierId, int provId) {
+        AdmDiv admDiv = provinces[provId];
+        if (admDiv != null) {
+            if (admDiv.getOwnerId() == occupierId) {
+                admDiv.setUnoccupied();
+            } else {
+                admDiv.setOccupierId(occupierId);
+            }
+        }
+    }
+
+    public void occupyAllAdmDiv(int occupierId, String cId) {
+        Country c = countries.get(cId);
+        if (c != null)
+            for (AdmDiv admDiv : c.getAdmDivs()) {
+                if (admDiv.getOwnerId() == occupierId) {
+                    admDiv.setUnoccupied();
+                } else {
+                    admDiv.setOccupierId(occupierId);
+                }
+            }
     }
 }
