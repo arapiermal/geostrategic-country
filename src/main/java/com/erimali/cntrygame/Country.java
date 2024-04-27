@@ -943,9 +943,10 @@ public class Country implements Serializable, Comparable<Country> {
     }
 
     public void incInfrastructure(AdmDiv admDiv) {
-        eco.addPercentGDP(1.0 / admDivisions.size());
+        //eco.addPercentGDP(1.0 / admDivisions.size());
+        double popRatio = admDiv.getPopulation() / population;
         admDiv.incInfrastructure();
-        //inc gdp here as well
+        eco.addMulGDP(popRatio * 0.5);
     }
 
 }

@@ -34,17 +34,18 @@ public class TradeManagement implements Serializable {
         }
     }
 
-    public TradeManagement(){
-
+    public TradeManagement(Economy economy){
+        this.economy = economy;
         this.tradeAgreements = new ArrayList<>();
     }
 
-    public TradeManagement(double totalExport, double totalImport) {
+    public TradeManagement(Economy economy, double totalExport, double totalImport) {
+        this.economy = economy;
         this.totalExport = totalExport;
         this.totalImport = totalImport;
         this.tradeAgreements = new ArrayList<>();
     }
-
+    private final Economy economy;
     private double totalExport;
     private double totalImport;
     //List of trades with other countries,

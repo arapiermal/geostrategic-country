@@ -1,5 +1,8 @@
 package com.erimali.cntrymilitary;
 
+import com.erimali.cntrygame.AdmDiv;
+import com.erimali.cntrygame.CountryArray;
+import com.erimali.cntrygame.RebelType;
 import com.erimali.cntrygame.TESTING;
 
 import java.io.Serializable;
@@ -21,6 +24,7 @@ public abstract class MilUnit implements Serializable {
     protected double bonusDef;
 
     private boolean retreating;
+
     public MilUnit(MilUnitData data, int ownerId) {
         this.data = data;
         this.ownerId = ownerId;
@@ -29,7 +33,22 @@ public abstract class MilUnit implements Serializable {
         this.morale = 100;
         this.lvl = 1;
     }
+    public static void main(String... args){
+        MilRebels rebels = new MilRebels(CountryArray.getIndex("EL"), RebelType.INDEPENDENCE, true);
+        AdmDiv el = new AdmDiv("Elbasan", 100.0, 300000,false,(short)0);
+        while (!rebels.attack(el)) {
+            TESTING.print("DEF = " + el.getDefense());
+        }
+        TESTING.print("SUCCESS: DEF = " + el.getDefense(), el.getOccupierId());
 
+
+    }
+    public boolean attack(AdmDiv a) {
+        double admDEF = 0.5 * a.getInfrastructure() + 0.01 * (a.getMaxDefense() + a.getDefense()); // 0.5 * 1 + 0.01 * 100 = 1.5
+        double popScale = size / Math.sqrt(a.getPopulation());
+        double ATK = popScale * ((data.atk[0] + bonusAtk) / admDEF) * Math.sqrt((double) (lvl * (data.minMilTech + 1)) + data.speed);
+        return a.decDefense((float) ATK, ownerId);
+    }
 
     //return double ?
     public int attack(MilUnit o) {
@@ -65,7 +84,7 @@ public abstract class MilUnit implements Serializable {
     }
 
     public static double dmgCalc(MilUnit a, MilUnit o) {
-        double ATK = a.size * ((a.data.atk[o.data.type] + a.bonusAtk)/ (o.data.def[a.data.type]+ a.bonusDef))
+        double ATK = a.size * ((a.data.atk[o.data.type] + a.bonusAtk) / (o.data.def[a.data.type] + a.bonusDef))
                 * Math.sqrt((double) (a.lvl * (a.data.minMilTech + 1)) / (o.lvl * (o.data.minMilTech + 1)) + (a.data.speed - o.data.speed));
         ATK += ATK * Math.random() / 2;
 
@@ -101,23 +120,26 @@ public abstract class MilUnit implements Serializable {
         }
         return amount % lvl;
     }
-    public int recruitBuild(){
-        return recruitBuild(data.maxSize/10);
+
+    public int recruitBuild() {
+        return recruitBuild(data.maxSize / 10);
     }
+
     @Override
-    public String toString(){
+    public String toString() {
         return size + "x " + data.name + (lvl > 1 ? (" Lvl " + lvl) : "");
     }
 
-    public int getType(){
+    public int getType() {
         return data.type;
     }
 
-    public void setBonuses(double bonusAtk, double bonusDef){
+    public void setBonuses(double bonusAtk, double bonusDef) {
         this.bonusAtk = bonusAtk;
         this.bonusDef = bonusDef;
     }
-    public void resetBonuses(){
+
+    public void resetBonuses() {
         this.bonusAtk = 0;
         this.bonusDef = 0;
     }
@@ -125,10 +147,11 @@ public abstract class MilUnit implements Serializable {
     public void maximizeSize() {
         this.size = data.maxSize;
     }
-    public void setSize(int val){
-        if(val < 0)
+
+    public void setSize(int val) {
+        if (val < 0)
             size = 0;
-        else if(val > data.maxSize)
+        else if (val > data.maxSize)
             size = data.maxSize;
         else
             size = val;
@@ -143,7 +166,7 @@ public abstract class MilUnit implements Serializable {
     }
 
     public void setRetreating(boolean retreating) {
-        if(!retreating){
+        if (!retreating) {
             this.morale = 100;
         }
         this.retreating = retreating;

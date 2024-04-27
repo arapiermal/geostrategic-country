@@ -20,12 +20,15 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
     private String name;
 
 
-    private String nativeName; // Durrës vs Durres ?
+    private String nativeName;
     private double area;
     private int population;
     private boolean waterAccess;
     private short mainLanguage; // + culture?, PopDistFloat/Double..., can be [][] and static methods there.
     private short infrastructure;
+
+    private float maxDefense = 100;
+    private float defense = 100; //when conquering, infrastructure * 0.5 + defense
     //based on stability, rebellion can happen or if > 64
     //when annexing during war set rebellion to 16 32 or 64 (except provinces which consider us liberators)
     private final byte[] rebellion; //types: separatism, autonomy,...
@@ -410,7 +413,7 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
         if (svgProvince != null)
             svgProvince.setOccupierId(occupierId);
     }
-
+    //Rebels that aren't of a particular country, special occupierId.
     public boolean isOccupied() {
         return occupierId >= 0;
     }
@@ -423,9 +426,35 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
         this.nativeName = nativeName;
     }
 
+    public float getMaxDefense() {
+        return maxDefense;
+    }
+
+    public void setMaxDefense(float maxDefense) {
+        this.maxDefense = maxDefense;
+    }
+
+    public float getDefense() {
+        return defense;
+    }
+
+    public void setDefense(float defense) {
+        this.defense = defense;
+    }
+
     public boolean sameName(String id) {
-        if(nativeName == null)
+        if (nativeName == null)
             return id.equalsIgnoreCase(name);
         return id.equalsIgnoreCase(name) || id.equalsIgnoreCase(nativeName);
+    }
+
+    public boolean decDefense(float amount, int occupierId) {
+        defense -= amount;
+        if (defense <= 0) {
+            this.defense = 0;
+            setOccupierId(occupierId);
+            return true;
+        }
+        return false;
     }
 }

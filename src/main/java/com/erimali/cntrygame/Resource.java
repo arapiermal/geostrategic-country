@@ -12,6 +12,7 @@ enum ResourceCategory{
     //private String/int unitOfMeasurement;
 
 }
+
 public class Resource implements Comparable<Resource>, Serializable {
     private ResourceCategory category;
     private String name;

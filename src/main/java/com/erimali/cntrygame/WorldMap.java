@@ -274,13 +274,12 @@ public class WorldMap {
         double g = color.getGreen();
         double b = color.getBlue();
         if (color.getBrightness() >= 1.0) {
-            // Color is already at maximum brightness, adjust saturation instead
+            // Color is at maximum brightness -> change saturation
             r = Math.min(r + ((1.0 - r) * factor), 1.0);
             g = Math.min(g + ((1.0 - g) * factor), 1.0);
             b = Math.min(b + ((1.0 - b) * factor), 1.0);
             return Color.rgb((int) (r * 255), (int) (g * 255), (int) (b * 255), color.getOpacity());
         } else {
-            // Use the brighter() method to lighten the color
             Color lightenedColor = color.brighter();
             return lightenedColor;
         }
@@ -347,9 +346,6 @@ public class WorldMap {
     public void paintMapAllies() {
         int cId = gs.getSelectedCountry();
         Country c = gs.getGame().getCountry(cId);
-        // On changed???
-        // also show subjects? different color
-
         if (c != null)
             if (c.isNotSubject()) {
                 for (SVGProvince t : mapSVG) {

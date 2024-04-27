@@ -18,7 +18,7 @@ public class Economy implements Serializable {
 
     //private List<Industry> industries;
     // EXPORT VS IMPORT
-    private final TradeManagement tradeManagement;
+    private TradeManagement tradeManagement;
 
 
     public Economy(String currency, double inflationRate, double gdp, double economicGrowthRate, double taxation) {
@@ -27,33 +27,39 @@ public class Economy implements Serializable {
         this.gdp = gdp;
         this.economicGrowthRate = economicGrowthRate;
         this.taxation = taxation;
-        tradeManagement = new TradeManagement();
+        tradeManagement = new TradeManagement(this);
     }
 
-    public Economy(String[]... in) {
-        switch (in.length) {
+    public Economy(int len, String[]... in) {
+        //if len == 5, len>4>3>2>1...
+        switch (len) {
+            case 5:
+                tradeManagement = new TradeManagement(this, getValueOrDef(in[4], 0, 1.1e9), getValueOrDef(in[4], 1, 9e8));
             case 4:
-                unemploymentRate = getValueOrDef(in[2], 0, 5.0);
+                unemploymentRate = getValueOrDef(in[3], 0, 5.0);
             case 3:
                 taxation = getValueOrDef(in[2], 0, 2.5);
             case 2:
-                gdp = getValueOrDef(in[1], 0, 1000000000);
-                economicGrowthRate = getValueOrDef(in[1], 0, 1.0);
+                gdp = getValueOrDef(in[1], 0, 1e9);
+                economicGrowthRate = getValueOrDef(in[1], 1, 1.0);
             case 1:
                 currency = in[0][0];
                 inflationRate = getValueOrDef(in[0], 1, 1.0);
         }
+        if (tradeManagement == null)
+            tradeManagement = new TradeManagement(this);
 
-        tradeManagement = new TradeManagement();
     }
-    public void defaultBasicValues(){
-        if(taxation == 0)
+
+    public void defaultBasicValues() {
+        if (taxation == 0)
             taxation = 2.5;
-        if(gdp == 0)
+        if (gdp == 0)
             gdp = 1e9;
-        if(economicGrowthRate == 0)
+        if (economicGrowthRate == 0)
             economicGrowthRate = 1.0;
     }
+
     private double getValueOrDef(String[] strings, int i, double v) {
         try {
             double val = Double.parseDouble(strings[i]);
@@ -121,8 +127,14 @@ public class Economy implements Serializable {
         }
     }
 
-    public void addPercentGDP(double amount) {
-        gdp += amount * (gdp * 0.01);
+    public void addMulGDP(double amount) {
+        if (amount > 0)
+            gdp += amount * gdp;
+    }
+
+    public void removeMulGDP(double amount) {
+        if (amount > 0)
+            gdp -= amount * gdp;
     }
 
     public String formattedGDP() {

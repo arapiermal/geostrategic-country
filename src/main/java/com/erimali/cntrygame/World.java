@@ -217,13 +217,13 @@ public class World implements Serializable {
 
     public Economy economyFromFile(BufferedReader br) {
         try {
-            String[][] data = new String[4][];
+            String[][] data = new String[5][];
             int i = 0;
             String line;
-            while((line = br.readLine()) != null && i < 4){
+            while((line = br.readLine()) != null && i < 5){
                 data[i++] = getValues2(line);
             }
-            return new Economy(data);
+            return new Economy(i, data);
         } catch (Exception e) {
             return null; //assume new economy based on population and area (?)
         }
