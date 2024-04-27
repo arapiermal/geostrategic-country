@@ -187,14 +187,31 @@ public class CountryArray implements Iterable<Country>, Serializable {
     }
 
     public static short[] getShortArrFromStringArr(String[] in) {
+        if(in == null)
+            return null;
         short[] arr = new short[in.length];
         int i = 0;
         for (String s : in) {
             if (s.length() > 1)
-                arr[i++] = getIndexShort(s);
+                arr[i++] = (short) getIndexAdv(s);
         }
+        if(i < in.length)
+            return Arrays.copyOf(arr, i);
         return arr;
     }
+
+    public static Set<Short> getShortSetFromStringArr(String[] in) {
+        Set<Short> set = new HashSet<>();
+        int i = 0;
+        for (String s : in) {
+            if (s.length() > 1)
+                set.add((short) getIndexAdv(s));
+        }
+        if(set.isEmpty())
+            return null;
+        return set;
+    }
+
 
     @Override
     public Iterator<Country> iterator() {

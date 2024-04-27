@@ -1,16 +1,14 @@
 Rumelia
-Can be formed by:AL,XK // is AL|XK
-needs to own: BG,GR,AL,MK,XK,RS,ME //has BG&GR&...
-Description: 
-Bonus
+Epic description
+formableby:AL,XK
+countries:BG,GR,AL,MK,XK,RS,ME
+~~
 add gdp 1%
-kaq
-Event
-UNIFICATION,Unify with Turkey,now+1/now/now,is AL|XK
-You have declared yourself as Rumelia, which the former Ottoman possessions in the Balkans were called. The name means “land of the Romans”—i.e., Byzantines. Do you wish to unify with Turkiye?
-Yes, time to bring the Ottomans back.
-UNIFY TR
-No, we have our own journey to make.
-alert INFORMATION nothing
-kaq
+~~~
+Rumelia2
+Epic description
+formableby:AL,XK
+countries:BG,GR,AL,MK,XK,RS,ME
+~~
+add gdp 1%
 ~~~

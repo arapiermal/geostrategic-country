@@ -141,6 +141,11 @@ public class CommandLine {
         return execute(in, false);
     }
 
+    public static void executeAll(List<String> in) {
+        for (String s : in)
+            execute(s, true);
+    }
+
     public static String execute(String in, boolean admin) {
         String result = "";
         in = in.trim();
