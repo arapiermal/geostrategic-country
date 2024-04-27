@@ -207,7 +207,7 @@ public class Country implements Serializable, Comparable<Country> {
                 }
             }
 
-            return new War(this, op, casusBelli);
+            return new War(this, op, casusBelli,cArr);
         }
         return null;
     }
