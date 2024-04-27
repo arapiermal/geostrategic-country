@@ -138,7 +138,7 @@ public class Union implements Serializable {
     }
 
     public void initInfluence() {
-        influence = new byte[CountryArray.maxISO2Countries];
+        influence = new byte[CountryArray.getMaxIso2Countries()];
         for (int i = 0; i < influence.length; i++) {
             influence[i] = unionCountries.contains(i) ? (byte) 1 : (byte) -1;
         }

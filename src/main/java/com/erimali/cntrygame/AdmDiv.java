@@ -100,29 +100,28 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
         Arrays.fill(rebellion, (byte) 0);
     }
 
-    public void sponsorRebellion(RebelType rt, byte amount) {
+    public void sponsorRebellion(RebelType rt, int sponsorId, byte amount) {
         if (amount > 0) {
             int i = rt.ordinal();
             rebellion[i] += amount;
-            checkRebellionArmy(i);
+            checkRebellionArmy(i, sponsorId);
         }
     }
 
-    public void checkRebellionArmy(int i) {
+    public void checkRebellionArmy(int i, int sponsorId) {
         if (rebellion[i] >= 100) {
             rebellion[i] = 0;
-            popupRebelArmy(i);
+            popupRebelArmy(i, sponsorId);
         }
     }
 
     //based on the provinces gdp the sponsor part?
-    public void popupRebelArmy(int r) {
+    public void popupRebelArmy(int r, int sponsorId) {
         int n = population / 50000;
         int size = MilRebels.getRebelSoldiersData().getMaxSize();
         //at least one even on small provinces
         if (n <= 0) {
-            n = 1;
-            MilRebels rebels = new MilRebels(-1, RebelType.values()[r]);
+            MilRebels rebels = new MilRebels(sponsorId, RebelType.values()[r]);
             int amount = population / 10;
             int extra = rebels.incSize(amount);
             amount -= extra;
@@ -130,7 +129,8 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
             enemyUnits.add(rebels);
         } else {
             for (int i = 0; i < n; i++) {
-                enemyUnits.add(new MilRebels(-1, RebelType.values()[r], true));
+                enemyUnits.add(new MilRebels(sponsorId, RebelType.values()[r], true));
+                population -= size;
             }
         }
     }
@@ -148,8 +148,8 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
         if (pop > 0)
             return;
         this.population -= pop;
-        if (this.population < 0)
-            this.population = 0;
+        if (this.population < 2)
+            this.population = 2;
     }
 
     public int incPopulation(double percent) {
@@ -160,10 +160,17 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
 
     public void substractAllRebellion(byte a) {
         for (int i = 0; i < rebellion.length; i++) {
-            rebellion[i] -= a;
-            if (rebellion[i] < 0)
-                rebellion[i] = 0;
+            if (rebellion[i] > 0) {
+                rebellion[i] -= a;
+                if (rebellion[i] < 0)
+                    rebellion[i] = 0;
+            }
         }
+    }
+
+    public void monthlyTick() {
+        if (friendlyUnits != null && !friendlyUnits.isEmpty())
+            substractAllRebellion((byte) 1);
     }
 
     public void yearlyTick() {
@@ -413,11 +420,14 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
         if (svgProvince != null)
             svgProvince.setOccupierId(occupierId);
     }
+
     //Rebels that aren't of a particular country, special occupierId.
     public boolean isOccupied() {
         return occupierId >= 0;
     }
-
+    public boolean isOccupiedByRebels() {
+        return occupierId >= CountryArray.getMaxIso2Countries();
+    }
     public String getNativeName() {
         return nativeName;
     }

@@ -23,7 +23,7 @@ public class World implements Serializable {
     private ObservableMap<String, Union> unions;
     private AdmDiv[] provinces;
     //set from world map
-    private short[][] initialProvinces;
+    private CFormable.FirstAdmDivs initialProvinces;
     //private List<Resource> resources;
 
     // AL -> Albania
@@ -56,6 +56,7 @@ public class World implements Serializable {
             //this.unions = new HashMap<>();
             this.unions = FXCollections.observableMap(new HashMap<>());
             loadUnions();
+            initialProvinces = new CFormable.FirstAdmDivs(countries);
         } catch (Exception e) {
             ErrorLog.logError(e);
         }
@@ -67,12 +68,18 @@ public class World implements Serializable {
         try {
             switch (type) {
                 case 0:
-                    break;
-                case 1:
                     name = "Moon";
                     totalLandArea = 38e6;
                     break;
+                case 1:
+                    name = "Mercury";
+                    totalLandArea = 74.797e6;
+                    break;
                 case 2:
+                    name = "Venus";
+                    totalLandArea = 460.23e6;
+                    break;
+                case 4:
                     name = "Mars";
                     totalLandArea = 144.4e6;
                     break;
@@ -220,7 +227,7 @@ public class World implements Serializable {
             String[][] data = new String[5][];
             int i = 0;
             String line;
-            while((line = br.readLine()) != null && i < 5){
+            while ((line = br.readLine()) != null && i < 5) {
                 data[i++] = getValues2(line);
             }
             return new Economy(i, data);
@@ -307,12 +314,12 @@ public class World implements Serializable {
                 try {
                     AdmDiv admDiv = null;
                     if (vals.length >= 2) {
-                        if(vals[1].length == 2){
+                        if (vals[1].length == 2) {
                             admDiv = new AdmDiv(vals[0][0], vals[1][0], vals[1][1], indexLangs.getFirst());
-                        }else if (vals[1].length == 3) {
+                        } else if (vals[1].length == 3) {
                             admDiv = new AdmDiv(vals[0][0], vals[1][0], vals[1][1], indexLangs.get(GUtils.parseI(vals[1][2])));
                         }
-                        if(admDiv != null) {
+                        if (admDiv != null) {
                             if (vals[0].length == 2)
                                 admDiv.setNativeName(vals[0][1]);
                             list.add(admDiv);
@@ -333,7 +340,7 @@ public class World implements Serializable {
     private String[][] getValuesArrArr(String line) {
         String[] toSplit = line.split(":");
         String[][] res = new String[toSplit.length][];
-        for(int i = 0; i < toSplit.length; i++){
+        for (int i = 0; i < toSplit.length; i++) {
             res[i] = getValues2(toSplit[i]);
         }
         return res;
@@ -544,7 +551,7 @@ public class World implements Serializable {
 
     public boolean removeUnion(String shortName) {
         Union u = unions.remove(shortName);
-        if(u == null)
+        if (u == null)
             return false;
         for (int i : u.getUnionCountries()) {
             Country c = countries.get(i);

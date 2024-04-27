@@ -33,6 +33,8 @@ public class Country implements Serializable, Comparable<Country> {
     private CSubject subjectOf;
     private List<Union> unions;
 
+    //List<ActiveRebellion> rebellions; // give in to demands
+
     private short[] availableBuildings;
     // SOME COUNTRIES CAN START AS SUBJECTS OF OTHERS;
 
@@ -124,10 +126,12 @@ public class Country implements Serializable, Comparable<Country> {
         taxSubjects();
         //mil/tech progress
     }
-    public void yearlySubjectsTick(){
-        for(CSubject s : subjects.values())
+
+    public void yearlySubjectsTick() {
+        for (CSubject s : subjects.values())
             s.yearlyTick();
     }
+
     public void taxSubjects() {
         for (CSubject s : subjects.values()) {
             s.taxSubject();
@@ -938,8 +942,19 @@ public class Country implements Serializable, Comparable<Country> {
         return eco.getTreasury();
     }
 
+    public int getAdmDivRandomIndex() {
+        return (int) (Math.random() * admDivisions.size());
+    }
+
     public AdmDiv getAdmDivRandom() {
-        return admDivisions.get((int) (Math.random() * admDivisions.size()));
+        return admDivisions.get(getAdmDivRandomIndex());
+    }
+
+    public void incInfrastructure(int i) {
+        if (i < 0 || i >= admDivisions.size())
+            return;
+        AdmDiv admDiv = admDivisions.get(i);
+        incInfrastructure(admDiv);
     }
 
     public void incInfrastructure(AdmDiv admDiv) {

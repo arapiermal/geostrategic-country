@@ -4,9 +4,13 @@ import java.io.Serializable;
 import java.util.*;
 
 public class CountryArray implements Iterable<Country>, Serializable {
-    protected static final int maxISO2Countries = 26 * 26;
+    private static final int maxISO2Countries = 26 * 26;
     private final Set<String> countriesISO2;
     private final Country[] countries;
+
+    public static int getMaxIso2Countries() {
+        return maxISO2Countries;
+    }
 
     public CountryArray() {
         countries = new Country[maxISO2Countries];
@@ -32,6 +36,22 @@ public class CountryArray implements Iterable<Country>, Serializable {
 
     public static int getIndex(char c1, char c2) {
         return (Character.toUpperCase(c1) - 'A') * 26 + (Character.toUpperCase(c2) - 'A');
+    }
+
+    public static int getIndexAdv(String s) {
+        int index = -1;
+        for (int i = 0; i < s.length(); i++) {
+            char c = Character.toUpperCase(s.charAt(i));
+            if (c >= 'A' && c <= 'Z') {
+                if (index == -1) {
+                    index = (c - 'A') * 26;
+                } else {
+                    index += c - 'A';
+                    break;
+                }
+            }
+        }
+        return index;
     }
 
     public void put(String iso2, Country country) {

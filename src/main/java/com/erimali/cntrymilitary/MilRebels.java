@@ -1,5 +1,6 @@
 package com.erimali.cntrymilitary;
 
+import com.erimali.cntrygame.CountryArray;
 import com.erimali.cntrygame.RebelType;
 
 public class MilRebels extends MilSoldiers {
@@ -9,14 +10,19 @@ public class MilRebels extends MilSoldiers {
 
     //ownerId = the sponsor ? or -1 for not affiliated with any state
     public MilRebels(int ownerId, RebelType rebelType, boolean full) {
-        super(REBEL_SOLDIERS, ownerId);
+        super(REBEL_SOLDIERS, CountryArray.getMaxIso2Countries() + ownerId);
         this.rebelType = rebelType;
         if (full)
             maximizeSize();
     }
+
     public MilRebels(int ownerId, RebelType rebelType) {
-        super(REBEL_SOLDIERS, ownerId);
+        super(REBEL_SOLDIERS, CountryArray.getMaxIso2Countries() + ownerId);
         this.rebelType = rebelType;
+    }
+
+    public int getSponsorId() {
+        return ownerId - CountryArray.getMaxIso2Countries();
     }
 
     public void setRebelType(RebelType rebelType) {
@@ -26,6 +32,7 @@ public class MilRebels extends MilSoldiers {
     public RebelType getRebelType() {
         return rebelType;
     }
+
     public static MilUnitData getRebelSoldiersData() {
         return REBEL_SOLDIERS;
     }

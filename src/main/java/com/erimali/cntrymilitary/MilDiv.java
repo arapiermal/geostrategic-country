@@ -1,5 +1,7 @@
 package com.erimali.cntrymilitary;
 
+import com.erimali.cntrygame.AdmDiv;
+
 import java.io.Serializable;
 import java.util.*;
 
@@ -126,7 +128,10 @@ public class MilDiv implements Serializable {
         }
         return score;
     }
-
+    public static boolean attack(List<MilUnit> units, AdmDiv a){
+        int n = units.size();
+        return false;
+    }
     public int attack(MilDiv o) {
         return attack(units, o.units);
     }

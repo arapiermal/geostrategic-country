@@ -205,7 +205,7 @@ public class WorldMap {
     }
 
     public void loadColors() {
-        colors = new Paint[CountryArray.maxISO2Countries];
+        colors = new Paint[CountryArray.getMaxIso2Countries()];
         try (BufferedReader br = new BufferedReader(new FileReader(GLogic.RESOURCESPATH + "map/colors.csv"))) {
             String row = br.readLine(); // Skip first row
             while ((row = br.readLine()) != null) {

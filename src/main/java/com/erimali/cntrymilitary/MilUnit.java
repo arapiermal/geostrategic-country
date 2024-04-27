@@ -36,20 +36,27 @@ public abstract class MilUnit implements Serializable {
     public static void main(String... args){
         MilRebels rebels = new MilRebels(CountryArray.getIndex("EL"), RebelType.INDEPENDENCE, true);
         AdmDiv el = new AdmDiv("Elbasan", 100.0, 300000,false,(short)0);
-        while (!rebels.attack(el)) {
+        while (rebels.attack(el) == 0) {
             TESTING.print("DEF = " + el.getDefense());
         }
-        TESTING.print("SUCCESS: DEF = " + el.getDefense(), el.getOccupierId());
+        TESTING.print("SUCCESS: DEF = " + el.getDefense(), el.getOccupierId(), rebels.size);
 
 
     }
-    public boolean attack(AdmDiv a) {
-        double admDEF = 0.5 * a.getInfrastructure() + 0.01 * (a.getMaxDefense() + a.getDefense()); // 0.5 * 1 + 0.01 * 100 = 1.5
+    public int attack(AdmDiv a) {
+        double admDEF = 0.5 * a.getInfrastructure() + 0.01 * (a.getMaxDefense() + a.getDefense()); // 0.5 * 1 + 0.01 * (100 + 100) = 2.5
         double popScale = size / Math.sqrt(a.getPopulation());
         double ATK = popScale * ((data.atk[0] + bonusAtk) / admDEF) * Math.sqrt((double) (lvl * (data.minMilTech + 1)) + data.speed);
-        return a.decDefense((float) ATK, ownerId);
-    }
+        if(ATK <= 0)
+            ATK++;
 
+        if(a.decDefense((float) ATK, ownerId))
+            return 2;
+        size -= (int) (size / admDEF);
+        if(size<=0)
+            return -2;
+        return 0;
+    }
     //return double ?
     public int attack(MilUnit o) {
         double dmg1 = dmgCalc(this, o);
