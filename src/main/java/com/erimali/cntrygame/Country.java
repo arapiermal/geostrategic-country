@@ -110,12 +110,28 @@ public class Country implements Serializable, Comparable<Country> {
 
     public void yearlyTick() {
         incPopulation();
-        //incEconomy();
+        incEconomy();
         gov.reduceOneYearFromPolicies();
+        yearlySubjectsTick();
+    }
+
+    private void incEconomy() {
+        eco.yearlyTick();
     }
 
     public void monthlyTick() {
+        eco.monthlyTreasuryUpdate();
+        taxSubjects();
         //mil/tech progress
+    }
+    public void yearlySubjectsTick(){
+        for(CSubject s : subjects.values())
+            s.yearlyTick();
+    }
+    public void taxSubjects() {
+        for (CSubject s : subjects.values()) {
+            s.taxSubject();
+        }
     }
 
     // toString()...
@@ -183,7 +199,10 @@ public class Country implements Serializable, Comparable<Country> {
     }
 
     // War
-    public War declareWar(Country op, CountryArray cArr, CasusBelli casusBelli) {
+    public War declareWar(int opId, CountryArray cArr, CasusBelli casusBelli) {
+        Country op = cArr.get(opId);
+        if (op == null)
+            return null;
         if (gov.canDeclareWar()) {
             for (Union u : unions) {
                 if (u.containsCountry(op.getCountryId())) {
@@ -207,7 +226,7 @@ public class Country implements Serializable, Comparable<Country> {
                 }
             }
 
-            return new War(this, op, casusBelli,cArr);
+            return new War(this, op, casusBelli, cArr);
         }
         return null;
     }

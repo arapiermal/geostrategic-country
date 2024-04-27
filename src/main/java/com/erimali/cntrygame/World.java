@@ -217,7 +217,13 @@ public class World implements Serializable {
 
     public Economy economyFromFile(BufferedReader br) {
         try {
-            return new Economy();
+            String[][] data = new String[4][];
+            int i = 0;
+            String line;
+            while((line = br.readLine()) != null && i < 4){
+                data[i++] = getValues2(line);
+            }
+            return new Economy(data);
         } catch (Exception e) {
             return null; //assume new economy based on population and area (?)
         }
@@ -536,14 +542,17 @@ public class World implements Serializable {
         unions.put(u.getShortName(), u);
     }
 
-    public void removeUnion(String shortName) {
+    public boolean removeUnion(String shortName) {
         Union u = unions.remove(shortName);
+        if(u == null)
+            return false;
         for (int i : u.getUnionCountries()) {
             Country c = countries.get(i);
             if (c != null) {
                 c.removeUnion(u);
             }
         }
+        return true;
     }
 
     public void removeUnion(String shortName, int c) {

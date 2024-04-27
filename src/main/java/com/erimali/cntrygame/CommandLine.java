@@ -85,7 +85,7 @@ public class CommandLine {
     //
     private static Map<String, EriScript> eriScripts = new HashMap<>();
     //Make changeable in GOptions (?)
-    private static String scriptsPath = GLogic.RESOURCESPATH + "scripts/";
+    private static final String scriptsPath = GLogic.RESOURCESPATH + "scripts/";
 
     public static void loadEriScripts(String scriptsPath) {
         File filesPath = new File(scriptsPath);
@@ -93,7 +93,6 @@ public class CommandLine {
     }
 
     public static void loadEriScripts(Map<String, EriScript> eriScripts, File filesPath) {
-        TESTING.print(filesPath);
         if (!filesPath.exists() || !filesPath.isDirectory()) {
             ErrorLog.logError("Error in file path.");
             return;
@@ -245,10 +244,10 @@ public class CommandLine {
                 break;
             case "OCCUPY":
                 if (k.length == 2) {
-                    try{
+                    try {
                         int provId = Integer.parseInt(k[1]);
                         gs.getGame().getWorld().occupyAdmDiv(cIndex, provId);
-                    } catch(NumberFormatException nfe){
+                    } catch (NumberFormatException nfe) {
                         gs.getGame().getWorld().occupyAllAdmDiv(cIndex, k[1]);
                     }
                     gs.getMap().refreshMapIf(0);
@@ -280,14 +279,28 @@ public class CommandLine {
                 }
                 break;
             case "UNION":
-                if (k.length > 4)
-                    gs.getGame().getWorld().addUnion(k[1], k[2], k[3], k[4]);
+                if (k.length > 2) {
+                    switch (k[1]) {
+                        case "ADD":
+                            if (k.length > 5) {
+                                gs.getGame().getWorld().addUnion(k[2], k[3], k[4], k[5]);
+                            }
+                            break;
+                        case "REMOVE":
+                            if (gs.getGame().getWorld().removeUnion(k[2]))
+                                result = "Removed union " + k[2];
+                            else
+                                result = "Union doesn't exist";
+                            break;
+                    }
+                }
+
                 break;
             case "WAR":
                 if (k.length == 2) {
                     gs.getGame().declareWar(cIndex, CountryArray.getIndex(k[1]), CasusBelli.IMPERIALISM);
                 } else {
-                    gs.getGame().declareWar(cIndex, CountryArray.getIndex(k[1]), CasusBelli.valueOf(k[3]));
+                    gs.getGame().declareWar(cIndex, CountryArray.getIndex(k[1]), CasusBelli.valueOf(k[2]));
                 }
             case "PLAY":
                 switch (k[1]) {
@@ -341,7 +354,7 @@ public class CommandLine {
                 break;
             case "SCRIPT":
                 EriScript script = eriScripts.get(k[1]);
-                if(script == null)
+                if (script == null)
                     return "NO SUCH SCRIPT LOADED";
                 script.execute(2, k);
                 return script.toPrintClear();

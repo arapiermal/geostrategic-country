@@ -56,8 +56,10 @@ public class UnionStage extends Stage {
 
         unions.addListener((MapChangeListener<String, Union>) change -> {
             if (change.wasAdded()) {
+                TESTING.print("ADDED");
                 ol.add(change.getKey());
             } else if (change.wasRemoved()) {
+                TESTING.print("REMOVED");
                 ol.remove(change.getKey());
             }
         });

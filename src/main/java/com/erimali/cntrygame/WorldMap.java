@@ -269,27 +269,6 @@ public class WorldMap {
         return milImg;
     }
 
-    private void onMouseHoverOld(MouseEvent event) {
-        SVGProvince hovering = (SVGProvince) event.getSource();
-        if (this.mapMode == 0) {
-
-            Color currentColor = Color.web(hovering.getFill().toString());
-            Color lightenedColor = lightenColor(currentColor, 0.25);
-            // Color lightenedColor = currentColor.brighter();
-            //String lightenedColorHex = lightenedColor.toString().replace("0x", "#");
-            hovering.setFill(lightenedColor);
-        }
-        gs.changeHoveringOverCountry(hovering.getAccessibleText() + " - " + hovering.getId());
-    }
-
-    private void onMouseNotHover(MouseEvent event) {
-        SVGProvince hovering = (SVGProvince) event.getSource();
-        if (this.mapMode == 0) {
-            int oid = hovering.getOwnerId();
-            hovering.setFill(getColor(oid));
-        }
-    }
-
     private static Color lightenColor(Color color, double factor) {
         double r = color.getRed();
         double g = color.getGreen();
@@ -306,17 +285,6 @@ public class WorldMap {
             return lightenedColor;
         }
 
-    }
-
-    // change for show allies???
-
-    private void onMouseHover(MouseEvent event) {
-        Node hoveredNode = (Node) event.getTarget();
-
-        if (hoveredNode instanceof SVGProvince hoveredPath) {
-            //CHANGE
-            gs.changeHoveringOverCountry(CountryArray.getIndexISO2(hoveredPath.getOwnerId()) + " - " + hoveredPath.getId());
-        }
     }
 
     public void setMapGroupCursor(Cursor c) {

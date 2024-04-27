@@ -88,7 +88,6 @@ public class GameStage extends Stage {
     private ObservableIntegerValue selCountry;
     private ObservableIntegerValue selProv;
 
-    private Label hoveringCountry;
     private Label selectedCountryInfo;
     private Label selectedProvInfo;
 
@@ -876,10 +875,6 @@ public class GameStage extends Stage {
 
     public void changeCountryName(String cName) {
         countryName.setText(cName);
-    }
-
-    public void changeHoveringOverCountry(String cName) {
-        hoveringCountry.setText(cName);
     }
 
     public Label getCountryName() {

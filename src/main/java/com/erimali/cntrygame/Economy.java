@@ -4,9 +4,9 @@ import java.io.Serializable;
 
 public class Economy implements Serializable {
     private double treasury;
+    private double lastMonthBalance;
     private String currency;// USD, EUR, ALL,...
-    private String currencyLongName;
-
+    //private String currencyLongName; in the Currencies class
     private double inflationRate; //devaluation of currency
 
     private double gdp; //$
@@ -21,9 +21,46 @@ public class Economy implements Serializable {
     private final TradeManagement tradeManagement;
 
 
-    public Economy() {
+    public Economy(String currency, double inflationRate, double gdp, double economicGrowthRate, double taxation) {
+        this.currency = currency;
+        this.inflationRate = inflationRate;
+        this.gdp = gdp;
+        this.economicGrowthRate = economicGrowthRate;
+        this.taxation = taxation;
+        tradeManagement = new TradeManagement();
+    }
+
+    public Economy(String[]... in) {
+        switch (in.length) {
+            case 4:
+                unemploymentRate = getValueOrDef(in[2], 0, 5.0);
+            case 3:
+                taxation = getValueOrDef(in[2], 0, 2.5);
+            case 2:
+                gdp = getValueOrDef(in[1], 0, 1000000000);
+                economicGrowthRate = getValueOrDef(in[1], 0, 1.0);
+            case 1:
+                currency = in[0][0];
+                inflationRate = getValueOrDef(in[0], 1, 1.0);
+        }
 
         tradeManagement = new TradeManagement();
+    }
+    public void defaultBasicValues(){
+        if(taxation == 0)
+            taxation = 2.5;
+        if(gdp == 0)
+            gdp = 1e9;
+        if(economicGrowthRate == 0)
+            economicGrowthRate = 1.0;
+    }
+    private double getValueOrDef(String[] strings, int i, double v) {
+        try {
+            double val = Double.parseDouble(strings[i]);
+            return val;
+        } catch (Exception e) {
+            return v;
+        }
     }
 
     public void monthlyTreasuryUpdate() {
@@ -31,12 +68,11 @@ public class Economy implements Serializable {
         double revenue = taxation * (gdp / 12);
 
         double expenditures = 0;//research spendings, soldiers upkeep, gov spendings
-
-        treasury += tradeManagement.diffExportImport() + revenue - expenditures;
+        lastMonthBalance = tradeManagement.diffExportImport() + revenue - expenditures;
+        treasury += lastMonthBalance;
     }
 
     public void yearlyTick() {
-
         gdp += (economicGrowthRate - inflationRate) * gdp;
     }
 
@@ -46,14 +82,6 @@ public class Economy implements Serializable {
 
     public void setCurrency(String currency) {
         this.currency = currency;
-    }
-
-    public String getCurrencyLongName() {
-        return currencyLongName;
-    }
-
-    public void setCurrencyLongName(String currencyLongName) {
-        this.currencyLongName = currencyLongName;
     }
 
     public double getGDP() {
@@ -96,6 +124,7 @@ public class Economy implements Serializable {
     public void addPercentGDP(double amount) {
         gdp += amount * (gdp * 0.01);
     }
+
     public String formattedGDP() {
         return GUtils.doubleToString(gdp);
     }
@@ -168,4 +197,7 @@ public class Economy implements Serializable {
         return 0;
     }
 
+    public double getLastMonthBalance() {
+        return lastMonthBalance;
+    }
 }

@@ -568,9 +568,8 @@ public class GLogic implements Serializable {
     // WAR
 //////////////////////////////////////////////////
 
-    //CountryArray !!!!!, would take care of stuff
     public void declareWar(int a, int o, CasusBelli casusBelli) {
-        War w = getCountry(a).declareWar(getCountry(o), world.getCountries(), casusBelli);
+        War w = getCountry(a).declareWar(o, world.getCountries(), casusBelli);
         if (w != null)
             wars.add(w);
     }
