@@ -1378,7 +1378,8 @@ public class GameStage extends Stage {
                     countryName.setText(game.getPlayerName());
                     game.getPlayer().setIsFormed(selectedItem);
                     game.getPlayerFormables().remove(selectedItem);
-                    showAlert(Alert.AlertType.INFORMATION, "Formation success", "You formed the country of: " + selectedItem + ". \n" + selectedItem.toStringCommands());
+                    requirements.setText("");
+                    showAlert(Alert.AlertType.INFORMATION, "Formation success", "You formed the country of: " + selectedItem + ". \nBenefits: " + selectedItem.toStringCommands());
                 } else {
                     showAlert(Alert.AlertType.WARNING, "Cannot form", "You cannot form it yet.");
                 }

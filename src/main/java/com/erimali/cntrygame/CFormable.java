@@ -34,7 +34,6 @@ public class CFormable {
 
         public boolean owns(AdmDiv[] admDivs, Country c, short o) {
             short[] oProvs = firstProvinces[o];
-            TESTING.print(Arrays.toString(oProvs));
             if (oProvs == null)
                 return true;//!
             int cId = c.getCountryId();
@@ -42,7 +41,6 @@ public class CFormable {
                 AdmDiv a = admDivs[s];
                 if (a == null)
                     continue;
-                TESTING.print(a.getName());
                 if (a.getOwnerId() != cId) {
                     return false;
                 }
@@ -68,7 +66,6 @@ public class CFormable {
 
         public boolean ownsOrHasSubject(AdmDiv[] admDivs, Country c, short o) {
             short[] oProvs = firstProvinces[o];
-            TESTING.print(Arrays.toString(oProvs));
             if (oProvs == null)
                 return true;//! if it doesn't exist
             int cId = c.getCountryId();
@@ -77,7 +74,6 @@ public class CFormable {
                 AdmDiv a = admDivs[s];
                 if (a == null)
                     continue;
-                TESTING.print(a.getName());
                 int admOwnerId = a.getOwnerId();
                 if (admOwnerId != cId && !subjects.contains(admOwnerId)) {
                     return false;
@@ -93,10 +89,8 @@ public class CFormable {
                 int i = 0;
                 for (AdmDiv admDiv : c.getAdmDivs()) {
                     short provId = (short) admDiv.getProvId();
-                    TESTING.print(provId);
                     firstProvinces[cId][i++] = provId;
                 }
-                TESTING.print(Arrays.toString(firstProvinces[cId]));
             }
         }
 
@@ -344,13 +338,6 @@ public class CFormable {
             return null;
         } catch (Exception e) {
             return null;
-        }
-    }
-
-    public static void main(String[] args) {
-        List<CFormable> formables = loadFormables(GLogic.RESOURCESPATH + "data/formables.txt");
-        for (CFormable c : formables) {
-            TESTING.print(c.toStringLong(), c.commandsOnComplete);
         }
     }
 
