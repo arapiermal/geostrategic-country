@@ -6,7 +6,7 @@ landlocked:false
 capital:Pristina
 infoElectronic:+383,.xk
 languages:Albanian,Serbian
-neighbours:AL
+neighbours:AL,ME,MK,RS
 admDivision:District
 Peja,Peć:1365,174235
 Mitrovica,Kosovska_Mitrovica:2077,272247

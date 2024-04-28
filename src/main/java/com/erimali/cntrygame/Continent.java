@@ -1,16 +1,31 @@
 package com.erimali.cntrygame;
 
 import java.io.*;
+import java.util.HashSet;
+import java.util.Set;
 
 public enum Continent {
     AF("Africa"), AS("Asia"), EU("Europe"), NA("North America"), SA("South America"), OC("Oceania"), AQ("Antarctica");
 
     Continent(String longName) {
         this.longName = longName;
+        this.countries = new HashSet<>();
     }
 
     private final String longName;
-
+    private final Set<Short> countries;
+    private void addCountry(short id){
+        countries.add(id);
+    }
+    private void addCountry(String id){
+        countries.add(CountryArray.getIndexShort(id));
+    }
+    private void addCountry(int id){
+        countries.add((short) id);
+    }
+    public Set<Short> getCountries(){
+        return countries;
+    }
     @Override
     public String toString() {
         return longName;
@@ -51,6 +66,7 @@ public enum Continent {
                 return;
             while ((line = br.readLine()) != null) {
                 k = line.trim().split("\\s*,\\s*");
+                continent.addCountry(k[1]);
                 //can also get iso3
                 if(cArr.containsKey(k[1])){
                     cArr.get(k[1]).addContinent(continent);
