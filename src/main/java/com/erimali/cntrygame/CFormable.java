@@ -9,10 +9,12 @@ import java.util.*;
 public class CFormable {
 
     public static class FirstAdmDivs {
-        public short[][] firstProvinces;
+        private final short[][] firstProvinces;
+        //private final EnumMap<Continent, Set<Short>> firstCountryContinents;
 
         public FirstAdmDivs(CountryArray cArray) {
             firstProvinces = new short[CountryArray.getMaxIso2Countries()][];
+
             setFirstProvinces(cArray);
         }
 
@@ -234,7 +236,7 @@ public class CFormable {
     public String toStringRequirements(AdmDiv[] provinces, FirstAdmDivs first) {
         StringBuilder sb = new StringBuilder();
         if (reqCountries != null) {
-            sb.append("Countries required to own").append(evenSubjects ? " or have as subjects: " : ": ");
+            sb.append("Countries required to own").append(evenSubjects ? " or have as subjects: " : ": ").append("\n");
             for (int i = 0; i < reqCountries.length - 1; i++) {
                 if (first.hasOriginalCountryInProvinces(reqCountries[i]))
                     sb.append(CountryArray.getIndexISO2(reqCountries[i])).append(", ");
@@ -245,7 +247,7 @@ public class CFormable {
             sb.append('\n');
         }
         if (reqProvinces != null) {
-            sb.append("Provinces required: ");
+            sb.append("Provinces required: ").append("\n");
             for (int i = 0; i < reqProvinces.length - 1; i++) {
                 AdmDiv a = provinces[reqProvinces[i]];
                 if (a != null)

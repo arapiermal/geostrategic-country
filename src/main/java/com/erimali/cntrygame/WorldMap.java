@@ -343,17 +343,22 @@ public class WorldMap {
         paintMapUnions(union);
     }
 
+    private Paint defSelectedColor = Paint.valueOf("gray");
+
     public void paintMapAllies() {
         int cId = gs.getSelectedCountry();
         Country c = gs.getGame().getCountry(cId);
         if (c != null)
             if (c.isNotSubject()) {
                 for (SVGProvince t : mapSVG) {
-                    if (c.isAllyWith(t.getOwnerId())) {
+                    int ownerId = t.getOwnerId();
+                    if (c.isAllyWith(ownerId)) {
                         t.setFill(defAllyColor);
-                    } else if (c.hasSubject(t.getOwnerId())) {
+                    } else if (c.hasSubject(ownerId)) {
                         t.setFill(defaultSubjectColor);
 
+                    }else if (cId == ownerId) {
+                        t.setFill(defSelectedColor);
                     } else {
                         t.setFill(defColor);
                     }
@@ -361,12 +366,16 @@ public class WorldMap {
             } else {
                 int mainId = c.getSubjectOf().getMainId();
                 for (SVGProvince t : mapSVG) {
-                    if (c.isAllyWith(t.getOwnerId())) {
+                    int ownerId = t.getOwnerId();
+                    if (c.isAllyWith(ownerId)) {
                         t.setFill(defAllyColor);
-                    } else if (mainId == t.getOwnerId()) {
+                    } else if (mainId == ownerId) {
                         t.setFill(defaultOwnerColor);
 
-                    } else {
+                    } else if(cId == ownerId){
+                        t.setFill(defSelectedColor);
+                    }
+                    else {
                         t.setFill(defColor);
                     }
                 }
@@ -568,7 +577,7 @@ public class WorldMap {
     }
 
     public void refreshMapIf(int i) {
-        if(mapMode == i)
+        if (mapMode == i)
             refreshMap();
     }
 }

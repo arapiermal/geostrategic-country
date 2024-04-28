@@ -8,7 +8,6 @@ import com.erimali.cntrymilitary.MilUnitData;
 import com.erimali.minigames.MG2048Stage;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableIntegerValue;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -99,7 +98,9 @@ public class GameStage extends Stage {
     private VBox[] provOptTypes;
     //
     private int prevLeftVBoxInd;
-    private VBox leftGeneral;
+    private TabPane leftGeneral;
+    private Tab countryTab;
+    private Tab provinceTab;
     //
     private ToggleButton improveRelations;
     private Stage commandLineStage;
@@ -195,7 +196,7 @@ public class GameStage extends Stage {
         Label speedData = new Label("1.0");
         Text speedDataInfo = new Text("days/sec");
         Button speedUp = new Button("+");
-        speedUp.setPrefHeight(18);
+        speedUp.setPrefHeight(16);
         speedUp.setPrefWidth(26);
         speedUp.setStyle("-fx-background-color: lightblue; -fx-shape: 'M 0 50 L 25 0 L 50 50 Z'");
         speedUp.setOnAction(e -> {
@@ -204,7 +205,7 @@ public class GameStage extends Stage {
         });
 
         Button speedDown = new Button("-");
-        speedDown.setPrefHeight(18);
+        speedDown.setPrefHeight(16);
         speedDown.setPrefWidth(26);
         speedDown.setStyle("-fx-background-color: lightblue; -fx-shape: 'M 0 0 L 25 50 L 50 0 Z'");
         speedDown.setOnAction(e -> {
@@ -252,21 +253,24 @@ public class GameStage extends Stage {
 
         // LEFT
         // close X
-        ScrollPane leftScrollPane = new ScrollPane();
-        leftScrollPane.setPadding(new Insets(10));
-        /////
-        leftScrollPane.setMinWidth(240);
+        //ScrollPane leftScrollPane = new ScrollPane();
+        //leftScrollPane.setMinWidth(240);
         selectedCountryInfo = new Label();
         selectedProvInfo = new Label();
         initVBoxLeftOptions();
+//selectedCountryInfo
+        //selectedProvInfo
+        leftGeneral = new TabPane();
+        leftGeneral.setMinWidth(240);
+        countryTab = new Tab("Country", countryOptTypes[0]);
+        provinceTab = new Tab("Adm-Division", provOptTypes[0]);
+        leftGeneral.getTabs().addAll(countryTab, provinceTab);
+        leftGeneral.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+        countryTab.getContent().setVisible(false);
+        provinceTab.getContent().setVisible(false);
 
-        leftGeneral = new VBox(selectedCountryInfo, countryOptTypes[0], selectedProvInfo, provOptTypes[0]);
-        leftGeneral.getChildren().get(1).setVisible(false);
-        leftGeneral.getChildren().get(3).setVisible(false);
-        leftGeneral.setSpacing(10);
-
-        leftScrollPane.setContent(leftGeneral);
-        gameLayout.setLeft(leftScrollPane);
+        //leftScrollPane.setContent(leftGeneral);
+        gameLayout.setLeft(leftGeneral);
 
         //Bottom
         //hoveringCountry = new Label("Hovering");
@@ -598,16 +602,14 @@ public class GameStage extends Stage {
     }
 
     private void initVBoxLeftOptions() {
-        this.countryOptTypes = new VBox[3];
+        this.countryOptTypes = new VBox[2];
         countryOptTypes[0] = makeVBoxPlayerOptions();
         //.setSpacing(10);
         countryOptTypes[1] = makeVBoxCountryOptions();
-        countryOptTypes[2] = makeVBoxSubjectOptions();
 
-        this.provOptTypes = new VBox[3];
+        this.provOptTypes = new VBox[2];
         provOptTypes[0] = makeVBoxPlayerProvOptions();
         provOptTypes[1] = makeVBoxOtherProvOptions();
-        provOptTypes[2] = makeVBoxSubjectProvOptions();
     }
 
     private Stage makeGSOptionsStage() {
@@ -688,19 +690,15 @@ public class GameStage extends Stage {
     }
 
     private VBox makeVBoxPlayerOptions() {
-        VBox vBox = new VBox(makeVBoxListViewFormables());
-
-        return vBox;
-    }
-
-    public VBox makeVBoxSubjectOptions() {
-        VBox vBox = new VBox();
+        formablesPanel = makeVBoxListViewFormables();
+        TitledPane formables = new TitledPane("Formables",formablesPanel);
+        formables.setAnimated(false);
+        VBox vBox = new VBox(selectedCountryInfo,formables);
 
         return vBox;
     }
 
     private VBox makeVBoxCountryOptions() {
-        Label optionsText = new Label("Options");
         Label optionsWar = new Label("War");
         Button declareWar = new Button("Declare War");
         declareWar.setOnAction(e -> declareWarOrPeace());
@@ -739,7 +737,12 @@ public class GameStage extends Stage {
         });
         VBox vboxRelations = new VBox(optionsRelations, improveRelations, sendAllianceRequest, sendDonation);
         vboxRelations.setSpacing(8);
-        return new VBox(optionsText, vboxWar, vboxRelations);
+        TitledPane titledPaneWar = new TitledPane("War", vboxWar);
+        titledPaneWar.setAnimated(false);
+        TitledPane titledPaneRelations = new TitledPane("Relations", vboxRelations);
+        titledPaneRelations.setAnimated(false);
+
+        return new VBox(selectedCountryInfo,titledPaneWar,titledPaneRelations);
     }
 
 
@@ -748,18 +751,13 @@ public class GameStage extends Stage {
         Button investInProv = new Button("Invest");
         VBox vBox = new VBox(raiseFunds, investInProv);
         vBox.setSpacing(8);
-
-        return vBox;
+        TitledPane titledPane = new TitledPane("",vBox);
+        titledPane.setAnimated(false);
+        return new VBox(selectedProvInfo,titledPane);
     }
 
     private VBox makeVBoxOtherProvOptions() {
-        VBox vBox = new VBox();
-        return vBox;
-    }
-
-    private VBox makeVBoxSubjectProvOptions() {
-        VBox vBox = new VBox();
-        return vBox;
+        return new VBox(selectedProvInfo);
     }
     ////////////////////////////////////////////////////
     ////////////////////////////////////////////////////
@@ -850,8 +848,10 @@ public class GameStage extends Stage {
             return;
         game.selectPlayer(selectedCountry);
         countryName.setText(game.getPlayer().getName());// !!!!!!!!
-        leftGeneral.getChildren().get(1).setVisible(true);
-        leftGeneral.getChildren().get(3).setVisible(true);
+
+        countryTab.getContent().setVisible(true);
+        provinceTab.getContent().setVisible(true);
+
         chooseCountryButton.setVisible(false);
         tableViewBuildings.setVisible(true);
         isPlayingCountry = true;
@@ -943,8 +943,8 @@ public class GameStage extends Stage {
         if (prevLeftVBoxInd == i)
             return;
         prevLeftVBoxInd = i;
-        leftGeneral.getChildren().set(1, countryOptTypes[i]);
-        leftGeneral.getChildren().set(3, provOptTypes[i]);
+        countryTab.setContent(countryOptTypes[i]);
+        provinceTab.setContent(provOptTypes[i]);
     }
 
     //make more efficient

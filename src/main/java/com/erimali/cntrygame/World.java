@@ -59,6 +59,7 @@ public class World implements Serializable {
             this.unions = FXCollections.observableMap(new HashMap<>());
             loadUnions();
             loadFormables();
+            Continent.setFromFolderCSV(GLogic.RESOURCESPATH + "countries/continents/", this);
         } catch (Exception e) {
             ErrorLog.logError(e);
         }

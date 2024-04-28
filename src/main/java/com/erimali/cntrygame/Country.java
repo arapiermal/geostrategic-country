@@ -49,6 +49,7 @@ public class Country implements Serializable, Comparable<Country> {
                    String[] infoElectronic, String admDivisionType, List<AdmDiv> admDivisions, List<Short> languages,
                    Set<Integer> neighbours, Government gov, Economy eco, Military mil, Diplomacy dip) {
         this.name = name;
+        this.continents = EnumSet.noneOf(Continent.class);
         this.area = area;
         this.population = population;
         this.populationIncrease = populationIncrease;
@@ -78,6 +79,7 @@ public class Country implements Serializable, Comparable<Country> {
                    String[] infoElectronic, String admDivisionType, List<AdmDiv> admDivisions, List<Short> languages,
                    String[] neighbours, Government gov, Economy eco, Military military) {
         this.name = name;
+        this.continents = EnumSet.noneOf(Continent.class);
         this.area = area;
         this.population = population;
         this.populationIncrease = populationIncrease;
@@ -607,7 +609,9 @@ public class Country implements Serializable, Comparable<Country> {
         }
         return false;
     }
-
+    public void removeContinent(Continent cont){
+        continents.remove(cont);
+    }
     public void addContinent(Continent cont) {
         continents.add(cont);
     }
@@ -973,5 +977,4 @@ public class Country implements Serializable, Comparable<Country> {
         admDiv.incInfrastructure();
         eco.addMulGDP(popRatio * 0.5);
     }
-
 }

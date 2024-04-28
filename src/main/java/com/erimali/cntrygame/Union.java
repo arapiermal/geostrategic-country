@@ -110,7 +110,7 @@ public class Union implements Serializable {
     private String[][] commands; // hmmm
     // Acts you can take
     //one choice per year?
-
+    //requirements for EU -> continent Europe
     List<short[]> votes;
     public int getCurrChoicesIndex(){
         return votes.size();
