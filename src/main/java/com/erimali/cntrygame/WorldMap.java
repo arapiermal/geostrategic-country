@@ -66,7 +66,7 @@ public class WorldMap {
     private int lastClickedProvince;
 
     private SVGPath[] milSVG;
-    private static final String[] MAP_MODE_NAMES = new String[]{"Default", "Allies", "Unions", "Neighbours"};
+    private static final String[] MAP_MODE_NAMES = new String[]{"Default", "Allies", "Unions", "Neighbours", "Continents"};
 
     public static int getMaxMapModes() {
         return MAP_MODE_NAMES.length;
@@ -231,10 +231,11 @@ public class WorldMap {
         if (clickedNode instanceof SVGProvince clickedPath) {
             String pathId = clickedPath.getId();
             int pathOwn = clickedPath.getOwnerId();
+            int provId = clickedPath.getProvId();
             int oldSel = gs.getSelectedCountry();
             gs.setSelectedCountry(pathOwn);
-            gs.setSelectedProvince(clickedPath.getProvId());
-            System.out.println(clickedPath.getProvId() + " clicked - ID: " + pathId + ", Owner: " + pathOwn);
+            gs.setSelectedProvince(provId);
+            System.out.println(provId + " clicked - ID: " + pathId + ", Owner: " + CountryArray.getIndexISO2(pathOwn));
             if (pathOwn != oldSel) {
                 if (mapMode == 1)
                     paintMapAllies();
@@ -245,7 +246,6 @@ public class WorldMap {
             // CAN BECOME MORE EFFICIENT
             // Only change the colors of the things which are
             // in the previous and next Set<String/Integer> allies??
-
         }
     }
 
@@ -333,6 +333,19 @@ public class WorldMap {
                     t.setFill(unionColor);
                 } else {
                     t.setFill(defColor);
+                }
+            }
+        }
+    }
+    //7 loops not efficient...
+    //CFormable.FirstAdmDivs if it stored everything from worldmap...
+    public void paintMapContinents(){
+        for(Continent cont : Continent.values()){
+            Set<Short> c = cont.getCountries();
+            Paint color = cont.getColor();
+            for(SVGProvince t : mapSVG){
+                if(c.contains((short) t.getOwnerId())){
+                    t.setFill(color);
                 }
             }
         }
@@ -438,6 +451,8 @@ public class WorldMap {
                 break;
             case 3:
                 paintMapNeighbours();
+            case 4:
+                paintMapContinents();
             default:
                 break;
         }
