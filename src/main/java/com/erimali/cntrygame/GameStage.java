@@ -8,6 +8,7 @@ import com.erimali.cntrymilitary.MilUnitData;
 import com.erimali.minigames.MG2048Stage;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableIntegerValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -110,6 +111,8 @@ public class GameStage extends Stage {
     private Scene[] gsOptionsScenes;
     private TextField saveTextField;
     private Button recruitBuildButton;
+    private UnionStage unionStage;
+    private VBox formablesPanel;
 
     public GameStage(Main application) {
         this.application = application;
@@ -455,6 +458,9 @@ public class GameStage extends Stage {
     }
 
     private Tab makeTabUnions() {
+        unionStage = new UnionStage();
+        unionStage.initOwner(this);
+        unionStage.initModality(Modality.NONE);
         Button joinButton = new Button();
         Button openPanel = new Button("Open Panel");
         openPanel.setVisible(false);
@@ -497,6 +503,17 @@ public class GameStage extends Stage {
                 }
             }
         });
+        openPanel.setOnAction(e -> {
+            String selectedItem = listViewUnions.getSelectionModel().getSelectedItem();
+            if (selectedItem != null) {
+                Union u = game.getWorld().getUnion(selectedItem);
+                if (u.containsCountry(game.getPlayerId())) {
+                    unionStage.setFromUnion(u);
+                    unionStage.show();
+                }
+            }
+        });
+
         HBox hBox = new HBox(joinButton, openPanel);
         VBox vBox = new VBox(listViewUnions, hBox);
         Tab tab = new Tab("Unions", vBox);
@@ -671,7 +688,7 @@ public class GameStage extends Stage {
     }
 
     private VBox makeVBoxPlayerOptions() {
-        VBox vBox = new VBox();
+        VBox vBox = new VBox(makeVBoxListViewFormables());
 
         return vBox;
     }
@@ -1224,7 +1241,7 @@ public class GameStage extends Stage {
         Alert alert = new Alert(alertType);
         alert.initOwner(this);
         alert.setTitle(title);
-        alert.setHeaderText(game.getPlayerName());
+        //alert.setHeaderText(game.getPlayerName());
         alert.setContentText(message);
         alert.initModality(Modality.APPLICATION_MODAL);
 
@@ -1334,6 +1351,43 @@ public class GameStage extends Stage {
                 tableViewBuildings.setVisible(false);
             }
         }
+    }
+
+    public VBox makeVBoxListViewFormables() {
+        //only if is Available...
+        ListView<CFormable> listViewFormables = new ListView<>(game.getPlayerFormables());
+        listViewFormables.setPrefWidth(160);
+        listViewFormables.setPrefHeight(240);
+        //Check Requirements (if evenSubjects)
+        //Form -> on form success -> show bonuses
+        Label requirements = new Label();
+        Button form = new Button("Form");
+        //form.setVisible(false);
+        listViewFormables.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> {
+                    if (newValue != null && !newValue.equals(oldValue)) {
+                        requirements.setText(newValue.toStringRequirements(game.getWorld().getProvinces(), game.getWorld().getInitialProvinces()));
+                    }
+                }
+        );
+
+        form.setOnAction(e -> {
+            CFormable selectedItem = listViewFormables.getSelectionModel().getSelectedItem();
+            if (selectedItem != null) {
+                if (selectedItem.formCountry(game.getWorld(), game.getPlayer())) {
+                    countryName.setText(game.getPlayerName());
+                    game.getPlayer().setIsFormed(selectedItem);
+                    game.getPlayerFormables().remove(selectedItem);
+                    showAlert(Alert.AlertType.INFORMATION, "Formation success", "You formed the country of: " + selectedItem + ". \n" + selectedItem.toStringCommands());
+                } else {
+                    showAlert(Alert.AlertType.WARNING, "Cannot form", "You cannot form it yet.");
+                }
+
+            }
+        });
+
+        VBox vBox = new VBox(listViewFormables, requirements, form);
+        return vBox;
     }
 
     public void setSelectedCountry(int ownerId) {

@@ -9,6 +9,8 @@ import com.erimali.cntrymilitary.*;
 import com.erimali.compute.MathSolver;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.util.Duration;
@@ -44,6 +46,7 @@ public class GLogic implements Serializable {
     //TAKE CARE WHEN SAVING WHILE NOTHING IS CHOSEN
     private int playerId;
     private Country player;
+    private ObservableList<CFormable> playerFormables;
     // Game Events
     private PriorityQueue<GEvent> gameEvents;
     public List<CommandLine.PeriodicCommand>[] periodicCommands;
@@ -75,6 +78,7 @@ public class GLogic implements Serializable {
         this.wars = new LinkedList<>();
         loadAllUnitData();
         this.recruitingBuildUnits = new HashMap<>();
+        this.playerFormables = FXCollections.observableArrayList();
         if (GOptions.isAllowMods())
             loadMods();
     }
@@ -248,7 +252,7 @@ public class GLogic implements Serializable {
             playerId = cPlayer;
             player = c;
             CommandLine.setPlayerCountry(cPlayer);
-
+            initPlayerFormables();
             updateCannotHappenGameEvents();
         }
     }
@@ -744,5 +748,21 @@ public class GLogic implements Serializable {
                 loadGameEvents(ev);
         CommandLine.loadEriScripts(modsPath + "scripts/");
 
+    }
+
+    //on select player
+    public void initPlayerFormables() {
+        if (player != null && playerId >= 0) {
+            short id = (short) playerId;
+            for (CFormable f : world.getFormables()) {
+                if (f.isAvailable(id)) {
+                    playerFormables.add(f);
+                }
+            }
+        }
+    }
+
+    public ObservableList<CFormable> getPlayerFormables() {
+        return playerFormables;
     }
 }

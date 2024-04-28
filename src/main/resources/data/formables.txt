@@ -3,12 +3,13 @@ Epic description
 formableby:AL,XK
 countries:BG,GR,AL,MK,XK,RS,ME
 ~~
-add gdp 1%
+add gdp 5%
 ~~~
-Rumelia2
+Greater Albania:true
 Epic description
 formableby:AL,XK
-countries:BG,GR,AL,MK,XK,RS,ME
+countries:AL,XK
+provinces:3029,3753,3754,3756
 ~~
-add gdp 1%
+add gdp 2.5%
 ~~~

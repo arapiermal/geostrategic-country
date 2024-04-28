@@ -11,7 +11,7 @@ admDivision:region
 Eastern:3537,150234
 Northeastern:2310,152982
 Pelagonia:4717,210431
-Polog:2416,251552
+Polog:2416,251552,1
 Skopje:1812,607007
 Southeastern:2739,148387
 Southwestern:3340,177398

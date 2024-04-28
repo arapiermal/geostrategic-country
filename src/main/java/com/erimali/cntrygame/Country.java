@@ -31,6 +31,9 @@ public class Country implements Serializable, Comparable<Country> {
 
     private Map<Integer, CSubject> subjects;
     private CSubject subjectOf;
+
+
+    private CFormable isFormed;
     private List<Union> unions;
 
     //List<ActiveRebellion> rebellions; // give in to demands
@@ -859,6 +862,13 @@ public class Country implements Serializable, Comparable<Country> {
 
     }
 
+    public CFormable getIsFormed() {
+        return isFormed;
+    }
+
+    public void setIsFormed(CFormable isFormed) {
+        this.isFormed = isFormed;
+    }
     public void initAvailableBuildings() {
         this.availableBuildings = new short[Building.values().length];
         Arrays.fill(availableBuildings, (short) 0);

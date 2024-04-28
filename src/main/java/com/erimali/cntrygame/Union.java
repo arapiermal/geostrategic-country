@@ -109,8 +109,12 @@ public class Union implements Serializable {
     private String[][] choices;
     private String[][] commands; // hmmm
     // Acts you can take
+    //one choice per year?
 
     List<short[]> votes;
+    public int getCurrChoicesIndex(){
+        return votes.size();
+    }
     //2...5 choices up to short max value votes/choice
     //AI influence vote by who has most influence...
 
@@ -309,6 +313,8 @@ public class Union implements Serializable {
                 sb.append(" & ");
             sb.append("Military");
         }
+        if (sb.isEmpty())
+            return "Disunited";
         return sb.toString();
     }
 
@@ -352,6 +358,14 @@ public class Union implements Serializable {
 
     public Paint getColor() {
         return color;
+    }
+
+    public float getCentralization() {
+        return centralization;
+    }
+
+    public int getStability() {
+        return stability;
     }
     //on declared war on member of union -> stability hit
 }

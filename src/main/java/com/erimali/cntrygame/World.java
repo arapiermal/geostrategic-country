@@ -2,6 +2,7 @@ package com.erimali.cntrygame;
 
 import com.erimali.cntrymilitary.*;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 
 import java.io.*;
@@ -19,6 +20,7 @@ public class World implements Serializable {
     private List<Language> languages; // change (?)
 
     private CountryArray countries;
+    private List<CFormable> formables;
     //private Map<String, Country> countries;//only one to be left?
     private ObservableMap<String, Union> unions;
     private AdmDiv[] provinces;
@@ -56,7 +58,7 @@ public class World implements Serializable {
             //this.unions = new HashMap<>();
             this.unions = FXCollections.observableMap(new HashMap<>());
             loadUnions();
-            initialProvinces = new CFormable.FirstAdmDivs(countries);
+            loadFormables();
         } catch (Exception e) {
             ErrorLog.logError(e);
         }
@@ -127,6 +129,7 @@ public class World implements Serializable {
                 }
             }
         }
+        initialProvinces = new CFormable.FirstAdmDivs(countries);
     }
 
     public void loadLanguages() {
@@ -514,6 +517,13 @@ public class World implements Serializable {
         unions.put(shortName, u);
     }
 
+    public void loadFormables() {
+        List<CFormable> temp = CFormable.loadFormables(GLogic.RESOURCESPATH + "/data/formables.txt");
+        if (temp != null) {
+            formables = temp;
+        }
+    }
+
     public void loadUnions() {
         if (unions == null)
             unions = FXCollections.observableMap(new HashMap<>());
@@ -656,5 +666,16 @@ public class World implements Serializable {
                     admDiv.setOccupierId(occupierId);
                 }
             }
+    }
+
+    public CFormable.FirstAdmDivs getInitialProvinces() {
+        return initialProvinces;
+    }
+    public AdmDiv[] getProvinces(){
+        return provinces;
+    }
+
+    public List<CFormable> getFormables() {
+        return formables;
     }
 }
