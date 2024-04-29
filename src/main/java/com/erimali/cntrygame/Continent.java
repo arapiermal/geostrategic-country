@@ -21,6 +21,7 @@ public enum Continent {
     private final String longName;
     private final Set<Short> countries;
     private Paint color;
+    //private String[] regions;
 
     private void addCountry(short id) {
         countries.add(id);

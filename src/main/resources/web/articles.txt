@@ -1,9 +1,5 @@
 07/07/2023
-Hello
-paragraph here~~~08/07/2023
-Bye
-paragraph here~~~07/07/2023
-Hello
-paragraph here~~~08/07/2023
-Bye
-paragraph here~~~
+Default title
+default description~~~08/07/2023
+Default title...
+default description...~~~

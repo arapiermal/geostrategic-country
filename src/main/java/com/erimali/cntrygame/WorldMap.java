@@ -32,7 +32,6 @@ public class WorldMap {
     private Paint[] colors;
     private Color backgroundColor = Color.valueOf("#ADD8E6");
     private Color colDefTransparent = new Color(0, 0, 0, 0);
-    private int playerCountry;
     private String defColorString = "#ececec";
     private Color defColor = Color.valueOf(defColorString);
     private Color defColorCountry = new Color(0, 0, 0, 0);
@@ -109,7 +108,6 @@ public class WorldMap {
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/resources/map/illustMap.svg"))) {
             // Load SVG file
             List<SVGProvince> svgPaths = new LinkedList<>(); //LINKED LIST MORE EFFICIENT?!? SINCE WILL BE CONVERTED TO ARRAY?
-            //List<SVGPath> countryPaths = new ArrayList<>();
             String line;
             int currProvId = 0;
             while ((line = br.readLine()) != null) {
@@ -226,7 +224,6 @@ public class WorldMap {
     }
 
     private void onPathClicked(MouseEvent event) {
-        // Your handling logic here
         Node clickedNode = (Node) event.getTarget();
         if (clickedNode instanceof SVGProvince clickedPath) {
             String pathId = clickedPath.getId();

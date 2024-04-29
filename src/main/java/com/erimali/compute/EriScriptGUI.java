@@ -155,7 +155,17 @@ public class EriScriptGUI extends Stage {
 
         return 0.0;//Double.NaN; //in order to figure out it was wrong input?
     }
+    public static String showStringInputDialog(String desc) {
+        TextInputDialog dialog = new TextInputDialog();
+        //dialog.initOwner(parentStage);
+        dialog.setTitle("String Input Dialog");
+        dialog.setHeaderText(desc != null ? desc : "Enter string:");
+        dialog.setContentText("Value:");
 
+        Optional<String> result = dialog.showAndWait();
+        return result.orElse(null);
+
+    }
     public static double[] showDoubleArrInputDialog(String desc) {
         TextInputDialog dialog = new TextInputDialog();
         //dialog.initOwner(parentStage);

@@ -344,24 +344,33 @@ public class GameStage extends Stage {
     }
 
     private ToolBar makeBottomToolbar() {
-
         Button gsComputer = new Button("Computer");
+        Button gsNews = new Button("News");
         Button gsOptions = new Button("Settings");
         ImageView imgComputer = loadImgView("img/monitor_with_button.png", 24, 24);
         if (imgComputer != null) {
             gsComputer.setGraphic(imgComputer);
+            Tooltip.install(gsComputer, new Tooltip(gsComputer.getText()));
             gsComputer.setText(null);
+        }
+        ImageView imgNews = loadImgView("img/design_view_dark.png", 24, 24);
+        if (imgNews != null) {
+            gsNews.setGraphic(imgNews);
+            Tooltip.install(gsNews, new Tooltip(gsNews.getText()));
+            gsNews.setText(null);
         }
         ImageView imgSettings = loadImgView("img/settings.png", 24, 24);
         if (imgSettings != null) {
             gsOptions.setGraphic(imgSettings);
+            Tooltip.install(gsOptions, new Tooltip(gsOptions.getText()));
             gsOptions.setText(null);
         }
 
         gsComputer.setOnAction(e -> popupWebDesktop());
+        gsNews.setOnAction(e -> popupWebNews());
         gsOptions.setOnAction(e -> showGameStageOptions());
         Region tReg = new Region();
-        ToolBar toolBar = new ToolBar(gsComputer, tReg, gsOptions);
+        ToolBar toolBar = new ToolBar(gsComputer, gsNews, tReg, gsOptions);
         HBox.setHgrow(tReg, Priority.ALWAYS);
         return toolBar;
     }
@@ -691,9 +700,9 @@ public class GameStage extends Stage {
 
     private VBox makeVBoxPlayerOptions() {
         formablesPanel = makeVBoxListViewFormables();
-        TitledPane formables = new TitledPane("Formables",formablesPanel);
+        TitledPane formables = new TitledPane("Formables", formablesPanel);
         formables.setAnimated(false);
-        VBox vBox = new VBox(selectedCountryInfo,formables);
+        VBox vBox = new VBox(selectedCountryInfo, formables);
 
         return vBox;
     }
@@ -742,7 +751,7 @@ public class GameStage extends Stage {
         TitledPane titledPaneRelations = new TitledPane("Relations", vboxRelations);
         titledPaneRelations.setAnimated(false);
 
-        return new VBox(selectedCountryInfo,titledPaneWar,titledPaneRelations);
+        return new VBox(selectedCountryInfo, titledPaneWar, titledPaneRelations);
     }
 
 
@@ -751,9 +760,9 @@ public class GameStage extends Stage {
         Button investInProv = new Button("Invest");
         VBox vBox = new VBox(raiseFunds, investInProv);
         vBox.setSpacing(8);
-        TitledPane titledPane = new TitledPane("",vBox);
+        TitledPane titledPane = new TitledPane("", vBox);
         titledPane.setAnimated(false);
-        return new VBox(selectedProvInfo,titledPane);
+        return new VBox(selectedProvInfo, titledPane);
     }
 
     private VBox makeVBoxOtherProvOptions() {
@@ -1155,7 +1164,7 @@ public class GameStage extends Stage {
 
     public void popupWebNews() {
         File file = new File(GLogic.RESOURCESPATH + "web/news.html");
-        String filePath = file.toURI().toString();
+        String filePath = file.toURI() + "?gameid=" + game.getUniqueId();
 
         WebView webView = new WebView();
         webView.getEngine().load(filePath);
@@ -1169,8 +1178,7 @@ public class GameStage extends Stage {
 
     public void popupWebDesktop() {
         File file = new File(GLogic.RESOURCESPATH + "web/pcdesktop.html");
-        String filePath = file.toURI().toString();
-
+        String filePath = file.toURI() + "?gameid=" + game.getUniqueId();
         WebView webView = new WebView();
         webView.setContextMenuEnabled(false);
         WebEngine webEngine = webView.getEngine();

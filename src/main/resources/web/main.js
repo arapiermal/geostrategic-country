@@ -250,5 +250,8 @@ document.addEventListener("DOMContentLoaded", function () {
         textFileName.value = '';
         textArea.value = '';
     });
-
+    const URLparams = new URLSearchParams(document.location.search);
+    const gameId = URLparams.get('gameId');
+    const newsLink = document.getElementById('newsLink');
+    newsLink.href += gameId;
 });

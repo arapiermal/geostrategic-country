@@ -27,6 +27,9 @@ public class GLogic implements Serializable {
     private static final double MIN_GAME_SPEED_INTERVAL = 0.25;
     private static final double MAX_GAME_SPEED_INTERVAL = 4;
     private double gameSpeedInterval;
+
+    private final long uniqueId = System.currentTimeMillis();
+
     // Date
     private GDate inGDate;//
     private static final int DEF_START_DAY = 1;
@@ -764,5 +767,9 @@ public class GLogic implements Serializable {
 
     public ObservableList<CFormable> getPlayerFormables() {
         return playerFormables;
+    }
+
+    public String getUniqueId(){
+        return Long.toString(uniqueId,36);
     }
 }

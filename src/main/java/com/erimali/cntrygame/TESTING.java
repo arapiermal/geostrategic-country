@@ -1,5 +1,7 @@
 package com.erimali.cntrygame;
 
+import com.erimali.compute.BooleanSolver;
+
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Set;
@@ -46,10 +48,11 @@ public class TESTING {
 		*/
         //World w = new World();
         //print(w.randLangName("Albanian:John"));
-        //print(BooleanSolver.solve(".prime(137)"));
+        print(BooleanSolver.solve("_prime(13400000000)"));
 
-        //EriSentence s = new EriSentence("abcd,,efg ?!?hij?!?");
-        //print(s.getWords());
+        long a = System.currentTimeMillis();
+        print(Long.toString(a,36));
+
 
 
     }

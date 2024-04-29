@@ -1,6 +1,5 @@
 package com.erimali.compute;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,36 +19,32 @@ import com.erimali.cntrygame.*;
 public class EriScript {
     // class which is just a function that doesn't forget previous state?
     private static final String RETURN = "return";
-    private static final String EXTRAARG = "EXTRA";
+    private static final String EXTRA_ARG = "EXTRA";
     private Path currPath;
-    private String separator = "\n";// System.lineSeparator();
+    //private String separator = "\n";// System.lineSeparator();
     private List<String[]> rows;
     private String[] params;
-    private double[] regDouble;
     // Registry which stores objects? private Object[] registry
     // double registry and int registry?
     // RD0
     // RI0
     private Map<String, Double> variables;
-    private Map<String, List<Double>> varArr;
-
     private Map<String, String> varString;
     private Map<String, EriScript> functions;
     private int i;
     private boolean hasReturned;
     private Stack<Integer> forLoops;
-    private Deque<String> errors;
+    //private Deque<String> errors;
+    // Deque<...Stacktrace??> errors?
+
     // private boolean allowHelperVars;
     // like THIS for current running row index
 
-    // Deque<...Stacktrace??> errors?
     private List<String> printed;
 
     private static final String tempInd = "IND";
 
     public void initThings() {
-        this.regDouble = new double[64];
-        this.varArr = new HashMap<>();
         this.forLoops = new Stack<>();
         this.variables = new HashMap<>();
         this.functions = new HashMap<>();
@@ -75,12 +70,10 @@ public class EriScript {
     public EriScript(String[] splitted) {
         this.forLoops = new Stack<>();
         this.variables = new HashMap<>();
-        this.varArr = new HashMap<>();
         this.varString = new HashMap<>();
         this.functions = new HashMap<>();
         this.rows = new ArrayList<>();
         this.printed = new LinkedList<>();
-        this.regDouble = new double[64];
         String temp;
         i = 0;
         while(trimNoComments(splitted[i]).isBlank()){
@@ -297,7 +290,7 @@ public class EriScript {
             if (dParams.length > params.length) {
                 int k = 0;
                 for (; j < m; j++) {
-                    variables.put(EXTRAARG + k, dParams[j]);
+                    variables.put(EXTRA_ARG + k, dParams[j]);
                     k++;
                 }
             }
@@ -381,39 +374,11 @@ public class EriScript {
         }
     }
 
-    public void initRegDouble(double val) {
-        Arrays.fill(regDouble, val);
-    }
-
     public void execFuncRow() {
         // CACHED
         String[] parts = rows.get(i);
         String command = parts[0].trim();
-        if (command.charAt(0) == '$') {
-            if (command.charAt(1) == 'R') {
-                if (command.length() == 2) {
-                    if (parts[1].contains(",")) {
-                        initRegArr(parts[1]);
-                    } else {
-                        initRegDouble(solveMath(parts[1]));
-                    }
-                } else if (command.charAt(2) == '[') {
-                    int index = solveMathInt(parts[0].substring(3, command.length() - 1));
-                    regDouble[index] = solveMath(parts[1]);
 
-                } else {
-                    try {
-                        int index = Integer.parseInt(parts[0].substring(2));
-                        regDouble[index] = solveMath(parts[1]);
-                    } catch (NumberFormatException e) {
-                        ErrorLog.logError(e);
-                    }
-                }
-            } else if (command.charAt(1) == 'r') {
-                // for integers?
-            }
-            return;
-        }
         switch (command.toLowerCase()) {
             case "while":
                 forLoops.push(i + 1);
@@ -598,7 +563,12 @@ public class EriScript {
                         printed.add("ERROR PARSING ARRAY");
                     }
                 } else if (varName.charAt(0) == '%') {
-
+                    String s = EriScriptGUI.showStringInputDialog(desc);
+                    if(s != null){
+                        putEriString(varName.substring(1), s);
+                    } else{
+                        printed.add("ERROR INPUT STRING");
+                    }
                 } else {
                     double input = EriScriptGUI.showDoubleInputDialog(desc);
 
@@ -672,6 +642,7 @@ public class EriScript {
                 ErrorLog.logError(parts[1]);
                 break;
             default:
+                //:(nothing to the right)... error.
                 if (parts.length < 2)
                     executeFunction(parts[0]);
                 else {
@@ -693,6 +664,17 @@ public class EriScript {
         }
         return sb.toString();
     }
+
+    public String removeWhitespacesFromString(String s) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) {
+            if (!Character.isWhitespace( s.charAt(i))) {
+                sb.append(s.charAt(i));
+            }
+        }
+        return sb.toString();
+    }
+
 
     public String parseCMDExec(String in) {
         if (in.indexOf('`') < 0)
@@ -1212,7 +1194,7 @@ public class EriScript {
                 return;
             }
             // LESS TRIM????
-            input = removeCharFromString(input, '\s');
+            input = removeWhitespacesFromString(input);
             // index changes
             index = input.indexOf('=');
             if (input.length() > 2 && MathSolver.isOperator(input.charAt(index - 1))) {
@@ -1264,13 +1246,12 @@ public class EriScript {
                 }
                 //
                 else if (rightSide.contains("...")) {
+                    varName = subTrim(input, 0, index);
                     String[] temp = rightSide.split("\\s*\\.\\.\\.\\s*");
-                    // from int to double
-                    double n = solveMath(temp[1]);
+                    int n = solveMathInt(temp[1]);
                     // n = Math.abs(n);
-                    for (double i = 0; i < n; i++) {
-                        // String toMath = temp[0].replace("IND", String.valueOf(i));
-                        variables.put(tempInd, i);
+                    for (int i = 0; i < n; i++) {
+                        variables.put(tempInd, (double) i);
                         variables.put(varName + i, solveMath(temp[0]));
                     }
                     variables.remove(tempInd);
@@ -1509,9 +1490,6 @@ public class EriScript {
     }
 
     public double[] getArr(String name) {
-        if (varArr.containsKey(name)) {
-            return varArr.get(name).stream().mapToDouble(Double::doubleValue).toArray();
-        }
         int j = 0;
         while (variables.containsKey(name + j)) {
             j++;
@@ -1530,14 +1508,6 @@ public class EriScript {
             arr[i] = solveMath(s[i]);
         }
         return arr;
-    }
-
-    public void initRegArr(String in) {
-        String[] arr = in.split("\\s*,\\s*");
-        int n = Math.min(arr.length, regDouble.length);
-        for (int i = 0; i < n; i++) {
-            regDouble[i] = solveMath(arr[i]);
-        }
     }
 
     public String[] getParams() {
@@ -1572,7 +1542,7 @@ public class EriScript {
     }
 
     public double solveMath(String in) {
-        return MathSolver.solve(in, variables, regDouble);
+        return MathSolver.solve(in, variables);
     }
 
     public int solveMathInt(String in) {

@@ -12,11 +12,11 @@ public class MathSolver {
 		return evaluateExpression(express, null);
 	}
 
-	public static double solve(String express, Map<String, Double> variables, double[]... registries) {
-		return evaluateExpression(express, variables, registries);
+	public static double solve(String express, Map<String, Double> variables) {
+		return evaluateExpression(express, variables);
 	}
 
-	private static double evaluateExpression(String express, Map<String, Double> variables, double[]... registries) {
+	private static double evaluateExpression(String express, Map<String, Double> variables) {
 		express = express.replaceAll("\\s+", "");
 		if (express.isEmpty())
 			return 0.0;
@@ -114,20 +114,20 @@ public class MathSolver {
 					i = j - 1;
 
 				} else if (j < express.length() - 1 && express.charAt(j) == '[') {
-					// INNEFICIENT
+					// INNEFICIENT, int for [[]]?
 					int k = j + 1;
 					while (k < express.length() && express.charAt(k) != ']') {
 						k++;
 					}
 					int index = (int) MathSolver.solve(express.substring(j + 1, k), variables);
 					if (index >= 0) {
-						double value = parseVar(name + index, variables, registries);
+						double value = parseVar(name + index, variables);
 						stack.push(value);
 					}
 
 					i = k;
 				} else {
-					double value = parseVar(name, variables, registries);
+					double value = parseVar(name, variables);
 
 					stack.push(value);
 					i = j - 1;
@@ -144,15 +144,12 @@ public class MathSolver {
 		return stack.pop();
 	}
 
-	public static double parseVar(String varName, Map<String, Double> variables, double[]... registries) {
+	public static double parseVar(String varName, Map<String, Double> variables) {
 		if (variables == null) {
 			ErrorLog.logError("NO VARIABLE MAP INPUT");
 			return 0.0;
 		} else if (variables.containsKey(varName)) {
 			return variables.get(varName);
-		} else if (varName.startsWith("R") && registries.length > 0) {
-			int index = Integer.parseInt(varName.substring(1));
-			return registries[0][index];
 		} else
 			throw new IllegalArgumentException("INVALID VARIABLE");
 	}
@@ -403,8 +400,8 @@ public class MathSolver {
 			return false;
 		if (val <= 1 || (val != 2 && val % 2 == 0))
 			return false;
-		int v = (int) val;
-		for (int i = 3; i < (int) Math.sqrt(v); i += 2) {
+		long v = (long) val;
+		for (long i = 3; i < (long) Math.sqrt(v); i += 2) {
 			if (v % i == 0)
 				return false;
 		}

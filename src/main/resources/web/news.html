@@ -175,10 +175,14 @@
     </article>
 
     <script>
+        const params = new URLSearchParams(document.location.search);
+        const uniqueGameId = params.get("gameid");
+
         window.addEventListener('DOMContentLoaded', function () {
             var articlesDiv = document.getElementById('articles');
-
-            fetch('articles.txt')
+            let srcText = uniqueGameId != null ? `news/${uniqueGameId}.txt` : 'articles.txt';
+            alert(srcText);
+            fetch(srcText)
                 .then(response => response.text())
                 .then(data => {
                     var articles = data.split('~~~');
@@ -269,7 +273,6 @@
         });
 
         function processQueryParameters() {
-            let params = new URLSearchParams(document.location.search);
             let previousPage = params.get("src");
             if (previousPage) {
                 if (previousPage === "desktop") {

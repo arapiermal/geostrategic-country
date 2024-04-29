@@ -28,12 +28,13 @@ public class BooleanSolver {
                         k++;
                     }
                     String var = in.substring(i + 2, k);
+                    boolean parseCheck = parseCheck(var, variables);
                     if (opposite) {
-                        stack.push(!parseCheck(var, variables));
+                        parseCheck = !parseCheck;
                         opposite = false;
-                    } else {
-                        stack.push(parseCheck(var, variables));
                     }
+                    stack.push(parseCheck);
+
                     i = k;
                 } else {
                     int j = i + 1;
@@ -46,12 +47,13 @@ public class BooleanSolver {
                         k++;
                     }
                     String var = in.substring(j + 1, k);
+                    boolean parseFunc = parseFunc(fName, var, variables);
                     if (opposite) {
-                        stack.push(!parseFunc(fName, var, variables));
+                        parseFunc = !parseFunc;
                         opposite = false;
-                    } else {
-                        stack.push(parseFunc(fName, var, variables));
                     }
+                    stack.push(parseFunc);
+
                     i = k;
                 }
             } else {
@@ -59,12 +61,13 @@ public class BooleanSolver {
                 while (j < in.length() && !isORAND(in.charAt(j))) {
                     j++;
                 }
+                boolean compare = compare(in.substring(i, j), variables);
                 if (opposite) {
-                    stack.push(!compare(in.substring(i, j), variables));
+                    compare = !compare;
                     opposite = false;
-                } else {
-                    stack.push(compare(in.substring(i, j), variables));
                 }
+                stack.push(compare);
+
                 i = j - 1;
             }
         }
@@ -82,34 +85,24 @@ public class BooleanSolver {
 
     public static boolean parseFunc(String name, String var, Map<String, Double> variables) {
         var = var.trim();
-        switch (name.toUpperCase()) {
-            case "BOOL":
-                return variables.get(var) >= 1.0;
-            case "CONTAINS":
-                return variables.containsKey(var);
-            case "POSITIVE":
-                return MathSolver.solve(var, variables) >= 0.0;
-            case "NEGATIVE":
-                return MathSolver.solve(var, variables) <= -0.0;
-            case "PRIME":
-                return MathSolver.isPrime(MathSolver.solve(var, variables));
+        return switch (name.toUpperCase()) {
+            case "BOOL" -> variables.get(var) >= 1.0;
+            case "CONTAINS" -> variables.containsKey(var);
+            case "POSITIVE" -> MathSolver.solve(var, variables) >= 0.0;
+            case "NEGATIVE" -> MathSolver.solve(var, variables) <= -0.0;
+            case "PRIME" -> MathSolver.isPrime(MathSolver.solve(var, variables));
             //
-            case "EXEC":
-                return CommandLine.checkStatement(var);
-            default:
-                throw new IllegalArgumentException("INVALID BOOLEAN FUNCTION");
-        }
+            case "EXEC" -> CommandLine.checkStatement(var);
+            default -> throw new IllegalArgumentException("INVALID BOOLEAN FUNCTION");
+        };
     }
 
     public static boolean applyOperator(boolean b2, boolean b1, char c) {
-        switch (c) {
-            case '|':
-                return b1 || b2;
-            case '&':
-                return b1 && b2;
-            default:
-                throw new IllegalArgumentException("INVALID BOOLEAN OPERATOR");
-        }
+        return switch (c) {
+            case '|' -> b1 || b2;
+            case '&' -> b1 && b2;
+            default -> throw new IllegalArgumentException("INVALID BOOLEAN OPERATOR");
+        };
     }
 
     public static boolean isORAND(char c) {
@@ -150,30 +143,15 @@ public class BooleanSolver {
     }
 
     public static boolean compare(double l, double r, char ch) {
-        switch (ch) {
-            case '<':
-                return l < r;
-            case '>':
-                return l > r;
-            default:
-                throw new IllegalArgumentException("INVALID COMPARATOR");
-        }
+        return switch (ch) {
+            case '<' -> l < r;
+            case '>' -> l > r;
+            default -> throw new IllegalArgumentException("INVALID COMPARATOR");
+        };
     }
 
     public static boolean compare(double l, double r, char c1, char c2) {
-		/*String temp = "" + c1 + c2;
-		switch (temp) {
-		case "<=":
-			return l <= r;
-		case ">=":
-			return l >= r;
-		case "<>":
-			return l != r;
-		case "><":
-			return l == r;
-		default:
-			throw new IllegalArgumentException("INVALID COMPARATOR");
-		}*/
+
         switch (c1) {
             case '<':
                 switch (c2) {
