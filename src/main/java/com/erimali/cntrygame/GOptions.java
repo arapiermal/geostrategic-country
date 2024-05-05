@@ -8,13 +8,45 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-enum Settings {
-    FULLSCREEN, VOLUME, CLI, TRANSLATEGEVENT, MODS, DEBUGMODE;
-
-    int defValue;
-}
-
 public class GOptions {
+    public enum Settings {
+        FULLSCREEN {
+            @Override
+            public String toSave() {
+                return name() + boolToIntString(fullScreen);
+            }
+        }, VOLUME {
+            @Override
+            public String toSave() {
+                return name() + ":" + (int) (volume * 100);
+            }
+        }, CLI {
+            @Override
+            public String toSave() {
+                return name() + boolToIntString(allowCLI);
+            }
+        }, TRANSLATEGEVENT {
+            @Override
+            public String toSave() {
+                return name() + boolToIntString(translateGEvent);
+            }
+        }, MODS {
+            @Override
+            public String toSave() {
+                return name() + boolToIntString(allowMods) + ":\"" + modsPath + "\"";
+            }
+        }, DEBUGMODE {
+            @Override
+            public String toSave() {
+                return name() + boolToIntString(debugMode);
+            }
+        };
+
+        public abstract String toSave();
+
+        int defValue;
+    }
+
     private static final String DEF_SETTINGS_PATH = GLogic.RESOURCESPATH + "settings.ini";
     private static String modsPath = "mods/";
 
@@ -88,18 +120,10 @@ public class GOptions {
 
     public static void saveToFile() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(DEF_SETTINGS_PATH))) {
-            writer.write(Settings.FULLSCREEN + boolToIntString(fullScreen));
-            writer.newLine();
-            writer.write(Settings.VOLUME + ":" + (int) (volume * 100));
-            writer.newLine();
-            writer.write(Settings.CLI + boolToIntString(allowCLI));
-            writer.newLine();
-            writer.write(Settings.TRANSLATEGEVENT + boolToIntString(translateGEvent));
-            writer.newLine();
-            writer.write(Settings.MODS + boolToIntString(allowMods) + ":\"" + modsPath + "\"");
-            writer.newLine();
-            writer.write(Settings.DEBUGMODE + boolToIntString(debugMode));
-            writer.newLine();
+            for (Settings s : Settings.values()) {
+                writer.write(s.toSave());
+                writer.newLine();
+            }
         } catch (IOException ioe) {
             ErrorLog.logError(ioe);
         }
@@ -178,7 +202,7 @@ public class GOptions {
     public static String getModsPath() {
         return modsPath;
     }
-    
+
     public static boolean hasMods() {
         //check filesystem
         return false;
