@@ -356,6 +356,14 @@ public class Country implements Serializable, Comparable<Country> {
         }
     }
 
+    public long incPopulation(double populationIncrease) {
+        long prePop = population;
+        for (AdmDiv a : admDivisions) {
+            this.population += a.incPopulation(populationIncrease);
+        }
+        return population - prePop;
+    }
+
     public void incPopulationIncrease(double amount) {
         if (amount > 0.0)
             populationIncrease += amount;
@@ -367,6 +375,29 @@ public class Country implements Serializable, Comparable<Country> {
 
     public void setPopulationIncrease(double populationIncrease) {
         this.populationIncrease = populationIncrease;
+    }
+
+    public void addPopulation(long popAmount) {
+        int perAdmDiv = (int) (popAmount / admDivisions.size());
+        int extra = (int) (popAmount % admDivisions.size());
+        for (AdmDiv a : admDivisions) {
+            a.addPopulation(perAdmDiv);
+        }
+        admDivisions.getFirst().addPopulation(extra);
+        this.population += popAmount;
+    }
+
+    public int addIncPopulation(double popInc, AdmDiv admDiv) {
+        int amount;
+        if (popInc >= -1 && popInc <= 1) {
+            amount = admDiv.incPopulation(popInc);
+            this.population += amount;
+        } else {
+            amount = (int) popInc;
+            admDiv.addPopulation(amount);
+            this.population += amount;
+        }
+        return amount;
     }
 
     // FOR NOT UPDATED COUNTRY ADMDIVISION DATA
@@ -609,9 +640,11 @@ public class Country implements Serializable, Comparable<Country> {
         }
         return false;
     }
-    public void removeContinent(Continent cont){
+
+    public void removeContinent(Continent cont) {
         continents.remove(cont);
     }
+
     public void addContinent(Continent cont) {
         continents.add(cont);
     }
@@ -873,6 +906,7 @@ public class Country implements Serializable, Comparable<Country> {
     public void setIsFormed(CFormable isFormed) {
         this.isFormed = isFormed;
     }
+
     public void initAvailableBuildings() {
         this.availableBuildings = new short[Building.values().length];
         Arrays.fill(availableBuildings, (short) 0);
@@ -977,4 +1011,5 @@ public class Country implements Serializable, Comparable<Country> {
         admDiv.incInfrastructure();
         eco.addMulGDP(popRatio * 0.5);
     }
+
 }

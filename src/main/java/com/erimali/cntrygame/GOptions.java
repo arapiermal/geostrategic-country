@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 enum Settings {
-    FULLSCREEN, VOLUME, CLI, TRANSLATEGEVENT, MODS;
+    FULLSCREEN, VOLUME, CLI, TRANSLATEGEVENT, MODS, DEBUGMODE;
 
     int defValue;
 }
@@ -23,7 +23,7 @@ public class GOptions {
     private static boolean translateGEvent = true;
     private static boolean allowCLI = true;
     private static boolean allowMods = false;
-
+    private static boolean debugMode = true;
 
     public static void loadGOptions() {
         try (BufferedReader br = new BufferedReader(new FileReader(DEF_SETTINGS_PATH))) {
@@ -82,6 +82,8 @@ public class GOptions {
         translateGEvent = trGEvent != 0;
         int enMods = settings.getOrDefault(Settings.MODS.toString(), 0);
         allowMods = enMods != 0;
+        int enDebugMode = settings.getOrDefault(Settings.MODS.toString(), 0);
+        debugMode = enDebugMode != 0;
     }
 
     public static void saveToFile() {
@@ -95,6 +97,8 @@ public class GOptions {
             writer.write(Settings.TRANSLATEGEVENT + boolToIntString(translateGEvent));
             writer.newLine();
             writer.write(Settings.MODS + boolToIntString(allowMods) + ":\"" + modsPath + "\"");
+            writer.newLine();
+            writer.write(Settings.DEBUGMODE + boolToIntString(debugMode));
             writer.newLine();
         } catch (IOException ioe) {
             ErrorLog.logError(ioe);
@@ -191,5 +195,13 @@ public class GOptions {
     public static boolean toggleFullScreen() {
         fullScreen = !fullScreen;
         return fullScreen;
+    }
+
+    public static boolean isDebugMode() {
+        return debugMode;
+    }
+
+    public static void setDebugMode(boolean debugMode) {
+        GOptions.debugMode = debugMode;
     }
 }

@@ -50,7 +50,6 @@ public class BaseEvent implements Serializable {
 
     public void runAI() {
         CommandLine.execute(getCommandRandom(), true);
-
     }
 
     public String[] getCommands() {

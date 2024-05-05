@@ -152,11 +152,11 @@ public class CommandLine {
             return "";
         }
         String temp;
-        if (in.length() >6) {
+        if (in.length() > 6) {
             temp = in.substring(0, 5);
-            if(temp.equalsIgnoreCase("PARSE"))
+            if (temp.equalsIgnoreCase("PARSE"))
                 return gs.getGame().parseTextCommand(in.substring(6));
-            else if(temp.equalsIgnoreCase("CHECK")){
+            else if (temp.equalsIgnoreCase("CHECK")) {
                 return checkStatementsAND(in.substring(6)) ? "TRUE" : "FALSE";
             }
         }
@@ -210,7 +210,37 @@ public class CommandLine {
                             return "Improved relations with " + k[2];
                         }
                         return "";
+                    case "POP":
+                        if (k.length == 2) {
+                            mainCountry.incPopulation();
+                        } else if (k.length == 3) {
+                            double popInc = GUtils.parseDoubleAndPercent(k[2]);
+                            long popAmount;
+                            if (popInc >= -1 && popInc <= 1) {
+                                 popAmount = mainCountry.incPopulation(popInc);
 
+                            } else {
+                                popAmount = (long) popInc;
+                                mainCountry.addPopulation(popAmount);
+                            }
+                            return "ADDED A TOTAL OF " + popAmount + " POPULATION";
+                        } else if (k.length == 4) {
+                            double popInc = GUtils.parseDoubleAndPercent(k[2]);
+                            int provId = GUtils.parseI(k[3]);
+                            AdmDiv admDiv = gs.getGame().getWorld().getAdmDiv(provId);
+                            if (admDiv != null) {
+                                if (admDiv.getOwnerId() == mainCountry.getCountryId()) {
+                                    int popAmount = mainCountry.addIncPopulation(popInc, admDiv);
+                                    return "ADDED " + popAmount + " POPULATION TO " + admDiv.getName();
+                                } else {
+                                    return "ADM DIV " + provId + " DOESN'T BELONG TO " + shortName;
+                                }
+                            } else {
+                                return "ERROR: ADM DIV DOESN'T EXIST";
+                            }
+                        }
+
+                        return "";
                     case "EVENT":
                         GDate date;
                         if (k.length == 4)
@@ -515,6 +545,8 @@ public class CommandLine {
         return checkStatement(in, "\\s+");
     }
 
+
+    //updating HAS requires updating
     public static boolean checkStatement(String in, String separator) {
         boolean isPlaying = playerId > 0;
         String[] k = in.toUpperCase().split(separator);

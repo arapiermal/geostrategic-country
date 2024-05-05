@@ -163,6 +163,7 @@ public class GLogic implements Serializable {
         GEvent gEvent;
         while (!gameEvents.isEmpty() && (gEvent = gameEvents.peek()).getDate().equals(inGDate)) {
             gameEvents.poll();
+            gEvent.setCanHappen(); //maybe remove the boolean all together (?)
             if (gEvent.isCanHappen()) {
                 gs.popupGEvent(gEvent);
             } else {

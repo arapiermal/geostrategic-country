@@ -227,23 +227,19 @@ public class WorldMap {
     private void onPathClicked(MouseEvent event) {
         Node clickedNode = (Node) event.getTarget();
         if (clickedNode instanceof SVGProvince clickedPath) {
-            String pathId = clickedPath.getId();
+            //String pathId = clickedPath.getId();
             int oldSel = gs.getSelectedCountry();
             int pathOwn = clickedPath.getOwnerId();
             int provId = clickedPath.getProvId();
             gs.setSelectedCountry(pathOwn);
             gs.setSelectedProvince(provId);
-            System.out.println(provId + " clicked - ID: " + pathId + ", Owner: " + CountryArray.getIndexISO2(pathOwn));
+            //System.out.println(provId + " clicked - ID: " + pathId + ", Owner: " + CountryArray.getIndexISO2(pathOwn));
             if (pathOwn != oldSel) {
                 if (mapMode == 1)
                     paintMapAllies(oldSel);
                 else if (mapMode == 3)
                     paintMapNeighbours();
             }
-            //Would work when clicking after the first time going through Set (because all others have to be set default color)
-            // CAN BECOME MORE EFFICIENT
-            // Only change the colors of the things which are
-            // in the previous and next Set<String/Integer> allies??
         }
     }
 
@@ -313,15 +309,36 @@ public class WorldMap {
         if (c != null) {
             Set<Integer> neighbours = c.getNeighbours();
             for (SVGProvince t : mapSVG) {
-                if (neighbours.contains(t.getOwnerId())) {
+                int ownerId = t.getOwnerId();
+                if (neighbours.contains(ownerId)) {
                     t.setFill(defNeutralColor);
+                } else if (cId == ownerId) {
+                    t.setFill(defSelectedColor);
                 } else {
                     t.setFill(defColor);
                 }
             }
         }
     }
-
+/*
+//problems because not all neighbours loaded
+    public void paintMapNeighbours(int oldSel) {
+        CountryArray cArr = gs.getGame().getWorld().getCountries();
+        int cId = gs.getSelectedCountry();
+        Country o = cArr.get(oldSel);
+        setColorOnAdmDivs(o, defColor);
+        for (int i : o.getNeighbours()) {
+            setColorOnAdmDivs(cArr.get(i), defColor);
+        }
+        Country c = cArr.get(cId);
+        if (c != null) {
+            setColorOnAdmDivs(c, defSelectedColor);
+            for (int i : c.getNeighbours()) {
+                setColorOnAdmDivs(cArr.get(i), defNeutralColor);
+            }
+        }
+    }
+*/
     public void paintMapUnions(Union union) {
         if (union != null) {
             Paint unionColor = union.getColor() == null ? defAllyColor : union.getColor();
@@ -497,8 +514,10 @@ public class WorldMap {
                 break;
             case 3:
                 paintMapNeighbours();
+                break;
             case 4:
                 paintMapContinents();
+                break;
             default:
                 break;
         }

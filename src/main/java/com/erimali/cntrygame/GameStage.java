@@ -12,6 +12,7 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -114,6 +115,7 @@ public class GameStage extends Stage {
     private Button recruitBuildButton;
     private UnionStage unionStage;
     private VBox formablesPanel;
+    private Node toolBarReg;
 
     public GameStage(Main application) {
         this.application = application;
@@ -177,7 +179,6 @@ public class GameStage extends Stage {
     }
 
     private void initFullScreen() {
-
         this.setFullScreen(GOptions.isFullScreen());
         this.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
         //this.setFullScreenExitHint("F11 to toggle fullscreen");
@@ -241,12 +242,14 @@ public class GameStage extends Stage {
         hTopRight.setSpacing(10);
         Region regTop = new Region();
 
-        HBox htop = new HBox(hTopLeft, regTop, hTopRight);
-        HBox.setHgrow(regTop, Priority.ALWAYS);
-        htop.setSpacing(10);
-        htop.setStyle("-fx-background-color: #f0f0f0;");
+        HBox hTop = new HBox(hTopLeft, regTop, hTopRight);
+        hTop.setAlignment(Pos.CENTER);
 
-        gameLayout.setTop(htop);
+        HBox.setHgrow(regTop, Priority.ALWAYS);
+        hTop.setSpacing(10);
+        hTop.setStyle("-fx-background-color: #f0f0f0;");
+
+        gameLayout.setTop(hTop);
 
         // CENTER
         ZoomableScrollPane scrollPane = map.start();
@@ -370,9 +373,13 @@ public class GameStage extends Stage {
         gsComputer.setOnAction(e -> popupWebDesktop());
         gsNews.setOnAction(e -> popupWebNews());
         gsOptions.setOnAction(e -> showGameStageOptions());
-        Region tReg = new Region();
-        ToolBar toolBar = new ToolBar(gsComputer, gsNews, tReg, gsOptions);
-        HBox.setHgrow(tReg, Priority.ALWAYS);
+
+        if(GOptions.isDebugMode())
+            toolBarReg = new HBox(8, new Label(), new Text(", Prov ID:"),  new Label());
+        else
+            toolBarReg = new Region();
+        ToolBar toolBar = new ToolBar(gsComputer, gsNews, toolBarReg, gsOptions);
+        HBox.setHgrow(toolBarReg, Priority.ALWAYS);
         return toolBar;
     }
 
@@ -386,7 +393,6 @@ public class GameStage extends Stage {
         Button zoomOut = new Button();
         zoomOut.setGraphic(WorldMap.loadSVGPath("img/zoom_out.svg"));
         zoomOut.setOnAction(e -> scrollPane.zoomOut());
-
          */
         int mapModesSize = WorldMap.getMaxMapModes();
         Button[] mapModes = new Button[mapModesSize];
@@ -395,7 +401,7 @@ public class GameStage extends Stage {
             int finalI = i;
             mapModes[i].setOnAction(event -> map.switchMapMode(finalI));
         }
-        //flowPane.getChildren().addAll(zoomIn, zoomOut);
+        //flowPane.getChildren().addAll(zoomIn, zoomOut); // in vBox... but problem
         flowPane.getChildren().addAll(mapModes);
 
         return flowPane;
@@ -1341,6 +1347,12 @@ public class GameStage extends Stage {
 
     public void setSelectedProvince(int provId) {
         if (selectedProv != provId) {
+            if(toolBarReg instanceof HBox){
+                Node node = ((HBox) toolBarReg).getChildren().getLast();
+                if(node instanceof Label){
+                    ((Label) node).setText(String.valueOf(provId));
+                }
+            }
             selectedProv = provId;
             changeSelectedProvInfo();
         }
@@ -1404,6 +1416,12 @@ public class GameStage extends Stage {
 
     public void setSelectedCountry(int ownerId) {
         selectedCountry = ownerId;
+        if(toolBarReg instanceof HBox){
+            Node node = ((HBox) toolBarReg).getChildren().getFirst();
+            if(node instanceof Label){
+                ((Label) node).setText(CountryArray.getIndexISO2(ownerId));
+            }
+        }
         changeSelectedCountryInfo();
     }
 

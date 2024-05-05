@@ -38,7 +38,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         trashIcon = WorldMap.loadSVGPath("img/trash.svg");
-        if(trashIcon != null){
+        if (trashIcon != null) {
             trashIcon.setStrokeWidth(2);
             trashIcon.setStroke(Color.BLACK);
             trashIcon.setFill(Color.TRANSPARENT);
@@ -63,12 +63,10 @@ public class Main extends Application {
 
         VBox menuLayout = createMenuLayout(startButton, loadButton, optionsButton, exitButton, extraContent, esGUI, disclaimerButton);
 
-
         BorderPane root = createRootContainer(menuLayout);
 
         //
         InputStream inputStreamImg = getClass().getResourceAsStream("img/Blue_Marble_2002.png");
-
         if (inputStreamImg != null) {
             Image bgImage = new Image(inputStreamImg);
             ImageView imageView = new ImageView(bgImage);
@@ -188,11 +186,16 @@ public class Main extends Application {
         });
         Button changeModsDir = new Button("Change Mods Dir");
         changeModsDir.setOnAction(e -> GOptions.changeDirectoryPath(optionsStage));
-
+        CheckBox debugMode = new CheckBox("Debug Mode");
+        Tooltip.install(debugMode, new Tooltip("Show selected country and province ID."));
+        debugMode.setSelected(GOptions.isDebugMode());
+        debugMode.setOnAction(event -> {
+            GOptions.setDebugMode(debugMode.isSelected());
+        });
         Button closeButton = new Button("Save & Close");
         closeButton.setOnAction(e -> optionsStage.close());
 
-        optionsLayout.getChildren().addAll(fullScreen, volumeHBox, slider, allowCLI, trGEvent, allowMods, changeModsDir, closeButton);
+        optionsLayout.getChildren().addAll(fullScreen, volumeHBox, slider, allowCLI, trGEvent, allowMods, changeModsDir, debugMode, closeButton);
 
         return optionsLayout;
     }
@@ -242,11 +245,13 @@ public class Main extends Application {
 
         dialog.showAndWait();
     }
-    public void closePrimaryOpenGame(){
+
+    public void closePrimaryOpenGame() {
         primaryStage.close();
         gameStage.show();
     }
-    public void closeGameOpenPrimary(){
+
+    public void closeGameOpenPrimary() {
         gameStage.close();
         gameStage = null;
         primaryStage.show();
@@ -267,7 +272,7 @@ public class Main extends Application {
                     setText(item);
                     removeButton.setOnAction(event -> {
                         String fileName = getItem();
-                        if(SaveGame.deleteSaveGame(fileName))
+                        if (SaveGame.deleteSaveGame(fileName))
                             getListView().getItems().remove(fileName);
                     });
                     setGraphic(removeButton);
