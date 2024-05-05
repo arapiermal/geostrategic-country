@@ -45,7 +45,6 @@ public enum Continent {
     }
 
     public static void setFromFolderCSV(String path, World world) {
-        TESTING.print(path);
         File folder = new File(path);
         if (folder.exists() && folder.isDirectory()) {
             File[] csvFiles = folder.listFiles();

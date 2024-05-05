@@ -32,6 +32,18 @@ public class GEvent extends BaseEvent implements Comparable<GEvent> {
     private String requirements;
     private boolean canHappen;
 
+    public GEvent(BaseEvent baseEvent, GDate date) {
+        super(baseEvent.getTitle(), baseEvent.getDescription(), baseEvent.getOptions(), baseEvent.getCommands());
+        this.date = date;
+
+    }
+
+    public GEvent(BaseEvent baseEvent, GDate date, String requirements) {
+        super(baseEvent.getTitle(), baseEvent.getDescription(), baseEvent.getOptions(), baseEvent.getCommands());
+        this.date = date;
+        this.requirements = requirements;
+    }
+
     public GEvent(String title, GDate date, String description, String[] options, String[] commands) {
         super(title, description, options, commands);
         this.date = date;
@@ -57,9 +69,6 @@ public class GEvent extends BaseEvent implements Comparable<GEvent> {
         return this.date.compareTo(o.getDate());
     }
 
-    public void run(int i) {
-        CommandLine.execute(getCommand(i), true);
-    }
 
     public String getRequirements() {
         return requirements;
@@ -77,5 +86,7 @@ public class GEvent extends BaseEvent implements Comparable<GEvent> {
         if (requirements != null)
             this.canHappen = CommandLine.checkStatement(requirements);
     }
-
+    public void setCanHappen(boolean canHappen){
+        this.canHappen = canHappen;
+    }
 }

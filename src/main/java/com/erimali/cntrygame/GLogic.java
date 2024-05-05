@@ -1,8 +1,6 @@
 package com.erimali.cntrygame;
 
 import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 import com.erimali.cntrymilitary.*;
@@ -52,9 +50,10 @@ public class GLogic implements Serializable {
     private ObservableList<CFormable> playerFormables;
     // Game Events
     private PriorityQueue<GEvent> gameEvents;
-    public List<CommandLine.PeriodicCommand>[] periodicCommands;
-    //after removed put in stack/deque/list?
-    private static final String DEF_GAMEEVENTSPATH = RESOURCESPATH + "data/gameEvents.txt";
+    private transient Map<String, BaseEvent> baseEvents;
+    private List<CommandLine.PeriodicCommand>[] periodicCommands;
+    private static final String DEF_GAME_EVENTS_PATH = RESOURCESPATH + "data/gameEvents.txt";
+    private static final String DEF_BASE_EVENTS_PATH = RESOURCESPATH + "data/baseEvents.txt";
     // Game news
     private List<GNews> gameNews; // is it even necessary
     // if webview news.html only wanted
@@ -74,7 +73,9 @@ public class GLogic implements Serializable {
         this.world = new World(this);
         CommandLine.initCMD(world.getCountries());
         this.gameEvents = new PriorityQueue<>();
-        loadGameEvents(DEF_GAMEEVENTSPATH);
+        this.baseEvents = new HashMap<>();
+        loadGameEvents(DEF_GAME_EVENTS_PATH);
+        loadBaseEvents();
         initPeriodicCommands();
         this.currencies = new Currencies();
         this.improvingRelations = new HashMap<>();
@@ -159,18 +160,17 @@ public class GLogic implements Serializable {
             weeklyTick();
         }
         gs.changeDate(inGDateInfo());
-        if (!gameEvents.isEmpty()) {
-            GEvent gEvent = gameEvents.peek();
-            if (gEvent.getDate().equals(inGDate)) {
-                //isCanHappen PROBLEMATIC
-                if (gEvent.isCanHappen()) {
-                    gs.popupGEvent(gameEvents.poll());
-                } else {
-                    //......
-                    gameEvents.poll();
-                }
+        GEvent gEvent;
+        while (!gameEvents.isEmpty() && (gEvent = gameEvents.peek()).getDate().equals(inGDate)) {
+            gameEvents.poll();
+            if (gEvent.isCanHappen()) {
+                gs.popupGEvent(gEvent);
+            } else {
+                //......
+                gEvent.runAI();
             }
         }
+
 
         execPeriodicCommands(0);
 
@@ -222,6 +222,7 @@ public class GLogic implements Serializable {
         if (country != null) {
             return country.toString(0);
         }
+
         return "";// No such country
     }
 
@@ -245,8 +246,14 @@ public class GLogic implements Serializable {
         this.player = player;
     }
 
-    public void addGEvent(GEvent gEvent) {
-        gameEvents.add(gEvent);
+    public boolean addGEvent(GEvent gEvent) {
+        if (gEvent.getDate().compareTo(inGDate) > 0) {
+            gameEvents.add(gEvent);
+            gEvent.setCanHappen();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void selectPlayer(int cPlayer) {
@@ -335,20 +342,22 @@ public class GLogic implements Serializable {
             ArrayList<String> options = new ArrayList<>();
             ArrayList<String> commands = new ArrayList<>();
             while ((line = br.readLine()) != null) {
-
                 String[] data = line.split(",");
                 String description = "";
                 if ((line = br.readLine()) != null) {
-                    description = line;
+                    description = line.trim();
 
                 }
                 while (((line = br.readLine()) != null)) {
+                    line = line.trim();
                     if (line.startsWith("~~~")) {
                         break;
                     }
                     options.add(line);
                     if ((line = br.readLine()) != null) {
                         commands.add(line);
+                    } else {
+                        commands.add("");
                     }
                 }
                 GDate evDate = new GDate(data[2]);
@@ -359,18 +368,87 @@ public class GLogic implements Serializable {
                     continue;
                 }
                 if (data.length == 3)
-                    gameEvents.add(new GEvent(data[1], new GDate(data[2]), description,
-                            options.toArray(new String[options.size()]),
-                            commands.toArray(new String[commands.size()])));
+                    gameEvents.add(new GEvent(data[1], evDate, description,
+                            options.toArray(new String[0]),
+                            commands.toArray(new String[0])));
                 else if (data.length == 4)
-                    gameEvents.add(new GEvent(data[1], new GDate(data[2]), data[3], description,
-                            options.toArray(new String[options.size()]),
-                            commands.toArray(new String[commands.size()])));
+                    gameEvents.add(new GEvent(data[1], evDate, data[3], description,
+                            options.toArray(new String[0]),
+                            commands.toArray(new String[0])));
                 options.clear();
                 commands.clear();
             }
         } catch (Exception e) {
-            TESTING.print("EVENT LOADING CRITICAL ERROR");
+            TESTING.print("GAME EVENT LOADING CRITICAL ERROR");
+        }
+    }
+
+    public BaseEvent getBaseEvent(String in) {
+        return baseEvents.get(in);
+    }
+
+    public boolean addBaseEventToGameEvents(String shortName, GDate date){
+        BaseEvent baseEvent = baseEvents.get(shortName);
+        if(baseEvent != null)
+            return addBaseEventToGameEvents(baseEvent,date);
+        else
+            return false;
+    }
+    public boolean addBaseEventToGameEvents(BaseEvent baseEvent, GDate date){
+        if (date.compareTo(inGDate) > 0){
+            GEvent gEvent = new GEvent(baseEvent, date);
+            gEvent.setCanHappen(true);//... its related to player !...
+            gameEvents.add(gEvent);
+            return true;
+        }
+        return false;
+    }
+    public void loadBaseEvents() {
+        File file = new File(DEF_BASE_EVENTS_PATH);
+        if (file.exists())
+            loadBaseEvents(file);
+    }
+
+    public void loadBaseEvents(File file) {
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            ArrayList<String> options = new ArrayList<>();
+            ArrayList<String> commands = new ArrayList<>();
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                String description = "";
+                if ((line = br.readLine()) != null) {
+                    description = line.trim();
+
+                }
+                while (((line = br.readLine()) != null)) {
+                    line = line.trim();
+                    if (line.startsWith("~~~")) {
+                        break;
+                    }
+                    options.add(line);
+                    if ((line = br.readLine()) != null) {
+                        commands.add(line.trim());
+                    } else {
+                        commands.add("");
+                    }
+                }
+                String shortName = data[0].replaceAll("\\s+", "").toUpperCase();
+                String title;
+                if (data.length == 1) {
+                    title = data[0];
+                } else {
+                    title = data[1];
+                }
+                if (!shortName.isEmpty()) {
+                    BaseEvent event = new BaseEvent(title, description, options.toArray(new String[0]), commands.toArray(new String[0]));
+                    baseEvents.put(shortName, event);
+                }
+                options.clear();
+                commands.clear();
+            }
+        } catch (Exception e) {
+            TESTING.print("BASE EVENT LOADING CRITICAL ERROR");
         }
     }
 
@@ -769,7 +847,7 @@ public class GLogic implements Serializable {
         return playerFormables;
     }
 
-    public String getUniqueId(){
-        return Long.toString(uniqueId,36);
+    public String getUniqueId() {
+        return Long.toString(uniqueId, 36);
     }
 }

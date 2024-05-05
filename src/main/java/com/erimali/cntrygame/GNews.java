@@ -14,19 +14,19 @@ public class GNews implements Serializable {
     private static final String DEFLOCATION = "resources/web/articles.txt";
     private static final String NEWS_LOCATION = "src/main/resources/web/news/";//"saveGames/news/";
     //same place SAVEGAME/news
-    private GDate date; //BDate instead ?
+    private BaseDate date; //BDate instead ?
     private String title;
     private String desc;
     private String[] paragraphs;
     private boolean appended;
 
-    public GNews(GDate date, String title, String desc) {
+    public GNews(BaseDate date, String title, String desc) {
         this.date = date;
         this.title = title;
         this.desc = desc;
     }
 
-    public GNews(GDate date, String title, String desc, String... paragraphs) {
+    public GNews(BaseDate date, String title, String desc, String... paragraphs) {
         this.date = date;
         this.title = title;
         this.desc = desc;
@@ -98,8 +98,8 @@ public class GNews implements Serializable {
     }
 
     public static void main(String[] args) {
-        GNews n1 = new GNews(new GDate("7/7/2023"), "Hello", "paragraph here");
-        GNews n2 = new GNews(new GDate(8, 7, 2023), "Bye", "paragraph here", "TEST", "TEST2");
+        GNews n1 = new GNews(new BaseDate("7/7/2023"), "Hello", "paragraph here");
+        GNews n2 = new GNews(new BaseDate(8, 7, 2023), "Bye", "paragraph here", "TEST", "TEST2");
         List<GNews> l = new LinkedList<>();
         l.add(n1);
         l.add(n2);
@@ -108,11 +108,11 @@ public class GNews implements Serializable {
         // if last split empty
     }
 
-    public GDate getDate() {
+    public BaseDate getDate() {
         return date;
     }
 
-    public void setDate(GDate date) {
+    public void setDate(BaseDate date) {
         this.date = date;
     }
 
@@ -122,5 +122,30 @@ public class GNews implements Serializable {
 
     public void setAppended(boolean appended) {
         this.appended = appended;
+    }
+
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
+    public String[] getParagraphs() {
+        return paragraphs;
+    }
+
+    public void setParagraphs(String[] paragraphs) {
+        this.paragraphs = paragraphs;
     }
 }

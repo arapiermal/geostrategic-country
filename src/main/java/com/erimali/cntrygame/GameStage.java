@@ -151,6 +151,7 @@ public class GameStage extends Stage {
         game.startTimer();
         this.map = new WorldMap(this);
         this.game = game;
+        game.loadBaseEvents();
         game.loadAllUnitData();
         game.correlateAllUnitData();
         BorderPane gameLayout = createGameLayout();
@@ -1091,7 +1092,7 @@ public class GameStage extends Stage {
     }
 
     // boolean pauseGame (should it be paused while popping up or not) canBePaused
-    public void popupGEvent(GEvent gEvent) {
+    public void popupGEvent(BaseEvent gEvent) {
         pausePlayDate(true);
         // Create a new stage for the popup
         Stage popupStage = new Stage();
@@ -1101,7 +1102,9 @@ public class GameStage extends Stage {
         popupStage.setTitle("Game Event");
 
         Label titleLabel = new Label("Title: " + gEvent.getTitle());
-        Label dateLabel = new Label("Date: " + gEvent.getDate());
+
+        //Label dateLabel = new Label("Date: " + gEvent.getDate());
+        Label dateLabel = new Label("Date: " + game.inGDateInfo());
         Label descriptionLabel = new Label("Description\n" + game.parseGEventText(gEvent.getDescription()));
         Region reg = new Region();
 
@@ -1401,11 +1404,6 @@ public class GameStage extends Stage {
 
     public void setSelectedCountry(int ownerId) {
         selectedCountry = ownerId;
-        changeSelectedCountryInfo();
-    }
-
-    public void setSelectedCountry(String owner) {
-        selectedCountry = CountryArray.getIndex(owner);
         changeSelectedCountryInfo();
     }
 

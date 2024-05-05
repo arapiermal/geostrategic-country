@@ -92,7 +92,7 @@ public class BooleanSolver {
             case "NEGATIVE" -> MathSolver.solve(var, variables) <= -0.0;
             case "PRIME" -> MathSolver.isPrime(MathSolver.solve(var, variables));
             //
-            case "EXEC" -> CommandLine.checkStatement(var);
+            case "EXEC" -> CommandLine.checkStatement(var, "\\s*,\\s*");
             default -> throw new IllegalArgumentException("INVALID BOOLEAN FUNCTION");
         };
     }

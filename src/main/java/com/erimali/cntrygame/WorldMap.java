@@ -44,8 +44,9 @@ public class WorldMap {
 
     private Paint defAllyColor = Paint.valueOf("blue");
     private Paint defNeutralColor = Paint.valueOf("lightgreen");
-    private Paint defaultSubjectColor = Paint.valueOf("gray");
-    private Paint defaultOwnerColor = Paint.valueOf("yellow");
+    private Paint defSelectedColor = Paint.valueOf("gray");
+    private Paint defSubjectColor = Paint.valueOf("green");
+    private Paint defOwnerColor = Paint.valueOf("yellow");
     private Group mapGroup;
     //private Group countryGroup;
 
@@ -61,11 +62,16 @@ public class WorldMap {
 
 
     private int mapMode;
-
     private int lastClickedProvince;
 
     private SVGPath[] milSVG;
     private static final String[] MAP_MODE_NAMES = new String[]{"Default", "Allies", "Unions", "Neighbours", "Continents"};
+
+    public WorldMap(GameStage gs) {
+        loadColors();
+        loadMilSVGData();
+        this.gs = gs;
+    }
 
     public static int getMaxMapModes() {
         return MAP_MODE_NAMES.length;
@@ -98,11 +104,6 @@ public class WorldMap {
         }
     }
 
-    public WorldMap(GameStage gs) {
-        loadColors();
-        loadMilSVGData();
-        this.gs = gs;
-    }
 
     public ZoomableScrollPane start() {
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/resources/map/illustMap.svg"))) {
@@ -227,15 +228,15 @@ public class WorldMap {
         Node clickedNode = (Node) event.getTarget();
         if (clickedNode instanceof SVGProvince clickedPath) {
             String pathId = clickedPath.getId();
+            int oldSel = gs.getSelectedCountry();
             int pathOwn = clickedPath.getOwnerId();
             int provId = clickedPath.getProvId();
-            int oldSel = gs.getSelectedCountry();
             gs.setSelectedCountry(pathOwn);
             gs.setSelectedProvince(provId);
             System.out.println(provId + " clicked - ID: " + pathId + ", Owner: " + CountryArray.getIndexISO2(pathOwn));
             if (pathOwn != oldSel) {
                 if (mapMode == 1)
-                    paintMapAllies();
+                    paintMapAllies(oldSel);
                 else if (mapMode == 3)
                     paintMapNeighbours();
             }
@@ -334,14 +335,15 @@ public class WorldMap {
             }
         }
     }
+
     //7 loops not efficient...
     //CFormable.FirstAdmDivs if it stored everything from worldmap...
-    public void paintMapContinents(){
-        for(Continent cont : Continent.values()){
+    public void paintMapContinents() {
+        for (Continent cont : Continent.values()) {
             Set<Short> c = cont.getCountries();
             Paint color = cont.getColor();
-            for(SVGProvince t : mapSVG){
-                if(c.contains((short) t.getOwnerId())){
+            for (SVGProvince t : mapSVG) {
+                if (c.contains((short) t.getOwnerId())) {
                     t.setFill(color);
                 }
             }
@@ -353,8 +355,7 @@ public class WorldMap {
         paintMapUnions(union);
     }
 
-    private Paint defSelectedColor = Paint.valueOf("gray");
-
+    //prevSelected -> maybe in int[mapmodeslength], set -1 when changing mapmode
     public void paintMapAllies() {
         int cId = gs.getSelectedCountry();
         Country c = gs.getGame().getCountry(cId);
@@ -365,9 +366,9 @@ public class WorldMap {
                     if (c.isAllyWith(ownerId)) {
                         t.setFill(defAllyColor);
                     } else if (c.hasSubject(ownerId)) {
-                        t.setFill(defaultSubjectColor);
+                        t.setFill(defSubjectColor);
 
-                    }else if (cId == ownerId) {
+                    } else if (cId == ownerId) {
                         t.setFill(defSelectedColor);
                     } else {
                         t.setFill(defColor);
@@ -380,12 +381,11 @@ public class WorldMap {
                     if (c.isAllyWith(ownerId)) {
                         t.setFill(defAllyColor);
                     } else if (mainId == ownerId) {
-                        t.setFill(defaultOwnerColor);
+                        t.setFill(defOwnerColor);
 
-                    } else if(cId == ownerId){
+                    } else if (cId == ownerId) {
                         t.setFill(defSelectedColor);
-                    }
-                    else {
+                    } else {
                         t.setFill(defColor);
                     }
                 }
@@ -393,6 +393,55 @@ public class WorldMap {
         else {
             for (SVGProvince t : mapSVG) {
                 t.setFill(defColor);
+            }
+        }
+    }
+
+    public void setColorOnAdmDivs(Country c, Paint color) {
+        setColorOnAdmDivs(c.getAdmDivs(), color);
+    }
+
+    public void setColorOnAdmDivs(List<AdmDiv> admDivs, Paint color) {
+        for (AdmDiv a : admDivs) {
+            SVGProvince svg = a.getSvgProvince();
+            if (svg != null)
+                svg.setFill(color);
+            //mapSVG[a.getProvId()].setFill(color);
+        }
+    }
+
+    public void paintMapAllies(int oldSel) {
+        CountryArray cArr = gs.getGame().getWorld().getCountries();
+        int cId = gs.getSelectedCountry();
+        Country o = cArr.get(oldSel);
+        Country c = cArr.get(cId);
+        setColorOnAdmDivs(o, defColor);
+        for (short i : o.getDiplomacy().getAllies()) {
+            Country oldAlly = cArr.get(i);
+            setColorOnAdmDivs(oldAlly, defColor);
+        }
+        for (int i : o.getSubjects().keySet()) {
+            Country oldSubject = cArr.get(i);
+            setColorOnAdmDivs(oldSubject, defColor);
+        }
+        if (c != null) {
+            setColorOnAdmDivs(c, defSelectedColor);
+            if (c.isNotSubject()) {
+                for (short i : c.getDiplomacy().getAllies()) {
+                    Country ally = cArr.get(i);
+                    setColorOnAdmDivs(ally, defAllyColor);
+                }
+                for (int i : c.getSubjects().keySet()) {
+                    Country subject = cArr.get(i);
+                    setColorOnAdmDivs(subject, defSubjectColor);
+                }
+            } else {
+                setColorOnAdmDivs(c.getSubjectOf().getMain(), defOwnerColor);
+                for (short i : c.getDiplomacy().getAllies()) {
+                    Country ally = cArr.get(i);
+                    setColorOnAdmDivs(ally, defAllyColor);
+                }
+
             }
         }
     }

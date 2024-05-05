@@ -1,0 +1,7 @@
+TECH_0,Technological progress
+The world is progressing fast technologically. ~ Should we strive in this progress?
+`!{translate.self.Certainly}`, let's do our best to compete.
+add tech 1
+Better not.
+
+~~~ HOW TO INCLUDE GENERAL EVENTS

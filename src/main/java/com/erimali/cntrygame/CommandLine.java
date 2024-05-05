@@ -147,10 +147,9 @@ public class CommandLine {
     }
 
     public static String execute(String in, boolean admin) {
-        String result = "";
         in = in.trim();
         if (in.length() < 2) {
-            return result;
+            return "";
         }
         if (in.length() > 6 && in.substring(0, 5).equalsIgnoreCase("PARSE")) {
             return gs.getGame().parseTextCommand(in.substring(6));
@@ -163,90 +162,138 @@ public class CommandLine {
             gs.getGame().addPeriodicCommand(in.substring(9), admin);
             return "PERIODIC COMMAND ADDED";
         }
-
-        String shortName;
+        boolean isPlayer;
         int endISO2 = beginsWithISO2(in);
         Country mainCountry;
         if (endISO2 > 0) {
-            shortName = in.substring(0, 2).toUpperCase();
+            String shortName = in.substring(0, 2).toUpperCase();
             in = in.substring(endISO2);
             mainCountry = countries.get(shortName);
+            isPlayer = shortName.equals(playerISO2);
         } else if (playerId != -1) {
             mainCountry = countries.get(playerId);
-            shortName = playerISO2;
+            isPlayer = true;
         } else {
-            return result;// or other types of commands (separated)
+            return "";
         }
-        //union EU "European Union"... preserves case inside ""
+
+        return execute(mainCountry, in, isPlayer);
+    }
+
+    public static String execute(Country mainCountry, String in, boolean isPlayer) {
+        String shortName = mainCountry.getIso2();
+
+        //UNION EU "European Union"... case preserved inside quotes ""
         String[] k = tokenize(in);
-        int cIndex = CountryArray.getIndex(shortName);
+        int cIndex = mainCountry.getCountryId();
 
         if (k.length < 2)
-            return result;
+            return "";
         switch (k[0]) {
             case "ADD":
                 switch (k[1]) {
                     case "GDP":
                         if (k.length == 3) {
                             mainCountry.addGDP(k[2]);
-                            result = "Successfully added " + k[2] + " amount of GDP to " + shortName;
+                            return "Successfully added " + k[2] + " amount of GDP to " + shortName;
                         }
-                        break;
+                        return "";
                     case "REL":
                         if (k.length == 3) {
                             mainCountry.improveRelations(CountryArray.getIndexShort(k[2]));
-                            result = "Improved relations with " + k[2];
+                            return "Improved relations with " + k[2];
                         }
-                        break;
+                        return "";
+
+                    case "EVENT":
+                        GDate date;
+                        if (k.length == 4)
+                            date = new GDate(k[3]);
+                        else
+                            date = gs.getGame().specialDateFromNowInDays(30);
+
+                        //add base event as game event
+                        //2/4/2024 (if bigger add)
+                        if (gs.getGame().addBaseEventToGameEvents(k[2], date))
+                            return "EVENT ADDED";
+                        else
+                            return "ERROR: FAILED TO ADD EVENT";
                     default:
-                        return "Invalid command";
+                        return "ERROR: Invalid command";
                 }
-                break;
             case "CHANGE":
                 switch (k[1]) {
                     case "COLOR":
                         if (k.length == 3) {
                             if (gs.getMap().containsColor(shortName)) {
                                 gs.getMap().changeColor(shortName, k[2]);
-                                result = "Successfully changed color of " + shortName + " to " + k[2];
+                                return "Successfully changed color of " + shortName + " to " + k[2];
                             }
                         }
-                        break;
+                        return "";
                     case "COUNTRY":
                         // TO AL
-                        break;
+                        return "";
                     case "GOV":
                         switch (k[2]) {
                             case "TYPE":
                                 if (k.length == 4) {
                                     mainCountry.changeGovType(k[3]);
                                 }
-                                break;
+                                return "";
                             case "RULER":
-                                if (k.length == 5) {
+                                if (k.length >= 5) {
                                     mainCountry.changeGovRuler(GUtils.parseI(k[3]), k[4]);
                                 }
-                                break;
+                                return "";
+                            case "HOS":
+                                if (k.length >= 4) {
+                                    mainCountry.changeGovRuler(0, k[3]);
+                                }
+                                return "";
+                            case "HOG":
+                                if (k.length >= 4) {
+                                    mainCountry.changeGovRuler(1, k[3]);
+                                }
+                                return "";
                             default:
-                                return "Invalid government argument";
+                                return "ERROR: Invalid government argument";
                         }
                     default:
-                        break;
+                        return "";
                 }
-                break;
+                //target country
             case "REBELS":
-                break;
+                RebelType rebelType;
+                try {
+                    rebelType = RebelType.valueOf(k[1]);
+                } catch (EnumConstantNotPresentException e) {
+                    return "ERROR: INVALID REBEL TYPE";
+                }
+                Country opponent = countries.get(k[k.length - 1]);
+                if (opponent == null)
+                    return "ERROR: INVALID TARGET COUNTRY";
+                if (k.length == 3) {
+
+
+                } else if (k.length == 4) {
+
+                }
+                return "";
+            //target country
             case "ANNEX":
                 if (k.length == 2) {
                     mainCountry.annexCountry(countries, CountryArray.getIndex(k[1]), true);
-                    result = shortName + " annexed " + k[1];
                     gs.getMap().refreshMap();
+                    return shortName + " annexed " + k[1];
                 }
                 //CHANGED
                 //US ANNEX DE
                 // ANNEX DE
 
-                break;
+                return "";
+            //target country
+
             case "OCCUPY":
                 if (k.length == 2) {
                     try {
@@ -256,10 +303,12 @@ public class CommandLine {
                         gs.getGame().getWorld().occupyAllAdmDiv(cIndex, k[1]);
                     }
                     gs.getMap().refreshMapIf(0);
-                    result = shortName + " occupied " + k[1];
+                    return shortName + " occupied " + k[1];
 
                 }
-                break;
+                return "";
+            //target country
+
             case "ALLY":
                 if (countries.containsKey(k[1])) {
                     if (k.length == 2) {
@@ -267,22 +316,23 @@ public class CommandLine {
                         if (countries.containsKey(k[1])) {
                             mainCountry.addAlly(k[1]);
                             countries.get(k[1]).addAlly(shortName);
-                            result = shortName + " is now ally with " + k[1];
+                            return shortName + " is now ally with " + k[1];
                         }
                     }
                 }
-                break;
+                return "";
+            //target country
+
             case "SUBJECT":
                 SubjectType type = null;
                 try {
                     type = SubjectType.valueOf(k[1]);
                 } catch (Exception e) {
+                    return "ERROR: INVALID SUBJECT TYPE";
                 }
 
-                if (type != null) {
-                    gs.getGame().getWorld().subjugateCountry(cIndex, CountryArray.getIndex(k[2]), type);
-                }
-                break;
+                gs.getGame().getWorld().subjugateCountry(cIndex, CountryArray.getIndex(k[2]), type);
+                return "";
             case "UNION":
                 if (k.length > 2) {
                     switch (k[1]) {
@@ -290,83 +340,113 @@ public class CommandLine {
                             if (k.length > 5) {
                                 gs.getGame().getWorld().addUnion(k[2], k[3], k[4], k[5]);
                             }
-                            break;
+                            return "";
                         case "REMOVE":
                             if (gs.getGame().getWorld().removeUnion(k[2]))
-                                result = "Removed union " + k[2];
+                                return "Removed union " + k[2];
                             else
-                                result = "Union doesn't exist";
-                            break;
+                                return "ERROR: Union doesn't exist";
                     }
                 }
 
-                break;
+                return "";
+            //target country
             case "WAR":
+                CasusBelli casusBelli;
                 if (k.length == 2) {
-                    gs.getGame().declareWar(cIndex, CountryArray.getIndex(k[1]), CasusBelli.IMPERIALISM);
+                    casusBelli = CasusBelli.IMPERIALISM;
                 } else {
-                    gs.getGame().declareWar(cIndex, CountryArray.getIndex(k[1]), CasusBelli.valueOf(k[2]));
+                    casusBelli = CasusBelli.valueOf(k[2]);
                 }
+                gs.getGame().declareWar(cIndex, CountryArray.getIndex(k[k.length - 1]), casusBelli);
+
+                return "WAR STARTED";
+
             case "PLAY":
                 switch (k[1]) {
                     case "CHESS":
                         //!Stops execution till game finishes!
-
-                        int res = gs.popupChess(k[2]);
+                        int res;
+                        if (isPlayer) {
+                            res = gs.popupChess(k[2]);
+                        } else {
+                            res = (int) ((Math.random() * 3) - 1);
+                        }
                         return res == 0 ? "DRAW" : res > 0 ? "WON" : "LOST";
                     case "TICTACTOE":
                         // DEFAULT
-                        if (k.length == 2) {
-                            gs.showPopupMGTicTacToe(true, 2);
-                        } else if (k.length == 3) {
-                            gs.showPopupMGTicTacToe(true, GUtils.parseI(k[2]));
-                        } else {
-                            if (k[3].equals("X")) {
+                        if (isPlayer) {
+                            if (k.length == 2) {
+                                gs.showPopupMGTicTacToe(true, 2);
+                                return "";
+                            } else if (k.length == 3) {
                                 gs.showPopupMGTicTacToe(true, GUtils.parseI(k[2]));
-                            } else if (k[3].equals("O")) {
-                                gs.showPopupMGTicTacToe(false, GUtils.parseI(k[2]));
+                                return "";
+                            } else {
+                                if (k[3].equals("X")) {
+                                    gs.showPopupMGTicTacToe(true, GUtils.parseI(k[2]));
+                                    return "";
+                                } else if (k[3].equals("O")) {
+                                    gs.showPopupMGTicTacToe(false, GUtils.parseI(k[2]));
+                                    return "";
+                                } else {
+                                    return "";
+                                }
                             }
+                        } else {
+                            return "";
                         }
-                        break;
                     case "2048":
-                        return String.valueOf(gs.popupMG2048());
+                        if (isPlayer)
+                            return String.valueOf(gs.popupMG2048());
+                        else
+                            return String.valueOf((int) (Math.random() * 2048));
                     default:
-                        return "No such game available";
+                        return "ERROR: No such game available";
                 }
-                break;
             case "ALERT":
-                Alert.AlertType a;
-                String title;
-                String description;
-                try {
-                    a = Alert.AlertType.valueOf(k[1]);
-                    title = k[2];
-                    description = k[3];
-                } catch (Exception e) {
-                    a = Alert.AlertType.NONE;
-                    title = k[1];
-                    description = k[2];
+                if (isPlayer) {
+                    Alert.AlertType a;
+                    String title;
+                    String description;
+                    try {
+                        a = Alert.AlertType.valueOf(k[1]);
+                        title = k[2];
+                        description = k[3];
+                    } catch (Exception e) {
+                        a = Alert.AlertType.NONE;
+                        title = k[1];
+                        description = k[2];
+                    }
+                    gs.showAlert(a, title, description);
+                    return "";
+
+                } else {
+                    return "";
                 }
-                gs.showAlert(a, title, description);
-                break;
             case "EVENT":
+                BaseEvent baseEvent = gs.getGame().getBaseEvent(k[1]);
+                if (baseEvent != null) {
+                    gs.popupGEvent(baseEvent);
+                }
                 // implement logic
                 // when you want to cause event
-                break;
+                return "";
             case "GLOBE":
-                if (k.length == 2)
-                    gs.popupGlobeViewer(GUtils.parseI(k[1]));
-                break;
+                if (isPlayer) {
+                    if (k.length == 2)
+                        gs.popupGlobeViewer(GUtils.parseI(k[1]));
+                }
+                return "";
             case "SCRIPT":
                 EriScript script = eriScripts.get(k[1]);
                 if (script == null)
-                    return "NO SUCH SCRIPT LOADED";
+                    return "ERROR: NO SUCH SCRIPT LOADED";
                 script.execute(2, k);
                 return script.toPrintClear();
             default:
-                return "Invalid command";
+                return "ERROR: Invalid command";
         }
-        return result;
     }
 
     public static String executeAllLines(String in, boolean admin) {
@@ -426,8 +506,12 @@ public class CommandLine {
 
     // if 'IS', rest input
     public static boolean checkStatement(String in) {
+        return checkStatement(in, "\\s+");
+    }
+
+    public static boolean checkStatement(String in, String separator) {
         boolean isPlaying = playerId > 0;
-        String[] k = in.toUpperCase().split("\\s+");
+        String[] k = in.toUpperCase().split(separator);
         if (k[0].equals("NONE")) {
             return true;
         }
@@ -465,7 +549,7 @@ public class CommandLine {
                     if (k[i].contains("|")) {
                         result = checkHasOR(playerISO2, k[i].split("\\|"));
                     } else if (k[i].contains("&")) {
-                        result = checkHasAND(playerISO2, k[i].split("\\&"));
+                        result = checkHasAND(playerISO2, k[i].split("&"));
                     } else if (k[i].equals(playerISO2)) {
                         result = true;
                     }
@@ -483,13 +567,13 @@ public class CommandLine {
 
 
     //CFormable/Releasable
-    private static boolean checkHasAND(String playerISO22, String[] split) {
-        // TODO Auto-generated method stub
-        return false;
+    private static boolean checkHasAND(String playerISO2, String[] split) {
+        World world = gs.getGame().getWorld();
+        return world.getInitialProvinces().ownsAllISO2(world.getProvinces(), world.getCountry(playerISO2), split);
     }
 
-    private static boolean checkHasOR(String playerISO22, String[] split) {
-        // TODO Auto-generated method stub
+    private static boolean checkHasOR(String playerISO2, String[] split) {
+
         return false;
     }
 
