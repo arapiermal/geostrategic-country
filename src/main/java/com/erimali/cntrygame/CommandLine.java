@@ -151,8 +151,14 @@ public class CommandLine {
         if (in.length() < 2) {
             return "";
         }
-        if (in.length() > 6 && in.substring(0, 5).equalsIgnoreCase("PARSE")) {
-            return gs.getGame().parseTextCommand(in.substring(6));
+        String temp;
+        if (in.length() >6) {
+            temp = in.substring(0, 5);
+            if(temp.equalsIgnoreCase("PARSE"))
+                return gs.getGame().parseTextCommand(in.substring(6));
+            else if(temp.equalsIgnoreCase("CHECK")){
+                return checkStatementsAND(in.substring(6)) ? "TRUE" : "FALSE";
+            }
         }
 
         if (!GOptions.isAllowCLI() && !admin) {
@@ -573,13 +579,14 @@ public class CommandLine {
     }
 
     private static boolean checkHasOR(String playerISO2, String[] split) {
-
-        return false;
+        World world = gs.getGame().getWorld();
+        return world.getInitialProvinces().ownsAtLeastOneISO2(world.getProvinces(), world.getCountry(playerISO2), split);
     }
 
     public static boolean checkStatementsAND(String in) {
-        String[] s = in.split(";");
+        String[] s = in.split("\\s*&&\\s*");
         for (int i = 0; i < s.length; i++) {
+            //call checkstatements or here with ||
             if (!checkStatement(s[i])) {
                 return false;
             }

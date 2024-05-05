@@ -27,6 +27,15 @@ public class CFormable {
             return true;
         }
 
+        public boolean ownsAtLeastOneISO2(AdmDiv[] admDivs, Country c, String... o) {
+            for (String s : o) {
+                short i = (short) CountryArray.getIndexAdv(s);
+                if (owns(admDivs, c, i))
+                    return true;
+            }
+            return false;
+        }
+
         public boolean ownsAll(AdmDiv[] admDivs, Country c, short... o) {
             for (short i : o)
                 if (!owns(admDivs, c, i))
