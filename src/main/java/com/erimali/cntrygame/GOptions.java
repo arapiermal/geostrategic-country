@@ -25,7 +25,7 @@ public class GOptions {
             public String toSave() {
                 return name() + boolToIntString(allowCLI);
             }
-        }, TRANSLATEGEVENT {
+        }, TRANSLATE_EVENTS {
             @Override
             public String toSave() {
                 return name() + boolToIntString(translateGEvent);
@@ -110,7 +110,7 @@ public class GOptions {
         volume /= 100;
         int enCLI = settings.getOrDefault(Settings.CLI.toString(), 1);
         allowCLI = enCLI != 0;
-        int trGEvent = settings.getOrDefault(Settings.TRANSLATEGEVENT.toString(), 1);
+        int trGEvent = settings.getOrDefault(Settings.TRANSLATE_EVENTS.toString(), 1);
         translateGEvent = trGEvent != 0;
         int enMods = settings.getOrDefault(Settings.MODS.toString(), 0);
         allowMods = enMods != 0;
