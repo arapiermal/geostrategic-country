@@ -672,7 +672,8 @@ public class World implements Serializable {
     public CFormable.FirstAdmDivs getInitialProvinces() {
         return initialProvinces;
     }
-    public AdmDiv[] getProvinces(){
+
+    public AdmDiv[] getProvinces() {
         return provinces;
     }
 
@@ -680,4 +681,27 @@ public class World implements Serializable {
         return formables;
     }
 
+
+    public void releaseCountry(int cId) {
+
+    }
+
+    public void releaseCountry(int cId, int mainId) {
+        Country c = countries.get(cId);
+        Country main = countries.get(mainId);
+        if(main == null)
+            return;
+        if (c != null) {
+            //List<AdmDiv> list = Country.removeAndGetAdmDivs( );
+        } else {
+            //new country
+            countries.put(cId, main.releaseCountry(this, cId));
+
+        }
+    }
+
+    public void releaseProvince(int provinceId, int mainId) {
+
+
+    }
 }

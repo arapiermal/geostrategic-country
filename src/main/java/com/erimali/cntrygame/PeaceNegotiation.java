@@ -6,42 +6,71 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.util.Callback;
 import org.controlsfx.control.ListSelectionView;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.Glyph;
 
 
 public class PeaceNegotiation {
-    private static Glyph getGlyph(FontAwesome.Glyph angleDoubleDown) {
-        return new FontAwesome().create(angleDoubleDown);
+    //redundant.
+    private War war;
+
+    public PeaceNegotiation(War war) {
+        this.war = war;
     }
 
-    public static TabPane makeTabPaneNegotiation(ObservableList<AdmDiv> occupied) {
-        DoubleProperty totalWarScore = new SimpleDoubleProperty(0.5); // as arg DoubleProperty totalWarScore,
-        Tab provinceLSV = new Tab("Annex", makeProvinceListSelectionView(totalWarScore, occupied));
+    public static Stage makePeaceNegotiationStage(ObservableList<AdmDiv> occupied) {
+        DoubleProperty totalWarScore = new SimpleDoubleProperty(0); // as arg DoubleProperty totalWarScore,
+        DoubleProperty warScoreRequired = new SimpleDoubleProperty(0);
+
+        Label totalWarScoreLabel = new Label();
+        totalWarScoreLabel.textProperty().bind(totalWarScore.asString());
+        Label warScoreRequiredLabel = new Label();
+        warScoreRequiredLabel.textProperty().bind(warScoreRequired.asString());
+        Region reg = new Region();
+        HBox hBox = new HBox(4, new Label("Total score: "), totalWarScoreLabel, reg, new Label("Required score: "), warScoreRequiredLabel);
+        HBox.setHgrow(reg, Priority.ALWAYS);
+        Tab provinceLSV = new Tab("Annex", makeProvinceListSelectionView(totalWarScore, warScoreRequired, occupied));
         Tab warObjectives = new Tab("War Objectives");
         TabPane tabPane = new TabPane(provinceLSV, warObjectives);
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-        return tabPane;
+        Button dealButton = new Button("Deal");
+
+        VBox vBox = new VBox(hBox, tabPane, dealButton);
+        VBox.setVgrow(tabPane, Priority.ALWAYS);
+        HBox.setHgrow(tabPane, Priority.ALWAYS);
+        Stage stage = new Stage();
+        Scene scene = new Scene(vBox);
+        stage.setScene(scene);
+        return stage;
     }
 
     //occupation -> either by rebels or in war...
-    public static ListSelectionView<AdmDiv> makeProvinceListSelectionView(DoubleProperty totalWarScore, ObservableList<AdmDiv> occupied) {
+    public static ListSelectionView<AdmDiv> makeProvinceListSelectionView(DoubleProperty totalWarScore, DoubleProperty warScoreRequired, ObservableList<AdmDiv> occupied) {
         ObservableList<AdmDiv> selectedItems = FXCollections.observableArrayList();
         ListSelectionView<AdmDiv> listSelectionView = new ListSelectionView<>();
         listSelectionView.setSourceItems(occupied);
         listSelectionView.setTargetItems(selectedItems);
         listSelectionView.setPrefWidth(700);
 
-        Label totalWarScoreLabel = new Label();
-        totalWarScoreLabel.textProperty().bind(totalWarScore.asString());
-
-        DoubleProperty warScoreRequired = new SimpleDoubleProperty(0);
+        listSelectionView.setCellFactory(param -> new ListCell<>() {
+            protected void updateItem(AdmDiv item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.getName() + " - " + item.calcWarCost());
+                }
+            }
+        });
 
         listSelectionView.getActions().add(new ListSelectionView.ListSelectionAction<AdmDiv>(getGlyph(FontAwesome.Glyph.BANK)) {
             @Override
@@ -50,10 +79,7 @@ public class PeaceNegotiation {
                 setEventHandler(ae -> annexProvinces(selectedItems));
             }
         });
-        Label warScoreRequiredLabel = new Label();
-        warScoreRequiredLabel.textProperty().bind(warScoreRequired.asString());
 
-        HBox hBoxTarget = new HBox(12, new Label("Selected Provinces"), new Label("Required score:"), warScoreRequiredLabel);
         selectedItems.addListener((ListChangeListener<AdmDiv>) change -> {
             while (change.next()) {
                 if (change.wasAdded()) {
@@ -69,9 +95,8 @@ public class PeaceNegotiation {
                 }
             }
         });
-        HBox hBoxSource = new HBox(12, new Label("Occupied provinces"), new Label("Total score:"), totalWarScoreLabel);
-        listSelectionView.setSourceHeader(hBoxSource);
-        listSelectionView.setTargetHeader(hBoxTarget);
+        listSelectionView.setSourceHeader(new Label("Occupied provinces"));
+        listSelectionView.setTargetHeader(new Label("Selected Provinces"));
         return listSelectionView;
     }
 
@@ -81,4 +106,9 @@ public class PeaceNegotiation {
             System.out.println(a);
         }
     }
+
+    private static Glyph getGlyph(FontAwesome.Glyph angleDoubleDown) {
+        return new FontAwesome().create(angleDoubleDown);
+    }
+
 }

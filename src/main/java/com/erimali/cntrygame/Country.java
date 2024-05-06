@@ -254,6 +254,17 @@ public class Country implements Serializable, Comparable<Country> {
         return neighbours;
     }
 
+    public void updateNeighbours(CountryArray cArr, Country o) {
+        for (int i : o.neighbours) {
+            if (!neighbours.contains(i)) {
+                neighbours.add(i);
+                Country temp = cArr.get(i);
+                if (temp != null)
+                    temp.neighbours.add(countryId);
+            }
+        }
+    }
+
     // Full Annexation
     public void annexCountry(CountryArray cArray, int ind, boolean... cond) {
         Country op = cArray.get(ind);
@@ -262,9 +273,10 @@ public class Country implements Serializable, Comparable<Country> {
                 this.landlocked = false;
             }
         }
-        this.population += op.population;
-        this.area += op.area;
-        this.admDivisions.addAll(op.admDivisions);
+        updateNeighbours(cArray, op);
+        population += op.population;
+        area += op.area;
+        admDivisions.addAll(op.admDivisions);
         addLanguages(op.getLanguages());
         // Get the economy
         eco.annex(op.eco);
@@ -1012,4 +1024,8 @@ public class Country implements Serializable, Comparable<Country> {
         eco.addMulGDP(popRatio * 0.5);
     }
 
+    public Country releaseCountry(World world, int cId) {
+
+        return null;
+    }
 }

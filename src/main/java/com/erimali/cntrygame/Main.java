@@ -2,6 +2,7 @@ package com.erimali.cntrygame;
 
 import com.erimali.compute.EriScriptGUI;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -18,6 +19,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.InputStream;
+import java.util.List;
 
 public class Main extends Application {
     protected static final String APP_NAME = "Strategical Geopolitics Simulator";

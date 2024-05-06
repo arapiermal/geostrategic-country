@@ -55,12 +55,16 @@ class LimitedSizeList<T> {
     }
 
     public T getUp() {
+        if(list.isEmpty())
+            return null;
         index++;
         index %= list.size();
         return get(index);
     }
 
     public T getDown() {
+        if(list.isEmpty())
+            return null;
         index--;
         if (index < 0)
             index = list.size() - 1;
@@ -72,7 +76,7 @@ public class GameStage extends Stage {
     // POP UP WHEN FULLSCREEN PROBLEM
     private final Main application;
     private final Scene gameScene;
-    private Label countryName;
+    private Label playerNameLabel;
     private Label date;
     private Label pausation;
     private Button pauseButton;
@@ -187,7 +191,7 @@ public class GameStage extends Stage {
     private void updateGameLayout() {
         isPlayingCountry = game.getPlayerId() >= 0;
         if (isPlayingCountry) {
-            countryName.setText(game.getPlayer().getName());
+            playerNameLabel.setText(game.getPlayer().getName());
             //map.setPlayerCountry(game.getPlayerId());
             chooseCountryButton.setVisible(false);
             changeDate(game.inGDateInfo());
@@ -225,7 +229,7 @@ public class GameStage extends Stage {
         gameLayout.setPadding(new Insets(8));
         // TOP
         gameLayout.setCenter(new BorderPane());
-        this.countryName = new Label("Select Country");
+        this.playerNameLabel = new Label("Select Country");
         this.date = new Label("Default Date");
         this.pauseButton = new Button("Play");
         this.paused = true;
@@ -234,7 +238,7 @@ public class GameStage extends Stage {
 
         chooseCountryButton = new Button("Confirm");
         chooseCountryButton.setOnAction(e -> startGame());
-        HBox hTopLeft = new HBox(getCountryName(), chooseCountryButton);
+        HBox hTopLeft = new HBox(getPlayerNameLabel(), chooseCountryButton);
         hTopLeft.setSpacing(10);
 
         HBox hGameSpeed = makeGameSpeedHBox();
@@ -826,7 +830,8 @@ public class GameStage extends Stage {
     }
 
     public void negotiatePeace() {
-
+        //one party with other
+        //if not main-> peace only for self, war continues...
     }
 
     public void declareWar() {
@@ -836,7 +841,7 @@ public class GameStage extends Stage {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Declare War - Casus Belli");
 
-        ListView<CasusBelli> cbListView = War.makeListViewValidatable(game.getPlayer(), game.getWorldCountries().get(selectedCountry), CasusBelli.class);
+        ListView<CasusBelli> cbListView = War.makeListViewValidatable(game.getWorld(), game.getPlayerId(), selectedCountry, CasusBelli.class);
         dialog.getDialogPane().setContent(cbListView);
 
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -863,8 +868,8 @@ public class GameStage extends Stage {
         if (selectedCountry < 0 || isPlayingCountry)
             return;
         game.selectPlayer(selectedCountry);
-        countryName.setText(game.getPlayer().getName());// !!!!!!!!
-
+        playerNameLabel.setText(game.getPlayer().getName());// !!!!!!!!
+        playerNameLabel.setOnMouseClicked(e -> setSelectedCountry(game.getPlayerId()));
         countryTab.getContent().setVisible(true);
         provinceTab.getContent().setVisible(true);
 
@@ -907,15 +912,15 @@ public class GameStage extends Stage {
     }
 
     public void changeCountryName(String cName) {
-        countryName.setText(cName);
+        playerNameLabel.setText(cName);
     }
 
-    public Label getCountryName() {
-        return countryName;
+    public Label getPlayerNameLabel() {
+        return playerNameLabel;
     }
 
-    public void setCountryName(Label countryName) {
-        this.countryName = countryName;
+    public void setPlayerNameLabel(Label playerNameLabel) {
+        this.playerNameLabel = playerNameLabel;
     }
 
     public Label getDate() {
@@ -1011,7 +1016,7 @@ public class GameStage extends Stage {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Sponsor rebels");
 
-        ListView<RebelType> rbListView = War.makeListViewValidatable(game.getPlayer(), game.getWorldCountries().get(selectedCountry), RebelType.class);
+        ListView<RebelType> rbListView = War.makeListViewValidatable(game.getWorld(), game.getPlayerId(), selectedCountry, RebelType.class);
         dialog.getDialogPane().setContent(rbListView);
 
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -1398,7 +1403,7 @@ public class GameStage extends Stage {
             CFormable selectedItem = listViewFormables.getSelectionModel().getSelectedItem();
             if (selectedItem != null) {
                 if (selectedItem.formCountry(game.getWorld(), game.getPlayer())) {
-                    countryName.setText(game.getPlayerName());
+                    playerNameLabel.setText(game.getPlayerName());
                     game.getPlayer().setIsFormed(selectedItem);
                     game.getPlayerFormables().remove(selectedItem);
                     requirements.setText("");

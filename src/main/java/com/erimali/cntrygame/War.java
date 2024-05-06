@@ -139,7 +139,7 @@ public class War implements Serializable {
         }
     }
 
-    //Not used
+    /*
     public static ListView<CasusBelli> makeListViewCasusBelli(Country c1, Country c2) {
         ListView<CasusBelli> lv = new ListView<>();
         for (CasusBelli cb : CasusBelli.values()) {
@@ -148,12 +148,12 @@ public class War implements Serializable {
             }
         }
         return lv;
-    }
+    }*/
 
-    public static <T extends Enum<T> & CValidatable> ListView<T> makeListViewValidatable(Country c1, Country c2, Class<T> enumClass) {
+    public static <T extends Enum<T> & CValidatable> ListView<T> makeListViewValidatable(World world, int cInd1, int cInd2, Class<T> enumClass) {
         ListView<T> lv = new ListView<>();
         for (T it : enumClass.getEnumConstants()) {
-            if (it.isValid(c1, c2)) {
+            if (it.isValid(world,cInd1,cInd2)) {
                 lv.getItems().add(it);
             }
         }
