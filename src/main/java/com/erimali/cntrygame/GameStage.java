@@ -305,13 +305,30 @@ public class GameStage extends Stage {
         VBox.setVgrow(regRight, Priority.SOMETIMES);
         VBox.setVgrow(tabPaneRight, Priority.SOMETIMES);
 
-        // rightScrollPane.setContent(rightInfo);
-        // gameLayout.setRight(rightScrollPane);
         gameLayout.setRight(vBoxRight);
-
+        SingleSelectionModel<Tab> leftGeneralSelectionModel = leftGeneral.getSelectionModel();
+        SingleSelectionModel<Tab> tabPaneRightSelectionModel = tabPaneRight.getSelectionModel();
         gameLayout.setOnKeyPressed(event -> {
             // ` -> commandLine
             switch (event.getCode()) {
+                case KeyCode.F1:
+                    leftGeneralSelectionModel.select(0);
+                    break;
+                case KeyCode.F2:
+                    leftGeneralSelectionModel.select(1);
+                    break;
+                case KeyCode.F3:
+                    leftGeneralSelectionModel.select(2);
+                    break;
+                case KeyCode.F5:
+                    tabPaneRightSelectionModel.select(0);
+                    break;
+                case KeyCode.F6:
+                    tabPaneRightSelectionModel.select(1);
+                    break;
+                case KeyCode.F7:
+                    tabPaneRightSelectionModel.select(2);
+                    break;
                 case KeyCode.BACK_QUOTE:
                     commandLineStage.show();
                     commandLineStage.requestFocus();

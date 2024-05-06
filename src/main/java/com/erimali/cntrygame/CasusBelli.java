@@ -131,7 +131,7 @@ public enum CasusBelli implements CValidatable {
     private final String desc;
     private final short perceivedAggressiveness;
 
-    private EnumSet<WarObjectives> allowedObjectives;
+    private EnumSet<WarObjective> allowedObjectives;
 
     CasusBelli(String desc, int perceivedAggressiveness) {
         this.desc = desc;

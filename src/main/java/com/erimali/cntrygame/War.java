@@ -75,7 +75,7 @@ public class War implements Serializable {
     // each country in war having warState?
     // if warState in disfavor, AI likely to accept terms
     private final CasusBelli casusBelli; //enum? array? //loadable casus bellis?
-    private EnumSet<WarObjectives> allowedObjectives;//?? dependent on casusBelli
+    private EnumSet<WarObjective> allowedObjectives;//?? dependent on casusBelli
     private double warState; // from -100 to 100
     private Country declaringCountry;//what if Military, and in constructor get it
     private Country opposingCountry;

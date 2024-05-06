@@ -61,7 +61,7 @@ public enum RebelType implements CValidatable {
     };
     //RebelType != REBELLION_TYPE (?) separatism is separatism regardless
     private final String desc;
-    private EnumSet<WarObjectives> allowedObjectives;
+    private EnumSet<WarObjective> allowedObjectives;
     private short perceivedAggressiveness;
 
     RebelType(String desc) {
