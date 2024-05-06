@@ -10,40 +10,41 @@ public class CFormable {
 
     public static class FirstAdmDivs {
         private final short[][] firstProvinces;
+        private final AdmDiv[] admDivs;
         //private final EnumMap<Continent, Set<Short>> firstCountryContinents;
 
-        public FirstAdmDivs(CountryArray cArray) {
+        public FirstAdmDivs(CountryArray cArray, AdmDiv[] admDivs) {
             firstProvinces = new short[CountryArray.getMaxIso2Countries()][];
-
+            this.admDivs = admDivs;
             setFirstProvinces(cArray);
         }
 
-        public boolean ownsAllISO2(AdmDiv[] admDivs, Country c, String... o) {
+        public boolean ownsAllISO2(Country c, String... o) {
             for (String s : o) {
                 short i = (short) CountryArray.getIndexAdv(s);
-                if (!owns(admDivs, c, i))
+                if (!owns(c, i))
                     return false;
             }
             return true;
         }
 
-        public boolean ownsAtLeastOneISO2(AdmDiv[] admDivs, Country c, String... o) {
+        public boolean ownsAtLeastOneISO2(Country c, String... o) {
             for (String s : o) {
                 short i = (short) CountryArray.getIndexAdv(s);
-                if (owns(admDivs, c, i))
+                if (owns(c, i))
                     return true;
             }
             return false;
         }
 
-        public boolean ownsAll(AdmDiv[] admDivs, Country c, short... o) {
+        public boolean ownsAll(Country c, short... o) {
             for (short i : o)
-                if (!owns(admDivs, c, i))
+                if (!owns(c, i))
                     return false;
             return true;
         }
 
-        public boolean owns(AdmDiv[] admDivs, Country c, short o) {
+        public boolean owns(Country c, short o) {
             short[] oProvs = firstProvinces[o];
             if (oProvs == null)
                 return true;//!
@@ -59,23 +60,23 @@ public class CFormable {
             return true;
         }
 
-        public boolean ownsOrHasSubjectsAllISO2(AdmDiv[] admDivs, Country c, String... o) {
+        public boolean ownsOrHasSubjectsAllISO2(Country c, String... o) {
             for (String s : o) {
                 short i = (short) CountryArray.getIndexAdv(s);
-                if (!ownsOrHasSubject(admDivs, c, i))
+                if (!ownsOrHasSubject(c, i))
                     return false;
             }
             return true;
         }
 
-        public boolean ownsOrHasSubjectsAll(AdmDiv[] admDivs, Country c, short... o) {
+        public boolean ownsOrHasSubjectsAll(Country c, short... o) {
             for (short i : o)
-                if (!ownsOrHasSubject(admDivs, c, i))
+                if (!ownsOrHasSubject(c, i))
                     return false;
             return true;
         }
 
-        public boolean ownsOrHasSubject(AdmDiv[] admDivs, Country c, short o) {
+        public boolean ownsOrHasSubject(Country c, short o) {
             short[] oProvs = firstProvinces[o];
             if (oProvs == null)
                 return true;//! if it doesn't exist
@@ -130,13 +131,13 @@ public class CFormable {
 
     //Releasable for liberation vs Form-able through unification
     //Form Greater Albania !!
-    private String name;
-    private String desc;
+    private final String name;
+    private final String desc;
     private boolean evenSubjects;
-    private List<String> commandsOnComplete;
-    private Set<Short> formableBy;
-    private short[] reqCountries;
-    private short[] reqProvinces; //required
+    private final List<String> commandsOnComplete;
+    private final Set<Short> formableBy;
+    private final short[] reqCountries;
+    private final short[] reqProvinces; //required
 
     public CFormable(String name, boolean evenSubjects, String desc, Set<Short> formableBy, short[] reqCountries, short[] reqProvinces, List<String> commandsOnComplete) {
         this.name = name;
@@ -154,7 +155,6 @@ public class CFormable {
         this.formableBy = CountryArray.getShortSetFromStringArr(formableBy);
         this.reqCountries = CountryArray.getShortArrFromStringArr(reqCountries);
         this.reqProvinces = stringArrToShortArr(reqProvinces);
-        //TESTING.print(formableBy, Arrays.toString(reqCountries), Arrays.toString(reqProvinces));
         this.commandsOnComplete = commandsOnComplete;
     }
 
@@ -174,7 +174,7 @@ public class CFormable {
     }
 
     public boolean formCountry(FirstAdmDivs first, AdmDiv[] provinces, Country c) {
-        if (hasRequiredProvinces(provinces, c.getCountryId()) && hasRequiredCountries(first, provinces, c)) {
+        if (hasRequiredProvinces(provinces, c.getCountryId()) && hasRequiredCountries(first, c)) {
             c.setName(name);
             executeAllCommands();
             return true;
@@ -182,13 +182,13 @@ public class CFormable {
         return false;
     }
 
-    public boolean hasRequiredCountries(FirstAdmDivs first, AdmDiv[] provinces, Country c) {
+    public boolean hasRequiredCountries(FirstAdmDivs first, Country c) {
         if (reqCountries == null)
             return true;
         if (evenSubjects)
-            return first.ownsOrHasSubjectsAll(provinces, c, reqCountries);
+            return first.ownsOrHasSubjectsAll(c, reqCountries);
         else
-            return first.ownsAll(provinces, c, reqCountries);
+            return first.ownsAll(c, reqCountries);
     }
 
     public boolean hasRequiredProvinces(AdmDiv[] provinces, int countryId) {
@@ -196,7 +196,7 @@ public class CFormable {
             return true;
         for (int reqProv : reqProvinces) {
             AdmDiv a = provinces[reqProv];
-            if(a == null)
+            if (a == null)
                 continue;
             if (a.getOwnerId() != countryId)
                 return false;

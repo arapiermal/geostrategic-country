@@ -14,6 +14,12 @@ public enum CasusBelli implements CValidatable {
         public boolean isValid(Country c1, Country c2) {
             return false;
         }
+        public boolean isValid(World world, int cInd1, int cInd2) {
+            Country c1 = world.getCountry(cInd1);
+            Country c2 = world.getCountry(cInd2);
+            world.getInitialProvinces();
+            return false;
+        }
     },
     //Linguistic territorial disputes (they have provinces with people that speak the same main language as ours...)
     LINGUISTIC("Linguistic minority", 30) {

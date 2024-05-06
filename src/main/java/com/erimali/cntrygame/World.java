@@ -130,7 +130,7 @@ public class World implements Serializable {
                 }
             }
         }
-        initialProvinces = new CFormable.FirstAdmDivs(countries);
+        initialProvinces = new CFormable.FirstAdmDivs(countries, provinces);
     }
 
     public void loadLanguages() {

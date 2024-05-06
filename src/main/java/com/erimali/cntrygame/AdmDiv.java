@@ -18,25 +18,23 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
     private int ownerId;
     private int occupierId = -1;
     private String name;
-
-
     private String nativeName;
     private double area;
     private int population;
     private boolean waterAccess;
     private short mainLanguage; // + culture?, PopDistFloat/Double..., can be [][] and static methods there.
-    private short infrastructure;
 
+    private short infrastructure;
     private float maxDefense = 100;
-    private float defense = 100; //when conquering, infrastructure * 0.5 + defense
-    //based on stability, rebellion can happen or if > 64
-    //when annexing during war set rebellion to 16 32 or 64 (except provinces which consider us liberators)
+    private float defense = 100;
+    //based on stability, rebellion more likely to happen (or stability check)
+    //when annexing during war set rebellion to 16 32 or 64 (except provinces which consider us as liberators)
     private final byte[] rebellion; //types: separatism, autonomy,...
     //treat like
     private final EnumSet<Building> buildings;
     private final EnumMap<Building, Byte> buildingBuildings;
 
-    //private short[] claimedBy; (previous owners) ...
+    //private short[] claimedBy; (previous owners) ... or Set<>
 
     //list in GLogic so only the ones necessary are updated.
     private MilUnit unitRecruitingBuild;
@@ -425,9 +423,11 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
     public boolean isOccupied() {
         return occupierId >= 0;
     }
+
     public boolean isOccupiedByRebels() {
         return occupierId >= CountryArray.getMaxIso2Countries();
     }
+
     public String getNativeName() {
         return nativeName;
     }
@@ -466,5 +466,9 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
             return true;
         }
         return false;
+    }
+
+    public double calcWarCost() {
+        return Math.log(area) + Math.sqrt(Math.log10(population));
     }
 }

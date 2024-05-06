@@ -217,7 +217,7 @@ public class CommandLine {
                             double popInc = GUtils.parseDoubleAndPercent(k[2]);
                             long popAmount;
                             if (popInc >= -1 && popInc <= 1) {
-                                 popAmount = mainCountry.incPopulation(popInc);
+                                popAmount = mainCountry.incPopulation(popInc);
 
                             } else {
                                 popAmount = (long) popInc;
@@ -231,7 +231,7 @@ public class CommandLine {
                             if (admDiv != null) {
                                 if (admDiv.getOwnerId() == mainCountry.getCountryId()) {
                                     int popAmount = mainCountry.addIncPopulation(popInc, admDiv);
-                                    return "ADDED " + popAmount + " POPULATION TO " + admDiv.getName();
+                                    return "Added " + popAmount + " population to " + admDiv.getName();
                                 } else {
                                     return "ADM DIV " + provId + " DOESN'T BELONG TO " + shortName;
                                 }
@@ -254,6 +254,14 @@ public class CommandLine {
                             return "EVENT ADDED";
                         else
                             return "ERROR: FAILED TO ADD EVENT";
+                    case "WARSCORE":
+                        double amount = GUtils.parseD(k[2]);
+                        if (k.length == 3) {
+                            for (int i : mainCountry.getMilitary().getAtWarWith()) {
+
+                            }
+                        }
+                        return "";
                     default:
                         return "ERROR: Invalid command";
                 }
@@ -607,12 +615,12 @@ public class CommandLine {
     //CFormable/Releasable
     private static boolean checkHasAND(String playerISO2, String[] split) {
         World world = gs.getGame().getWorld();
-        return world.getInitialProvinces().ownsAllISO2(world.getProvinces(), world.getCountry(playerISO2), split);
+        return world.getInitialProvinces().ownsAllISO2(world.getCountry(playerISO2), split);
     }
 
     private static boolean checkHasOR(String playerISO2, String[] split) {
         World world = gs.getGame().getWorld();
-        return world.getInitialProvinces().ownsAtLeastOneISO2(world.getProvinces(), world.getCountry(playerISO2), split);
+        return world.getInitialProvinces().ownsAtLeastOneISO2(world.getCountry(playerISO2), split);
     }
 
     public static boolean checkStatementsAND(String in) {

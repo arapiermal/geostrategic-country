@@ -1425,7 +1425,4 @@ public class GameStage extends Stage {
         changeSelectedCountryInfo();
     }
 
-    public void correlateProvinces(SVGProvince[] mapSVG) {
-        game.getWorld().initiateProvinces(mapSVG);
-    }
 }
