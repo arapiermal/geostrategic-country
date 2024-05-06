@@ -14,6 +14,7 @@ public class Country implements Serializable, Comparable<Country> {
     private double populationIncrease;
     private double area;
     private boolean landlocked; // if false -> no navy // River Flotilla !!!
+    private int waterProvinces; // isLandlocked(){return waterProvinces == 0;}
     private EnumSet<Continent> continents;
     private AdmDiv capital;
     private String[] infoElectronic;
@@ -256,7 +257,7 @@ public class Country implements Serializable, Comparable<Country> {
 
     public void updateNeighbours(CountryArray cArr, Country o) {
         for (int i : o.neighbours) {
-            if (!neighbours.contains(i)) {
+            if (i != countryId && !neighbours.contains(i)) {
                 neighbours.add(i);
                 Country temp = cArr.get(i);
                 if (temp != null)
@@ -304,18 +305,14 @@ public class Country implements Serializable, Comparable<Country> {
         cArray.remove(ind);
     }
 
-    public void annexAdmDivs(Country o, int... i) {
-        //Comparable based on provId... PriorityQueue ?
-        //i based on provId (?)
-    }
-
     //are they happy with annexation ... , change
     public void annexAllAdmDivs(Country o, boolean... args) {
         List<AdmDiv> l = o.getAdmDivs();
         while (!l.isEmpty()) {
             AdmDiv a = l.removeFirst();
-            a.setOwnerId(countryId);
-            admDivisions.add(a);
+
+            addAdmDiv(a);
+            //admDivisions.add(a);
         }
 
     }
@@ -502,7 +499,7 @@ public class Country implements Serializable, Comparable<Country> {
     // !!!!!!!!!!!!!!!!!!!!!!!!!
     public void subjugateCountry(Country op, SubjectType type) {
         if (subjectOf == null) {
-            // gain access to water for navy
+            // gain access to water for navy //boolean ONLY HERE IMPORTANT!
             if (this.landlocked) {
                 if (!op.landlocked) {
                     this.landlocked = false;
@@ -714,11 +711,7 @@ public class Country implements Serializable, Comparable<Country> {
     }
 
     public boolean isLandlocked() {
-        return landlocked;
-    }
-
-    public void setLandlocked(boolean landlocked) {
-        this.landlocked = landlocked;
+        return landlocked && waterProvinces == 0;
     }
 
     public List<Short> getLanguages() {
@@ -902,13 +895,23 @@ public class Country implements Serializable, Comparable<Country> {
     }
 
     public void addAdmDiv(AdmDiv a) {
+        a.setOwnerId(countryId);
         admDivisions.add(a);
         population += a.getPopulation();
         area += a.getArea();
         //if (landlocked && a.hasWaterAccess()){landlocked = false;}
-        int landlockedProvinces = 0;
-        landlocked = landlocked && !a.hasWaterAccess();
+        landlocked = landlocked && !a.hasWaterAccess();// PROBLEM, need amount of wateraccess provinces
+        if(a.hasWaterAccess())
+            waterProvinces++;
+    }
 
+    public void removeAdmDiv(AdmDiv a) {
+        if(admDivisions.remove(a)) {
+            population -= a.getPopulation();
+            area -= a.getArea();
+            if (a.hasWaterAccess())
+                waterProvinces--;
+        }
     }
 
     public CFormable getIsFormed() {
@@ -1028,4 +1031,5 @@ public class Country implements Serializable, Comparable<Country> {
 
         return null;
     }
+
 }

@@ -704,4 +704,14 @@ public class World implements Serializable {
 
 
     }
+
+    public void annexAdmDiv(int cIndex, int provId) {
+        Country c = countries.get(cIndex);
+        AdmDiv a = provinces[provId];
+        if(c != null && a != null && a.getOwnerId() != cIndex){
+            Country o = countries.get(a.getOwnerId());
+            o.removeAdmDiv(a);
+            c.addAdmDiv(a);
+        }
+    }
 }

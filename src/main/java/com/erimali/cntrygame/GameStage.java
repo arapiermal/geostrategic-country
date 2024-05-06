@@ -55,7 +55,7 @@ class LimitedSizeList<T> {
     }
 
     public T getUp() {
-        if(list.isEmpty())
+        if (list.isEmpty())
             return null;
         index++;
         index %= list.size();
@@ -63,7 +63,7 @@ class LimitedSizeList<T> {
     }
 
     public T getDown() {
-        if(list.isEmpty())
+        if (list.isEmpty())
             return null;
         index--;
         if (index < 0)
@@ -270,9 +270,10 @@ public class GameStage extends Stage {
         //selectedProvInfo
         leftGeneral = new TabPane();
         leftGeneral.setMinWidth(240);
+        Tab infoTab = new Tab("Info", makeGeneralInfoVBox());
         countryTab = new Tab("Country", countryOptTypes[0]);
         provinceTab = new Tab("Adm-Division", provOptTypes[0]);
-        leftGeneral.getTabs().addAll(countryTab, provinceTab);
+        leftGeneral.getTabs().addAll(infoTab, countryTab, provinceTab);
         leftGeneral.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         countryTab.getContent().setVisible(false);
         provinceTab.getContent().setVisible(false);
@@ -333,6 +334,12 @@ public class GameStage extends Stage {
         return gameLayout;
     }
 
+    private VBox makeGeneralInfoVBox() {
+        VBox vBox = new VBox(selectedCountryInfo, selectedProvInfo);
+        return vBox;
+    }
+
+
     private ImageView loadImgView(String path, double height, double width) {
         try {
             URL imgURL = getClass().getResource(path);
@@ -378,8 +385,8 @@ public class GameStage extends Stage {
         gsNews.setOnAction(e -> popupWebNews());
         gsOptions.setOnAction(e -> showGameStageOptions());
 
-        if(GOptions.isDebugMode())
-            toolBarReg = new HBox(8, new Label(), new Text(", Prov ID:"),  new Label());
+        if (GOptions.isDebugMode())
+            toolBarReg = new HBox(8, new Label(), new Text(", Prov ID:"), new Label());
         else
             toolBarReg = new Region();
         ToolBar toolBar = new ToolBar(gsComputer, gsNews, toolBarReg, gsOptions);
@@ -713,7 +720,7 @@ public class GameStage extends Stage {
         formablesPanel = makeVBoxListViewFormables();
         TitledPane formables = new TitledPane("Formables", formablesPanel);
         formables.setAnimated(false);
-        VBox vBox = new VBox(selectedCountryInfo, formables);
+        VBox vBox = new VBox(formables);
 
         return vBox;
     }
@@ -762,7 +769,7 @@ public class GameStage extends Stage {
         TitledPane titledPaneRelations = new TitledPane("Relations", vboxRelations);
         titledPaneRelations.setAnimated(false);
 
-        return new VBox(selectedCountryInfo, titledPaneWar, titledPaneRelations);
+        return new VBox(titledPaneWar, titledPaneRelations);
     }
 
 
@@ -773,11 +780,12 @@ public class GameStage extends Stage {
         vBox.setSpacing(8);
         TitledPane titledPane = new TitledPane("", vBox);
         titledPane.setAnimated(false);
-        return new VBox(selectedProvInfo, titledPane);
+        return new VBox(titledPane);
     }
 
     private VBox makeVBoxOtherProvOptions() {
-        return new VBox(selectedProvInfo);
+
+        return new VBox();
     }
     ////////////////////////////////////////////////////
     ////////////////////////////////////////////////////
@@ -1352,9 +1360,9 @@ public class GameStage extends Stage {
 
     public void setSelectedProvince(int provId) {
         if (selectedProv != provId) {
-            if(toolBarReg instanceof HBox){
+            if (toolBarReg instanceof HBox) {
                 Node node = ((HBox) toolBarReg).getChildren().getLast();
-                if(node instanceof Label){
+                if (node instanceof Label) {
                     ((Label) node).setText(String.valueOf(provId));
                 }
             }
@@ -1421,9 +1429,9 @@ public class GameStage extends Stage {
 
     public void setSelectedCountry(int ownerId) {
         selectedCountry = ownerId;
-        if(toolBarReg instanceof HBox){
+        if (toolBarReg instanceof HBox) {
             Node node = ((HBox) toolBarReg).getChildren().getFirst();
-            if(node instanceof Label){
+            if (node instanceof Label) {
                 ((Label) node).setText(CountryArray.getIndexISO2(ownerId));
             }
         }

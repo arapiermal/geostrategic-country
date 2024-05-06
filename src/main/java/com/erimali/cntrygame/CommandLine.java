@@ -327,8 +327,13 @@ public class CommandLine {
             //target country
             case "ANNEX":
                 if (k.length == 2) {
-                    mainCountry.annexCountry(countries, CountryArray.getIndex(k[1]), true);
-                    gs.getMap().refreshMap();
+                    try {
+                        int provId = Integer.parseInt(k[1]);
+                        gs.getGame().getWorld().annexAdmDiv(cIndex, provId);
+                    } catch(NumberFormatException nfe){
+                        mainCountry.annexCountry(countries, CountryArray.getIndex(k[1]), true);
+                        gs.getMap().refreshMap();
+                    }
                     return shortName + " annexed " + k[1];
                 }
                 //CHANGED
