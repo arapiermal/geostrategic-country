@@ -97,5 +97,11 @@ public class SVGProvince extends SVGPath {
     public int getOccupierId() {
         return occupierId;
     }
+
+    public double getDistance(SVGProvince s1) {
+        double distX = provX - s1.provX;
+        double distY = provY - s1.provY;
+        return Math.sqrt(distX * distX + distY * distY);
+    }
 }
 
