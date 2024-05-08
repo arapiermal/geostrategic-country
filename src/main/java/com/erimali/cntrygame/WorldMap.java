@@ -1,6 +1,7 @@
 package com.erimali.cntrygame;
 
 import com.erimali.cntrymilitary.MilUnitData;
+import javafx.application.Platform;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -169,15 +170,45 @@ public class WorldMap {
             ZoomableScrollPane scrollPane = new ZoomableScrollPane(mapGroup);
             this.lines = new ArrayList<>();
             //int l = drawLine(3198, 3031);
-            int[] l = drawLines(3031, 3030, 2993, 2994, 2991, 2992, 3198);
-            makeMilSVG(0, 3198, 0);
+            //int[] l = drawLines(3031, 3030, 2993, 2994, 2991, 2992, 3198);
+            MilUnitRegion test = makeMilUnitImg(0, 3198, 0);
+            test.makeLines(3198, 2992, 2991, 2994, 2993, 3030, 3031);
+            /*Thread thread = new Thread(() -> {
+                try {
+                    for (int i = 0; i < 6; i++) {
+                        Platform.runLater(test::moveTick);
+
+                        Thread.sleep(3000);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+            thread.start();*/
             //scrollPane.removeLine(l);
             //scrollPane.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
             ContextMenu cm = new ContextMenu();
-            MenuItem menuItem1 = new MenuItem("Manage divisions");
-            MenuItem menuItem2 = new MenuItem("");
-            MenuItem menuItem3 = new MenuItem("");
-            cm.getItems().addAll(menuItem1, menuItem2, menuItem3);
+            MenuItem[] menuItems = new MenuItem[GOptions.isDebugMode() ? 4 : 2];
+            menuItems[0] = new MenuItem("Manage divisions");
+            menuItems[1] = new MenuItem("");
+            if (menuItems.length > 2) {
+                menuItems[2] = new MenuItem("Debug-dijk: mainProv");
+                menuItems[2].setOnAction(e -> {
+                    System.out.println();
+                    int provInd = gs.getSelectedProv();
+                    System.out.print(provInd + ":");
+                    mapSVG[provInd].setFill(Color.BLACK);
+
+                });
+                menuItems[3] = new MenuItem("Debug-dijk: neighProvs");
+                menuItems[3].setOnAction(e -> {
+                    int provInd = gs.getSelectedProv();
+                    System.out.print(provInd + ",");
+                    mapSVG[provInd].setFill(Color.CRIMSON);
+
+                });
+            }
+            cm.getItems().addAll(menuItems);
             scrollPane.setContextMenu(cm);
             scrollPane.setHvalue(scrollPane.getHmax() / 2);
             scrollPane.setVvalue(scrollPane.getVmax() / 2);
@@ -243,21 +274,95 @@ public class WorldMap {
         }
     }
 
-    public Region makeMilSVG(int type, int provId, int friendly) {
+    public static class MilUnitRegion extends Region {
+        SVGProvince[] mapSVG;
+        int[] movingIds;
+        int movingIndex = -1;
+        Line[] lines;
+
+        public MilUnitRegion(SVGProvince[] mapSVG, SVGPath milSVG, SVGProvince prov) {
+            super();
+            this.mapSVG = mapSVG;
+            setShape(milSVG);
+            setSizeAndPos(prov);
+            getStyleClass().add("milImg");
+            setMouseTransparent(true);
+        }
+
+        public void setSizeAndPos(SVGProvince prov) {
+            double w = prov.getBoundsInLocal().getWidth() / 3;
+            double h = prov.getBoundsInLocal().getHeight() / 3;
+            setMinSize(w, h);
+            setPrefSize(w, h);
+            setMaxSize(w, h);
+            setLayoutX(prov.getProvX() - w / 2);
+            setLayoutY(prov.getProvY() - h / 2);
+        }
+
+        //...p generated through dijkstra or sth
+        public void makeLines(int... p) {
+            movingIds = p;
+            movingIndex = 0;
+            lines = new Line[p.length - 1];
+            for (int i = 0; i < lines.length; i++) {
+                SVGProvince s0 = mapSVG[p[i]];
+                SVGProvince s1 = mapSVG[p[i + 1]];
+                double x0 = s0.getProvX() - getLayoutX();
+                double y0 = s0.getProvY() - getLayoutY();
+                double x1 = s1.getProvX() - getLayoutX();
+                double y1 = s1.getProvY() - getLayoutY();
+                lines[i] = new Line(x0, y0, x1, y1);
+
+            }
+            getChildren().addAll(lines);
+        }
+
+        public void updateLines() {
+            for (int i = movingIndex; i < movingIds.length - 1; i++) {
+                SVGProvince s0 = mapSVG[movingIds[i]];
+                SVGProvince s1 = mapSVG[movingIds[i + 1]];
+                double x0 = s0.getProvX() - getLayoutX();
+                double y0 = s0.getProvY() - getLayoutY();
+                double x1 = s1.getProvX() - getLayoutX();
+                double y1 = s1.getProvY() - getLayoutY();
+                lines[i].setStartX(x0);
+                lines[i].setStartY(y0);
+                lines[i].setEndX(x1);
+                lines[i].setEndY(y1);
+            }
+        }
+
+        public boolean isMoving() {
+            return movingIndex > -1;
+        }
+
+        public boolean moveTick() {
+            if (isMoving()) {
+                SVGProvince sNext = (SVGProvince) getParent().getChildrenUnmodifiable().get(movingIds[++movingIndex]);
+                setSizeAndPos(sNext);
+                getChildren().removeFirst();
+                updateLines();
+                if (movingIds.length == movingIndex + 1) {
+                    movingIndex = -1;
+                    movingIds = null;
+                    lines = null;
+                    return true;
+                }
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
+
+    public MilUnitRegion makeMilUnitImg(int type, int provId, int friendly) {
         SVGProvince prov = mapSVG[provId];
-        double w = prov.getBoundsInLocal().getWidth() / 3;
-        double h = prov.getBoundsInLocal().getHeight() / 3;
-        Region milImg = new Region();
-        milImg.setShape(milSVG[type]);
-        milImg.setMinSize(w, h);
-        milImg.setPrefSize(w, h);
-        milImg.setMaxSize(w, h);
+
+        MilUnitRegion milImg = new MilUnitRegion(mapSVG, milSVG[type], prov);
+
         //milImg.setStyle("-fx-background-color: green;");
-        milImg.getStyleClass().add("milImg");
         milImg.getStyleClass().add(MilUnitData.getUnitTypeName(type));
         milImg.getStyleClass().add(friendly == 0 ? "player" : friendly > 0 ? "allies" : "enemy");
-        milImg.setLayoutX(prov.getProvX() - w / 2);
-        milImg.setLayoutY(prov.getProvY() - h / 2);
 
         mapGroup.getChildren().add(milImg);
         return milImg;
@@ -320,25 +425,26 @@ public class WorldMap {
             }
         }
     }
-/*
-//problems because not all neighbours loaded
-    public void paintMapNeighbours(int oldSel) {
-        CountryArray cArr = gs.getGame().getWorld().getCountries();
-        int cId = gs.getSelectedCountry();
-        Country o = cArr.get(oldSel);
-        setColorOnAdmDivs(o, defColor);
-        for (int i : o.getNeighbours()) {
-            setColorOnAdmDivs(cArr.get(i), defColor);
-        }
-        Country c = cArr.get(cId);
-        if (c != null) {
-            setColorOnAdmDivs(c, defSelectedColor);
-            for (int i : c.getNeighbours()) {
-                setColorOnAdmDivs(cArr.get(i), defNeutralColor);
+
+    /*
+    //problems because not all neighbours loaded
+        public void paintMapNeighbours(int oldSel) {
+            CountryArray cArr = gs.getGame().getWorld().getCountries();
+            int cId = gs.getSelectedCountry();
+            Country o = cArr.get(oldSel);
+            setColorOnAdmDivs(o, defColor);
+            for (int i : o.getNeighbours()) {
+                setColorOnAdmDivs(cArr.get(i), defColor);
+            }
+            Country c = cArr.get(cId);
+            if (c != null) {
+                setColorOnAdmDivs(c, defSelectedColor);
+                for (int i : c.getNeighbours()) {
+                    setColorOnAdmDivs(cArr.get(i), defNeutralColor);
+                }
             }
         }
-    }
-*/
+    */
     public void paintMapUnions(Union union) {
         if (union != null) {
             Paint unionColor = union.getColor() == null ? defAllyColor : union.getColor();
@@ -523,6 +629,16 @@ public class WorldMap {
         }
     }
 
+    public Line[] makeLines(int... p) {
+        Line[] res = new Line[p.length - 1];
+        for (int i = 0; i < res.length; i++) {
+            SVGProvince s0 = mapSVG[p[i]];
+            SVGProvince s1 = mapSVG[p[i + 1]];
+            res[i] = new Line(s0.getProvX(), s0.getProvY(), s1.getProvX(), s1.getProvY());
+        }
+        return res;
+    }
+
     //0.0 0.1 0.2 0.3, 1.0 1.1 1.2 1.3  ...
     //0                4                ...
     //how to keep track of removable lines
@@ -543,6 +659,7 @@ public class WorldMap {
         //res[p.length + 1] = ;
         return res;
     }
+
 
     public int drawLine(int s0, int s1) {
         if (s0 < 0 || s0 > mapSVG.length || s1 < 0 || s1 > mapSVG.length)

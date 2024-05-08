@@ -977,6 +977,9 @@ public class GameStage extends Stage {
         return selectedCountry;
     }
 
+    public int getSelectedProv() {
+        return selectedProv;
+    }
     public GLogic getGame() {
         return game;
     }
