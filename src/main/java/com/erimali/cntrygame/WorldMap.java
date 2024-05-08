@@ -60,9 +60,8 @@ public class WorldMap {
 
     private final GameStage gs;
     private ShortestPathFinder roadFinder;
-
+    private MilUnitRegion debugMilUnitRegion;
     private int mapMode;
-    private int lastClickedProvince;
 
     private SVGPath[] milSVG;
     private static final String[] MAP_MODE_NAMES = new String[]{"Default", "Allies", "Unions", "Neighbours", "Continents"};
@@ -164,30 +163,13 @@ public class WorldMap {
 
             mapGroup.setCursor(Cursor.HAND);
             roadFinder = new ShortestPathFinder(mapSVG);
-            // better solution?
-            //Pane stackPane = new Pane(mapGroup);
             ZoomableScrollPane scrollPane = new ZoomableScrollPane(mapGroup);
-            //int[] l = drawLines(3031, 3030, 2993, 2994, 2991, 2992, 3198);
-            MilUnitRegion test = makeMilUnitImg(0, 3198, 0);
-            //3198, 2992, 2991, 2994, 3443, 3031
-            //test.makeLines(3198, 2992, 2991, 2994, 2993, 3030, 3031);
-            test.makeLines(roadFinder.findShortestPath(3198, 3031));
-            Thread thread = new Thread(() -> {
-                try {
-                    for (int i = 0; i < 5; i++) {
-                        Platform.runLater(test::moveTick);
+            debugMilUnitRegion = makeMilUnitImg(0, 3198, 0);
+            debugMilUnitRegion.makeLines(roadFinder.findShortestPath(3198, 3031));
 
-                        Thread.sleep(10000);
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            });
-            thread.start();
-            //scrollPane.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
             ContextMenu cm = new ContextMenu();
-            MenuItem[] menuItems = new MenuItem[GOptions.isDebugMode() ? 4 : 2];
-            menuItems[0] = new MenuItem("Manage divisions");
+            MenuItem[] menuItems = new MenuItem[GOptions.isDebugMode() ? 6 : 2];
+            menuItems[0] = new MenuItem("Manage units/divisions");
             menuItems[1] = new MenuItem("");
             if (menuItems.length > 2) {
                 menuItems[2] = new MenuItem("Debug-dijk: mainProv");
@@ -204,6 +186,17 @@ public class WorldMap {
                     System.out.print(provInd + ",");
                     mapSVG[provInd].setFill(Color.CRIMSON);
 
+                });
+                menuItems[4] = new MenuItem("Debug-move: dest DebugUnit");
+                menuItems[4].setOnAction(e -> {
+                    int srcInd = debugMilUnitRegion.getProvId();
+                    int dstInd = gs.getSelectedProv();
+                    debugMilUnitRegion.makeLines(roadFinder.findShortestPath(srcInd, dstInd));
+
+                });
+                menuItems[5] = new MenuItem("Debug-move: move DebugUnit");
+                menuItems[5].setOnAction(e -> {
+                    TESTING.print(debugMilUnitRegion.moveTick());
                 });
             }
             cm.getItems().addAll(menuItems);
@@ -273,6 +266,7 @@ public class WorldMap {
     }
     //cancel when new...
     public static class MilUnitRegion extends Region {
+        int provId;
         SVGProvince[] mapSVG;
         List<Integer> movingIds;
 
@@ -286,6 +280,7 @@ public class WorldMap {
         }
 
         public void setSizeAndPos(SVGProvince prov) {
+            provId = prov.getProvId();
             double w = prov.getBoundsInLocal().getWidth() / 3;
             double h = prov.getBoundsInLocal().getHeight() / 3;
             setMinSize(w, h);
@@ -331,7 +326,7 @@ public class WorldMap {
         }
 
         public int getProvId() {
-            return mapSVG[movingIds.getFirst()].getProvId();
+            return provId;
         }
 
         public boolean moveTick() {
