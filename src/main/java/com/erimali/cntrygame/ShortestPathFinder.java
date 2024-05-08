@@ -7,6 +7,12 @@ import java.util.*;
 
 public class ShortestPathFinder {
     private Map<Integer, int[]> provinceData;
+    private SVGProvince[] svgProvinces;
+
+    public ShortestPathFinder(SVGProvince[] svgProvinces) {
+        this.svgProvinces = svgProvinces;
+        provinceData = generateNeighbourMap();
+    }
 
     public ShortestPathFinder(Map<Integer, int[]> provinceData) {
         this.provinceData = provinceData;
@@ -40,7 +46,12 @@ public class ShortestPathFinder {
             int[] provNeighbours = provinceData.get(vertex);
             if (provNeighbours != null)
                 for (int neighbor : provNeighbours) {
-                    int newDist = dist + 1; // Assuming unit distance between neighboring provinces
+                    int newDist;
+                    if (svgProvinces == null) {
+                        newDist = dist + 1; // Assuming unit distance between neighboring provinces
+                    } else {
+                        newDist = dist + (int) svgProvinces[vertex].getDistance(svgProvinces[neighbor]);
+                    }
                     int oldDist = distance.getOrDefault(neighbor, Integer.MAX_VALUE);
                     if (newDist < oldDist) {
                         distance.put(neighbor, newDist);
@@ -97,8 +108,8 @@ public class ShortestPathFinder {
         Map<Integer, int[]> provinceData = generateNeighbourMap();
 
         ShortestPathFinder finder = new ShortestPathFinder(provinceData);
-        int sourceProvince = 3444;
-        int destinationProvince = 3446;
+        int sourceProvince = 3198;
+        int destinationProvince = 3031;
         List<Integer> shortestPath = finder.findShortestPath(sourceProvince, destinationProvince);
         if (shortestPath.isEmpty()) {
             System.out.println("No path exists between the source and destination provinces.");

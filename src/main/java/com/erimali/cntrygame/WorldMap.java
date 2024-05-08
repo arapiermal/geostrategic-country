@@ -56,11 +56,10 @@ public class WorldMap {
     private SVGProvince[] mapSVG;// all adm divisions
 //set/remove fill to countries when that mode
 
-    private List<Line> lines;
     private List<Region> milUnits;
 
     private final GameStage gs;
-
+    private ShortestPathFinder roadFinder;
 
     private int mapMode;
     private int lastClickedProvince;
@@ -164,28 +163,27 @@ public class WorldMap {
 
 
             mapGroup.setCursor(Cursor.HAND);
-
+            roadFinder = new ShortestPathFinder(mapSVG);
             // better solution?
             //Pane stackPane = new Pane(mapGroup);
             ZoomableScrollPane scrollPane = new ZoomableScrollPane(mapGroup);
-            this.lines = new ArrayList<>();
-            //int l = drawLine(3198, 3031);
             //int[] l = drawLines(3031, 3030, 2993, 2994, 2991, 2992, 3198);
             MilUnitRegion test = makeMilUnitImg(0, 3198, 0);
-            test.makeLines(3198, 2992, 2991, 2994, 2993, 3030, 3031);
-            /*Thread thread = new Thread(() -> {
+            //3198, 2992, 2991, 2994, 3443, 3031
+            //test.makeLines(3198, 2992, 2991, 2994, 2993, 3030, 3031);
+            test.makeLines(roadFinder.findShortestPath(3198, 3031));
+            Thread thread = new Thread(() -> {
                 try {
-                    for (int i = 0; i < 6; i++) {
+                    for (int i = 0; i < 5; i++) {
                         Platform.runLater(test::moveTick);
 
-                        Thread.sleep(3000);
+                        Thread.sleep(10000);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             });
-            thread.start();*/
-            //scrollPane.removeLine(l);
+            thread.start();
             //scrollPane.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
             ContextMenu cm = new ContextMenu();
             MenuItem[] menuItems = new MenuItem[GOptions.isDebugMode() ? 4 : 2];
@@ -273,12 +271,10 @@ public class WorldMap {
             }
         }
     }
-
+    //cancel when new...
     public static class MilUnitRegion extends Region {
         SVGProvince[] mapSVG;
-        int[] movingIds;
-        int movingIndex = -1;
-        Line[] lines;
+        List<Integer> movingIds;
 
         public MilUnitRegion(SVGProvince[] mapSVG, SVGPath milSVG, SVGProvince prov) {
             super();
@@ -299,53 +295,55 @@ public class WorldMap {
             setLayoutY(prov.getProvY() - h / 2);
         }
 
-        //...p generated through dijkstra or sth
-        public void makeLines(int... p) {
+        public void makeLines(List<Integer> p) {
+            getChildren().clear();
             movingIds = p;
-            movingIndex = 0;
-            lines = new Line[p.length - 1];
-            for (int i = 0; i < lines.length; i++) {
-                SVGProvince s0 = mapSVG[p[i]];
-                SVGProvince s1 = mapSVG[p[i + 1]];
+            for (int i = 0; i < p.size() - 1; i++) {
+                SVGProvince s0 = mapSVG[p.get(i)];
+                SVGProvince s1 = mapSVG[p.get(i + 1)];
                 double x0 = s0.getProvX() - getLayoutX();
                 double y0 = s0.getProvY() - getLayoutY();
                 double x1 = s1.getProvX() - getLayoutX();
                 double y1 = s1.getProvY() - getLayoutY();
-                lines[i] = new Line(x0, y0, x1, y1);
+                getChildren().add(new Line(x0, y0, x1, y1));
 
             }
-            getChildren().addAll(lines);
         }
 
         public void updateLines() {
-            for (int i = movingIndex; i < movingIds.length - 1; i++) {
-                SVGProvince s0 = mapSVG[movingIds[i]];
-                SVGProvince s1 = mapSVG[movingIds[i + 1]];
+            for (int i = 0; i < movingIds.size() - 1; i++) {
+                SVGProvince s0 = mapSVG[movingIds.get(i)];
+                SVGProvince s1 = mapSVG[movingIds.get(i + 1)];
                 double x0 = s0.getProvX() - getLayoutX();
                 double y0 = s0.getProvY() - getLayoutY();
                 double x1 = s1.getProvX() - getLayoutX();
                 double y1 = s1.getProvY() - getLayoutY();
-                lines[i].setStartX(x0);
-                lines[i].setStartY(y0);
-                lines[i].setEndX(x1);
-                lines[i].setEndY(y1);
+                Line line = (Line) getChildren().get(i);
+                line.setStartX(x0);
+                line.setStartY(y0);
+                line.setEndX(x1);
+                line.setEndY(y1);
             }
         }
 
         public boolean isMoving() {
-            return movingIndex > -1;
+            return movingIds != null && !movingIds.isEmpty();
+        }
+
+        public int getProvId() {
+            return mapSVG[movingIds.getFirst()].getProvId();
         }
 
         public boolean moveTick() {
             if (isMoving()) {
-                SVGProvince sNext = (SVGProvince) getParent().getChildrenUnmodifiable().get(movingIds[++movingIndex]);
-                setSizeAndPos(sNext);
                 getChildren().removeFirst();
+                movingIds.removeFirst();
+                SVGProvince sNext = mapSVG[movingIds.getFirst()];
+                setSizeAndPos(sNext);
                 updateLines();
-                if (movingIds.length == movingIndex + 1) {
-                    movingIndex = -1;
+                if (movingIds.size() <= 1) {
                     movingIds = null;
-                    lines = null;
+
                     return true;
                 }
                 return false;
@@ -639,41 +637,6 @@ public class WorldMap {
         return res;
     }
 
-    //0.0 0.1 0.2 0.3, 1.0 1.1 1.2 1.3  ...
-    //0                4                ...
-    //how to keep track of removable lines
-    public int[] drawLines(int... p) {
-        int[] res = new int[p.length - 1];
-        for (int i = 0; i < res.length; i++) {
-            res[i] = drawLine(p[i], p[i + 1]);
-        }
-        return res;
-    }
-
-    public int[] drawLinesArrow(int... p) {
-        int[] res = new int[p.length + 1];
-        for (int i = 0; i < p.length - 1; i++) {
-            res[i] = drawLine(p[i], p[i + 1]);
-        }
-        //res[p.length] = ;
-        //res[p.length + 1] = ;
-        return res;
-    }
-
-
-    public int drawLine(int s0, int s1) {
-        if (s0 < 0 || s0 > mapSVG.length || s1 < 0 || s1 > mapSVG.length)
-            return -1;
-        lines.add(drawLine(mapSVG[s0], mapSVG[s1]));
-        return lines.size() - 1;
-    }
-
-    public Line drawLine(SVGProvince s0, SVGProvince s1) {
-        Line line = new Line(s0.getProvX(), s0.getProvY(), s1.getProvX(), s1.getProvY());
-        mapGroup.getChildren().add(line);
-        return line;
-    }
-
     public Line drawLine(SVGPath s0, SVGPath s1) {
         double minX0 = s0.getBoundsInLocal().getMinX();
         double minY0 = s0.getBoundsInLocal().getMinY();
@@ -702,11 +665,6 @@ public class WorldMap {
         Line line = new Line(x0, y0, x1, y1);
         mapGroup.getChildren().add(line);
         return line;
-    }
-
-    //problematic when updating indexes...
-    public void removeLine(int i) {
-        removeLine(lines.remove(i));
     }
 
     public void removeLine(Line l) {
