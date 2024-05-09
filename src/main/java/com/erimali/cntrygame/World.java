@@ -179,7 +179,8 @@ public class World implements Serializable {
             String name = br.readLine();
             double area = Double.parseDouble(getVal(br.readLine()));
             long population = Long.parseLong(getVal(br.readLine()));
-            double populationGrowthRate = Double.parseDouble(getVal(br.readLine()));
+            //double populationGrowthRate = Double.parseDouble(getVal(br.readLine()));
+            double populationGrowthRate = GUtils.parseDoubleAndPercent(getVal(br.readLine()));
             String capital = getVal(br.readLine());
             String[] langNameArr = getValues(br.readLine());
             List<Short> languages = genLanguageIndexList(langNameArr);

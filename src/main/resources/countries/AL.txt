@@ -1,14 +1,14 @@
 Albania
 area:28748
 population:2868436
-popInc:-0.34
+popInc:-0.34%
 capital:Tirana
 languages:Albanian
 neighbours:XK,GR,ME,MK
 admDivision:County
 Berat:1798,122003
 Dibër:2586,115857
-Durrës:766,290697
+Durrës:766,290697:water
 Elbasan:3199,270074
 Fier:1890,289889
 Gjirokastër:2884,59381

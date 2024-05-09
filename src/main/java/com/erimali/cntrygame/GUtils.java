@@ -379,4 +379,18 @@ public class GUtils {
             return Arrays.copyOf(arr, i);
         return arr;
     }
+
+    public static int parseIntOrMinMaxDef(String s, int min, int max, int def) {
+        try{
+            int res = Integer.parseInt(s);
+            if(res > max)
+                return max;
+            else if(res < min)
+                return min;
+            else
+                return res;
+        } catch(NumberFormatException nfe){
+            return def;
+        }
+    }
 }

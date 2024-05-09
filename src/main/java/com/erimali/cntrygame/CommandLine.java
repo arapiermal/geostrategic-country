@@ -330,7 +330,7 @@ public class CommandLine {
                     try {
                         int provId = Integer.parseInt(k[1]);
                         gs.getGame().getWorld().annexAdmDiv(cIndex, provId);
-                    } catch(NumberFormatException nfe){
+                    } catch (NumberFormatException nfe) {
                         mainCountry.annexCountry(countries, CountryArray.getIndex(k[1]), true);
                         gs.getMap().refreshMap();
                     }
@@ -478,8 +478,6 @@ public class CommandLine {
                 if (baseEvent != null) {
                     gs.popupGEvent(baseEvent);
                 }
-                // implement logic
-                // when you want to cause event
                 return "";
             case "GLOBE":
                 if (isPlayer) {
@@ -493,6 +491,12 @@ public class CommandLine {
                     return "ERROR: NO SUCH SCRIPT LOADED";
                 script.execute(2, k);
                 return script.toPrintClear();
+            case "SKIP":
+                int daysToSkip = GUtils.parseIntOrMinMaxDef(k[1], 1, 31, 1);
+                for (int i = 0; i < daysToSkip; i++) {
+                    gs.getGame().dailyTick();
+                }
+                return daysToSkip + " days skipped";
             default:
                 return "ERROR: Invalid command";
         }

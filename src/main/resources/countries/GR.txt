@@ -1,7 +1,7 @@
 Greece
 area:131957
 population:10413982
-popInc:-0.52
+popInc:-0.52%
 capital:Athens
 languages:Greek
 neighbours:AL,MK,BG,TR
