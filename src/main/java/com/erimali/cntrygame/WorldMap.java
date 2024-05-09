@@ -165,7 +165,7 @@ public class WorldMap {
             roadFinder = new ShortestPathFinder(mapSVG);
             ZoomableScrollPane scrollPane = new ZoomableScrollPane(mapGroup);
             debugMilUnitRegion = makeMilUnitImg(0, 3198, 0);
-            debugMilUnitRegion.makeLines(roadFinder.findShortestPath(3198, 3031));
+            //debugMilUnitRegion.makeLines(roadFinder.findShortestPath(3198, 3031));
 
             ContextMenu cm = new ContextMenu();
             MenuItem[] menuItems = new MenuItem[GOptions.isDebugMode() ? 6 : 2];
