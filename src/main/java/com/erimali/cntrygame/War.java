@@ -117,7 +117,7 @@ public class War implements Serializable {
     public void bringAlly() {
 
     }
-
+//or float/double warState[]
     public double getWarState(Country c) {
         return (c == declaringCountry || declaringAllies.contains(c)) ? warState : -warState;
     }

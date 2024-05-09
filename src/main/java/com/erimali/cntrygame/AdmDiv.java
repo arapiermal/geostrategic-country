@@ -24,6 +24,8 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
     private boolean waterAccess;
     private short mainLanguage; // + culture?, PopDistFloat/Double..., can be [][] and static methods there.
 
+    private float gdpPerCapita;
+
     private short infrastructure;
     private float maxDefense = 100;
     private float defense = 100;
@@ -73,6 +75,23 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
         this.rebellion = new byte[RebelType.values().length];
         resetRebellion();
     }
+
+    public AdmDiv(String name, double area, int population, boolean waterAccess, short mainLanguage, float gdpPerCapita) {
+        this.name = name;
+        this.area = area;
+        this.population = population;
+        this.waterAccess = waterAccess;
+        this.mainLanguage = mainLanguage;
+        this.gdpPerCapita = gdpPerCapita;
+        this.infrastructure = 1;
+        this.buildings = EnumSet.noneOf(Building.class);
+        this.buildingBuildings = new EnumMap<>(Building.class);
+        this.friendlyUnits = new LinkedList<>();
+        this.enemyUnits = new LinkedList<>();
+        this.rebellion = new byte[RebelType.values().length];
+        resetRebellion();
+    }
+
 
     public AdmDiv(String name, String area, String population, short mainLanguage) {
         this.name = name;
@@ -265,6 +284,14 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
 
     public void setMainLanguage(short mainLanguage) {
         this.mainLanguage = mainLanguage;
+    }
+
+    public float getGdpPerCapita() {
+        return gdpPerCapita;
+    }
+
+    public void setGdpPerCapita(float gdpPerCapita) {
+        this.gdpPerCapita = gdpPerCapita;
     }
 
     public void setFromSVGProvince(SVGProvince svg) {
@@ -470,5 +497,9 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
 
     public double calcWarCost() {
         return Math.log(area) + Math.sqrt(Math.log10(population));
+    }
+
+    public double getGDP(){
+        return gdpPerCapita * population;
     }
 }

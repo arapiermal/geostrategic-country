@@ -2,9 +2,7 @@ Albania
 area:28748
 population:2868436
 popInc:-0.34
-landlocked:false
 capital:Tirana
-infoElectronic:+355,.al
 languages:Albanian
 neighbours:XK,GR,ME,MK
 admDivision:County

@@ -2,9 +2,7 @@ Montenegro
 area:13812
 population:633158
 popInc:2
-landlocked:false
 capital:Podgorica
-infoElectronic:+382,.me
 languages:Montenegrin,Serbian,Albanian,Bosnian,Croatian
 neighbours:AL,BA,HR,RS,XK
 admDivision:municipality

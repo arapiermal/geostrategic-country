@@ -26,10 +26,8 @@ public class Government implements Serializable {
     // private double taxes;
     // Government spendings?
 
-
     //Policies
     private Map<GovPolicy, Integer> policies;
-
 
     public Government(String type, Ruler ruler) {
         this.type = type;
@@ -80,7 +78,6 @@ public class Government implements Serializable {
         if (bothTheSame) {
             return headOfState.toString();
         } else {
-            //maybe head of state always at beginning?
             if (isHeadOfStateStronger) {
                 sb.append("Head of State\n").append(headOfState.toString()).append("\nHead of Government\n")
                         .append(headOfGovernment.toString());

@@ -2,9 +2,7 @@ North Macedonia
 area:25713
 population:1836713
 popInc:-0.3
-landlocked:false
 capital:Skopje
-infoElectronic:+389,.mk
 languages:Macedonian,Albanian
 neighbours:AL,GR,BG,XK,RS
 admDivision:region

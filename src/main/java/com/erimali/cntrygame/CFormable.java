@@ -113,6 +113,12 @@ public class CFormable {
         public boolean ownsOthers(Country c) {
             return c.getAdmDivs().size() > firstProvinces[c.getCountryId()].length;
         }
+
+        public short[] getProvinces(int cId) {
+            if(cId < 0 || cId >= firstProvinces.length)
+                return null;
+            return firstProvinces[cId];
+        }
     }
 
     public static short[] stringArrToShortArr(String[] in) {

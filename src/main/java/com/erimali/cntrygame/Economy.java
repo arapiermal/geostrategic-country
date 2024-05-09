@@ -15,7 +15,6 @@ public class Economy implements Serializable {
 
     private double unemploymentRate;
 
-
     //private List<Industry> industries;
     // EXPORT VS IMPORT
     private TradeManagement tradeManagement;

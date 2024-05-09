@@ -180,16 +180,12 @@ public class World implements Serializable {
             double area = Double.parseDouble(getVal(br.readLine()));
             long population = Long.parseLong(getVal(br.readLine()));
             double populationGrowthRate = Double.parseDouble(getVal(br.readLine()));
-            boolean landlocked = Boolean.parseBoolean(getVal(br.readLine()));
-            // Maybe City class
             String capital = getVal(br.readLine());
-            String[] infoElectronic = getValues(br.readLine());
             String[] langNameArr = getValues(br.readLine());
             List<Short> languages = genLanguageIndexList(langNameArr);
             String[] neighbours = getValues(br.readLine());
             String admDivisionType = getVal(br.readLine());
             List<AdmDiv> admDivisions = admDivisionsFromFile(br, languages);
-
 
             br.readLine();
             Government government = governmentFromFile(br);
@@ -197,7 +193,7 @@ public class World implements Serializable {
             Economy economy = economyFromFile(br);
             br.readLine();
             Military military = militaryFromFile(br);
-            return new Country(name, area, population, populationGrowthRate, landlocked, capital, infoElectronic, admDivisionType,
+            return new Country(name, area, population, populationGrowthRate, capital, admDivisionType,
                     admDivisions, languages, neighbours, government, economy, military);
         } catch (Exception e) {
             e.printStackTrace();
@@ -682,6 +678,16 @@ public class World implements Serializable {
     }
 
 
+    public void annexAdmDiv(int cIndex, int provId) {
+        Country c = countries.get(cIndex);
+        AdmDiv a = provinces[provId];
+        if (c != null && a != null && a.getOwnerId() != cIndex) {
+            Country o = countries.get(a.getOwnerId());
+            o.removeAdmDiv(a);
+            c.addAdmDiv(a);
+        }
+    }
+
     public void releaseCountry(int cId) {
 
     }
@@ -689,10 +695,12 @@ public class World implements Serializable {
     public void releaseCountry(int cId, int mainId) {
         Country c = countries.get(cId);
         Country main = countries.get(mainId);
-        if(main == null)
+        if (main == null)
             return;
         if (c != null) {
-            //List<AdmDiv> list = Country.removeAndGetAdmDivs( );
+            main.releaseAdmDivTo(c, initialProvinces.getProvinces(cId));
+            //List<AdmDiv> list = c.removeAndGetAdmDivs(initialProvinces.getProvinces(cId));
+
         } else {
             //new country
             countries.put(cId, main.releaseCountry(this, cId));
@@ -705,13 +713,22 @@ public class World implements Serializable {
 
     }
 
-    public void annexAdmDiv(int cIndex, int provId) {
-        Country c = countries.get(cIndex);
-        AdmDiv a = provinces[provId];
-        if(c != null && a != null && a.getOwnerId() != cIndex){
-            Country o = countries.get(a.getOwnerId());
-            o.removeAdmDiv(a);
-            c.addAdmDiv(a);
+    public List<Integer> releaseAllCountries(int cInd, boolean... args) {
+        List<Integer> release = new LinkedList<>();
+        Country c = countries.get(cInd);
+        switch (args.length) {
+            case 1:
+                //forced
+                break;
         }
+        //countries/provinces besides ours that we own, save in set or
+        //check all provId of List<AdmDiv>
+        List<Integer> provIds = c.admDivIdList();
+
+        for (int i : provIds) {
+            //if( cInd != initialProvinces.)
+        }
+
+        return release;
     }
 }

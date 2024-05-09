@@ -19,13 +19,15 @@ public class ShortestPathFinder {
         this.provinceData = provinceData;
         fixBiDirectionalGraphMap(provinceData);
     }
+    public SVGProvince[] getSVGProvinces(){
+        return svgProvinces;
+    }
 
     public List<Integer> findShortestPath(int source, int destination) {
         PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[1])); // Priority queue (distance, vertex)
         Map<Integer, Integer> distance = new HashMap<>(); // Distance from source to each vertex
         Map<Integer, Integer> parent = new HashMap<>(); // Parent vertex of each vertex in the shortest path tree
 
-        // Initialization
         for (int vertex : provinceData.keySet()) {
             distance.put(vertex, Integer.MAX_VALUE);
             parent.put(vertex, null);
@@ -50,7 +52,7 @@ public class ShortestPathFinder {
                 for (int neighbor : provNeighbours) {
                     int newDist;
                     if (svgProvinces == null) {
-                        newDist = dist + 1; // Assuming unit distance between neighboring provinces
+                        newDist = dist + 1; // unit distance
                     } else {
                         newDist = dist + (int) svgProvinces[vertex].getDistance(svgProvinces[neighbor]);
                     }

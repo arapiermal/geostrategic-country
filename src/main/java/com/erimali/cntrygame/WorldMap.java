@@ -189,9 +189,9 @@ public class WorldMap {
                 });
                 menuItems[4] = new MenuItem("Debug-move: dest DebugUnit");
                 menuItems[4].setOnAction(e -> {
-                    int srcInd = debugMilUnitRegion.getProvId();
                     int dstInd = gs.getSelectedProv();
-                    debugMilUnitRegion.makeLines(roadFinder.findShortestPath(srcInd, dstInd));
+                    debugMilUnitRegion.move(dstInd);
+                    //debugMilUnitRegion.makeLines(roadFinder.findShortestPath(srcInd, dstInd));
 
                 });
                 menuItems[5] = new MenuItem("Debug-move: move DebugUnit");
@@ -264,15 +264,18 @@ public class WorldMap {
             }
         }
     }
+
     //cancel when new...
     public static class MilUnitRegion extends Region {
         int provId;
         SVGProvince[] mapSVG;
         List<Integer> movingIds;
+        ShortestPathFinder roadFinder;
 
-        public MilUnitRegion(SVGProvince[] mapSVG, SVGPath milSVG, SVGProvince prov) {
+        public MilUnitRegion(ShortestPathFinder roadFinder, SVGPath milSVG, SVGProvince prov) {
             super();
-            this.mapSVG = mapSVG;
+            this.roadFinder = roadFinder;
+            this.mapSVG = roadFinder.getSVGProvinces();
             setShape(milSVG);
             setSizeAndPos(prov);
             getStyleClass().add("milImg");
@@ -290,9 +293,17 @@ public class WorldMap {
             setLayoutY(prov.getProvY() - h / 2);
         }
 
+        public void move(int dst) {
+            makeLines(roadFinder.findShortestPath(provId, dst));
+        }
+
         public void makeLines(List<Integer> p) {
             getChildren().clear();
-            movingIds = p;
+            if (!p.isEmpty()) {
+                movingIds = p;
+            } else {
+                return;
+            }
             for (int i = 0; i < p.size() - 1; i++) {
                 SVGProvince s0 = mapSVG[p.get(i)];
                 SVGProvince s1 = mapSVG[p.get(i + 1)];
@@ -351,7 +362,7 @@ public class WorldMap {
     public MilUnitRegion makeMilUnitImg(int type, int provId, int friendly) {
         SVGProvince prov = mapSVG[provId];
 
-        MilUnitRegion milImg = new MilUnitRegion(mapSVG, milSVG[type], prov);
+        MilUnitRegion milImg = new MilUnitRegion(roadFinder, milSVG[type], prov);
 
         //milImg.setStyle("-fx-background-color: green;");
         milImg.getStyleClass().add(MilUnitData.getUnitTypeName(type));

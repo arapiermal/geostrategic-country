@@ -13,11 +13,9 @@ public class Country implements Serializable, Comparable<Country> {
     private long population;
     private double populationIncrease;
     private double area;
-    private boolean landlocked; // if false -> no navy // River Flotilla !!!
     private int waterProvinces; // isLandlocked(){return waterProvinces == 0;}
     private EnumSet<Continent> continents;
     private AdmDiv capital;
-    private String[] infoElectronic;
     private List<Short> languages;
     private String admDivisionType; // county,district,etc.
     private List<AdmDiv> admDivisions;
@@ -46,16 +44,14 @@ public class Country implements Serializable, Comparable<Country> {
     private boolean randGenerated;
 
     // Constructors
-    public Country(String name, double area, long population, double populationIncrease, boolean landlocked, String capital,
-                   String[] infoElectronic, String admDivisionType, List<AdmDiv> admDivisions, List<Short> languages,
+    public Country(String name, double area, long population, double populationIncrease, String capital,
+                   String admDivisionType, List<AdmDiv> admDivisions, List<Short> languages,
                    Set<Integer> neighbours, Government gov, Economy eco, Military mil, Diplomacy dip) {
         this.name = name;
         this.continents = EnumSet.noneOf(Continent.class);
         this.area = area;
         this.population = population;
         this.populationIncrease = populationIncrease;
-        this.landlocked = landlocked;
-        this.infoElectronic = infoElectronic;
         this.admDivisionType = admDivisionType;
         this.admDivisions = admDivisions;
         this.languages = languages;
@@ -72,20 +68,18 @@ public class Country implements Serializable, Comparable<Country> {
 
         // FOR CONSISTENCY
         fixPopulation();
-
+        fixGDPPerCapita();
         initAvailableBuildings();
     }
 
-    public Country(String name, double area, long population, double populationIncrease, boolean landlocked, String capital,
-                   String[] infoElectronic, String admDivisionType, List<AdmDiv> admDivisions, List<Short> languages,
+    public Country(String name, double area, long population, double populationIncrease, String capital,
+                   String admDivisionType, List<AdmDiv> admDivisions, List<Short> languages,
                    String[] neighbours, Government gov, Economy eco, Military military) {
         this.name = name;
         this.continents = EnumSet.noneOf(Continent.class);
         this.area = area;
         this.population = population;
         this.populationIncrease = populationIncrease;
-        this.landlocked = landlocked;
-        this.infoElectronic = infoElectronic;
         this.admDivisionType = admDivisionType;
         this.admDivisions = admDivisions;
         this.languages = languages;
@@ -147,14 +141,14 @@ public class Country implements Serializable, Comparable<Country> {
     // toString()...
     @Override
     public String toString() {
-        return this.name;
+        return name;
     }
 
     public String toStringLong() {
         if (isNotSubject())
-            return this.gov.getType() + " of " + this.name;
+            return gov.getType() + " of " + this.name;
         else
-            return this.gov.getType() + " of " + subjectOf.toString();
+            return gov.getType() + " of " + subjectOf.toString();
     }
 
     public String toStringAdmDivs() {
@@ -183,7 +177,7 @@ public class Country implements Serializable, Comparable<Country> {
     }
 
     public String toStringRulers() {
-        return this.gov.toStringRulers();
+        return gov.toStringRulers();
     }
 
     // SPECIAL GETs
@@ -196,7 +190,7 @@ public class Country implements Serializable, Comparable<Country> {
     }
 
     public double getGDPPerCapita() {
-        return this.eco.getGDP() / population;
+        return eco.getGDP() / population;
     }
 
     // ACTIONS
@@ -269,11 +263,7 @@ public class Country implements Serializable, Comparable<Country> {
     // Full Annexation
     public void annexCountry(CountryArray cArray, int ind, boolean... cond) {
         Country op = cArray.get(ind);
-        if (this.landlocked) {
-            if (!op.landlocked) {
-                this.landlocked = false;
-            }
-        }
+
         updateNeighbours(cArray, op);
         population += op.population;
         area += op.area;
@@ -500,11 +490,7 @@ public class Country implements Serializable, Comparable<Country> {
     public void subjugateCountry(Country op, SubjectType type) {
         if (subjectOf == null) {
             // gain access to water for navy //boolean ONLY HERE IMPORTANT!
-            if (this.landlocked) {
-                if (!op.landlocked) {
-                    this.landlocked = false;
-                }
-            }
+            //waterAccess
             incAvailableBuildings(op);
             CSubject cs = makeSubject(op, type);
             subjects.put(op.getCountryId(), cs);
@@ -527,7 +513,9 @@ public class Country implements Serializable, Comparable<Country> {
     public void releaseSubject(int iso2) {
         if (subjects.containsKey(iso2)) {
             decAvailableBuildings(subjects.get(iso2).getSubject());
+            subjects.get(iso2).getSubject().subjectOf = null;
             subjects.remove(iso2);
+
         }
     }
 
@@ -561,30 +549,6 @@ public class Country implements Serializable, Comparable<Country> {
             if (cArray.containsKey(i))
                 this.annexCountry(cArray, i, true);
         }
-    }
-
-    public String getPhonePrefix() {
-        return infoElectronic[0];
-    }
-
-    public void setPhonePrefix(String phonePrefix) {
-        this.infoElectronic[1] = phonePrefix;
-    }
-
-    public String getInternetDomain() {
-        return infoElectronic[1];
-    }
-
-    public void setInternetDomain(String internetDomain) {
-        this.infoElectronic[1] = internetDomain;
-    }
-
-    public String[] getInfoElectronic() {
-        return infoElectronic;
-    }
-
-    public void setInfoElectronic(String[] infoElectronic) {
-        this.infoElectronic = infoElectronic;
     }
 
     public void changeGovType(String type) {
@@ -711,7 +675,8 @@ public class Country implements Serializable, Comparable<Country> {
     }
 
     public boolean isLandlocked() {
-        return landlocked && waterProvinces == 0;
+        //return landlocked && waterProvinces == 0;
+        return waterProvinces == 0; // && waterSubjectProvinces
     }
 
     public List<Short> getLanguages() {
@@ -791,10 +756,9 @@ public class Country implements Serializable, Comparable<Country> {
     }
 
     //world / countryarray for new country if its being formed
-    public void grantAdmDivIndependence(Country o, int... indAdmDiv) {
-        List<AdmDiv> independentList = removeAndGetAdmDivs(admDivisions, indAdmDiv);
+    public void releaseAdmDivTo(Country o, short... indAdmDiv) {
+        List<AdmDiv> independentList = removeAndGetAdmDivs(indAdmDiv);
         o.addAdmDivs(independentList);
-
     }
 
     private void addAdmDivs(List<AdmDiv> admDivs) {
@@ -802,7 +766,7 @@ public class Country implements Serializable, Comparable<Country> {
             addAdmDiv(d);
     }
 
-    public static List<AdmDiv> removeAndGetAdmDivs(List<AdmDiv> admDivisions, int... indAdmDiv) {
+    public List<AdmDiv> removeAndGetAdmDivs(short... indAdmDiv) {
         Collections.sort(admDivisions);
         Arrays.sort(indAdmDiv);
         ListIterator<AdmDiv> iterator = admDivisions.listIterator();
@@ -812,6 +776,7 @@ public class Country implements Serializable, Comparable<Country> {
             AdmDiv a = iterator.next();
             if (a.getProvId() == indAdmDiv[i]) {
                 independentList.add(a);
+                removeAdmDivAttr(a);
                 iterator.remove();
                 i++;
             }
@@ -855,7 +820,7 @@ public class Country implements Serializable, Comparable<Country> {
         double area = calcTotalArea(admDivs);
         long population = calcTotalPop(admDivs);
         List<Short> languages = calcTotalLanguages(admDivs);
-        Country c = new Country(name, area, population, 0.1, true, "", null, "", admDivs, languages, null, null, null, null, null);
+        Country c = new Country(name, area, population, 0.1, "", "", admDivs, languages, null, null, null, null, null);
         c.setIso2(iso2);
         return c;
     }
@@ -900,18 +865,30 @@ public class Country implements Serializable, Comparable<Country> {
         population += a.getPopulation();
         area += a.getArea();
         //if (landlocked && a.hasWaterAccess()){landlocked = false;}
-        landlocked = landlocked && !a.hasWaterAccess();// PROBLEM, need amount of wateraccess provinces
-        if(a.hasWaterAccess())
+        //landlocked = landlocked && !a.hasWaterAccess();// PROBLEM, need amount of wateraccess provinces
+        if (a.hasWaterAccess())
             waterProvinces++;
     }
 
-    public void removeAdmDiv(AdmDiv a) {
-        if(admDivisions.remove(a)) {
-            population -= a.getPopulation();
-            area -= a.getArea();
+    //call in end
+    public void calcWaterAccess() {
+        waterProvinces = 0;
+        for (AdmDiv a : admDivisions)
             if (a.hasWaterAccess())
-                waterProvinces--;
+                waterProvinces++;
+    }
+
+    public void removeAdmDiv(AdmDiv a) {
+        if (admDivisions.remove(a)) {
+            removeAdmDivAttr(a);
         }
+    }
+
+    public void removeAdmDivAttr(AdmDiv a) {
+        population -= a.getPopulation();
+        area -= a.getArea();
+        if (a.hasWaterAccess())
+            waterProvinces--;
     }
 
     public CFormable getIsFormed() {
@@ -1028,8 +1005,46 @@ public class Country implements Serializable, Comparable<Country> {
     }
 
     public Country releaseCountry(World world, int cId) {
-
+        //world.countryFromFile(cId);
         return null;
     }
 
+    public void liberateAllSubjects(boolean... args) {
+        switch (args.length) {
+
+            case 1:
+
+                break;
+        }
+        for (int i : subjects.keySet()) {
+            releaseSubject(i);
+        }
+    }
+
+    public List<Integer> admDivIdList() {
+        List<Integer> list = new LinkedList<>();
+        for (AdmDiv a : admDivisions) {
+            list.add(a.getProvId());
+        }
+        return list;
+    }
+
+    public void fixGDPPerCapita() {
+        double tempGDP = eco.getGDP();
+        long tempPop = population;
+        for (AdmDiv a : admDivisions) {
+            float val = a.getGdpPerCapita();
+            if (val > 0) {
+                tempGDP -= a.getGDP();
+                tempPop -= a.getPopulation();
+            }
+        }
+        float perCapitaRest = (float) (tempGDP / tempPop);
+        for (AdmDiv a : admDivisions) {
+            if (a.getGdpPerCapita() <= 0) {
+                a.setGdpPerCapita(perCapitaRest);
+            }
+        }
+
+    }
 }

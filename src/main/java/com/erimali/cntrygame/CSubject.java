@@ -135,7 +135,13 @@ public class CSubject implements Serializable {
             subject.getEconomy().decTreasury(amount);
         }
     }
-    public void yearlyTick(){
+
+    public void yearlyTick() {
         decIndDesire(10);
+    }
+
+    public boolean isAtGoodTerms() {
+        short rel = main.getRelations((short) subject.getCountryId());
+        return (independenceDesire == 0 && rel >= 0) || (independenceDesire < 50 && rel >= 200);
     }
 }
