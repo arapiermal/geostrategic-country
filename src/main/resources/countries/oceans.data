@@ -1,0 +1,5 @@
+North Atlantic:South Atlantic, (SEA) Strait of Gibraltar
+South Atlantic:North Atlantic,Indian,Southern,South Pacific
+South Pacific:North Pacific,Southern,()Indian
+North Pacific:South Pacific
+Indian:()South Pacific,Southern,South Atlantic
