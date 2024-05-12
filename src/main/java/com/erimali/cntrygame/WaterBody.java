@@ -31,7 +31,7 @@ public class WaterBody implements DijkstraCalculable {
     private double centerX;//or represented by Point(x,y) in world map;
     private double centerY;
     private transient Point2D point;
-    //private List<WaterBody> neighbours;//or set...
+    //private List<WaterBody> neighbours;//or Set<String> neighbourWaterBodies, short[] neighbour provinces...
 
 
     public WaterBody(WaterBodyType type, String name, double area) {

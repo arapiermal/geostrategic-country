@@ -390,6 +390,22 @@ public class GUtils {
         return arr;
     }
 
+    public static short[] parseShortArr(String[] str) {
+        short[] arr = new short[str.length];
+        int i = 0;
+        for (String s : str) {
+            try {
+                arr[i] = Short.parseShort(s);
+                i++;
+            } catch (NumberFormatException nfe) {
+
+            }
+        }
+        if (i < arr.length)
+            return Arrays.copyOf(arr, i);
+        return arr;
+    }
+
     public static int parseIntOrMinMaxDef(String s, int min, int max, int def) {
         try{
             int res = Integer.parseInt(s);

@@ -755,7 +755,7 @@ public class WorldMap {
         int i = 0;
         for (List<WaterBody> l : list) {
             for (WaterBody w : l) {
-                w.setWaterBodyId(i);
+                w.setWaterBodyId(Short.MAX_VALUE + i);
                 waterBodies[i++] = w;
             }
         }
