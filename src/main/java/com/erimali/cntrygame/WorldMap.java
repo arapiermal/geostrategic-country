@@ -1,7 +1,6 @@
 package com.erimali.cntrygame;
 
 import com.erimali.cntrymilitary.MilUnitData;
-import javafx.application.Platform;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -22,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -54,6 +52,8 @@ public class WorldMap {
     // CURSOR
 
     private SVGProvince[] mapSVG;// all adm divisions
+
+    private WaterBody[] waterBodies;
 //set/remove fill to countries when that mode
 
     private List<Region> milUnits;
@@ -289,8 +289,8 @@ public class WorldMap {
             setMinSize(w, h);
             setPrefSize(w, h);
             setMaxSize(w, h);
-            setLayoutX(prov.getProvX() - w / 2);
-            setLayoutY(prov.getProvY() - h / 2);
+            setLayoutX(prov.getCenterX() - w / 2);
+            setLayoutY(prov.getCenterY() - h / 2);
         }
 
         public void move(int dst) {
@@ -307,10 +307,10 @@ public class WorldMap {
             for (int i = 0; i < p.size() - 1; i++) {
                 SVGProvince s0 = mapSVG[p.get(i)];
                 SVGProvince s1 = mapSVG[p.get(i + 1)];
-                double x0 = s0.getProvX() - getLayoutX();
-                double y0 = s0.getProvY() - getLayoutY();
-                double x1 = s1.getProvX() - getLayoutX();
-                double y1 = s1.getProvY() - getLayoutY();
+                double x0 = s0.getCenterX() - getLayoutX();
+                double y0 = s0.getCenterY() - getLayoutY();
+                double x1 = s1.getCenterX() - getLayoutX();
+                double y1 = s1.getCenterY() - getLayoutY();
                 getChildren().add(new Line(x0, y0, x1, y1));
 
             }
@@ -320,10 +320,10 @@ public class WorldMap {
             for (int i = 0; i < movingIds.size() - 1; i++) {
                 SVGProvince s0 = mapSVG[movingIds.get(i)];
                 SVGProvince s1 = mapSVG[movingIds.get(i + 1)];
-                double x0 = s0.getProvX() - getLayoutX();
-                double y0 = s0.getProvY() - getLayoutY();
-                double x1 = s1.getProvX() - getLayoutX();
-                double y1 = s1.getProvY() - getLayoutY();
+                double x0 = s0.getCenterX() - getLayoutX();
+                double y0 = s0.getCenterY() - getLayoutY();
+                double x1 = s1.getCenterX() - getLayoutX();
+                double y1 = s1.getCenterY() - getLayoutY();
                 Line line = (Line) getChildren().get(i);
                 line.setStartX(x0);
                 line.setStartY(y0);
@@ -638,7 +638,7 @@ public class WorldMap {
         for (int i = 0; i < res.length; i++) {
             SVGProvince s0 = mapSVG[p[i]];
             SVGProvince s1 = mapSVG[p[i + 1]];
-            res[i] = new Line(s0.getProvX(), s0.getProvY(), s1.getProvX(), s1.getProvY());
+            res[i] = new Line(s0.getCenterX(), s0.getCenterY(), s1.getCenterX(), s1.getCenterY());
         }
         return res;
     }
@@ -740,5 +740,43 @@ public class WorldMap {
     public void refreshMapIf(int i) {
         if (mapMode == i)
             refreshMap();
+    }
+
+    public void loadWaterBodies() {
+        List<List<WaterBody>> list = new LinkedList<>();
+        for (WaterBody.WaterBodyType type : WaterBody.WaterBodyType.values()) {
+            list.add(loadListWaterBody(type));
+        }
+        int n = 0;
+        for (List<WaterBody> l : list) {
+            n += l.size();
+        }
+        waterBodies = new WaterBody[n];
+        int i = 0;
+        for (List<WaterBody> l : list) {
+            for (WaterBody w : l) {
+                w.setWaterBodyId(i);
+                waterBodies[i++] = w;
+            }
+        }
+    }
+
+    public List<WaterBody> loadListWaterBody(WaterBody.WaterBodyType type) {
+        List<WaterBody> list = new LinkedList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(GLogic.RESOURCESPATH + "countries/water/" + type.name().toLowerCase() + ".data"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.contains(":")) {
+                    String[] k = line.trim().split("\\s*:\\s*");
+                    String[] constructor = k[0].split("\\s*,\\s*");
+                    list.add(new WaterBody(type, constructor[0], GUtils.parseI(constructor, 1)));
+
+
+                }
+            }
+        } catch (IOException ioe) {
+
+        }
+        return list;
     }
 }

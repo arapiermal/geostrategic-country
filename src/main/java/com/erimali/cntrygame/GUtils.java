@@ -26,6 +26,16 @@ public class GUtils {
         }
     }
 
+    public static int parseI(String[] k, int a) {
+        try {
+            String s = k[a];
+            int i = Integer.parseInt(s);
+            return i;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     public static long parseL(String s) {
         try {
             long l = Long.parseLong(s);

@@ -6,12 +6,17 @@ import java.io.IOException;
 import java.util.*;
 
 public class ShortestPathFinder {
-    private Map<Integer, int[]> provinceData;
+    private final Map<Integer, int[]> provinceData;
+    private Map<Integer, int[]> waterBodyData;
     private SVGProvince[] svgProvinces;
+    private WaterBody[] waterBodies;
 
+//, WaterBody[] waterBodies
     public ShortestPathFinder(SVGProvince[] svgProvinces) {
         this.svgProvinces = svgProvinces;
         provinceData = generateNeighbourMap();
+        if(provinceData == null)
+            throw new IllegalArgumentException("ERROR IN DIJKSTRA NEIGHBOURS DATA");
         fixBiDirectionalGraphMap(provinceData);
     }
 
@@ -19,7 +24,8 @@ public class ShortestPathFinder {
         this.provinceData = provinceData;
         fixBiDirectionalGraphMap(provinceData);
     }
-    public SVGProvince[] getSVGProvinces(){
+
+    public SVGProvince[] getSVGProvinces() {
         return svgProvinces;
     }
 
@@ -150,6 +156,14 @@ public class ShortestPathFinder {
         } else {
             System.out.println("Shortest path: " + shortestPath);
             System.out.println("Number of provinces in the shortest path: " + shortestPath.size());
+        }
+    }
+
+    public DijkstraCalculable getCalculableByIndex(int i) {
+        if (i < Short.MAX_VALUE) {
+            return svgProvinces[i];
+        } else {
+            return waterBodies[i - Short.MAX_VALUE];
         }
     }
 }

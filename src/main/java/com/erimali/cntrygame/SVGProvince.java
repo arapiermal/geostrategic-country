@@ -7,7 +7,7 @@ import javafx.scene.paint.Stop;
 import javafx.scene.shape.SVGPath;
 
 
-public class SVGProvince extends SVGPath {
+public class SVGProvince extends SVGPath implements DijkstraCalculable {
     //private static int CURRPROVINCEID = 0;
     private double provX, provY;
     private int ownerId;
@@ -50,11 +50,14 @@ public class SVGProvince extends SVGPath {
 
     }
 
-    public double getProvX() {
+    @Override
+    public double getCenterX() {
+
         return provX;
     }
 
-    public double getProvY() {
+    @Override
+    public double getCenterY() {
         return provY;
     }
 
@@ -98,9 +101,9 @@ public class SVGProvince extends SVGPath {
         return occupierId;
     }
 
-    public double getDistance(SVGProvince s1) {
-        double distX = provX - s1.provX;
-        double distY = provY - s1.provY;
+    public double getDistance(DijkstraCalculable dijkstraCalculable) {
+        double distX = provX - dijkstraCalculable.getCenterX();
+        double distY = provY - dijkstraCalculable.getCenterY();
         return Math.sqrt(distX * distX + distY * distY);
     }
 }
