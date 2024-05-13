@@ -1,5 +1,5 @@
-Adriatic,235000.0:Ionian:3451,3450,3449,3085,3084,3087,3089,3763,3791,3804,3799,3798,3797,3801,3792,3112,3154,3447,3203,3204,3198,3446,3445,3444,3443,3031
-Ionian:Adriatic,Mediterranean,Tyrrhenian
+Adriatic,235000.0:Ionian:3451,3450,3449,3085,3084,3087,3089,3763,3791,3804,3799,3798,3797,3801,3792,3112,3154,3447,3203,3204,3198,3446,3445,3444,3443,3031:3198,3451
+Ionian:Adriatic,Mediterranean,Tyrrhenian::3453,3442
 Mediterranean:Ionian,Aegean,Tyrrhenian,Ligurian,Balearic,Alboran
 Aegean:Mediterranean,Marmara
 Marmara:Aegean,Black
@@ -9,4 +9,4 @@ Ligurian:Mediterranean,Tyrrhenian
 Tyrrhenian:Ligurian,Mediterranean
 Balearic:Mediterranean
 Alboran:Mediterranean,Strait of Gibraltar
-Strait of Gibraltar:Alboran,(OCEAN) North Atlantic
+Strait of Gibraltar:Alboran,North Atlantic

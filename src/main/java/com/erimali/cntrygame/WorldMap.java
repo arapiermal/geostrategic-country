@@ -10,10 +10,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.SVGPath;
-import javafx.scene.shape.StrokeLineCap;
-import javafx.scene.shape.StrokeLineJoin;
+import javafx.scene.shape.*;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -21,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -36,10 +34,6 @@ public class WorldMap {
     private Color defColorCountry = new Color(0, 0, 0, 0);
     private String defBorderColorString = "#000000";
     private Paint defBorderColor = Paint.valueOf(defBorderColorString);
-    //Irrelevant based on new SVG
-    private String defSubBorderColorString = "#FFFFFF";
-    private Paint defSubBorderColor = Paint.valueOf(defSubBorderColorString);
-    // default fill of country svg -> alpha 0
 
     private Paint defAllyColor = Paint.valueOf("blue");
     private Paint defNeutralColor = Paint.valueOf("lightgreen");
@@ -47,13 +41,11 @@ public class WorldMap {
     private Paint defSubjectColor = Paint.valueOf("green");
     private Paint defOwnerColor = Paint.valueOf("yellow");
     private Group mapGroup;
-    //private Group countryGroup;
 
     // CURSOR
-
     private SVGProvince[] mapSVG;// all adm divisions
 
-    private WaterBody[] waterBodies;
+    private WaterBody[] waterBodies; // put elsewhere so accessible from elsewhere
 //set/remove fill to countries when that mode
 
     private List<Region> milUnits;
@@ -67,6 +59,7 @@ public class WorldMap {
     private static final String[] MAP_MODE_NAMES = new String[]{"Default", "Allies", "Unions", "Neighbours", "Continents"};
 
     public WorldMap(GameStage gs) {
+        waterBodies = WaterBody.loadWaterBodies();
         loadColors();
         loadMilSVGData();
         this.gs = gs;
@@ -162,10 +155,10 @@ public class WorldMap {
 
 
             mapGroup.setCursor(Cursor.HAND);
-            roadFinder = new ShortestPathFinder(mapSVG);
             ZoomableScrollPane scrollPane = new ZoomableScrollPane(mapGroup);
+            loadWaterBodiesCircle();
+            roadFinder = new ShortestPathFinder(mapSVG, waterBodies);
             debugMilUnitRegion = makeMilUnitImg(0, 3198, 0);
-            //debugMilUnitRegion.makeLines(roadFinder.findShortestPath(3198, 3031));
 
             ContextMenu cm = new ContextMenu();
             MenuItem[] menuItems = new MenuItem[GOptions.isDebugMode() ? 6 : 2];
@@ -232,7 +225,7 @@ public class WorldMap {
             while ((row = br.readLine()) != null) {
                 if (row.isBlank())
                     continue;
-                String[] c = row.split("\\s*,\\s*", 2);
+                String[] c = row.trim().split("\\s*,\\s*", 2);
                 if (c.length >= 2) {
                     if (c[0].length() == 2) {
                         int id = CountryArray.getIndex(c[0]);
@@ -265,32 +258,46 @@ public class WorldMap {
         }
     }
 
+    public DijkstraCalculable getCalculableByIndex(int i) {
+        if (i < Short.MAX_VALUE) {
+            return mapSVG[i];
+        } else {
+            return waterBodies[i - Short.MAX_VALUE];
+        }
+    }
+
     //cancel when new...
     public static class MilUnitRegion extends Region {
+        //TYPE CHECK
         int provId;
-        SVGProvince[] mapSVG;
         List<Integer> movingIds;
         ShortestPathFinder roadFinder;
 
         public MilUnitRegion(ShortestPathFinder roadFinder, SVGPath milSVG, SVGProvince prov) {
             super();
             this.roadFinder = roadFinder;
-            this.mapSVG = roadFinder.getSVGProvinces();
             setShape(milSVG);
             setSizeAndPos(prov);
             getStyleClass().add("milImg");
             setMouseTransparent(true);
         }
 
-        public void setSizeAndPos(SVGProvince prov) {
-            provId = prov.getProvId();
-            double w = prov.getBoundsInLocal().getWidth() / 3;
-            double h = prov.getBoundsInLocal().getHeight() / 3;
-            setMinSize(w, h);
-            setPrefSize(w, h);
-            setMaxSize(w, h);
-            setLayoutX(prov.getCenterX() - w / 2);
-            setLayoutY(prov.getCenterY() - h / 2);
+        public void setSizeAndPos(DijkstraCalculable prov) {
+            if(prov instanceof SVGProvince temp) {
+                provId = temp.getProvId();
+                double w = temp.getBoundsInLocal().getWidth() / 3;
+                double h = temp.getBoundsInLocal().getHeight() / 3;
+                setMinSize(w, h);
+                setPrefSize(w, h);
+                setMaxSize(w, h);
+                setLayoutX(prov.getCenterX() - w / 2);
+                setLayoutY(prov.getCenterY() - h / 2);
+            } else if( prov instanceof WaterBody temp){
+                provId = temp.getWaterBodyId(); //waterId , set to -1 when not in water...
+
+                setLayoutX(prov.getCenterX() );
+                setLayoutY(prov.getCenterY() );//circle radius
+            }
         }
 
         public void move(int dst) {
@@ -305,8 +312,8 @@ public class WorldMap {
                 return;
             }
             for (int i = 0; i < p.size() - 1; i++) {
-                SVGProvince s0 = mapSVG[p.get(i)];
-                SVGProvince s1 = mapSVG[p.get(i + 1)];
+                DijkstraCalculable s0 = roadFinder.getCalculableByIndex(p.get(i));
+                DijkstraCalculable s1 = roadFinder.getCalculableByIndex(p.get(i + 1));
                 double x0 = s0.getCenterX() - getLayoutX();
                 double y0 = s0.getCenterY() - getLayoutY();
                 double x1 = s1.getCenterX() - getLayoutX();
@@ -318,8 +325,8 @@ public class WorldMap {
 
         public void updateLines() {
             for (int i = 0; i < movingIds.size() - 1; i++) {
-                SVGProvince s0 = mapSVG[movingIds.get(i)];
-                SVGProvince s1 = mapSVG[movingIds.get(i + 1)];
+                DijkstraCalculable s0 = roadFinder.getCalculableByIndex(movingIds.get(i));
+                DijkstraCalculable s1 = roadFinder.getCalculableByIndex(movingIds.get(i + 1));
                 double x0 = s0.getCenterX() - getLayoutX();
                 double y0 = s0.getCenterY() - getLayoutY();
                 double x1 = s1.getCenterX() - getLayoutX();
@@ -344,7 +351,7 @@ public class WorldMap {
             if (isMoving()) {
                 getChildren().removeFirst();
                 movingIds.removeFirst();
-                SVGProvince sNext = mapSVG[movingIds.getFirst()];
+                DijkstraCalculable sNext = roadFinder.getCalculableByIndex(movingIds.getFirst());
                 setSizeAndPos(sNext);
                 updateLines();
                 if (movingIds.size() <= 1) {
@@ -742,41 +749,17 @@ public class WorldMap {
             refreshMap();
     }
 
-    public void loadWaterBodies() {
-        List<List<WaterBody>> list = new LinkedList<>();
-        for (WaterBody.WaterBodyType type : WaterBody.WaterBodyType.values()) {
-            list.add(loadListWaterBody(type));
-        }
-        int n = 0;
-        for (List<WaterBody> l : list) {
-            n += l.size();
-        }
-        waterBodies = new WaterBody[n];
-        int i = 0;
-        for (List<WaterBody> l : list) {
-            for (WaterBody w : l) {
-                w.setWaterBodyId(Short.MAX_VALUE + i);
-                waterBodies[i++] = w;
-            }
-        }
-    }
-
-    public List<WaterBody> loadListWaterBody(WaterBody.WaterBodyType type) {
-        List<WaterBody> list = new LinkedList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(GLogic.RESOURCESPATH + "countries/water/" + type.name().toLowerCase() + ".data"))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.contains(":")) {
-                    String[] k = line.trim().split("\\s*:\\s*");
-                    String[] constructor = k[0].split("\\s*,\\s*");
-                    list.add(new WaterBody(type, constructor[0], GUtils.parseI(constructor, 1)));
-
-
+    public void loadWaterBodiesCircle() {
+        if (waterBodies != null) {
+            for (WaterBody w : waterBodies) {
+                w.makePointBetweenProvinces(mapSVG);
+                if (w.getCenterX() > 0 && w.getCenterY() > 0) {
+                    TESTING.print(w);
+                    Circle circle = new Circle(w.getCenterX(), w.getCenterY(), mapHeight / 600, w.getColor());
+                    mapGroup.getChildren().add(circle);
                 }
             }
-        } catch (IOException ioe) {
-
         }
-        return list;
     }
+
 }

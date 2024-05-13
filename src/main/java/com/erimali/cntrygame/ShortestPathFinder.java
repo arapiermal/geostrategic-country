@@ -12,18 +12,32 @@ public class ShortestPathFinder {
     private WaterBody[] waterBodies;
 
 //, WaterBody[] waterBodies
-    public ShortestPathFinder(SVGProvince[] svgProvinces) {
+    public ShortestPathFinder(SVGProvince[] svgProvinces, WaterBody[] waterBodies) {
         this.svgProvinces = svgProvinces;
+        this.waterBodies = waterBodies;
         provinceData = generateNeighbourMap();
         if(provinceData == null)
             throw new IllegalArgumentException("ERROR IN DIJKSTRA NEIGHBOURS DATA");
         fixBiDirectionalGraphMap(provinceData);
+        generateWaterNeighbourMap();
+    }
+
+    private void generateWaterNeighbourMap() {
+        if(waterBodies != null){
+            waterBodyData = new HashMap<>();
+            for(WaterBody w : waterBodies){
+                waterBodyData.put(w.getWaterBodyId(), w.getNeighbours());
+                //fix here
+            }
+            fixBiDirectionalGraphMap(waterBodyData);
+        }
     }
 
     public ShortestPathFinder(Map<Integer, int[]> provinceData) {
         this.provinceData = provinceData;
         fixBiDirectionalGraphMap(provinceData);
     }
+
 
     public SVGProvince[] getSVGProvinces() {
         return svgProvinces;
@@ -69,9 +83,23 @@ public class ShortestPathFinder {
                         pq.offer(new int[]{neighbor, newDist});
                     }
                 }
-
+            int[] waterNeighbours = waterBodyData.get(vertex);
+            if (waterNeighbours != null)
+                for (int neighbor : waterNeighbours) {
+                    int newDist;
+                    if (waterBodies == null) {
+                        newDist = dist + 1; // unit distance
+                    } else {
+                        newDist = dist + (int) getCalculableByIndex(vertex).getDistance(getCalculableByIndex(neighbor));
+                    }
+                    int oldDist = distance.getOrDefault(neighbor, Integer.MAX_VALUE);
+                    if (newDist < oldDist) {
+                        distance.put(neighbor, newDist);
+                        parent.put(neighbor, vertex);
+                        pq.offer(new int[]{neighbor, newDist});
+                    }
+                }
         }
-
         // Reconstruct the shortest path if destination is reachable
         List<Integer> shortestPath = new ArrayList<>();
         if (parent.get(destination) != null) {
