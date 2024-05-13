@@ -370,7 +370,6 @@ public class WorldMap {
         SVGProvince prov = mapSVG[provId];
 
         MilUnitRegion milImg = new MilUnitRegion(roadFinder, milSVG[type], prov);
-
         //milImg.setStyle("-fx-background-color: green;");
         milImg.getStyleClass().add(MilUnitData.getUnitTypeName(type));
         milImg.getStyleClass().add(friendly == 0 ? "player" : friendly > 0 ? "allies" : "enemy");
