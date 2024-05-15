@@ -3,10 +3,7 @@ package com.erimali.cntrygame;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class GUtils {
     public static String joinStrings(String[] s, int start) {
@@ -390,6 +387,19 @@ public class GUtils {
         return arr;
     }
 
+    public static List<Integer> parseIntList(String[] str) {
+        List<Integer> list = new LinkedList<>();
+        for (String s : str) {
+            try {
+                int a = Integer.parseInt(s);
+                list.add(a);
+            } catch (NumberFormatException nfe) {
+
+            }
+        }
+        return list;
+    }
+
     public static short[] parseShortArr(String[] str) {
         short[] arr = new short[str.length];
         int i = 0;
@@ -407,15 +417,15 @@ public class GUtils {
     }
 
     public static int parseIntOrMinMaxDef(String s, int min, int max, int def) {
-        try{
+        try {
             int res = Integer.parseInt(s);
-            if(res > max)
+            if (res > max)
                 return max;
-            else if(res < min)
+            else if (res < min)
                 return min;
             else
                 return res;
-        } catch(NumberFormatException nfe){
+        } catch (NumberFormatException nfe) {
             return def;
         }
     }

@@ -1,12 +1,12 @@
 Adriatic,235000.0:Ionian:3451,3450,3449,3085,3084,3087,3089,3763,3791,3804,3799,3798,3797,3801,3792,3112,3154,3447,3203,3204,3198,3446,3445,3444,3443,3031:3198,3451
 Ionian:Adriatic,Mediterranean,Tyrrhenian:3485,3029,3442,3441,3482,3453,3452,3451:3453,3442
-Mediterranean:Ionian,Aegean,Tyrrhenian,Ligurian,Balearic,Alboran
-Aegean:Mediterranean,Marmara
-Marmara:Aegean,Black
-Black:Azov,Marmara
-Azov:Black
-Ligurian:Mediterranean,Tyrrhenian
-Tyrrhenian:Ligurian,Mediterranean
-Balearic:Mediterranean
-Alboran:Mediterranean,Strait of Gibraltar
-Strait of Gibraltar:Alboran,North Atlantic
+Mediterranean:Ionian,Aegean,Tyrrhenian,Ligurian,Balearic,Alboran:3478,1566,1567,3269,3271,2933,3273,3480,3270,2932,3272,490,98,2795,2794,2796,2799,2798,46,48,49,44,1419,45,853,1420,1423,1422,1424,1421,1425,1426,1427,896,895,1428,1429,1430,1431,897,1251,1252,1253,1254,1255,189,188,1256,1257,1258,1259,1260,1261,1262,1265,1265,1263,1266,1267,884,2823,2822,2825,2824,2843,2832,2831,2830,2833,2835,2837,3482,3487,3458,3486:1251,3453
+Aegean:Mediterranean,Marmara:3195,3098,3438,3484,3437,3439,3440,3479,3441,3478,1563,1562,1543,3081,1564,1565:3478,3196
+Marmara:Aegean,Black:3332,3081,1543,1562,1561,1559,1560,1542:1561,3332
+Black:Azov,Marmara::3329,1553
+Azov:Black::3670,3507
+Ligurian:Mediterranean,Tyrrhenian:3060,3488,3456:3488,3060
+Tyrrhenian:Ligurian,Mediterranean:3488,3487,3482,3453,3452,3454,3455,3456:3453,3487
+Balearic:Mediterranean:3486,3457,3096:3486,3096
+Alboran:Mediterranean,Strait of Gibraltar:2756,2820,2817,2818,3257:3257,2756
+Strait of Gibraltar:Alboran,North Atlantic:2754,3257:2757,3257

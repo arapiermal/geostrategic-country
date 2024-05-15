@@ -3,6 +3,8 @@ package com.erimali.cntrygame;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.SVGPath;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -20,6 +22,7 @@ public class WaterBody implements DijkstraCalculable {
         //if not final could be changed for translation (!)
         private final String desc;
         private Paint color;
+
         WaterBodyType(String desc, Paint color) {
             this.desc = desc;
             this.color = color;
@@ -48,8 +51,10 @@ public class WaterBody implements DijkstraCalculable {
     private int[] neighbours;
 
     private int[] betweenProvs;
-    //private List<WaterBody> neighbours;//or Set<String> neighbourWaterBodies, short[] neighbour provinces...
 
+    //id of where you are stored in provinceId of milUnit (provId can be WaterBody)
+    //...change of logic
+    //or svgprovince but circle ?!??
 
     public WaterBody(WaterBodyType type, String name, double area) {
         this.type = type;
@@ -189,11 +194,11 @@ public class WaterBody implements DijkstraCalculable {
         }
     }
 
-    public static WaterBody[] loadWaterBodies() {
+    public static WaterBody[] loadWaterBodies(Set<Integer> waterProvinces) {
         List<List<WaterBody>> list = new LinkedList<>();
         List<Set<String>> waterNeighbours = new LinkedList<>();
         for (WaterBody.WaterBodyType type : WaterBody.WaterBodyType.values()) {
-            list.add(WaterBody.loadListWaterBody(type, waterNeighbours));
+            list.add(WaterBody.loadListWaterBody(type, waterNeighbours, waterProvinces));
         }
         int n = 0;
         for (List<WaterBody> l : list) {
@@ -214,7 +219,7 @@ public class WaterBody implements DijkstraCalculable {
         return waterBodies;
     }
 
-    public static List<WaterBody> loadListWaterBody(WaterBody.WaterBodyType type, List<Set<String>> waterNeighboursList) {
+    public static List<WaterBody> loadListWaterBody(WaterBody.WaterBodyType type, List<Set<String>> waterNeighboursList, Set<Integer> waterProvinces) {
         List<WaterBody> list = new LinkedList<>();
         String pathName = GLogic.RESOURCESPATH + "countries/water/" + type.name().toLowerCase() + "s.data";
         try (BufferedReader br = new BufferedReader(new FileReader(pathName))) {
@@ -224,19 +229,25 @@ public class WaterBody implements DijkstraCalculable {
                     String[] k = line.trim().split("\\s*:\\s*");
                     String[] constructor = k[0].split("\\s*,\\s*");
                     WaterBody wb = new WaterBody(type, constructor[0], GUtils.parseI(constructor, 1));
-
                     String[] waterNeighbours = k.length > 1 ? k[1].trim().split("\\s*,\\s*") : new String[]{};
                     Set<String> waterSet = new HashSet<>(Arrays.asList(waterNeighbours));
                     waterNeighboursList.add(waterSet);
                     int[] neighbours = k.length > 2 ? GUtils.parseIntArr(k[2].trim().split("\\s*,\\s*")) : null;
-                    wb.setNeighbours(neighbours);
+                    if (neighbours != null && neighbours.length > 0) {
+                        for (int i : neighbours) {
+                            waterProvinces.add(i);
+                        }
+                        wb.setNeighbours(neighbours);
+                    }
                     int[] betweenProvs = k.length > 3 ? GUtils.parseIntArr(k[3].trim().split("\\s*,\\s*")) : null;
-                    wb.setBetweenProvs(betweenProvs);
+                    if (betweenProvs != null && betweenProvs.length > 0) {
+                        wb.setBetweenProvs(betweenProvs);
+                    }
                     list.add(wb);
                 }
             }
         } catch (IOException ioe) {
-
+            ErrorLog.logError("IO error at file: " + pathName);
         }
         return list;
     }

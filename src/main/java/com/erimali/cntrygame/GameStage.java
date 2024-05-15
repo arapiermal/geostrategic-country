@@ -129,8 +129,8 @@ public class GameStage extends Stage {
         setWidth(1280);
         setHeight(720);
         this.selectedCountry = -1;
-        this.map = new WorldMap(this);
         this.game = new GLogic(this);
+        this.map = new WorldMap(this);
 
         BorderPane gameLayout = createGameLayout();
         changeDate(game.inGDateInfo());
@@ -155,8 +155,8 @@ public class GameStage extends Stage {
         this.selectedCountry = -1;
         game.setGameStage(this);
         game.startTimer();
-        this.map = new WorldMap(this);
         this.game = game;
+        this.map = new WorldMap(this);
         game.loadBaseEvents();
         game.loadAllUnitData();
         game.correlateAllUnitData();
@@ -256,7 +256,7 @@ public class GameStage extends Stage {
         gameLayout.setTop(hTop);
 
         // CENTER
-        ZoomableScrollPane scrollPane = map.start();
+        ZoomableScrollPane scrollPane = map.getScrollPane();
         gameLayout.setCenter(scrollPane);
 
         // LEFT

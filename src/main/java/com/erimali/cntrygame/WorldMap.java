@@ -6,6 +6,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -18,14 +19,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class WorldMap {
     protected static double mapWidth = 12200;
     protected static double mapHeight = 6149.8;
+    private ZoomableScrollPane scrollPane;
     private Paint[] colors;
     private Color backgroundColor = Color.valueOf("#ADD8E6");
     private Color colDefTransparent = new Color(0, 0, 0, 0);
@@ -56,13 +55,15 @@ public class WorldMap {
     private int mapMode;
 
     private SVGPath[] milSVG;
-    private static final String[] MAP_MODE_NAMES = new String[]{"Default", "Allies", "Unions", "Neighbours", "Continents"};
+    private static final String[] MAP_MODE_NAMES = new String[]{"Default", "Allies", "Unions", "Neighbours", "Continents", "Water"};
 
     public WorldMap(GameStage gs) {
-        waterBodies = WaterBody.loadWaterBodies();
+        Set<Integer> waterProvinces = new HashSet<>();
+        this.waterBodies = WaterBody.loadWaterBodies(waterProvinces);
         loadColors();
         loadMilSVGData();
         this.gs = gs;
+        this.scrollPane = start();
     }
 
     public static int getMaxMapModes() {
@@ -266,6 +267,10 @@ public class WorldMap {
         }
     }
 
+    public ZoomableScrollPane getScrollPane() {
+        return scrollPane;
+    }
+
     //cancel when new...
     public static class MilUnitRegion extends Region {
         //TYPE CHECK
@@ -283,7 +288,7 @@ public class WorldMap {
         }
 
         public void setSizeAndPos(DijkstraCalculable prov) {
-            if(prov instanceof SVGProvince temp) {
+            if (prov instanceof SVGProvince temp) {
                 provId = temp.getProvId();
                 double w = temp.getBoundsInLocal().getWidth() / 3;
                 double h = temp.getBoundsInLocal().getHeight() / 3;
@@ -292,11 +297,11 @@ public class WorldMap {
                 setMaxSize(w, h);
                 setLayoutX(prov.getCenterX() - w / 2);
                 setLayoutY(prov.getCenterY() - h / 2);
-            } else if( prov instanceof WaterBody temp){
+            } else if (prov instanceof WaterBody temp) {
                 provId = temp.getWaterBodyId(); //waterId , set to -1 when not in water...
 
-                setLayoutX(prov.getCenterX() );
-                setLayoutY(prov.getCenterY() );//circle radius
+                setLayoutX(prov.getCenterX());
+                setLayoutY(prov.getCenterY());//circle radius
             }
         }
 
@@ -634,8 +639,21 @@ public class WorldMap {
             case 4:
                 paintMapContinents();
                 break;
+            case 5:
+                paintMapWaters();
+                break;
             default:
                 break;
+        }
+    }
+
+    private void paintMapWaters() {
+        for(AdmDiv a : gs.getGame().getWorld().getProvinces()){
+            a.getSvgProvince().setFill(a.hasWaterAccess() ? Color.DODGERBLUE : defColor);
+        }
+        for(WaterBody w : waterBodies){
+            //show text on top of circle (?)
+
         }
     }
 
@@ -714,7 +732,7 @@ public class WorldMap {
                         int d0 = line.indexOf("d=\"");
                         if (d0 > 0) {
                             d0 += 3;
-                            stringBuilderTillStringEnd(d0, line, content);
+                            stringBuilderTillStringEnd(d0, line, content, br);
                         }
                         content.append(' ');
                     }
@@ -739,6 +757,19 @@ public class WorldMap {
         }
     }
 
+    public static void stringBuilderTillStringEnd(int i, String line, StringBuilder sb, BufferedReader br) throws IOException {
+        do {
+            while (i < line.length()) {
+                char c = line.charAt(i);
+                if (c == '\"')
+                    return;
+                sb.append(c);
+                i++;
+            }
+            i = 0;
+        } while ((line = br.readLine()) != null);
+    }
+
     public int getMapMode() {
         return mapMode;
     }
@@ -753,8 +784,9 @@ public class WorldMap {
             for (WaterBody w : waterBodies) {
                 w.makePointBetweenProvinces(mapSVG);
                 if (w.getCenterX() > 0 && w.getCenterY() > 0) {
-                    TESTING.print(w);
-                    Circle circle = new Circle(w.getCenterX(), w.getCenterY(), mapHeight / 600, w.getColor());
+                    Tooltip tooltip = new Tooltip(w.toString());
+                    Circle circle = new Circle(w.getCenterX(), w.getCenterY(), mapHeight / 800, w.getColor());
+                    Tooltip.install(circle, tooltip);
                     mapGroup.getChildren().add(circle);
                 }
             }

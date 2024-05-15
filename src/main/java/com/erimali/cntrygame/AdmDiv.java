@@ -502,4 +502,8 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
     public double getGDP(){
         return gdpPerCapita * population;
     }
+
+    public void setWaterAccess(boolean waterAccess) {
+        this.waterAccess = waterAccess;
+    }
 }

@@ -117,9 +117,13 @@ public class War implements Serializable {
     public void bringAlly() {
 
     }
-//or float/double warState[]
+//or float/double warState[] based on country ...
     public double getWarState(Country c) {
         return (c == declaringCountry || declaringAllies.contains(c)) ? warState : -warState;
+    }
+
+    public ObservableList<AdmDiv> getOccupiedProvinces(Country c) {
+        return (c == declaringCountry || declaringAllies.contains(c)) ? declaringOccupiedProv : opposingOccupiedProv;
     }
 
     public void startBattle(int provId, List<MilUnit> a, List<MilUnit> o) {
