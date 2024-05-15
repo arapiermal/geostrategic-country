@@ -35,7 +35,7 @@ public abstract class MilUnit implements Serializable {
     }
     public static void main(String... args){
         MilRebels rebels = new MilRebels(CountryArray.getIndex("EL"), RebelType.INDEPENDENCE, true);
-        AdmDiv el = new AdmDiv("Elbasan", 100.0, 300000,false,(short)0);
+        AdmDiv el = new AdmDiv("Elbasan", 100.0, 300000,(short)0);
         while (rebels.attack(el) == 0) {
             TESTING.print("DEF = " + el.getDefense());
         }

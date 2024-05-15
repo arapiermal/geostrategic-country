@@ -131,6 +131,16 @@ public class World implements Serializable {
             }
         }
         initialProvinces = new CFormable.FirstAdmDivs(countries, provinces);
+        //water access here or in svg (better in svg for save games...
+        for(int i : game.getWorldMap().getWaterProvinces()){
+            if(i >= 0 && i < provinces.length){
+                AdmDiv a = provinces[i];
+                if( a != null){
+                    a.setWaterAccess(true);
+                }
+            }
+        }
+
     }
 
     public void loadLanguages() {
@@ -321,7 +331,7 @@ public class World implements Serializable {
                             admDiv = new AdmDiv(vals[0][0], vals[1][0], vals[1][1], indexLangs.get(GUtils.parseI(vals[1][2])));
                         }
                         if (admDiv != null) {
-                            if (vals[0].length == 2)
+                            if (vals[0].length >= 2)
                                 admDiv.setNativeName(vals[0][1]);
                             list.add(admDiv);
                         }
@@ -626,7 +636,7 @@ public class World implements Serializable {
             }
             if (provinces[p] == null) {
                 double area = svg.calcAvgArea(mapW, mapH);
-                provinces[p] = new AdmDiv(svg.getId(), area, (int) (area * worldPopDensity), true, (short) -1);
+                provinces[p] = new AdmDiv(svg.getId(), area, (int) (area * worldPopDensity), (short) -1);
                 countries.get(o).addAdmDiv(provinces[p]);
             }
         }

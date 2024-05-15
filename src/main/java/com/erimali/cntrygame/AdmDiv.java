@@ -61,11 +61,10 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
         return sb;
     }
 
-    public AdmDiv(String name, double area, int population, boolean waterAccess, short mainLanguage) {
+    public AdmDiv(String name, double area, int population, short mainLanguage) {
         this.name = name;
         this.area = area;
         this.population = population;
-        this.waterAccess = waterAccess;
         this.mainLanguage = mainLanguage;
         this.infrastructure = 1;
         this.buildings = EnumSet.noneOf(Building.class);
@@ -76,11 +75,10 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
         resetRebellion();
     }
 
-    public AdmDiv(String name, double area, int population, boolean waterAccess, short mainLanguage, float gdpPerCapita) {
+    public AdmDiv(String name, double area, int population, short mainLanguage, float gdpPerCapita) {
         this.name = name;
         this.area = area;
         this.population = population;
-        this.waterAccess = waterAccess;
         this.mainLanguage = mainLanguage;
         this.gdpPerCapita = gdpPerCapita;
         this.infrastructure = 1;
@@ -341,25 +339,30 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
     }
 
     public int recruitBuild() {
-        if (unitRecruitingBuild == null) {
-            return Integer.MIN_VALUE; //maybe max value
-        }
-        if (unitRecruitingBuild instanceof MilSoldiers milSoldiers) {
-            int extra = milSoldiers.recruit(100);
-            if (extra > 0) {
-                friendlyUnits.add(unitRecruitingBuild);
-                unitRecruitingBuild = null;
+        switch (unitRecruitingBuild) {
+            case null -> {
+                return Integer.MIN_VALUE; //maybe max value
             }
-            return extra;//fix based on max
-        } else if (unitRecruitingBuild instanceof MilVehicles milVehicles) {
-            int extra = milVehicles.build(10);
-            if (extra > 0) {
-                friendlyUnits.add(unitRecruitingBuild);
-                unitRecruitingBuild = null;
+            case MilSoldiers milSoldiers -> {
+                int extra = milSoldiers.recruit(100);
+                if (extra > 0) {
+                    friendlyUnits.add(unitRecruitingBuild);
+                    unitRecruitingBuild = null;
+                }
+                return extra;//fix based on max
+
             }
-            return extra;
-        } else {
-            return Integer.MAX_VALUE;
+            case MilVehicles milVehicles -> {
+                int extra = milVehicles.build(10);
+                if (extra > 0) {
+                    friendlyUnits.add(unitRecruitingBuild);
+                    unitRecruitingBuild = null;
+                }
+                return extra;
+            }
+            default -> {
+                return Integer.MAX_VALUE;
+            }
         }
 
     }

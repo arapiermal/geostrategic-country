@@ -56,6 +56,7 @@ public class WorldMap {
 
     private SVGPath[] milSVG;
     private static final String[] MAP_MODE_NAMES = new String[]{"Default", "Allies", "Unions", "Neighbours", "Continents", "Water"};
+
     private Set<Integer> waterProvinces;
     public WorldMap(GameStage gs) {
         waterProvinces = new HashSet<>();
@@ -64,6 +65,10 @@ public class WorldMap {
         loadMilSVGData();
         this.gs = gs;
         this.scrollPane = start();
+    }
+
+    public Set<Integer> getWaterProvinces() {
+        return waterProvinces;
     }
 
     public static int getMaxMapModes() {
@@ -249,7 +254,7 @@ public class WorldMap {
             int provId = clickedPath.getProvId();
             gs.setSelectedCountry(pathOwn);
             gs.setSelectedProvince(provId);
-            //System.out.println(provId + " clicked - ID: " + pathId + ", Owner: " + CountryArray.getIndexISO2(pathOwn));
+            System.out.println(clickedPath.getId() + " clicked");
             if (pathOwn != oldSel) {
                 if (mapMode == 1)
                     paintMapAllies(oldSel);
