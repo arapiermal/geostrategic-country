@@ -56,9 +56,9 @@ public class WorldMap {
 
     private SVGPath[] milSVG;
     private static final String[] MAP_MODE_NAMES = new String[]{"Default", "Allies", "Unions", "Neighbours", "Continents", "Water"};
-
+    private Set<Integer> waterProvinces;
     public WorldMap(GameStage gs) {
-        Set<Integer> waterProvinces = new HashSet<>();
+        waterProvinces = new HashSet<>();
         this.waterBodies = WaterBody.loadWaterBodies(waterProvinces);
         loadColors();
         loadMilSVGData();
@@ -323,7 +323,14 @@ public class WorldMap {
                 double y0 = s0.getCenterY() - getLayoutY();
                 double x1 = s1.getCenterX() - getLayoutX();
                 double y1 = s1.getCenterY() - getLayoutY();
-                getChildren().add(new Line(x0, y0, x1, y1));
+                Line line = new Line(x0, y0, x1, y1);
+                //line.setMouseTransparent(true); // does not work inside region
+                if(s0 instanceof WaterBody || s1 instanceof WaterBody){
+                    line.setStroke(Color.DARKBLUE);
+                } else{
+                    line.setStroke(Color.BLACK);
+                }
+                getChildren().add(line);
 
             }
         }
@@ -341,6 +348,11 @@ public class WorldMap {
                 line.setStartY(y0);
                 line.setEndX(x1);
                 line.setEndY(y1);
+                if(s0 instanceof WaterBody || s1 instanceof WaterBody){
+                    line.setStroke(Color.DARKBLUE);
+                } else{
+                    line.setStroke(Color.BLACK);
+                }
             }
         }
 
@@ -648,8 +660,12 @@ public class WorldMap {
     }
 
     private void paintMapWaters() {
-        for(AdmDiv a : gs.getGame().getWorld().getProvinces()){
-            a.getSvgProvince().setFill(a.hasWaterAccess() ? Color.DODGERBLUE : defColor);
+        for(SVGProvince s : mapSVG){
+            if(waterProvinces.contains( s.getProvId())){
+                s.setFill(Color.DODGERBLUE);
+            } else{
+                s.setFill(defColor);
+            }
         }
         for(WaterBody w : waterBodies){
             //show text on top of circle (?)
