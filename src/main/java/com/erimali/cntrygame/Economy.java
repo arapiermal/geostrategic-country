@@ -1,9 +1,13 @@
 package com.erimali.cntrygame;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+
 import java.io.Serializable;
 
 public class Economy implements Serializable {
-    private double treasury;
+    private DoubleProperty treasury;
+    //private double treasury;
     private double lastMonthBalance;
     private String currency;// USD, EUR, ALL,...
     //private String currencyLongName; in the Currencies class
@@ -26,7 +30,8 @@ public class Economy implements Serializable {
         this.gdp = gdp;
         this.economicGrowthRate = economicGrowthRate;
         this.taxation = taxation;
-        tradeManagement = new TradeManagement(this);
+        this.tradeManagement = new TradeManagement(this);
+        this.treasury = new SimpleDoubleProperty(calcBaseTreasuryInit());
     }
 
     public Economy(int len, String[]... in) {
@@ -35,33 +40,37 @@ public class Economy implements Serializable {
             case 5:
                 tradeManagement = new TradeManagement(this, getValueOrDef(in[4], 0, 1.1e9), getValueOrDef(in[4], 1, 9e8));
             case 4:
-                unemploymentRate = getValueOrDef(in[3], 0, 5.0);
+                unemploymentRate = getValueOrDef(in[3], 0, 0.05);
             case 3:
-                taxation = getValueOrDef(in[2], 0, 2.5);
+                taxation = getValueOrDef(in[2], 0, 0.025);
             case 2:
                 gdp = getValueOrDef(in[1], 0, 1e9);
-                economicGrowthRate = getValueOrDef(in[1], 1, 1.0);
+                economicGrowthRate = getValueOrDef(in[1], 1, 0.01);
             case 1:
                 currency = in[0][0];
-                inflationRate = getValueOrDef(in[0], 1, 1.0);
+                inflationRate = getValueOrDef(in[0], 1, 0.01);
         }
         if (tradeManagement == null)
             tradeManagement = new TradeManagement(this);
+        this.treasury = new SimpleDoubleProperty(calcBaseTreasuryInit());
+    }
 
+    public double calcBaseTreasuryInit() {
+        return Math.ceil(gdp * taxation / (12 - economicGrowthRate));
     }
 
     public void defaultBasicValues() {
         if (taxation == 0)
-            taxation = 2.5;
+            taxation = 0.025;
         if (gdp == 0)
             gdp = 1e9;
         if (economicGrowthRate == 0)
-            economicGrowthRate = 1.0;
+            economicGrowthRate = 0.01;
     }
 
     private double getValueOrDef(String[] strings, int i, double v) {
         try {
-            double val = Double.parseDouble(strings[i]);
+            double val = GUtils.parseDoubleAndPercentThrow(strings[i]);// Double.parseDouble(strings[i]);
             return val;
         } catch (Exception e) {
             return v;
@@ -73,8 +82,8 @@ public class Economy implements Serializable {
         double revenue = taxation * (gdp / 12);
 
         double expenditures = 0;//research spendings, soldiers upkeep, gov spendings
-        lastMonthBalance = tradeManagement.diffExportImport() + revenue - expenditures;
-        treasury += lastMonthBalance;
+        lastMonthBalance = tradeManagement.diffExportImportMonthly() + revenue - expenditures;
+        treasury.set(treasury.get() + lastMonthBalance);
     }
 
     public void yearlyTick() {
@@ -142,14 +151,15 @@ public class Economy implements Serializable {
 
     public void annex(Economy eco) {
         this.gdp += eco.gdp;
-        this.treasury += eco.treasury;
+        this.treasury.set(treasury.get() + eco.treasury.get());
         this.unemploymentRate = (this.unemploymentRate + eco.unemploymentRate) / 2;
     }
 
     public void giveMoney(Country o, double amount) {
-        if (treasury >= amount) {
-            treasury -= amount;
-            o.getEconomy().treasury += amount;
+        if (treasury.get() >= amount) {
+            treasury.set(treasury.get() - amount);
+            DoubleProperty oTreasury = o.getEconomy().treasury;
+            oTreasury.set(oTreasury.get() + amount);
             o.getDiplomacy().improveRelations(o.getCountryId(), (short) Math.log(amount));
         }
     }
@@ -182,26 +192,35 @@ public class Economy implements Serializable {
     }
 
     public double getTreasury() {
-        return treasury;
+        return treasury.get();
     }
 
     public void incTreasury(double amount) {
         if (amount > 0)
-            treasury += amount;
+            treasury.set(treasury.get() + amount);
     }
 
     public void decTreasury(double amount) {
         if (amount > 0)
-            treasury -= amount;
+            treasury.set(treasury.get() - amount);
     }
+
+    public void addTreasuryOrPercent(double amount) {
+        if(amount < 2 && amount > -2){
+            treasury.set(treasury.get() + Math.abs(treasury.get()) * amount);
+        } else {
+            treasury.set(treasury.get() + amount);
+        }
+    }
+
 
     public double removeTreasury(double amount) {
         if (amount > 0) {
-            if (treasury >= amount)
-                treasury -= amount;
+            if (treasury.get() >= amount)
+                treasury.set(treasury.get() - amount);
             else {
-                double extra = treasury;
-                treasury = 0;
+                double extra = treasury.get();
+                treasury.set(0);
                 return extra;
             }
         }
@@ -210,5 +229,15 @@ public class Economy implements Serializable {
 
     public double getLastMonthBalance() {
         return lastMonthBalance;
+    }
+
+    public DoubleProperty treasuryProperty() {
+        return treasury;
+    }
+
+    public String toStringLong(){
+        StringBuilder sb = new StringBuilder();
+
+        return sb.toString();
     }
 }

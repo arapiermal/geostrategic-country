@@ -43,7 +43,7 @@ public class ShortestPathFinder {
         return svgProvinces;
     }
 
-    public List<Integer> findShortestPath(int source, int destination) {
+    public List<Integer> findShortestPath(int source, int destination, boolean waterTravel) {
         PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[1])); // Priority queue (distance, vertex)
         Map<Integer, Integer> distance = new HashMap<>(); // Distance from source to each vertex
         Map<Integer, Integer> parent = new HashMap<>(); // Parent vertex of each vertex in the shortest path tree
@@ -83,22 +83,24 @@ public class ShortestPathFinder {
                         pq.offer(new int[]{neighbor, newDist});
                     }
                 }
-            int[] waterNeighbours = waterBodyData.get(vertex);
-            if (waterNeighbours != null)
-                for (int neighbor : waterNeighbours) {
-                    int newDist;
-                    if (waterBodies == null) {
-                        newDist = dist + 1; // unit distance
-                    } else {
-                        newDist = dist + (int) getCalculableByIndex(vertex).getDistance(getCalculableByIndex(neighbor));
+            if(waterTravel) {
+                int[] waterNeighbours = waterBodyData.get(vertex);
+                if (waterNeighbours != null)
+                    for (int neighbor : waterNeighbours) {
+                        int newDist;
+                        if (waterBodies == null) {
+                            newDist = dist + 1; // unit distance
+                        } else {
+                            newDist = dist + (int) getCalculableByIndex(vertex).getDistance(getCalculableByIndex(neighbor));
+                        }
+                        int oldDist = distance.getOrDefault(neighbor, Integer.MAX_VALUE);
+                        if (newDist < oldDist) {
+                            distance.put(neighbor, newDist);
+                            parent.put(neighbor, vertex);
+                            pq.offer(new int[]{neighbor, newDist});
+                        }
                     }
-                    int oldDist = distance.getOrDefault(neighbor, Integer.MAX_VALUE);
-                    if (newDist < oldDist) {
-                        distance.put(neighbor, newDist);
-                        parent.put(neighbor, vertex);
-                        pq.offer(new int[]{neighbor, newDist});
-                    }
-                }
+            }
         }
         // Reconstruct the shortest path if destination is reachable
         List<Integer> shortestPath = new ArrayList<>();
@@ -178,7 +180,7 @@ public class ShortestPathFinder {
         ShortestPathFinder finder = new ShortestPathFinder(provinceData);
         int sourceProvince = 3198;
         int destinationProvince = 3031;
-        List<Integer> shortestPath = finder.findShortestPath(sourceProvince, destinationProvince);
+        List<Integer> shortestPath = finder.findShortestPath(sourceProvince, destinationProvince, false);
         if (shortestPath.isEmpty()) {
             System.out.println("No path exists between the source and destination provinces.");
         } else {

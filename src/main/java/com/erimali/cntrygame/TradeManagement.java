@@ -54,6 +54,10 @@ public class TradeManagement implements Serializable {
     public double diffExportImport() {
         return totalExport - totalImport;
     }
+
+    public double diffExportImportMonthly() {
+        return (totalExport - totalImport) / 12;
+    }
     public void addTradeAgreement(){
 
     }

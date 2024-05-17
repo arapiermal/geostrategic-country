@@ -77,7 +77,8 @@ public class GameStage extends Stage {
     private final Main application;
     private final Scene gameScene;
     private Label playerNameLabel;
-    private Label date;
+    private Label treasuryLabel;
+    private Label dateLabel;
     private Label pausation;
     private Button pauseButton;
     private Button chooseCountryButton;
@@ -121,6 +122,13 @@ public class GameStage extends Stage {
     private VBox formablesPanel;
     private Node toolBarReg;
 
+    private HBox hTopCenter;
+    private Tooltip hTopCenterTooltip;
+
+    private BuildBuildings buildBuildings;
+    private TableView<BuildBuildings.BuildBuildingTask> tableViewBuildings;
+
+
     public GameStage(Main application) {
         this.application = application;
         setTitle(Main.APP_NAME + " - Game");
@@ -128,6 +136,7 @@ public class GameStage extends Stage {
         setOnCloseRequest(e -> close());
         setWidth(1280);
         setHeight(720);
+        this.buildBuildings = new BuildBuildings(this);
         this.selectedCountry = -1;
         this.game = new GLogic(this);
         this.map = new WorldMap(this);
@@ -152,6 +161,7 @@ public class GameStage extends Stage {
         setOnCloseRequest(e -> close());
         setWidth(1280);
         setHeight(720);
+        this.buildBuildings = new BuildBuildings(this);
         this.selectedCountry = -1;
         game.setGameStage(this);
         game.startTimer();
@@ -230,30 +240,48 @@ public class GameStage extends Stage {
         // TOP
         gameLayout.setCenter(new BorderPane());
         this.playerNameLabel = new Label("Select Country");
-        this.date = new Label("Default Date");
+        this.dateLabel = new Label("Default Date");
         this.pauseButton = new Button("Play");
         this.paused = true;
         this.pauseButton.setOnAction(e -> pausePlayDate());
         this.pausation = new Label("Paused");
+        Text treasuryText = new Text("Treasury $");
+        this.treasuryLabel = new Label();
 
         chooseCountryButton = new Button("Confirm");
         chooseCountryButton.setOnAction(e -> startGame());
-        HBox hTopLeft = new HBox(getPlayerNameLabel(), chooseCountryButton);
-        hTopLeft.setSpacing(10);
+        HBox hTopLeft = new HBox(playerNameLabel, chooseCountryButton);
+        hTopLeft.setSpacing(8);
+
+        hTopCenter = new HBox(treasuryText, treasuryLabel);
 
         HBox hGameSpeed = makeGameSpeedHBox();
-        HBox hTopRight = new HBox(pausation, pauseButton, date, hGameSpeed);
-        hTopRight.setSpacing(10);
-        Region regTop = new Region();
+        HBox hTopRight = new HBox(pausation, pauseButton, dateLabel, hGameSpeed);
+        hTopRight.setSpacing(8);
 
-        HBox hTop = new HBox(hTopLeft, regTop, hTopRight);
-        hTop.setAlignment(Pos.CENTER);
 
-        HBox.setHgrow(regTop, Priority.ALWAYS);
-        hTop.setSpacing(10);
-        hTop.setStyle("-fx-background-color: #f0f0f0;");
+        //Region regTop = new Region();
+        //HBox hTop = new HBox(hTopLeft, regTop, hTopRight);
+        //hTop.setAlignment(Pos.CENTER);
+        //HBox.setHgrow(regTop, Priority.ALWAYS);
+        //hTop.setSpacing(8);
+        //hTop.setStyle("-fx-background-color: #f0f0f0;");
+        AnchorPane paneTop = new AnchorPane();
+        paneTop.getChildren().addAll(hTopLeft, hTopCenter, hTopRight);
+        AnchorPane.setTopAnchor(hTopLeft, 0.0);
+        AnchorPane.setLeftAnchor(hTopLeft, 0.0);
+        AnchorPane.setBottomAnchor(hTopLeft, 0.0);
 
-        gameLayout.setTop(hTop);
+        AnchorPane.setTopAnchor(hTopCenter, 0.0);
+        AnchorPane.setLeftAnchor(hTopCenter, (paneTop.getWidth() - hTopCenter.getWidth()) / 2);
+        AnchorPane.setRightAnchor(hTopCenter, (paneTop.getWidth() - hTopCenter.getWidth()) / 2);
+        hTopCenter.setStyle("-fx-alignment: center;");
+        hTopCenterTooltip = new Tooltip();
+        Tooltip.install(hTopCenter, hTopCenterTooltip);
+        AnchorPane.setTopAnchor(hTopRight, 0.0);
+        AnchorPane.setRightAnchor(hTopRight, 0.0);
+        AnchorPane.setBottomAnchor(hTopRight, 0.0);
+        gameLayout.setTop(paneTop);
 
         // CENTER
         ZoomableScrollPane scrollPane = map.getScrollPane();
@@ -450,8 +478,6 @@ public class GameStage extends Stage {
         return tabPane;
     }
 
-    private TableView<BuildBuildings.BuildBuilding> tableViewBuildings;
-
     private Tab makeTabMilitary() {
         Label unitInfo = new Label();
         recruitBuildButton = new Button("Recruit");
@@ -484,7 +510,7 @@ public class GameStage extends Stage {
 
     //2-8 months
     private Tab makeTabBuildings() {
-        tableViewBuildings = BuildBuildings.makeTableView();
+        tableViewBuildings = buildBuildings.makeTableView();
         tableViewBuildings.setVisible(false);
 
         Tab tab = new Tab("Buildings", tableViewBuildings);
@@ -901,6 +927,7 @@ public class GameStage extends Stage {
         chooseCountryButton.setVisible(false);
         tableViewBuildings.setVisible(true);
         isPlayingCountry = true;
+        treasuryLabel.textProperty().bind(GUtils.stringBindingDoubleCurrency(game.getPlayer().getEconomy().treasuryProperty()));//can also be formated!
         changeSelectedCountryInfo();
         changeSelectedProvInfo();
     }
@@ -933,7 +960,7 @@ public class GameStage extends Stage {
     }
 
     public void changeDate(String d) {
-        date.setText(d);
+        dateLabel.setText(d);
     }
 
     public void changeCountryName(String cName) {
@@ -948,12 +975,12 @@ public class GameStage extends Stage {
         this.playerNameLabel = playerNameLabel;
     }
 
-    public Label getDate() {
-        return date;
+    public Label getDateLabel() {
+        return dateLabel;
     }
 
-    public void setDate(Label date) {
-        this.date = date;
+    public void setDateLabel(Label dateLabel) {
+        this.dateLabel = dateLabel;
     }
 
     public Label getPausation() {
@@ -980,6 +1007,7 @@ public class GameStage extends Stage {
     public int getSelectedProv() {
         return selectedProv;
     }
+
     public GLogic getGame() {
         return game;
     }
@@ -1197,6 +1225,9 @@ public class GameStage extends Stage {
         });
         return popupScene;
     }
+    public void setTooltipEcoTop(double lastMonthBalance) {
+        hTopCenterTooltip.setText("Last month balance: " + GUtils.doubleToString(lastMonthBalance));
+    }
 
 
     static class Delta {
@@ -1400,7 +1431,7 @@ public class GameStage extends Stage {
             if (isPlayingCountry && (game.getPlayerId() == owner || game.isSubjectOfPlayer(owner))) {
                 recruitBuildButton.setVisible(true);
                 tableViewBuildings.setVisible(true);
-                BuildBuildings.setFromProv(a);
+                buildBuildings.setFromProv(a);
                 a.setValuesFromEnumMapSet(tableViewBuildings);
             } else {
                 recruitBuildButton.setVisible(false);

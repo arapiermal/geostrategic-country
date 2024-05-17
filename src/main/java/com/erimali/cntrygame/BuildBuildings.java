@@ -1,29 +1,36 @@
 package com.erimali.cntrygame;
 
-import javafx.application.Application;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
 
-public class BuildBuildings extends Application {
-    public static void setFromProv(AdmDiv admDiv) {
-        BuildBuildings.currBuildingBuildings = admDiv.getBuildingBuildings();
-        BuildBuildings.buildings = admDiv.getBuildings();
+public class BuildBuildings {
+    //Store gamestage reference ?
+    private final GameStage gameStage;
+
+    public BuildBuildings(GameStage gameStage){
+        this.gameStage = gameStage;
     }
 
-    public static class ProgressBarButtonTableCell<S extends GTask> extends TableCell<S, Double> {
+    private EnumMap<Building, Byte> currBuildingBuildings;
+    private EnumSet<Building> buildings;
+
+    public void setFromProv(AdmDiv admDiv) {
+        currBuildingBuildings = admDiv.getBuildingBuildings();
+        buildings = admDiv.getBuildings();
+    }
+
+    public static class ProgressButtonTableCell<S extends GTask> extends TableCell<S, Double> {
         public static <S extends GTask> Callback<TableColumn<S,Double>, TableCell<S,Double>> forTableColumn() {
-            return param -> new ProgressBarButtonTableCell<>();
+            return param -> new ProgressButtonTableCell<>();
         }
 //Progress indicator or bar (?) indicator -> less space
         private final ProgressIndicator progressBar;
@@ -31,7 +38,7 @@ public class BuildBuildings extends Application {
         private final HBox hBox;
         private ObservableValue<Double> observable;
 
-        public ProgressBarButtonTableCell() {
+        public ProgressButtonTableCell() {
             this.getStyleClass().add("progress-button-table-cell");
 
             this.progressBar = new ProgressIndicator();
@@ -82,46 +89,26 @@ public class BuildBuildings extends Application {
     //utilize negative values from -1 to -n...
     //provId, ownerId, subjects ...
 
-    public static TableView<BuildBuilding> makeTableView() {
-        TableView<BuildBuilding> tableView = new TableView<>();
+    public TableView<BuildBuildingTask> makeTableView() {
+        TableView<BuildBuildingTask> tableView = new TableView<>();
         // Columns
-        TableColumn<BuildBuilding, String> nameColumn = new TableColumn<>("Building Name");
+        TableColumn<BuildBuildingTask, String> nameColumn = new TableColumn<>("Building Name");
         nameColumn.setCellValueFactory(param -> param.getValue().nameProperty());
         nameColumn.setMinWidth(140);
-        TableColumn<BuildBuilding, Double> progressColumn = new TableColumn<>("Progress");
+        TableColumn<BuildBuildingTask, Double> progressColumn = new TableColumn<>("Progress");
         progressColumn.setCellValueFactory(param -> param.getValue().progressProperty());
         progressColumn.setMinWidth(120);
         //
+        progressColumn.setCellFactory(ProgressButtonTableCell.forTableColumn());
 
-        //progressColumn.setCellFactory(ProgressBarTreeTableCell.forTreeTableColumn());
-        progressColumn.setCellFactory(ProgressBarButtonTableCell.forTableColumn());
-
-        tableView.getColumns().addAll(nameColumn, progressColumn);
+        tableView.getColumns().add(nameColumn);
+        tableView.getColumns().add(progressColumn);
 
         for (Building build : Building.values()) {
-            tableView.getItems().add(new BuildBuilding(build, 0.0));
+            tableView.getItems().add(new BuildBuildingTask(this, build, 0.0));
         }
 
         return tableView;
-    }
-
-    @Override
-    public void start(Stage primaryStage) {
-        TableView<BuildBuilding> tableView = makeTableView();
-        // Display the TreeTableView
-        Scene scene = new Scene(tableView, 400, 300);
-
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("Progress Data in TreeTableView");
-
-        primaryStage.show();
-        buildings = EnumSet.noneOf(Building.class);
-        currBuildingBuildings = new EnumMap<>(Building.class);
-        //setValuesFromEnumMapSet(tableView);
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 
     public abstract static class GTask {
@@ -129,11 +116,13 @@ public class BuildBuildings extends Application {
 
     }
 
-    public static class BuildBuilding extends GTask {
+    public static class BuildBuildingTask extends GTask {
+        private final BuildBuildings buildBuildings;
         private final Building building;
         private final SimpleDoubleProperty progress;
 
-        public BuildBuilding(Building building, double progress) {
+        public BuildBuildingTask(BuildBuildings buildBuildings, Building building, double progress) {
+            this.buildBuildings = buildBuildings;
             this.building = building;
             this.progress = new SimpleDoubleProperty(progress);
         }
@@ -155,7 +144,7 @@ public class BuildBuildings extends Application {
         }
 
         public void setProgress(byte b) {
-            double val = (double) b / building.stepsToBuild;
+            double val = (double) b / building.getStepsToBuild();
             progress.set(val);
         }
 
@@ -169,30 +158,27 @@ public class BuildBuildings extends Application {
 
         @Override
         public void changeStatus() {
-            popupBuilding(this);
+            buildBuildings.popupBuilding(this);
         }
 
     }
 
-    public static EnumMap<Building, Byte> currBuildingBuildings;
-    public static EnumSet<Building> buildings;
-
-    public static void popupBuilding(BuildBuilding bb) {
+    public void popupBuilding(BuildBuildingTask bb) {
         Dialog<ButtonType> dialog = new Dialog<>();
         Building b = bb.getBuilding();
-        byte byteVal = buildings.contains(b) ? b.stepsToBuild : currBuildingBuildings.getOrDefault(b, (byte) 0);
+        byte byteVal = buildings.contains(b) ? b.getStepsToBuild() : currBuildingBuildings.getOrDefault(b, (byte) 0);
         if (byteVal == 0) {
             dialog.setTitle("Build Building");
         }
         //Demolish
-        else if (byteVal >= b.stepsToBuild) {
+        else if (byteVal >= b.getStepsToBuild()) {
             dialog.setTitle("Demolish Building");
         }
         //Cancel
         else {
             dialog.setTitle("Cancel Building");
         }
-        VBox vBox = new VBox(new Label("Name: " + b.toString()), new Label("Cost: $" + b.price), new Label("Time (Months): " + b.stepsToBuild));
+        VBox vBox = new VBox(new Label("Name: " + b.toString()), new Label("Cost: $" + b.getPrice()), new Label("Time (Months): " + b.getStepsToBuild()));
         dialog.getDialogPane().setContent(vBox);
 
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -200,31 +186,35 @@ public class BuildBuildings extends Application {
         okButton.addEventFilter(
                 ActionEvent.ACTION,
                 event -> {
-                    byte bVal = buildings.contains(b) ? b.stepsToBuild : currBuildingBuildings.getOrDefault(b, (byte) 0);
-
+                    byte bVal = buildings.contains(b) ? b.getStepsToBuild() : currBuildingBuildings.getOrDefault(b, (byte) 0);
                     //Build
                     if (bVal == 0) {
-
-                        bVal++;
-                        currBuildingBuildings.put(b, bVal);
+                        if(gameStage.getGame().canPurchase(b.getPrice())) {
+                            gameStage.getGame().spendTreasury(b.getPrice());
+                            bVal++;
+                            currBuildingBuildings.put(b, bVal);
+                        } else{
+                            gameStage.showAlert(Alert.AlertType.WARNING, "Insufficient treasury", "You don't have the money $" + b.getPrice());
+                        }
                     }
                     //Demolish
-                    else if (bVal == b.stepsToBuild) {
+                    else if (bVal == b.getStepsToBuild()) {
                         //upon confirm
                         bVal = 0;
                         buildings.remove(b);
                     }
                     //Cancel
                     else {
+                        double moneyBack = b.getPrice() *  ((double) (b.getStepsToBuild() - bVal) / b.getStepsToBuild());
+                        gameStage.getGame().addTreasury(moneyBack);
+                        gameStage.showAlert(Alert.AlertType.INFORMATION, "Cancelled building", "You got back $" + moneyBack);
                         bVal = 0;
                         currBuildingBuildings.remove(b);
                     }
                     bb.setProgress(bVal);
                 }
         );
-
         dialog.showAndWait();
-
     }
 
 

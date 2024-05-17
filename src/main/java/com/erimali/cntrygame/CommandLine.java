@@ -210,6 +210,14 @@ public class CommandLine {
                             return "Improved relations with " + k[2];
                         }
                         return "";
+                    case "TREASURY":
+                        if(k.length == 3) {
+                            double treasuryAmount = GUtils.parseDoubleAndPercent(k[2]);
+                            mainCountry.getEconomy().addTreasuryOrPercent(treasuryAmount);
+                            TESTING.print(mainCountry.getTreasury());
+                            return "Successfully added " + k[2] + " amount of treasury to " + shortName;
+                        }
+                        return "";
                     case "POP":
                         if (k.length == 2) {
                             mainCountry.incPopulation();

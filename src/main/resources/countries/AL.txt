@@ -24,10 +24,10 @@ type:Republic
 headOfState:President,Bajram,Begaj,Male
 headOfGov:Prime Minister,Edi,Rama,Male
 Economy
-currency:ALL,1.0
-GDPUSD:42000000000,3.3
-taxation:2.5
-unemployment:10.0
+currency:ALL,1.0%
+GDPUSD:42000000000,3.3%
+taxation:2.5%
+unemployment:10.0%
 Military
 Divizioni 1-Elbasan
 1000 soldiers

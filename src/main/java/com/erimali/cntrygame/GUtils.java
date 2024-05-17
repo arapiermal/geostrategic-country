@@ -1,5 +1,8 @@
 package com.erimali.cntrygame;
 
+import javafx.beans.binding.StringBinding;
+import javafx.beans.property.DoubleProperty;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -51,18 +54,33 @@ public class GUtils {
         }
     }
 
+
+    public static double parseDoubleAndPercentThrow(String s) throws NumberFormatException {
+        s = s.replaceAll("\\s+", "");
+        int div = 1;
+        if (s.endsWith("%")) {
+            div = 100;
+            s = s.substring(0, s.length() - 1);
+        }
+        double d = Double.parseDouble(s) / div;
+        return d;
+    }
+
     public static double parseDoubleAndPercent(String s) {
         try {
-            s = s.replaceAll("\\s+", "");
-            int div = 1;
-            if (s.endsWith("%")) {
-                div = 100;
-                s = s.substring(0, s.length() - 1);
-            }
-            double d = Double.parseDouble(s) / div;
+            double d = parseDoubleAndPercentThrow(s);
             return d;
         } catch (Exception e) {
-            return 0d;
+            return 0;
+        }
+    }
+
+    public static double parseDoubleAndPercent(String s, double defVal) {
+        try {
+            double d = parseDoubleAndPercentThrow(s);
+            return d;
+        } catch (Exception e) {
+            return defVal;
         }
     }
 
@@ -226,9 +244,10 @@ public class GUtils {
         return sb.toString();
     }
 
-    private static final String[] NUMBERSUFFIXES = {"", " thousand", " million", " billion", " trillion"};
+    private static final String[] NUMBERSUFFIXES = {"", "thousand", "million", "billion", "trillion", "quadrillion", "quintillion",
+            "sextillion", "septillion", "octillion", "nonillion", "decillion"};
 
-    public static String doubleToString(double d) {
+    public static String doubleToStringOld(double d) {
         int suffixIndex = 0;
         double formatted = d;
         while (formatted >= 1000 && suffixIndex < NUMBERSUFFIXES.length - 1) {
@@ -243,6 +262,38 @@ public class GUtils {
         }
 
         return formattedValue + NUMBERSUFFIXES[suffixIndex];
+    }
+
+    public static String doubleToString(double d) {
+        int suffixIndex = 0;
+        while (d >= 1000 && suffixIndex < NUMBERSUFFIXES.length - 1) {
+            d /= 1000;
+            suffixIndex++;
+        }
+        return String.format("%.1f %s", d, NUMBERSUFFIXES[suffixIndex]);
+    }
+
+    public static String longToString(long l) {
+        int suffixIndex = 0;
+        while (l >= 1000 && suffixIndex < NUMBERSUFFIXES.length - 1) {
+            l /= 1000;
+            suffixIndex++;
+        }
+        return String.format("%d %s", l, NUMBERSUFFIXES[suffixIndex]);
+    }
+
+    public static StringBinding stringBindingDoubleCurrency(DoubleProperty moneyProperty) {
+        return new StringBinding() {
+            {
+                bind(moneyProperty);
+            }
+
+            @Override
+            protected String computeValue() {
+                double money = moneyProperty.get();
+                return doubleToString(money);
+            }
+        };
     }
 
     public static int romanValue(char r) {

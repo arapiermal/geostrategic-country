@@ -58,7 +58,7 @@ public enum WarObjective {
                 CSubject subject = c2.getSubject(i);
                 short improveRel;
                 if(subject.isAtGoodTerms()){
-                    improveRel =  (short) (c2.getRelations(i) / 8);
+                    improveRel =  (short) (c2.getRelations(i) / 8);//-
                 } else{
                     improveRel = (short) (subject.getIndependenceDesire() * 2);
                 }

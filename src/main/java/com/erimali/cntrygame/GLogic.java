@@ -189,6 +189,8 @@ public class GLogic implements Serializable {
         }
         //...
         world.monthlyUpdate();
+        gs.setTooltipEcoTop(player.getEconomy().getLastMonthBalance());
+
         gs.changeSelectedProvInfo();
         gs.changeSelectedCountryInfo();
 
@@ -850,5 +852,17 @@ public class GLogic implements Serializable {
 
     public String getUniqueId() {
         return Long.toString(uniqueId, 36);
+    }
+
+    public boolean canPurchase(double value){
+        return player.getTreasury() >= value;
+    }
+
+    public void spendTreasury(double value){
+        player.spendTreasury(value);
+    }
+
+    public void addTreasury(double value) {
+        player.addTreasury(value);
     }
 }

@@ -26,7 +26,7 @@ type:Republic
 headOfState:President,Katerina,Sakellaropoulou,Female
 headOfGov:Prime Minister,Kyriakos,Mitsotakis,Male
 Economy
-currency:EUR,1.0
-GDPUSD:2.42385e11,2.0
-taxation:2.5
-unemployment:5.0
+currency:EUR,1.0%
+GDPUSD:2.42385e11,2.0%
+taxation:2.5%
+unemployment:5.0%

@@ -492,6 +492,9 @@ public class World implements Serializable {
                 a.buildingTick();
             }
         }
+        for(Country c : countries){
+            c.monthlyTick();
+        }
     }
 
     public void yearlyUpdate() {

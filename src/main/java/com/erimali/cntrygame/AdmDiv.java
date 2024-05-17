@@ -198,7 +198,7 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
         for (EnumMap.Entry<Building, Byte> entry : buildingBuildings.entrySet()) {
             Building b = entry.getKey();
             byte val = (byte) (entry.getValue() + 1);
-            if (val >= b.stepsToBuild) {
+            if (val >= b.getStepsToBuild()) {
                 buildingBuildings.remove(b);
                 buildings.add(b);
             } else {
@@ -300,10 +300,10 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
 
     //if not player or subject id -> second column ...
 //every month and when changing
-    public void setValuesFromEnumMapSet(TableView<BuildBuildings.BuildBuilding> tableView) {
+    public void setValuesFromEnumMapSet(TableView<BuildBuildings.BuildBuildingTask> tableView) {
         Building[] builds = Building.values();
         for (int i = 0; i < builds.length; i++) {
-            BuildBuildings.BuildBuilding bb = tableView.getItems().get(i);
+            BuildBuildings.BuildBuildingTask bb = tableView.getItems().get(i);
             Building b = builds[i];
             if (buildings.contains(b)) {
                 bb.setProgress(1.0);

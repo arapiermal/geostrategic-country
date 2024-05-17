@@ -37,7 +37,7 @@ type:Republic
 headOfState:President,Jakov,Milatović,Male
 headOfGov:Prime Minister,Milojko,Spajić,Male
 Economy
-currency:EUR,1.0
-GDPUSD:17.431e9,6.0
-taxation:2.5
-unemployment:5.0
+currency:EUR,1.0%
+GDPUSD:17.431e9,6.0%
+taxation:2.5%
+unemployment:5.0%

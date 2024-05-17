@@ -8,6 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -34,17 +35,17 @@ public class ZoomableScrollPane extends ScrollPane {
         updateScale();
     }
 
-    private VBox outerNode(Node node) {
+    private StackPane outerNode(Node node) {
         //Node outerNode = centeredNode(node);
-        VBox vBox = new VBox(node);
-        vBox.setAlignment(Pos.CENTER);
-        vBox.setBackground(new Background(new BackgroundFill(Paint.valueOf("#C2DFFF"), null, null)));
+        StackPane box = new StackPane(node);
+        //box.setAlignment(Pos.CENTER); //default is center, leftup default if creating line on top (?)
+        box.setBackground(new Background(new BackgroundFill(Paint.valueOf("#C2DFFF"), null, null)));
 
-        vBox.setOnScroll(e -> {
+        box.setOnScroll(e -> {
             e.consume();
             onScroll(e.getTextDeltaY(), new Point2D(e.getX(), e.getY()));
         });
-        return vBox;
+        return box;
     }
 
     /*

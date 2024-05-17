@@ -22,14 +22,19 @@ public enum Building{
     RESEARCH_FACILITY(2,"Research Facility", (byte) 4,1000000),
 
     ;
-    int type;
-    String desc;
-    byte stepsToBuild;//can be decreased after some decades since new tech
-    int price;//$
+
+    private int type;
+    private String desc;
+    private byte stepsToBuild;//can be decreased after some decades since new tech
+    private int price;//$
     Building(int type, String desc, byte stepsToBuild, int price){
         this.type = type;
         this.desc = desc;
-        this.stepsToBuild = stepsToBuild;
+        if (stepsToBuild > 1) {
+            this.stepsToBuild = stepsToBuild;
+        } else{
+            this.stepsToBuild = 2;
+        }
         this.price = price;
     }
 
@@ -47,6 +52,23 @@ public enum Building{
 
     public boolean isOther(){
         return type == 2;
+    }
+
+    public byte getStepsToBuild() {
+        return stepsToBuild;
+    }
+
+    public void setStepsToBuild(byte stepsToBuild) {
+        this.stepsToBuild = stepsToBuild;
+    }
+
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
     }
     //public boolean isRootLike(){ return type < 0; }
 }

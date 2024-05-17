@@ -37,7 +37,7 @@ type:Republic
 headOfState:President,Aleksandar,Vučić,Male
 headOfGov:Prime Minister,Miloš,Vučević,Male
 Economy
-currency:RSD,1.0
-GDPUSD:173.075e9,6.0
-taxation:2.5
-unemployment:5.0
+currency:RSD,1.0%
+GDPUSD:173.075e9,6.0%
+taxation:2.5%
+unemployment:5.0%

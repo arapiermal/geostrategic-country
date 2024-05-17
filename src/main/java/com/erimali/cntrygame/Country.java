@@ -1047,4 +1047,12 @@ public class Country implements Serializable, Comparable<Country> {
         }
 
     }
+
+    public void spendTreasury(double value) {
+        eco.decTreasury(value);
+    }
+
+    public void addTreasury(double value) {
+        eco.incTreasury(value);
+    }
 }

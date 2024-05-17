@@ -118,14 +118,12 @@ public class WorldMap {
                     String pathId = line.substring(10, j - 3);
                     String pathOwn = line.substring(j - 2, j);
                     int pathOwnId = CountryArray.getIndex(pathOwn);
-                    //TESTING.print(pathId,pathOwn);
                     j += 5;
                     int beginPath = j;
                     while (j < line.length() && line.charAt(j) != '"') {
                         j++;
                     }
                     String pathData = line.substring(beginPath, j);
-                    //TESTING.print(pathData);
                     try {
 
                         SVGProvince svgPath = new SVGProvince(CountryArray.getIndex(pathOwn), currProvId++);
@@ -254,7 +252,7 @@ public class WorldMap {
             int provId = clickedPath.getProvId();
             gs.setSelectedCountry(pathOwn);
             gs.setSelectedProvince(provId);
-            System.out.println(clickedPath.getId() + " clicked");
+            //System.out.println(clickedPath.getId() + " clicked");
             if (pathOwn != oldSel) {
                 if (mapMode == 1)
                     paintMapAllies(oldSel);
@@ -311,7 +309,8 @@ public class WorldMap {
         }
 
         public void move(int dst) {
-            makeLines(roadFinder.findShortestPath(provId, dst));
+            //change based on vehicle type, only if ships (or maybe even marines? but marines swim slowly)
+            makeLines(roadFinder.findShortestPath(provId, dst, true));
         }
 
         public void makeLines(List<Integer> p) {
