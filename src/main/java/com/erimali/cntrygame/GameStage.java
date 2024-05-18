@@ -20,6 +20,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -236,7 +237,7 @@ public class GameStage extends Stage {
 
     private BorderPane createGameLayout() {
         BorderPane gameLayout = new BorderPane();
-        gameLayout.setPadding(new Insets(8));
+        //gameLayout.setPadding(new Insets(8));
         // TOP
         gameLayout.setCenter(new BorderPane());
         this.playerNameLabel = new Label("Select Country");

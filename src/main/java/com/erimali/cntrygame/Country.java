@@ -1,6 +1,7 @@
 package com.erimali.cntrygame;
 
 import com.erimali.cntrymilitary.Military;
+import javafx.scene.paint.Color;
 
 import java.io.Serializable;
 import java.util.*;

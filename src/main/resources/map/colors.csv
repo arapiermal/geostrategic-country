@@ -33,6 +33,7 @@ AT,white
 HU,#477050
 SA,#165d31
 KZ,#00AFCA
+UZ,#0072CE
 CH,#DA291C
 SI,#003DA5
 CZ,#11457E
@@ -62,5 +63,30 @@ SM,#BBEEAA
 UK,blue
 OT,#F9DD16
 VA,yellow
-ZA,linear-gradient(to right, red, yellow)
-EG,radial-gradient(center 50% 50%, radius 100%, red, yellow)
+
+
+EG,C09300
+CY,#D57800
+SY,#009639
+IQ,gold
+LY,LIMEGREEN
+
+TM,#E03C31
+TJ,#F8C400
+KG,yellow
+
+TN,#C8102E
+DZ,#006633
+MA,#C1272D
+TX,#DE0000
+
+NP,#FFF8DC
+BD,#006A4E
+BT,#FFCD00
+TW,#000095
+JP,#F8F8FF
+KR,#0F64CD
+KP,darkblue
+MN,#FFD900
+
+
