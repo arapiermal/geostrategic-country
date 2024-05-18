@@ -1,7 +1,6 @@
 package com.erimali.cntrygame;
 
 import com.erimali.cntrymilitary.Military;
-import javafx.scene.paint.Color;
 
 import java.io.Serializable;
 import java.util.*;
@@ -114,7 +113,7 @@ public class Country implements Serializable, Comparable<Country> {
     public void yearlyTick() {
         incPopulation();
         incEconomy();
-        gov.reduceOneYearFromPolicies();
+        gov.yearlyReduceFromPolicies();
         yearlySubjectsTick();
     }
 
@@ -367,6 +366,11 @@ public class Country implements Serializable, Comparable<Country> {
     public void incPopulationIncrease(double amount) {
         if (amount > 0.0)
             populationIncrease += amount;
+    }
+
+    public void decPopulationIncrease(double amount) {
+        if (amount > 0.0)
+            populationIncrease -= amount;
     }
 
     public double getPopulationIncrease() {
@@ -1057,7 +1061,7 @@ public class Country implements Serializable, Comparable<Country> {
         eco.incTreasury(value);
     }
 
-    public int getCapitalId(){
+    public int getCapitalId() {
         return capital.getProvId();
     }
 }

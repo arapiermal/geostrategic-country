@@ -2,12 +2,18 @@ package com.erimali.cntrygame;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.erimali.cntrymilitary.MilUnitData;
 import com.erimali.minigames.MG2048Stage;
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ObservableIntegerValue;
+import javafx.collections.*;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -20,7 +26,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -28,6 +33,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
+import org.controlsfx.control.CheckListView;
 
 class LimitedSizeList<T> {
     private final int maxSize;
@@ -129,6 +135,8 @@ public class GameStage extends Stage {
     private BuildBuildings buildBuildings;
     private TableView<BuildBuildings.BuildBuildingTask> tableViewBuildings;
 
+    private ObservableList<GovPolicy> observableListGovPolicies;
+    private CheckListView<GovPolicy> checkListViewGovPolicies;
 
     public GameStage(Main application) {
         this.application = application;
@@ -761,11 +769,14 @@ public class GameStage extends Stage {
     }
 
     private VBox makeVBoxPlayerOptions() {
+        observableListGovPolicies = FXCollections.observableArrayList(
+                Arrays.stream(GovPolicy.values()).filter(GovPolicy::isRemovable).collect(Collectors.toList()));
+        checkListViewGovPolicies = new CheckListView<>(observableListGovPolicies);
+        TitledPane govPolicies = new TitledPane("Policies", checkListViewGovPolicies);
         formablesPanel = makeVBoxListViewFormables();
         TitledPane formables = new TitledPane("Formables", formablesPanel);
         formables.setAnimated(false);
-        VBox vBox = new VBox(formables);
-
+        VBox vBox = new VBox(govPolicies, formables);
         return vBox;
     }
 
@@ -932,6 +943,7 @@ public class GameStage extends Stage {
         tableViewBuildings.setVisible(true);
         isPlayingCountry = true;
         treasuryLabel.textProperty().bind(GUtils.stringBindingDoubleCurrency(game.getPlayer().getEconomy().treasuryProperty()));//can also be formated!
+        correlateCheckListViewGovPolicies(game.getPlayer().getGovernment().getPolicies());
         changeSelectedCountryInfo();
         changeSelectedProvInfo();
     }
@@ -1494,4 +1506,106 @@ public class GameStage extends Stage {
         changeSelectedCountryInfo();
     }
 
+
+    public void correlateCheckListViewGovPolicies(ObservableMap<GovPolicy, Integer> observableMap) {
+        //checkListViewGovPolicies.setItems(observableListGovPolicies);
+        //checkListViewGovPolicies.setCellFactory(CheckBoxListCell.forListView(checkListViewGovPolicies::getItemBooleanProperty));
+
+        observableMap.addListener((MapChangeListener<GovPolicy, Integer>) change -> {
+            if (change.wasAdded()) {
+                GovPolicy addedPolicy = change.getKey();
+                if (!observableListGovPolicies.contains(addedPolicy)) {
+                    observableListGovPolicies.add(addedPolicy);
+                }
+            } else if (change.wasRemoved()) {
+                GovPolicy removedPolicy = change.getKey();
+                if (removedPolicy.isRemovable()) {
+                    observableListGovPolicies.remove(removedPolicy);
+                }
+            }
+        });
+
+
+        checkListViewGovPolicies.getCheckModel().getCheckedItems().addListener((ListChangeListener<GovPolicy>) change -> {
+                    while (change.next()) {
+                        if (change.wasAdded() || change.wasRemoved()) {
+                            for (GovPolicy policy : change.getAddedSubList()) {
+                                if (policy.isRemovable()) {
+                                    if (!showConfirmationDialogGovPolicy(policy, true)) {
+                                        checkListViewGovPolicies.getCheckModel().clearCheck(policy);
+                                    }
+                                }
+                            }
+                            for (GovPolicy policy : change.getRemoved()) {
+                                if (policy.isRemovable()) {
+                                    if (!showConfirmationDialogGovPolicy(policy, false)) {
+                                        checkListViewGovPolicies.getCheckModel().check(policy);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+        );
+    }
+
+    public boolean showConfirmationDialogGovPolicy(GovPolicy policy, boolean isChecked) {
+        Dialog<Boolean> dialog = new Dialog<>();
+        dialog.setTitle("Confirm " + (isChecked ? "adding" : "removing") + " government policy");
+
+        ButtonType confirmButtonType = new ButtonType("Confirm", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(confirmButtonType, ButtonType.CANCEL);
+        Node okButton = dialog.getDialogPane().lookupButton(confirmButtonType);
+
+        if (isChecked) {
+            GridPane grid = new GridPane();
+            grid.setHgap(10);
+            grid.setVgap(10);
+            Text priceText = new Text("Price: ");
+            Label priceLabel = new Label();
+
+            Label yearsLabel = new Label("Years: ");
+            Slider yearsSlider = new Slider(1, 10, 5);
+            yearsSlider.setShowTickLabels(true);
+            yearsSlider.setShowTickMarks(true);
+            yearsSlider.setMinorTickCount(0);
+            yearsSlider.setMajorTickUnit(1);
+            yearsSlider.setBlockIncrement(1);
+            yearsSlider.setSnapToTicks(true);
+            DoubleProperty priceProperty = new SimpleDoubleProperty(policy.getPrice() * game.getPlayer().getPopulation() / 2 * yearsSlider.getValue());
+            priceLabel.textProperty().bind(GUtils.stringBindingDoubleCurrency(priceProperty));
+            okButton.setDisable(game.canPurchase(yearsSlider.getValue()));
+            yearsSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+                int val = newValue.intValue();
+                if (val != oldValue.intValue()) {
+                    priceProperty.set(policy.getPrice() * game.getPlayer().getPopulation() / 2 * val);
+                }
+            });
+            priceProperty.addListener((observable, oldValue, newValue) -> {
+                boolean hasTreasury = game.canPurchase(newValue.doubleValue());
+                okButton.setDisable(!hasTreasury);
+            });
+            grid.add(priceText, 0, 0);
+            grid.add(priceLabel, 1, 0);
+            grid.add(yearsLabel, 0, 1);
+            grid.add(yearsSlider, 1, 1);
+            dialog.getDialogPane().setContent(grid);
+            dialog.setResultConverter(dialogButton -> {
+                if (dialogButton == confirmButtonType) {
+                    int selectedYears = (int) yearsSlider.getValue();
+                    game.spendTreasury(priceProperty.getValue());
+                    System.out.println("Policy " + policy + " will be added for " + selectedYears + " years.");
+                    return true;
+                }
+                return false;
+            });
+        } else {
+            dialog.getDialogPane().setContent(new Label("Do you want to remove the policy: " + policy + "?"));
+            dialog.setResultConverter(dialogButton -> dialogButton == confirmButtonType);
+        }
+
+        Optional<Boolean> result = dialog.showAndWait();
+
+        return result.isPresent() && result.get();
+    }
 }

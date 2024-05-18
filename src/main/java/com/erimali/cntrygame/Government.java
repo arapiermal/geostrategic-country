@@ -1,5 +1,8 @@
 package com.erimali.cntrygame;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
+
 import java.io.Serializable;
 import java.util.EnumMap;
 import java.util.Map;
@@ -18,6 +21,7 @@ public class Government implements Serializable {
     private float corruptionGrowth;
     private int publicOpinion;
 
+
     // Import from txt? default policies for all countries, specific
     // policies that execute CommandLine? every year/month/day
     // private List<Policy> policies;
@@ -27,22 +31,21 @@ public class Government implements Serializable {
     // Government spendings?
 
     //Policies
-    private Map<GovPolicy, Integer> policies;
+    private ObservableMap<GovPolicy, Integer> policies;
 
     public Government(String type, Ruler ruler) {
         this.type = type;
         this.headOfState = ruler;
         this.headOfGovernment = ruler;
         this.bothTheSame = true;
-        this.policies = new EnumMap<>(GovPolicy.class);
+        this.policies = FXCollections.observableMap(new EnumMap<>(GovPolicy.class));
     }
 
     public Government(String type, Ruler headOfState, Ruler headOfGovernment) {
         this.type = type;
         this.headOfState = headOfState;
         this.headOfGovernment = headOfGovernment;
-        this.policies = new EnumMap<>(GovPolicy.class);
-
+        this.policies = FXCollections.observableMap(new EnumMap<>(GovPolicy.class));
     }
 
     public Government(String type, Ruler headOfState, Ruler headOfGovernment, boolean isHeadOfStateStronger) {
@@ -50,12 +53,14 @@ public class Government implements Serializable {
         this.headOfState = headOfState;
         this.headOfGovernment = headOfGovernment;
         this.isHeadOfStateStronger = isHeadOfStateStronger;
-        this.policies = new EnumMap<>(GovPolicy.class);
+        this.policies = FXCollections.observableMap(new EnumMap<>(GovPolicy.class));
 
     }
-    public boolean sameType(Government o){
+
+    public boolean sameType(Government o) {
         return type.equalsIgnoreCase(o.type);
     }
+
     public String getType() {
         return type;
     }
@@ -96,13 +101,10 @@ public class Government implements Serializable {
             return headOfGovernment.toString();
     }
 
-    public Map<GovPolicy, Integer> getPolicies() {
+    public ObservableMap<GovPolicy, Integer> getPolicies() {
         return policies;
     }
 
-    public void setPolicies(Map<GovPolicy, Integer> policies) {
-        this.policies = policies;
-    }
 
     public void addPolicy(GovPolicy policy, int years) {
         if (!policies.containsKey(policy))
@@ -120,7 +122,7 @@ public class Government implements Serializable {
         }
     }
 
-    public void reduceOneYearFromPolicies() {
+    public void yearlyReduceFromPolicies() {
         for (GovPolicy p : policies.keySet()) {
             int yearsLeft = policies.get(p) - 1;
             if (yearsLeft < 0) {
