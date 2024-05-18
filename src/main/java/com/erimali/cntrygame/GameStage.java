@@ -920,7 +920,10 @@ public class GameStage extends Stage {
             return;
         game.selectPlayer(selectedCountry);
         playerNameLabel.setText(game.getPlayer().getName());// !!!!!!!!
-        playerNameLabel.setOnMouseClicked(e -> setSelectedCountry(game.getPlayerId()));
+        playerNameLabel.setOnMouseClicked(e -> {
+            setSelectedCountry(game.getPlayerId());
+            setSelectedProvince(game.getPlayer().getCapitalId());
+        });
         countryTab.getContent().setVisible(true);
         provinceTab.getContent().setVisible(true);
 
@@ -1225,6 +1228,7 @@ public class GameStage extends Stage {
         });
         return popupScene;
     }
+
     public void setTooltipEcoTop(double lastMonthBalance) {
         hTopCenterTooltip.setText("Last month balance: " + GUtils.doubleToString(lastMonthBalance));
     }

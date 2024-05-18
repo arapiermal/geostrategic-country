@@ -22,7 +22,7 @@ Economy
 currency:EUR,1.0%
 GDPUSD:9900000000,3.8%
 taxation:2.5%
-unemployment:5.0%
+unemployment:12.6%
 Military
 Divizioni 1-Pristina
 1000 soldiers

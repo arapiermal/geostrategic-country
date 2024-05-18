@@ -1055,4 +1055,8 @@ public class Country implements Serializable, Comparable<Country> {
     public void addTreasury(double value) {
         eco.incTreasury(value);
     }
+
+    public int getCapitalId(){
+        return capital.getProvId();
+    }
 }
