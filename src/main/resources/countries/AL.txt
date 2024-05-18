@@ -23,6 +23,7 @@ Government
 type:Republic
 headOfState:President,Bajram,Begaj,Male
 headOfGov:Prime Minister,Edi,Rama,Male
+elections:4,2021
 Economy
 currency:ALL,1.0%
 GDPUSD:42000000000,3.3%

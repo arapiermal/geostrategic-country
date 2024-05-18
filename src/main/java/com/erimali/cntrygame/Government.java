@@ -1,11 +1,11 @@
 package com.erimali.cntrygame;
 
+import com.erimali.cntrymilitary.Person;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
 import java.io.Serializable;
 import java.util.EnumMap;
-import java.util.Map;
 
 public class Government implements Serializable {
     //private static GovTypes; // load from file?
@@ -21,6 +21,11 @@ public class Government implements Serializable {
     private float corruptionGrowth;
     private int publicOpinion;
 
+    //Elections/Ruler change
+
+
+    private int electionPeriod;
+    private int yearsUntilNextElection;
 
     // Import from txt? default policies for all countries, specific
     // policies that execute CommandLine? every year/month/day
@@ -58,7 +63,7 @@ public class Government implements Serializable {
     }
 
     public boolean sameType(Government o) {
-        return type.equalsIgnoreCase(o.type);
+        return type.equalsIgnoreCase(o.type) && holdsElections() == o.holdsElections();
     }
 
     public String getType() {
@@ -121,8 +126,58 @@ public class Government implements Serializable {
             policies.remove(policy);
         }
     }
+
     public void removePolicy(GovPolicy policy, boolean admin) {
-            policies.remove(policy);
+        policies.remove(policy);
+    }
+
+    public void yearlyTick() {
+        yearlyReduceFromPolicies();
+    }
+
+    public boolean hasElectionsThisYear() {
+        if (holdsElections()) {
+            yearsUntilNextElection--;
+            if (yearsUntilNextElection == 0) {
+                yearsUntilNextElection = electionPeriod;
+                return Math.random() > 0.5;
+            }
+        }
+        return false;
+    }
+
+    public void changeLeadership(Person person) {
+        String type = isHeadOfStateStronger ? headOfState.getType() : headOfGovernment.getType();
+        Ruler ruler = new Ruler(type, person);
+        if (headOfGovernment == headOfState) {
+            headOfGovernment = ruler;
+            headOfState = ruler;
+        } else if (isHeadOfStateStronger) {
+            headOfState = ruler;
+        } else {
+            headOfGovernment = ruler;
+        }
+    }
+
+    public void changeNonPrimaryLeadership(Person person) {
+        if (headOfGovernment == headOfState)
+            return;
+        String type = !isHeadOfStateStronger ? headOfState.getType() : headOfGovernment.getType();
+        Ruler ruler = new Ruler(type, person);
+        if (!isHeadOfStateStronger) {
+            headOfState = ruler;
+        } else {
+            headOfGovernment = ruler;
+        }
+    }
+
+    public void abolishElections() {
+        electionPeriod = 0;
+        yearsUntilNextElection = -1;
+    }
+
+    public boolean holdsElections() {
+        return electionPeriod > 0;
     }
 
     public void yearlyReduceFromPolicies() {
@@ -155,5 +210,27 @@ public class Government implements Serializable {
 
     public boolean canDeclareWar() {
         return !(policies.containsKey(GovPolicy.NEUTRALITY) || policies.containsKey(GovPolicy.FORCED_NEUTRALITY) || policies.containsKey(GovPolicy.BANNED_MILITARY));
+    }
+
+    public int getElectionPeriod() {
+        return electionPeriod;
+    }
+
+    public void setElectionPeriod(int electionPeriod) {
+        this.electionPeriod = electionPeriod;
+    }
+
+    public int getYearsUntilNextElection() {
+        return yearsUntilNextElection;
+    }
+    public void setYearsUntilNextElection(int currYear, int lastElection) {
+        //error if lastElection > currYear
+        if(electionPeriod <= 0)
+            return;
+        int periodsSinceLastElection = (currYear - lastElection) / electionPeriod;
+        int nextElectionYear = lastElection + (periodsSinceLastElection + 1) * electionPeriod;
+        this.yearsUntilNextElection = nextElectionYear - currYear;
+
+        TESTING.print(this.yearsUntilNextElection);
     }
 }

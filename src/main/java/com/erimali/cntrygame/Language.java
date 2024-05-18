@@ -135,14 +135,14 @@ public class Language implements Comparable<Language>, Serializable {
         Random r = new Random();
         int name = r.nextInt(commonMaleNames.length);
         int surname = r.nextInt(commonMaleNames.length);
-        return new Person(commonMaleNames[name], prefix + " " + commonMaleNames[surname], Person.getFemale());
+        return new Person(commonMaleNames[name], prefix + " " + commonMaleNames[surname], Person.getMale());
     }
 
     public Person generateMaleSurnameSon(String fix) {
         Random r = new Random();
         int name = r.nextInt(commonMaleNames.length);
         int surname = r.nextInt(commonMaleNames.length);
-        return new Person(commonMaleNames[name], commonMaleNames[surname] + fix, Person.getFemale());
+        return new Person(commonMaleNames[name], commonMaleNames[surname] + fix, Person.getMale());
     }
 
     public static int findCMNlength(Language... l) {

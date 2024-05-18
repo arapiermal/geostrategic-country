@@ -865,4 +865,8 @@ public class GLogic implements Serializable {
     public void addTreasury(double value) {
         player.addTreasury(value);
     }
+
+    public int getYear() {
+        return inGDate.getYear();
+    }
 }

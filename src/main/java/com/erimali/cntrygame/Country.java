@@ -113,7 +113,7 @@ public class Country implements Serializable, Comparable<Country> {
     public void yearlyTick() {
         incPopulation();
         incEconomy();
-        gov.yearlyReduceFromPolicies();
+        gov.yearlyTick();
         yearlySubjectsTick();
     }
 
@@ -1063,5 +1063,9 @@ public class Country implements Serializable, Comparable<Country> {
 
     public int getCapitalId() {
         return capital.getProvId();
+    }
+
+    public boolean hasElectionsThisYear() {
+        return gov.hasElectionsThisYear();
     }
 }

@@ -2,7 +2,6 @@ package com.erimali.cntrygame;
 
 import com.erimali.cntrymilitary.*;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 
 import java.io.*;
@@ -132,10 +131,10 @@ public class World implements Serializable {
         }
         initialProvinces = new CFormable.FirstAdmDivs(countries, provinces);
         //water access here or in svg (better in svg for save games...
-        for(int i : game.getWorldMap().getWaterProvinces()){
-            if(i >= 0 && i < provinces.length){
+        for (int i : game.getWorldMap().getWaterProvinces()) {
+            if (i >= 0 && i < provinces.length) {
                 AdmDiv a = provinces[i];
-                if( a != null){
+                if (a != null) {
                     a.setWaterAccess(true);
                 }
             }
@@ -200,7 +199,8 @@ public class World implements Serializable {
 
             br.readLine();
             Government government = governmentFromFile(br);
-            br.readLine();
+            if(!government.holdsElections())
+                br.readLine();
             Economy economy = economyFromFile(br);
             br.readLine();
             Military military = militaryFromFile(br);
@@ -214,20 +214,35 @@ public class World implements Serializable {
 
     public Government governmentFromFile(BufferedReader br) {
         try {
+            Government government;
             String type = getVal(br.readLine());
             String l = br.readLine().trim();
             if (l.toLowerCase().startsWith("single")) {
                 String[] r = getValues(l);
-                Ruler ruler = new Ruler(r[0], r[1], r[2], r[3].charAt(0));
-                return new Government(type, ruler);
+                int age = GUtils.parseIntDef(r, 4, 0);
+                Ruler ruler = new Ruler(r[0], age, r[1], r[2], r[3].charAt(0));
+                government = new Government(type, ruler);
             } else {
                 String[] r1 = getValues(l);
-                Ruler headOfState = new Ruler(r1[0], r1[1], r1[2], r1[3].charAt(0));
+                int age1 = GUtils.parseIntDef(r1, 4, 0);
+                Ruler headOfState = new Ruler(r1[0], age1, r1[1], r1[2], r1[3].charAt(0));
                 String[] r2 = getValues(br.readLine());
-                Ruler headOfGovernment = new Ruler(r2[0], r2[1], r2[2], r2[3].charAt(0));
-                return new Government(type, headOfState, headOfGovernment);
+                int age2 = GUtils.parseIntDef(r2, 4, 0);
+                Ruler headOfGovernment = new Ruler(r2[0], age2, r2[1], r2[2], r2[3].charAt(0));
+                government = new Government(type, headOfState, headOfGovernment);
+            }
+            String line;
+            if((line = br.readLine()) != null && line.toLowerCase().startsWith("elect")){
+                String[] r = getValues(line);
+                int electionPeriod = GUtils.parseIntDef(r,0,0);
+                int lastElectionYear = GUtils.parseIntDef(r,1,0);
+                if(electionPeriod > 0 && lastElectionYear > 0 && lastElectionYear < game.getYear()){
+                    government.setElectionPeriod(electionPeriod);
+                    government.setYearsUntilNextElection(game.getYear(),lastElectionYear);
+                }
             }
 
+            return government;
         } catch (Exception e) {
             return null; // new Government() empty??
         }
@@ -492,7 +507,7 @@ public class World implements Serializable {
                 a.buildingTick();
             }
         }
-        for(Country c : countries){
+        for (Country c : countries) {
             c.monthlyTick();
         }
     }
@@ -500,6 +515,12 @@ public class World implements Serializable {
     public void yearlyUpdate() {
         for (Country c : countries) {
             c.yearlyTick();
+            if (c.hasElectionsThisYear()) {
+                //
+                Language lang = languages.get(c.getMainLanguage());
+                if (lang != null)
+                    c.getGovernment().changeLeadership(lang.generateMale());
+            }
         }
         for (AdmDiv a : provinces) {
             if (a != null) {
