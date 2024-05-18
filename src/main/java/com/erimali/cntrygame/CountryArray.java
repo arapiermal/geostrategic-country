@@ -183,11 +183,15 @@ public class CountryArray implements Iterable<Country>, Serializable {
     }
 
     public static short[] getShortArrFromStringArr(String in) {
+        int indexOf = in.indexOf(':');
+        if (indexOf >= 0) {
+            in = in.substring(indexOf + 1);
+        }
         return getShortArrFromStringArr(in.trim().split("\\s*,\\s*"));
     }
 
     public static short[] getShortArrFromStringArr(String[] in) {
-        if(in == null)
+        if (in == null)
             return null;
         short[] arr = new short[in.length];
         int i = 0;
@@ -195,7 +199,7 @@ public class CountryArray implements Iterable<Country>, Serializable {
             if (s.length() > 1)
                 arr[i++] = (short) getIndexAdv(s);
         }
-        if(i < in.length)
+        if (i < in.length)
             return Arrays.copyOf(arr, i);
         return arr;
     }
@@ -207,7 +211,7 @@ public class CountryArray implements Iterable<Country>, Serializable {
             if (s.length() > 1)
                 set.add((short) getIndexAdv(s));
         }
-        if(set.isEmpty())
+        if (set.isEmpty())
             return null;
         return set;
     }

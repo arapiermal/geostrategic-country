@@ -480,4 +480,15 @@ public class GUtils {
             return def;
         }
     }
+
+    public static int parseIntDef(String[] k, int i, int def) {
+        try{
+            if(i >= k.length || i < 0)
+                return def;
+            int a = Integer.parseInt(k[i]);
+            return a;
+        } catch(Exception e){
+            return def;
+        }
+    }
 }

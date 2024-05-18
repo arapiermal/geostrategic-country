@@ -121,6 +121,9 @@ public class Government implements Serializable {
             policies.remove(policy);
         }
     }
+    public void removePolicy(GovPolicy policy, boolean admin) {
+            policies.remove(policy);
+    }
 
     public void yearlyReduceFromPolicies() {
         for (GovPolicy p : policies.keySet()) {

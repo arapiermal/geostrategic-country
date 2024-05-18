@@ -552,6 +552,8 @@ public class WorldMap {
     }
 
     public void setColorOnAdmDivs(Country c, Paint color) {
+        if(c == null)
+            return;
         setColorOnAdmDivs(c.getAdmDivs(), color);
     }
 

@@ -3,6 +3,7 @@ package com.erimali.cntrygame;
 import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -10,9 +11,12 @@ import java.util.stream.Collectors;
 import com.erimali.cntrymilitary.MilUnitData;
 import com.erimali.minigames.MG2048Stage;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ObservableIntegerValue;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.*;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -21,6 +25,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
@@ -33,6 +38,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
+import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.controlsfx.control.CheckListView;
 
 class LimitedSizeList<T> {
@@ -1506,47 +1513,64 @@ public class GameStage extends Stage {
         changeSelectedCountryInfo();
     }
 
-
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //Take care if switching countries in game
     public void correlateCheckListViewGovPolicies(ObservableMap<GovPolicy, Integer> observableMap) {
-        //checkListViewGovPolicies.setItems(observableListGovPolicies);
-        //checkListViewGovPolicies.setCellFactory(CheckBoxListCell.forListView(checkListViewGovPolicies::getItemBooleanProperty));
-
+        BooleanProperty changedBoolean = new SimpleBooleanProperty(false);
         observableMap.addListener((MapChangeListener<GovPolicy, Integer>) change -> {
             if (change.wasAdded()) {
                 GovPolicy addedPolicy = change.getKey();
+                changedBoolean.set(true);
                 if (!observableListGovPolicies.contains(addedPolicy)) {
                     observableListGovPolicies.add(addedPolicy);
+                    checkListViewGovPolicies.getCheckModel().check(addedPolicy);
+                } else {
+                    checkListViewGovPolicies.getCheckModel().check(addedPolicy);
                 }
+                changedBoolean.set(false);
+
             } else if (change.wasRemoved()) {
                 GovPolicy removedPolicy = change.getKey();
-                if (removedPolicy.isRemovable()) {
+                if (!removedPolicy.isRemovable()) {
                     observableListGovPolicies.remove(removedPolicy);
+                } else{
+                    changedBoolean.set(true);
+                    checkListViewGovPolicies.getCheckModel().clearCheck(removedPolicy);
+                    changedBoolean.set(false);
+
                 }
             }
         });
-
-
-        checkListViewGovPolicies.getCheckModel().getCheckedItems().addListener((ListChangeListener<GovPolicy>) change -> {
-                    while (change.next()) {
-                        if (change.wasAdded() || change.wasRemoved()) {
-                            for (GovPolicy policy : change.getAddedSubList()) {
-                                if (policy.isRemovable()) {
-                                    if (!showConfirmationDialogGovPolicy(policy, true)) {
-                                        checkListViewGovPolicies.getCheckModel().clearCheck(policy);
-                                    }
+        ListChangeListener<GovPolicy> listChangeListener = change -> {
+            if (!changedBoolean.get()) {
+                while (change.next()) {
+                    if (change.wasAdded() || change.wasRemoved()) {
+                        for (GovPolicy policy : change.getAddedSubList()) {
+                            if (policy.isRemovable()) {
+                                changedBoolean.set(true);
+                                if (!showConfirmationDialogGovPolicy(policy, true)) {
+                                    //checkListViewGovPolicies.getCheckModel().clearCheck(policy);
                                 }
                             }
-                            for (GovPolicy policy : change.getRemoved()) {
-                                if (policy.isRemovable()) {
-                                    if (!showConfirmationDialogGovPolicy(policy, false)) {
-                                        checkListViewGovPolicies.getCheckModel().check(policy);
-                                    }
+                        }
+                        for (GovPolicy policy : change.getRemoved()) {
+                            if (policy.isRemovable()) {
+                                changedBoolean.set(true);
+                                if (!showConfirmationDialogGovPolicy(policy, false)) {
+                                    //checkListViewGovPolicies.getCheckModel().check(policy);
                                 }
+                            } else {
+                                //changedBoolean.set(true);
+                                //checkListViewGovPolicies.getCheckModel().check(policy);
+                                //checkListViewGovPolicies.refresh();
                             }
                         }
                     }
                 }
-        );
+                changedBoolean.set(false);
+            }
+        };
+        checkListViewGovPolicies.getCheckModel().getCheckedItems().addListener(listChangeListener);
     }
 
     public boolean showConfirmationDialogGovPolicy(GovPolicy policy, boolean isChecked) {
@@ -1574,7 +1598,7 @@ public class GameStage extends Stage {
             yearsSlider.setSnapToTicks(true);
             DoubleProperty priceProperty = new SimpleDoubleProperty(policy.getPrice() * game.getPlayer().getPopulation() / 2 * yearsSlider.getValue());
             priceLabel.textProperty().bind(GUtils.stringBindingDoubleCurrency(priceProperty));
-            okButton.setDisable(game.canPurchase(yearsSlider.getValue()));
+            okButton.setDisable(!game.canPurchase(priceProperty.getValue()));
             yearsSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
                 int val = newValue.intValue();
                 if (val != oldValue.intValue()) {
@@ -1592,20 +1616,29 @@ public class GameStage extends Stage {
             dialog.getDialogPane().setContent(grid);
             dialog.setResultConverter(dialogButton -> {
                 if (dialogButton == confirmButtonType) {
-                    int selectedYears = (int) yearsSlider.getValue();
+                    int years = (int) yearsSlider.getValue();
                     game.spendTreasury(priceProperty.getValue());
-                    System.out.println("Policy " + policy + " will be added for " + selectedYears + " years.");
+                    game.getPlayer().getGovernment().getPolicies().put(policy, years);
                     return true;
                 }
+                checkListViewGovPolicies.getCheckModel().clearCheck(policy);
+                checkListViewGovPolicies.refresh();
                 return false;
             });
         } else {
-            dialog.getDialogPane().setContent(new Label("Do you want to remove the policy: " + policy + "?"));
-            dialog.setResultConverter(dialogButton -> dialogButton == confirmButtonType);
+            dialog.getDialogPane().setContent(new Label("Do you want to remove the policy: " + policy + "?\nYears left: " + game.getPlayer().getGovernment().getPolicies().get(policy)));
+            dialog.setResultConverter(dialogButton -> {
+                if (dialogButton == confirmButtonType)
+                    return true;
+                checkListViewGovPolicies.getCheckModel().check(policy);
+                checkListViewGovPolicies.refresh();
+                return false;
+            });
         }
 
         Optional<Boolean> result = dialog.showAndWait();
 
         return result.isPresent() && result.get();
     }
+
 }

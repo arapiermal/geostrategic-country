@@ -211,7 +211,7 @@ public class CommandLine {
                         }
                         return "";
                     case "TREASURY":
-                        if(k.length == 3) {
+                        if (k.length == 3) {
                             double treasuryAmount = GUtils.parseDoubleAndPercent(k[2]);
                             mainCountry.getEconomy().addTreasuryOrPercent(treasuryAmount);
                             TESTING.print(mainCountry.getTreasury());
@@ -270,8 +270,39 @@ public class CommandLine {
                             }
                         }
                         return "";
+                    case "GOV":
+                        if (k.length >= 4) {
+                            if (k[2].substring(0, 3).equalsIgnoreCase("POL")) {
+                                try {
+                                    GovPolicy govPolicy = GovPolicy.valueOf(k[3]);
+                                    int years = GUtils.parseIntDef(k, 4, 5);
+                                    mainCountry.getGovernment().addPolicy(govPolicy, years);
+                                } catch (EnumConstantNotPresentException e) {
+                                    return "ERROR: Invalid government policy";
+                                }
+                            }
+                        }
+                        return "";
                     default:
                         return "ERROR: Invalid command";
+                }
+            case "REMOVE":
+                switch (k[1]) {
+                    case "GOV":
+                        if (k.length == 4) {
+                            if (k[2].substring(0, 3).equalsIgnoreCase("POL")) {
+                                try {
+                                    GovPolicy govPolicy = GovPolicy.valueOf(k[3]);
+                                    mainCountry.getGovernment().removePolicy(govPolicy, true);
+                                } catch (EnumConstantNotPresentException e) {
+                                    return "ERROR: Invalid government policy to remove";
+                                }
+                            }
+                        }
+                        return "";
+
+                    default:
+                        return "";
                 }
             case "CHANGE":
                 switch (k[1]) {
