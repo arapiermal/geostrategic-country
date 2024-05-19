@@ -264,7 +264,7 @@ public class Government implements Serializable {
         int nextElectionYear = lastElectionYear + (periodsSinceLastElection + 1) * electionPeriod;
         this.yearsUntilNextElection = nextElectionYear - currYear;
 
-        TESTING.print(this.yearsUntilNextElection);
+        //TESTING.print(yearsUntilNextElection);
     }
 
     public boolean isBothTheSame() {

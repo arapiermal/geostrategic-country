@@ -17,6 +17,7 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
     private int provId;
     private int ownerId;
     private int occupierId = -1;
+    //private String displayName for toString() without _
     private String name;
     private String nativeName;
     private double area;

@@ -74,6 +74,7 @@ public class GLogic implements Serializable {
         CommandLine.initCMD(world.getCountries());
         this.gameEvents = new PriorityQueue<>();
         this.baseEvents = new HashMap<>();
+        this.gameNews = new LinkedList<>();
         loadGameEvents(DEF_GAME_EVENTS_PATH);
         loadBaseEvents();
         initPeriodicCommands();
@@ -184,6 +185,7 @@ public class GLogic implements Serializable {
     }
 
     public void monthlyTick() {
+        removeOldGameNews();
         if (!improvingRelations.isEmpty()) {
             tickImproveRelations();
         }
@@ -648,14 +650,16 @@ public class GLogic implements Serializable {
     public List<GNews> getGameNews() {
         return gameNews;
     }
-    public void removeOldGameNews(){
-        while(!gameNews.isEmpty()){
-            if(gameNews.getFirst().getDate().getMonth() == inGDate.getMonth() && gameNews.getFirst().getDate().getYear() == inGDate.getYear())
+
+    public void removeOldGameNews() {
+        while (!gameNews.isEmpty()) {
+            if (gameNews.getFirst().getDate().getMonth() == inGDate.getMonth())
                 break;
             gameNews.removeFirst();
         }
     }
-    public void addGameNews(String title, String desc, String... paragraphs){
+
+    public void addGameNews(String title, String desc, String... paragraphs) {
         GNews news = new GNews(inGDate.getBaseCopy(), title, desc, paragraphs);
         gameNews.add(news);//observable list (?)
         gameNews.getLast().appendSelfToUniqueFile(getUniqueId());
@@ -667,9 +671,13 @@ public class GLogic implements Serializable {
 //////////////////////////////////////////////////
 
     public void declareWar(int a, int o, CasusBelli casusBelli) {
-        War w = getCountry(a).declareWar(o, world.getCountries(), casusBelli);
-        if (w != null)
+        Country c1 = getCountry(a);
+        Country c2 = getCountry(o);
+        War w = c1.declareWar(o, world.getCountries(), casusBelli);
+        if (w != null) {
             wars.add(w);
+            addGameNews(c1.getName() + " declared war on " + c2.getName(), w.toString());
+        }
     }
 
     public void declareWar(int o, CasusBelli casusBelli) {

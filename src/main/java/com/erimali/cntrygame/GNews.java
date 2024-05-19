@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 //For big news -> WW3
-public class GNews implements Serializable {
+public class GNews implements Serializable , Comparable<GNews>{
     private static final String SEPARATOR = "~~~";
     private static final String DEFLOCATION = "resources/web/articles.txt";
     private static final String NEWS_LOCATION = "src/main/resources/web/news/";//"saveGames/news/";
@@ -70,6 +70,7 @@ public class GNews implements Serializable {
         appended = true;
     }
 
+    @Override
     public String toString() {
         if (paragraphs == null)
             return date + "\n" + title + "\n" + desc;
@@ -147,5 +148,10 @@ public class GNews implements Serializable {
 
     public void setParagraphs(String[] paragraphs) {
         this.paragraphs = paragraphs;
+    }
+
+    @Override
+    public int compareTo(GNews o) {
+        return date.compareTo(o.date);
     }
 }

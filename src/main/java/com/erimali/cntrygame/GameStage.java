@@ -1270,8 +1270,9 @@ public class GameStage extends Stage {
 
     public void notificationNews(GNews news) {
         Notifications notification = Notifications.create().title(news.getTitle()).text(news.getDesc()).position(Pos.BOTTOM_RIGHT)
-                .hideAfter(Duration.seconds(5));
-        notification.showInformation();
+                .hideAfter(Duration.seconds(7)).owner(this);//Doesn't show without owner
+        notification.show();//show vs showInformation vs showWarning, GNews type (?)
+
     }
 
 
