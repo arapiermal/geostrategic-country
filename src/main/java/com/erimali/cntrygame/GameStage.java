@@ -466,12 +466,15 @@ public class GameStage extends Stage {
         zoomOut.setOnAction(e -> scrollPane.zoomOut());
          */
         int mapModesSize = WorldMap.getMaxMapModes();
-        Button[] mapModes = new Button[mapModesSize];
+        ToggleButton[] mapModes = new ToggleButton[mapModesSize];
         for (int i = 0; i < mapModesSize; i++) {
-            mapModes[i] = new Button(WorldMap.getMapModeName(i));
+            mapModes[i] = new ToggleButton(WorldMap.getMapModeName(i));
             int finalI = i;
             mapModes[i].setOnAction(event -> map.switchMapMode(finalI));
         }
+        ToggleGroup toggleGroup = new ToggleGroup();
+        toggleGroup.getToggles().addAll(mapModes);
+        mapModes[0].setSelected(true);
         //flowPane.getChildren().addAll(zoomIn, zoomOut); // in vBox... but problem
         flowPane.getChildren().addAll(mapModes);
 
@@ -969,6 +972,7 @@ public class GameStage extends Stage {
         isPlayingCountry = true;
         treasuryLabel.textProperty().bind(GUtils.stringBindingDoubleCurrency(game.getPlayer().getEconomy().treasuryProperty()));//can also be formated!
         correlateCheckListViewGovPolicies(game.getPlayer().getGovernment().getPolicies());
+        toggleButtonsConscriptRate[game.getPlayer().getMilitary().getPopConscriptionRateIndex()].setSelected(true);
         changeSelectedCountryInfo();
         changeSelectedProvInfo();
     }

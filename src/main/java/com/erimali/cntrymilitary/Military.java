@@ -328,4 +328,12 @@ public class Military implements Serializable {
             researchingMilTech[i] = !researchingMilTech[i];
         }
     }
+
+    public int getPopConscriptionRateIndex() {
+        for(int i = 0; i < DEF_POP_CONSCRIPTION_RATES.length; i++){
+            if(popConscriptionRate == DEF_POP_CONSCRIPTION_RATES[i])
+                return i;
+        }
+        return 0;
+    }
 }
