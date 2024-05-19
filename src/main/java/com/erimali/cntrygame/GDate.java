@@ -82,4 +82,7 @@ public class GDate extends BaseDate {
         //return localDate.getDayOfWeek().ordinal();
     }
 
+    public BaseDate getBaseCopy() {
+        return new BaseDate(day, month, year);
+    }
 }

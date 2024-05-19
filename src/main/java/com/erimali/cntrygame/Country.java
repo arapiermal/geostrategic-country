@@ -125,7 +125,11 @@ public class Country implements Serializable, Comparable<Country> {
     public void monthlyTick() {
         eco.monthlyTreasuryUpdate();
         taxSubjects();
+
+        short milResearchBonus = (short) (gov.researchBoost() + 2 * availableBuildings[Building.MIL_RESEARCH_FACILITY.ordinal()]);
+        mil.monthlyTick(population, milResearchBonus);
         //mil/tech progress
+        //if is researching...
     }
 
     public void yearlySubjectsTick() {
@@ -1052,6 +1056,14 @@ public class Country implements Serializable, Comparable<Country> {
             }
         }
 
+    }
+
+    public void setMilPopConscriptionRate(double value){
+        mil.setPopConscriptionRate(value);
+    }
+
+    public void setMilPopConscriptionRate(int index){
+        mil.setPopConscriptionRate(index);
     }
 
     public void spendTreasury(double value) {

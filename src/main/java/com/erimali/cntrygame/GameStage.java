@@ -3,12 +3,12 @@ package com.erimali.cntrygame;
 import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.erimali.cntrymilitary.MilUnitData;
+import com.erimali.cntrymilitary.Military;
 import com.erimali.minigames.MG2048Stage;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -16,7 +16,6 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ObservableIntegerValue;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.*;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -25,7 +24,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
@@ -38,9 +36,10 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
-import javafx.util.Callback;
-import javafx.util.StringConverter;
+import javafx.util.Duration;
 import org.controlsfx.control.CheckListView;
+import org.controlsfx.control.Notifications;
+import org.controlsfx.control.SegmentedButton;
 
 class LimitedSizeList<T> {
     private final int maxSize;
@@ -158,7 +157,7 @@ public class GameStage extends Stage {
         this.map = new WorldMap(this);
 
         BorderPane gameLayout = createGameLayout();
-        changeDate(game.inGDateInfo());
+        changeDateLabel(game.inGDateInfo());
         CommandLine.setGameStage(this);
 
         gameScene = new Scene(gameLayout);
@@ -187,7 +186,7 @@ public class GameStage extends Stage {
         game.loadAllUnitData();
         game.correlateAllUnitData();
         BorderPane gameLayout = createGameLayout();
-        changeDate(game.inGDateInfo());
+        changeDateLabel(game.inGDateInfo());
         updateGameLayout();
         CommandLine.setCountries(game.getWorldCountries());
         CommandLine.setPlayerCountry(game.getPlayerId());
@@ -220,7 +219,7 @@ public class GameStage extends Stage {
             playerNameLabel.setText(game.getPlayer().getName());
             //map.setPlayerCountry(game.getPlayerId());
             chooseCountryButton.setVisible(false);
-            changeDate(game.inGDateInfo());
+            changeDateLabel(game.inGDateInfo());
         }
     }
 
@@ -779,11 +778,17 @@ public class GameStage extends Stage {
         observableListGovPolicies = FXCollections.observableArrayList(
                 Arrays.stream(GovPolicy.values()).filter(GovPolicy::isRemovable).collect(Collectors.toList()));
         checkListViewGovPolicies = new CheckListView<>(observableListGovPolicies);
-        TitledPane govPolicies = new TitledPane("Policies", checkListViewGovPolicies);
+        checkListViewGovPolicies.setMinHeight(100);
+        TitledPane govPolicies = new TitledPane("Government Policies", checkListViewGovPolicies);
+        ToggleButton[] toggleButtonsConscriptRate = makeToggleButtonsConscriptRate();
+
+        SegmentedButton conscriptRateSegmentedButton = new SegmentedButton(toggleButtonsConscriptRate);
+        TitledPane milPolicies = new TitledPane("Military Policies/Research", conscriptRateSegmentedButton);
         formablesPanel = makeVBoxListViewFormables();
         TitledPane formables = new TitledPane("Formables", formablesPanel);
-        formables.setAnimated(false);
-        VBox vBox = new VBox(govPolicies, formables);
+        formables.setExpanded(false);
+        //formables.setAnimated(false);
+        VBox vBox = new VBox(govPolicies, milPolicies, formables);
         return vBox;
     }
 
@@ -853,6 +858,16 @@ public class GameStage extends Stage {
     ////////////////////////////////////////////////////
     // if(game.isSubjectOfPlayer(selectedCountry))
 
+    public ToggleButton[] makeToggleButtonsConscriptRate() {
+        double[] defRates = Military.getDefPopConscriptionRates();
+        ToggleButton[] toggleButtons = new ToggleButton[defRates.length];
+        for (int i = 0; i < defRates.length; i++) {
+            toggleButtons[i] = new ToggleButton(defRates[i] * 100 + "%");
+            int finalI = i;
+            toggleButtons[i].setOnAction(e -> game.setMilPopConscriptRate(finalI));
+        }
+        return toggleButtons;
+    }
 
     public void sendDonation() {
         // selected country -> treasury += input
@@ -982,7 +997,7 @@ public class GameStage extends Stage {
         }
     }
 
-    public void changeDate(String d) {
+    public void changeDateLabel(String d) {
         dateLabel.setText(d);
     }
 
@@ -1251,6 +1266,12 @@ public class GameStage extends Stage {
 
     public void setTooltipEcoTop(double lastMonthBalance) {
         hTopCenterTooltip.setText("Last month balance: " + GUtils.doubleToString(lastMonthBalance));
+    }
+
+    public void notificationNews(GNews news) {
+        Notifications notification = Notifications.create().title(news.getTitle()).text(news.getDesc()).position(Pos.BOTTOM_RIGHT)
+                .hideAfter(Duration.seconds(5));
+        notification.showInformation();
     }
 
 
@@ -1533,7 +1554,7 @@ public class GameStage extends Stage {
                 GovPolicy removedPolicy = change.getKey();
                 if (!removedPolicy.isRemovable()) {
                     observableListGovPolicies.remove(removedPolicy);
-                } else{
+                } else {
                     changedBoolean.set(true);
                     checkListViewGovPolicies.getCheckModel().clearCheck(removedPolicy);
                     changedBoolean.set(false);

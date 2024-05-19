@@ -4,6 +4,7 @@ import com.erimali.cntrygame.ErrorLog;
 import com.erimali.cntrygame.TESTING;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ToggleButton;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -14,25 +15,36 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class Military implements Serializable {
+    private static final double[] DEF_POP_CONSCRIPTION_RATES = {0.01, 0.025, 0.05, 0.1, 0.25, 0.5};
+    private static final int MAX_UNIT_TYPES = MilUnitData.getMaxTypes();
+    private double popConscriptionRate;
     private long manpower;//influenced by government policies / other attributes (popwillingness)
+    private long lastManpowerMonthlyIncrease;
+    private long activePersonnel; // when adding type isPersonnel() , battles -> activepersonnel down, population down
     private static final short MIL_TECH_LEVEL_CAP = 100;
-    private short[] milTechProgress;
-    private short[] milTechLevel;
-
-    private ObservableList<MilDiv> divisions;
-    //Have at least 1 division in all times
-    private Set<Integer> atWarWith;
+    private final short[] milTechProgress;
+    private final short[] milTechLevel;
+    private final boolean[] researchingMilTech;
+    private short baseResearch;
+    private final ObservableList<MilDiv> divisions;
+    //Have at least 1 division in all times (?)
+    private final Set<Integer> atWarWith;
 
 
     public Military() {
-        this.manpower = 0;
-        divisions = FXCollections.observableArrayList();
-        atWarWith = new HashSet<>();
-        milTechProgress = new short[MilUnitData.getMaxTypes()];
+        this.popConscriptionRate = 0.025;
+        this.manpower = 1000;
+        this.baseResearch = 10;
+        this.divisions = FXCollections.observableArrayList();
+        this.atWarWith = new HashSet<>();
+        this.milTechProgress = new short[MAX_UNIT_TYPES];
         Arrays.fill(milTechProgress, (short) 0);
-        milTechLevel = new short[MilUnitData.getMaxTypes()];
+        this.milTechLevel = new short[MAX_UNIT_TYPES];
         Arrays.fill(milTechLevel, (short) 0);
+        this.researchingMilTech = new boolean[MAX_UNIT_TYPES];
+        Arrays.fill(researchingMilTech, false);
     }
+
 
     //if true pop up benefits/new available units
     private boolean progressMilTech(int type, int amount) {
@@ -45,6 +57,14 @@ public class Military implements Serializable {
             return true;
         }
         return false;
+    }
+
+    public void monthlyResearch(short researchBonus) {
+        for (int i = 0; i < MAX_UNIT_TYPES; i++) {
+            if (researchingMilTech[i]) {
+                addMilTechProgress(i, (short) (baseResearch + researchBonus));
+            }
+        }
     }
 
     public void makeUnit() {
@@ -142,7 +162,7 @@ public class Military implements Serializable {
     public static MilUnit makeUnit(int ownerId, int type, int index) {
         if (type < 0 || type >= unitTypes.length || index < 0 || index > unitTypes[type].size())
             return null;
-        if(unitTypes[type].isEmpty())
+        if (unitTypes[type].isEmpty())
             return null;
         MilUnitData data = unitTypes[type].get(index);
         MilUnit unit = (type % 2 == 0) ? new MilSoldiers(data, ownerId) : new MilVehicles(data, ownerId);
@@ -164,27 +184,29 @@ public class Military implements Serializable {
         }
         TESTING.print(res > 0 ? "WIN" : "LOST");
     }
+
     public String unitDataTypesToString(List<MilUnitData>[] a) {
         return unitDataTypesToString(milTechLevel, a);
     }
+
     public static String unitDataTypesToString(short[] milTechLevel, List<MilUnitData>[] a) {
         StringBuilder sb = new StringBuilder();
         int i = 0;
         for (List<MilUnitData> l : unitTypes) {
             sb.append("Type ").append(i).append(':').append(MilUnitData.getUnitTypeName(i++)).append('\n');
             for (MilUnitData d : l) {
-                if(milTechLevel[d.type] >= d.minMilTech)
+                if (milTechLevel[d.type] >= d.minMilTech)
                     sb.append(d.subtype).append(')').append(d).append('\n');
             }
         }
         return sb.toString();
     }
 
-    public String toStringLong(){
+    public String toStringLong() {
         StringBuilder sb = new StringBuilder();
-        for(MilDiv d : divisions){
+        for (MilDiv d : divisions) {
             sb.append(d.toString()).append('\n');
-            for (MilUnit u : d.getUnits()){
+            for (MilUnit u : d.getUnits()) {
                 sb.append(u.toString()).append('\n');
             }
             sb.append("~").append('\n');
@@ -192,15 +214,17 @@ public class Military implements Serializable {
 
         return sb.toString();
     }
-    public String toStringDivs(){
+
+    public String toStringDivs() {
         StringBuilder sb = new StringBuilder();
         int i = 0;
-        for(MilDiv d : divisions){
+        for (MilDiv d : divisions) {
             sb.append(i++).append(')').append(d.toString()).append('\n');
         }
         return sb.toString();
     }
-    public int attack(){
+
+    public int attack() {
         return 0;
     }
 
@@ -214,24 +238,24 @@ public class Military implements Serializable {
 
     public void seizeVehicles(Military o) {
         List<MilUnit> vehicles = new ArrayList<>();
-        for(MilDiv d : o.divisions){
-            for(MilUnit u : d.getUnits()){
-                if(u instanceof MilVehicles){
+        for (MilDiv d : o.divisions) {
+            for (MilUnit u : d.getUnits()) {
+                if (u instanceof MilVehicles) {
                     vehicles.add(u);
                     d.removeUnit(u);
                 }
             }
         }
-        divisions.add(new MilDiv("Seized vehicles" , vehicles));
+        divisions.add(new MilDiv("Seized vehicles", vehicles));
     }
 
     public void takeDivisions(Military o) {
-        while(!o.divisions.isEmpty()){
+        while (!o.divisions.isEmpty()) {
             divisions.add(o.divisions.removeFirst());
         }
     }
 
-    public void changeUnitDiv(MilDiv d1, MilUnit u, MilDiv d2){
+    public void changeUnitDiv(MilDiv d1, MilUnit u, MilDiv d2) {
         d1.removeUnit(u);
         d2.addUnit(u);
     }
@@ -244,4 +268,64 @@ public class Military implements Serializable {
         this.manpower = manpower;
     }
 
+    public void monthlyTick(long population, short researchBonus) {
+        addManpowerFromPop(population);
+        monthlyResearch(researchBonus);
+    }
+
+    public void addManpowerFromPop(long population) {
+        lastManpowerMonthlyIncrease = (long) (population * popConscriptionRate / 60);
+        if (lastManpowerMonthlyIncrease < population) {
+            this.manpower += lastManpowerMonthlyIncrease;
+        } else {
+            lastManpowerMonthlyIncrease = 0;
+        }
+    }
+
+    public double getPopConscriptionRate() {
+        return popConscriptionRate;
+    }
+
+    public void setPopConscriptionRate(double popConscriptionRate) {
+        this.popConscriptionRate = popConscriptionRate;
+    }
+
+    public void setPopConscriptionRate(int index) {
+        if (index >= 0 && index < DEF_POP_CONSCRIPTION_RATES.length)
+            this.popConscriptionRate = DEF_POP_CONSCRIPTION_RATES[index];
+    }
+
+    public static double[] getDefPopConscriptionRates() {
+        return DEF_POP_CONSCRIPTION_RATES;
+    }
+
+    public long getLastManpowerMonthlyIncrease() {
+        return lastManpowerMonthlyIncrease;
+    }
+
+    public boolean getResearching(int i) {
+        if (i >= 0 && i < researchingMilTech.length) {
+            return researchingMilTech[i];
+        } else {
+            return false;
+        }
+    }
+
+    public void incBaseResearch(short amount) {
+        if (amount > 0)
+            baseResearch += amount;
+    }
+
+    public void decBaseResearch(short amount) {
+        if (amount > 0)
+            baseResearch -= amount;
+        if (baseResearch < 1)
+            baseResearch = 1;
+    }
+
+    public void toggleResearching(int i) {
+        if (i >= 0 && i < researchingMilTech.length) {
+            researchingMilTech[i] = !researchingMilTech[i];
+        }
+    }
 }

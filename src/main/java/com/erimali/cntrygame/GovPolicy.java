@@ -24,9 +24,7 @@ public enum GovPolicy {
     INCENTIVIZE_HEALTHINESS("Incentivize Healthiness", 4, 3),
     //TAX_CUT("", 8),
 
-    //CYBERSECURITY_MEASURES("",16),
-    //VACCINATION_MANDATES("",4),
-    ;
+    INCENTIVIZE_RESEARCH("Incentivize Research", 4, 1.5);
 
     //Positive
     //Negative/imposed policies

@@ -270,4 +270,8 @@ public class Government implements Serializable {
     public boolean isBothTheSame() {
         return bothTheSame;
     }
+
+    public short researchBoost(){
+        return policies.containsKey(GovPolicy.INCENTIVIZE_RESEARCH) ? (short) 10 : 0;
+    }
 }

@@ -159,7 +159,7 @@ public class GLogic implements Serializable {
         if (inGDate.isFirstDayOfWeek()) {
             weeklyTick();
         }
-        gs.changeDate(inGDateInfo());
+        gs.changeDateLabel(inGDateInfo());
         GEvent gEvent;
         while (!gameEvents.isEmpty() && (gEvent = gameEvents.peek()).getDate().equals(inGDate)) {
             gameEvents.poll();
@@ -390,15 +390,16 @@ public class GLogic implements Serializable {
         return baseEvents.get(in);
     }
 
-    public boolean addBaseEventToGameEvents(String shortName, GDate date){
+    public boolean addBaseEventToGameEvents(String shortName, GDate date) {
         BaseEvent baseEvent = baseEvents.get(shortName);
-        if(baseEvent != null)
-            return addBaseEventToGameEvents(baseEvent,date);
+        if (baseEvent != null)
+            return addBaseEventToGameEvents(baseEvent, date);
         else
             return false;
     }
-    public boolean addBaseEventToGameEvents(BaseEvent baseEvent, GDate date){
-        if (date.compareTo(inGDate) > 0){
+
+    public boolean addBaseEventToGameEvents(BaseEvent baseEvent, GDate date) {
+        if (date.compareTo(inGDate) > 0) {
             GEvent gEvent = new GEvent(baseEvent, date);
             gEvent.setCanHappen(true);//... its related to player !...
             gameEvents.add(gEvent);
@@ -406,6 +407,7 @@ public class GLogic implements Serializable {
         }
         return false;
     }
+
     public void loadBaseEvents() {
         File file = new File(DEF_BASE_EVENTS_PATH);
         if (file.exists())
@@ -646,11 +648,19 @@ public class GLogic implements Serializable {
     public List<GNews> getGameNews() {
         return gameNews;
     }
-
-    public void setGameNews(List<GNews> gameNews) {
-        this.gameNews = gameNews;
+    public void removeOldGameNews(){
+        while(!gameNews.isEmpty()){
+            if(gameNews.getFirst().getDate().getMonth() == inGDate.getMonth() && gameNews.getFirst().getDate().getYear() == inGDate.getYear())
+                break;
+            gameNews.removeFirst();
+        }
     }
-
+    public void addGameNews(String title, String desc, String... paragraphs){
+        GNews news = new GNews(inGDate.getBaseCopy(), title, desc, paragraphs);
+        gameNews.add(news);//observable list (?)
+        gameNews.getLast().appendSelfToUniqueFile(getUniqueId());
+        gs.notificationNews(news);
+    }
     // SUBJECT LOGIC
 
     // WAR
@@ -854,11 +864,11 @@ public class GLogic implements Serializable {
         return Long.toString(uniqueId, 36);
     }
 
-    public boolean canPurchase(double value){
+    public boolean canPurchase(double value) {
         return player.getTreasury() >= value;
     }
 
-    public void spendTreasury(double value){
+    public void spendTreasury(double value) {
         player.spendTreasury(value);
     }
 
@@ -872,5 +882,9 @@ public class GLogic implements Serializable {
 
     public int calcAge(int birthYear) {
         return inGDate.getYear() - birthYear;
+    }
+
+    public void setMilPopConscriptRate(int index) {
+        player.setMilPopConscriptionRate(index);
     }
 }
