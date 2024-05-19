@@ -76,8 +76,8 @@ class Robinson {
 
 public class WMCoordinate {
 
-	protected static double width = WorldMap.mapWidth;
-	protected static double height = WorldMap.mapHeight;
+	protected static double width = WorldMap.getMapWidth();
+	protected static double height = WorldMap.getMapHeight();
 
 	public static Point2D calc(double lat, double lng) {
 		double i = 5;

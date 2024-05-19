@@ -274,4 +274,8 @@ public class Government implements Serializable {
     public short researchBoost(){
         return policies.containsKey(GovPolicy.INCENTIVIZE_RESEARCH) ? (short) 10 : 0;
     }
+
+    public boolean hasPolicy(GovPolicy govPolicy) {
+        return policies.containsKey(govPolicy);
+    }
 }

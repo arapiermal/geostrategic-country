@@ -895,4 +895,15 @@ public class GLogic implements Serializable {
     public void setMilPopConscriptRate(int index) {
         player.setMilPopConscriptionRate(index);
     }
+
+    public void addRebelSponsoring(double amount, RebelType rt, int opCountry) {
+        addRebelSponsoring(amount, rt, opCountry, playerId);
+    }
+
+    public void addRebelSponsoring(double amount, RebelType rt, int opCountry, int origin) {
+        Country c1 = getCountry(origin);
+        Country c2 = getCountry(opCountry);
+        c1.spendTreasury(amount);
+        //weekly sponsor in hashMap (?) / Object how to structure
+    }
 }

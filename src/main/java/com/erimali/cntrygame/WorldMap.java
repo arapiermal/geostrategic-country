@@ -22,8 +22,8 @@ import java.net.URL;
 import java.util.*;
 
 public class WorldMap {
-    protected static double mapWidth = 12200;
-    protected static double mapHeight = 6149.8;
+    private static double mapWidth = 12200;
+    private static double mapHeight = 6149.8;
     private ZoomableScrollPane scrollPane;
     private Paint[] colors;
     private Color backgroundColor = Color.valueOf("#ADD8E6");
@@ -33,7 +33,7 @@ public class WorldMap {
     private Color defColorCountry = new Color(0, 0, 0, 0);
     private String defBorderColorString = "#000000";
     private Paint defBorderColor = Paint.valueOf(defBorderColorString);
-
+    private Paint defAtWarWithColor = Color.RED;
     private Paint defAllyColor = Paint.valueOf("blue");
     private Paint defNeutralColor = Paint.valueOf("lightgreen");
     private Paint defSelectedColor = Paint.valueOf("gray");
@@ -58,6 +58,7 @@ public class WorldMap {
     private static final String[] MAP_MODE_NAMES = new String[]{"Default", "Allies", "Unions", "Neighbours", "Continents", "Water"};
 
     private Set<Integer> waterProvinces;
+
     public WorldMap(GameStage gs) {
         waterProvinces = new HashSet<>();
         this.waterBodies = WaterBody.loadWaterBodies(waterProvinces);
@@ -65,6 +66,14 @@ public class WorldMap {
         loadMilSVGData();
         this.gs = gs;
         this.scrollPane = start();
+    }
+
+    public static double getMapWidth() {
+        return mapWidth;
+    }
+
+    public static double getMapHeight() {
+        return mapHeight;
     }
 
     public Set<Integer> getWaterProvinces() {
@@ -329,9 +338,9 @@ public class WorldMap {
                 double y1 = s1.getCenterY() - getLayoutY();
                 Line line = new Line(x0, y0, x1, y1);
                 //line.setMouseTransparent(true); // does not work inside region
-                if(s0 instanceof WaterBody || s1 instanceof WaterBody){
+                if (s0 instanceof WaterBody || s1 instanceof WaterBody) {
                     line.setStroke(Color.DARKBLUE);
-                } else{
+                } else {
                     line.setStroke(Color.BLACK);
                 }
                 getChildren().add(line);
@@ -352,9 +361,9 @@ public class WorldMap {
                 line.setStartY(y0);
                 line.setEndX(x1);
                 line.setEndY(y1);
-                if(s0 instanceof WaterBody || s1 instanceof WaterBody){
+                if (s0 instanceof WaterBody || s1 instanceof WaterBody) {
                     line.setStroke(Color.DARKBLUE);
-                } else{
+                } else {
                     line.setStroke(Color.BLACK);
                 }
             }
@@ -521,7 +530,8 @@ public class WorldMap {
                         t.setFill(defAllyColor);
                     } else if (c.hasSubject(ownerId)) {
                         t.setFill(defSubjectColor);
-
+                    } else if (c.isAtWarWith(ownerId)) {
+                        t.setFill(defAtWarWithColor);
                     } else if (cId == ownerId) {
                         t.setFill(defSelectedColor);
                     } else {
@@ -536,7 +546,8 @@ public class WorldMap {
                         t.setFill(defAllyColor);
                     } else if (mainId == ownerId) {
                         t.setFill(defOwnerColor);
-
+                    } else if (c.isAtWarWith(ownerId)) {
+                        t.setFill(defAtWarWithColor);
                     } else if (cId == ownerId) {
                         t.setFill(defSelectedColor);
                     } else {
@@ -552,7 +563,7 @@ public class WorldMap {
     }
 
     public void setColorOnAdmDivs(Country c, Paint color) {
-        if(c == null)
+        if (c == null)
             return;
         setColorOnAdmDivs(c.getAdmDivs(), color);
     }
@@ -571,33 +582,42 @@ public class WorldMap {
         int cId = gs.getSelectedCountry();
         Country o = cArr.get(oldSel);
         Country c = cArr.get(cId);
-        setColorOnAdmDivs(o, defColor);
-        for (short i : o.getDiplomacy().getAllies()) {
-            Country oldAlly = cArr.get(i);
-            setColorOnAdmDivs(oldAlly, defColor);
-        }
-        for (int i : o.getSubjects().keySet()) {
-            Country oldSubject = cArr.get(i);
-            setColorOnAdmDivs(oldSubject, defColor);
+        //if was subject (?)
+        if(o != null) {
+            setColorOnAdmDivs(o, defColor);
+            for (short i : o.getDiplomacy().getAllies()) {
+                Country oldAlly = cArr.get(i);
+                setColorOnAdmDivs(oldAlly, defColor);
+            }
+            for (int i : o.getSubjects().keySet()) {
+                Country oldSubject = cArr.get(i);
+                setColorOnAdmDivs(oldSubject, defColor);
+            }
+            for (int i : o.getMilitary().getAtWarWith()) {
+                Country oldAtWar = cArr.get(i);
+                setColorOnAdmDivs(oldAtWar, defColor);
+            }
+            if (!o.isNotSubject()) {
+                setColorOnAdmDivs(o.getSubjectOf().getMain(), defColor);
+            }
         }
         if (c != null) {
             setColorOnAdmDivs(c, defSelectedColor);
+            for (short i : c.getDiplomacy().getAllies()) {
+                Country ally = cArr.get(i);
+                setColorOnAdmDivs(ally, defAllyColor);
+            }
+            for (int i : c.getMilitary().getAtWarWith()) {
+                Country oldAtWar = cArr.get(i);
+                setColorOnAdmDivs(oldAtWar, defAtWarWithColor);
+            }
             if (c.isNotSubject()) {
-                for (short i : c.getDiplomacy().getAllies()) {
-                    Country ally = cArr.get(i);
-                    setColorOnAdmDivs(ally, defAllyColor);
-                }
                 for (int i : c.getSubjects().keySet()) {
                     Country subject = cArr.get(i);
                     setColorOnAdmDivs(subject, defSubjectColor);
                 }
             } else {
                 setColorOnAdmDivs(c.getSubjectOf().getMain(), defOwnerColor);
-                for (short i : c.getDiplomacy().getAllies()) {
-                    Country ally = cArr.get(i);
-                    setColorOnAdmDivs(ally, defAllyColor);
-                }
-
             }
         }
     }
@@ -666,14 +686,14 @@ public class WorldMap {
     }
 
     private void paintMapWaters() {
-        for(SVGProvince s : mapSVG){
-            if(waterProvinces.contains( s.getProvId())){
+        for (SVGProvince s : mapSVG) {
+            if (waterProvinces.contains(s.getProvId())) {
                 s.setFill(Color.DODGERBLUE);
-            } else{
+            } else {
                 s.setFill(defColor);
             }
         }
-        for(WaterBody w : waterBodies){
+        for (WaterBody w : waterBodies) {
             //show text on top of circle (?)
 
         }

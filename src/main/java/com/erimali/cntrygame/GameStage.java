@@ -140,7 +140,7 @@ public class GameStage extends Stage {
 
     private BuildBuildings buildBuildings;
     private TableView<BuildBuildings.BuildBuildingTask> tableViewBuildings;
-
+    private ToggleButton[] toggleButtonsConscriptRate;
     private ObservableList<GovPolicy> observableListGovPolicies;
     private CheckListView<GovPolicy> checkListViewGovPolicies;
 
@@ -780,7 +780,8 @@ public class GameStage extends Stage {
         checkListViewGovPolicies = new CheckListView<>(observableListGovPolicies);
         checkListViewGovPolicies.setMinHeight(100);
         TitledPane govPolicies = new TitledPane("Government Policies", checkListViewGovPolicies);
-        ToggleButton[] toggleButtonsConscriptRate = makeToggleButtonsConscriptRate();
+        Label conscriptRateLabel = new Label("Conscriptable population");
+        toggleButtonsConscriptRate = makeToggleButtonsConscriptRate();
 
         SegmentedButton conscriptRateSegmentedButton = new SegmentedButton(toggleButtonsConscriptRate);
         TitledPane milPolicies = new TitledPane("Military Policies/Research", conscriptRateSegmentedButton);
@@ -872,13 +873,15 @@ public class GameStage extends Stage {
     public void sendDonation() {
         // selected country -> treasury += input
         //max should be governmentBudget (not spent) / 40
-        Double result = showNumberInputDialog("Donation", 1000, 10000000);
+        Double result = showNumberInputDialog("Donation", 1000, game.getPlayer().getTreasury());
         //game.getPlayer().getEconomy().getGDP()/10
-        if (result != null) {
+        if (result != null && !result.isNaN()) {
             displayNumberInputResult(result);
             game.giveMoney(selectedCountry, result);
             // country send donation method?
             //game.getPlayer().giveMoney(game.getWorldCountries().get(selectedCountry));
+        } else if (result != null) {
+            showErrorPopup("Insufficient treasury");
         } else {
             showErrorPopup("Invalid input");
         }
@@ -926,7 +929,7 @@ public class GameStage extends Stage {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Declare War - Casus Belli");
 
-        ListView<CasusBelli> cbListView = War.makeListViewValidatable(game.getWorld(), game.getPlayerId(), selectedCountry, CasusBelli.class);
+        ListView<CasusBelli> cbListView = War.makeListViewValidatable(game, game.getPlayerId(), selectedCountry, CasusBelli.class);
         dialog.getDialogPane().setContent(cbListView);
 
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -1110,7 +1113,7 @@ public class GameStage extends Stage {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Sponsor rebels");
 
-        ListView<RebelType> rbListView = War.makeListViewValidatable(game.getWorld(), game.getPlayerId(), selectedCountry, RebelType.class);
+        ListView<RebelType> rbListView = War.makeListViewValidatable(game, game.getPlayerId(), selectedCountry, RebelType.class);
         dialog.getDialogPane().setContent(rbListView);
 
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -1123,12 +1126,15 @@ public class GameStage extends Stage {
                         dialog.setHeaderText("Pick a rebel type.");
                         event.consume();
                     } else {
-                        Double money = showNumberInputDialog("Sponsor Rebels", 1000000, 100000000);
+                        Double money = showNumberInputDialog("Sponsor Rebels", 1000000, game.getPlayer().getTreasury());
                         if (money == null) {
                             dialog.setHeaderText("Money is a number!");
                             event.consume();
+                        } else if (money.isNaN()) {
+                            dialog.setHeaderText("Insufficient treasury.");
                         } else {
-                            double amount = money.doubleValue();
+                            double amount = money;
+                            game.addRebelSponsoring(amount, rt, selectedCountry);
                             //TESTING.print(amount);
                             //game.sponsorRebels(rt, selectedCountry, money);
                             GameAudio.playShortSound("low-impact.mp3");
@@ -1301,6 +1307,7 @@ public class GameStage extends Stage {
         WebView webView = new WebView();
         webView.setContextMenuEnabled(false);
         WebEngine webEngine = webView.getEngine();
+        webEngine.setOnAlert(e -> showAlert(e.getData()));
         webEngine.load(filePath);
         webEngine.setUserAgent("countrysim"); //in javascript navigator.userAgent
         Stage popupStage = new Stage();
@@ -1364,6 +1371,10 @@ public class GameStage extends Stage {
         }
     }
 
+    public void showAlert(String data) {
+        showAlert(Alert.AlertType.NONE, "JS Alert", data);
+    }
+
     public void showAlert(Alert.AlertType alertType, String title, String message) {
         Alert alert = new Alert(alertType);
         alert.initOwner(this);
@@ -1413,15 +1424,9 @@ public class GameStage extends Stage {
         alert.showAndWait();
     }
 
-    private Double showNumberInputDialog(double maxSliderVal) {
-        return showNumberInputDialog("Number Input", 0, maxSliderVal);
-    }
-
-    private Double showNumberInputDialog(String title) {
-        return showNumberInputDialog(title, 100000, game.getPlayer().getTreasury());
-    }
-
     private Double showNumberInputDialog(String title, double minSliderVal, double maxSliderVal) {
+        if (maxSliderVal < minSliderVal)
+            return Double.NaN;
         Stage dialogStage = new Stage();
         dialogStage.initModality(Modality.APPLICATION_MODAL);
         Slider slider = new Slider(minSliderVal, maxSliderVal, 0);

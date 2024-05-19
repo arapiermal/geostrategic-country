@@ -10,36 +10,38 @@ public enum CasusBelli implements CValidatable {
     },
     //Based on claims/previous owners of provinces
     TERRITORY("Territorial dispute", 50) {
-        public boolean isValid(World world, int... args) {
+        public boolean isValid(GLogic game, int... args) {
             if(args.length < 2)
                 return false;
             short cInd1 = (short) args[0];
-            Country c2 = world.getCountry(args[1]);
+            Country c2 = game.getCountry(args[1]);
             //change
-            world.getInitialProvinces().ownsOrHasSubject(c2, cInd1);
+            game.getWorld().getInitialProvinces().ownsOrHasSubject(c2, cInd1);
             return false;
         }
     },
     RECOVER("Recover territory", 0){
-        public boolean isValid(World world, int... args) {
+        public boolean isValid(GLogic game, int... args) {
             if(args.length < 2)
                 return false;
             short cInd1 = (short) args[0];
-            Country c2 = world.getCountry(args[1]);
+            Country c2 = game.getCountry(args[1]);
 
-            return world.getInitialProvinces().owns(c2, cInd1);
+            return game.getWorld().getInitialProvinces().owns(c2, cInd1);
         }
 
     },
     //Linguistic territorial disputes (they have provinces with people that speak the same main language as ours...)
     LINGUISTIC("Linguistic minority", 30) {
         @Override
-        public boolean isValid(World world, int... args) {
+        public boolean isValid(GLogic game, int... args) {
             if(args.length < 2)
                 return false;
-            Country c1 = world.getCountry(args[0]);
-            Country c2 = world.getCountry(args[1]);
-
+            Country c1 = game.getCountry(args[0]);
+            Country c2 = game.getCountry(args[1]);
+            if(c2.getGovernment().hasPolicy(GovPolicy.MULTI_LINGUALISM)){
+                return false;
+            }
             short c1Lang = c1.getMainLanguage();
             List<Short> c2Langs = c2.getLanguages();
             for (int i = 1; i < c2Langs.size(); i++) {
@@ -53,23 +55,23 @@ public enum CasusBelli implements CValidatable {
     //Free countries from subjugation / release countries that have been annexed
     LIBERATE("Liberation", 25) {
         @Override
-        public boolean isValid(World world, int... args) {
+        public boolean isValid(GLogic game, int... args) {
             //Check for releasable countries in c2
             if(args.length < 2)
                 return false;
-            Country c2 = world.getCountry(args[1]);
+            Country c2 = game.getCountry(args[1]);
 
-            return world.getInitialProvinces().ownsOthers(c2);
+            return game.getWorld().getInitialProvinces().ownsOthers(c2);
         }
     },
     //Change their gov type to the same as ours
     REGIME("Regime change", 30) {
         @Override
-        public boolean isValid(World world, int... args) {
+        public boolean isValid(GLogic game, int... args) {
             if(args.length < 2)
                 return false;
-            Country c1 = world.getCountry(args[0]);
-            Country c2 = world.getCountry(args[1]);
+            Country c1 = game.getCountry(args[0]);
+            Country c2 = game.getCountry(args[1]);
 
             return !c1.getGovernment().sameType(c2.getGovernment());
         }
@@ -77,11 +79,11 @@ public enum CasusBelli implements CValidatable {
     //They have valuable resources (for ex.)
     ECONOMIC_DOMINATION("Economic Domination", 40) {
         @Override
-        public boolean isValid(World world, int... args) {
+        public boolean isValid(GLogic game, int... args) {
             if(args.length < 2)
                 return false;
-            Country c1 = world.getCountry(args[0]);
-            Country c2 = world.getCountry(args[1]);
+            Country c1 = game.getCountry(args[0]);
+            Country c2 = game.getCountry(args[1]);
 
             return false;
         }
@@ -89,11 +91,11 @@ public enum CasusBelli implements CValidatable {
     //Help rebels take over the country, cannot annex provinces, maybe liberate
     ASSIST_REBELS("Assist our rebels", 40) {
         @Override
-        public boolean isValid(World world, int... args) {
+        public boolean isValid(GLogic game, int... args) {
             if(args.length < 2)
                 return false;
-            Country c1 = world.getCountry(args[0]);
-            Country c2 = world.getCountry(args[1]);
+            Country c1 = game.getCountry(args[0]);
+            Country c2 = game.getCountry(args[1]);
 
             return false;
         }
@@ -101,11 +103,11 @@ public enum CasusBelli implements CValidatable {
     //They have sponsored rebel groups against us
     SPONSOREDREBELS("Revenge their rebel support", 40) {
         @Override
-        public boolean isValid(World world, int... args) {
+        public boolean isValid(GLogic game, int... args) {
             if(args.length < 2)
                 return false;
-            Country c1 = world.getCountry(args[0]);
-            Country c2 = world.getCountry(args[1]);
+            Country c1 = game.getCountry(args[0]);
+            Country c2 = game.getCountry(args[1]);
 
             return false;
         }
@@ -115,11 +117,11 @@ public enum CasusBelli implements CValidatable {
     //Only declarable by subjects to the main country
     INDEPENDENCE("Independence", 0) {
         @Override
-        public boolean isValid(World world, int... args) {
+        public boolean isValid(GLogic game, int... args) {
             if(args.length < 2)
                 return false;
-            Country c1 = world.getCountry(args[0]);
-            Country c2 = world.getCountry(args[1]);
+            Country c1 = game.getCountry(args[0]);
+            Country c2 = game.getCountry(args[1]);
 
             if (!c1.isNotSubject())
                 return !c1.equals(c2) && c1.getSubjectOf().getMain().equals(c2);
@@ -148,7 +150,7 @@ public enum CasusBelli implements CValidatable {
     }
 
     @Override
-    public boolean isValid(World world, int... args) {
+    public boolean isValid(GLogic game, int... args) {
         return true;
     }//based on casus
 }

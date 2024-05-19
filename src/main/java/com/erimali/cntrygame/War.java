@@ -79,8 +79,8 @@ public class War implements Serializable {
     private double warState; // from -100 to 100
     private Country declaringCountry;//what if Military, and in constructor get it
     private Country opposingCountry;
-    private Set<Country> declaringAllies; //Which accepted to enter war
-    private Set<Country> opposingAllies;
+    private Set<Integer> declaringAllies; //Which accepted to enter war
+    private Set<Integer> opposingAllies;
     private List<Battle> activeBattles;
     private ObservableList<AdmDiv> declaringOccupiedProv;
     private ObservableList<AdmDiv> opposingOccupiedProv;
@@ -154,14 +154,30 @@ public class War implements Serializable {
         return lv;
     }*/
 
-    public static <T extends Enum<T> & CValidatable> ListView<T> makeListViewValidatable(World world, int cInd1, int cInd2, Class<T> enumClass) {
+    public static <T extends Enum<T> & CValidatable> ListView<T> makeListViewValidatable(GLogic game, int cInd1, int cInd2, Class<T> enumClass) {
         ListView<T> lv = new ListView<>();
         for (T it : enumClass.getEnumConstants()) {
-            if (it.isValid(world,cInd1,cInd2)) {
+            if (it.isValid(game,cInd1,cInd2)) {
                 lv.getItems().add(it);
             }
         }
         return lv;
+    }
+
+    public Set<Integer> getDeclaringAllies() {
+        return declaringAllies;
+    }
+
+    public void setDeclaringAllies(Set<Integer> declaringAllies) {
+        this.declaringAllies = declaringAllies;
+    }
+
+    public Set<Integer> getOpposingAllies() {
+        return opposingAllies;
+    }
+
+    public void setOpposingAllies(Set<Integer> opposingAllies) {
+        this.opposingAllies = opposingAllies;
     }
 
     @Override

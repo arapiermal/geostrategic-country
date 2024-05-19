@@ -213,6 +213,7 @@ public class Country implements Serializable, Comparable<Country> {
         if (op == null)
             return null;
         if (gov.canDeclareWar()) {
+            //my unions or op unions ?!?
             for (Union u : unions) {
                 if (u.containsCountry(op.getCountryId())) {
                     for (int i : u.getUnionCountries()) {
@@ -221,6 +222,15 @@ public class Country implements Serializable, Comparable<Country> {
                         }
                     }
                 }
+            }
+            Set<Integer> opUnionAllies = new HashSet<>();
+            for (Union u : op.unions) {
+                if (u.hasType(u.MILITARY) && !u.containsCountry(this.countryId)) {
+                    opUnionAllies.addAll(u.getUnionCountries());
+                }
+            }
+            if (!opUnionAllies.isEmpty()) {
+                opUnionAllies.remove(op.countryId);
             }
             for (int i : neighbours) {
                 if (cArr.containsKey(i)) {
@@ -1058,11 +1068,11 @@ public class Country implements Serializable, Comparable<Country> {
 
     }
 
-    public void setMilPopConscriptionRate(double value){
+    public void setMilPopConscriptionRate(double value) {
         mil.setPopConscriptionRate(value);
     }
 
-    public void setMilPopConscriptionRate(int index){
+    public void setMilPopConscriptionRate(int index) {
         mil.setPopConscriptionRate(index);
     }
 
