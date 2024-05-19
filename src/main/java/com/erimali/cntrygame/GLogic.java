@@ -869,4 +869,8 @@ public class GLogic implements Serializable {
     public int getYear() {
         return inGDate.getYear();
     }
+
+    public int calcAge(int birthYear) {
+        return inGDate.getYear() - birthYear;
+    }
 }

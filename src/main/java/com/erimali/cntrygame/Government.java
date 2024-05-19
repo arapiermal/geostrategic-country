@@ -11,6 +11,8 @@ public class Government implements Serializable {
     //private static GovTypes; // load from file?
     //improve type?
     private String type;
+
+
     private boolean bothTheSame;
     private Ruler headOfState;// ruling monarch, executive president -> main
     // constitutional monarch, non-executive president -> not main
@@ -24,6 +26,7 @@ public class Government implements Serializable {
     //Elections/Ruler change
 
 
+    private int lastElectionYear;
     private int electionPeriod;
     private int yearsUntilNextElection;
 
@@ -60,6 +63,18 @@ public class Government implements Serializable {
         this.isHeadOfStateStronger = isHeadOfStateStronger;
         this.policies = FXCollections.observableMap(new EnumMap<>(GovPolicy.class));
 
+    }
+
+    public void setRulerSame(Ruler ruler) {
+        this.headOfState = ruler;
+        this.headOfGovernment = ruler;
+        this.bothTheSame = true;
+    }
+
+    public void setRulerSame(Person person) {
+        String type = isHeadOfStateStronger ? headOfState.getType() : headOfGovernment.getType();
+        Ruler ruler = new Ruler(type, person);
+        setRulerSame(ruler);
     }
 
     public boolean sameType(Government o) {
@@ -132,6 +147,7 @@ public class Government implements Serializable {
     }
 
     public void yearlyTick() {
+
         yearlyReduceFromPolicies();
     }
 
@@ -140,7 +156,7 @@ public class Government implements Serializable {
             yearsUntilNextElection--;
             if (yearsUntilNextElection == 0) {
                 yearsUntilNextElection = electionPeriod;
-                return Math.random() > 0.5;
+                return true;
             }
         }
         return false;
@@ -149,7 +165,7 @@ public class Government implements Serializable {
     public void changeLeadership(Person person) {
         String type = isHeadOfStateStronger ? headOfState.getType() : headOfGovernment.getType();
         Ruler ruler = new Ruler(type, person);
-        if (headOfGovernment == headOfState) {
+        if (bothTheSame) {
             headOfGovernment = ruler;
             headOfState = ruler;
         } else if (isHeadOfStateStronger) {
@@ -160,7 +176,7 @@ public class Government implements Serializable {
     }
 
     public void changeNonPrimaryLeadership(Person person) {
-        if (headOfGovernment == headOfState)
+        if (bothTheSame)
             return;
         String type = !isHeadOfStateStronger ? headOfState.getType() : headOfGovernment.getType();
         Ruler ruler = new Ruler(type, person);
@@ -200,12 +216,20 @@ public class Government implements Serializable {
         this.headOfState = headOfState;
     }
 
+    public void setHeadOfState(Person headOfState) {
+        this.headOfState = new Ruler(this.headOfState.getType(), headOfState);
+    }
+
     public Ruler getHeadOfGovernment() {
         return headOfGovernment;
     }
 
     public void setHeadOfGovernment(Ruler headOfGovernment) {
         this.headOfGovernment = headOfGovernment;
+    }
+
+    public void setHeadOfGovernment(Person headOfGovernment) {
+        this.headOfGovernment =  new Ruler(this.headOfGovernment.getType(), headOfGovernment);;
     }
 
     public boolean canDeclareWar() {
@@ -223,14 +247,27 @@ public class Government implements Serializable {
     public int getYearsUntilNextElection() {
         return yearsUntilNextElection;
     }
-    public void setYearsUntilNextElection(int currYear, int lastElection) {
+
+    public int getLastElectionYear() {
+        return lastElectionYear;
+    }
+
+    public void setLastElectionYear(int lastElectionYear) {
+        this.lastElectionYear = lastElectionYear;
+    }
+
+    public void setYearsUntilNextElectionFromCurrYear(int currYear) {
         //error if lastElection > currYear
-        if(electionPeriod <= 0)
+        if (electionPeriod <= 0)
             return;
-        int periodsSinceLastElection = (currYear - lastElection) / electionPeriod;
-        int nextElectionYear = lastElection + (periodsSinceLastElection + 1) * electionPeriod;
+        int periodsSinceLastElection = (currYear - lastElectionYear) / electionPeriod;
+        int nextElectionYear = lastElectionYear + (periodsSinceLastElection + 1) * electionPeriod;
         this.yearsUntilNextElection = nextElectionYear - currYear;
 
         TESTING.print(this.yearsUntilNextElection);
+    }
+
+    public boolean isBothTheSame() {
+        return bothTheSame;
     }
 }

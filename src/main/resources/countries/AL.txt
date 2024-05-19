@@ -21,8 +21,8 @@ Vlorë:2706,188922
 kaq
 Government
 type:Republic
-headOfState:President,Bajram,Begaj,Male
-headOfGov:Prime Minister,Edi,Rama,Male
+headOfState:President,Bajram,Begaj,Male,1967
+headOfGov:Prime Minister,Edi,Rama,Male,1964
 elections:4,2021
 Economy
 currency:ALL,1.0%

@@ -199,7 +199,7 @@ public class World implements Serializable {
 
             br.readLine();
             Government government = governmentFromFile(br);
-            if(!government.holdsElections())
+            if (!government.holdsElections())
                 br.readLine();
             Economy economy = economyFromFile(br);
             br.readLine();
@@ -219,26 +219,30 @@ public class World implements Serializable {
             String l = br.readLine().trim();
             if (l.toLowerCase().startsWith("single")) {
                 String[] r = getValues(l);
-                int age = GUtils.parseIntDef(r, 4, 0);
+                int birthYear = GUtils.parseIntDef(r, 4, 0);
+                int age = game.calcAge(birthYear);
                 Ruler ruler = new Ruler(r[0], age, r[1], r[2], r[3].charAt(0));
                 government = new Government(type, ruler);
             } else {
                 String[] r1 = getValues(l);
-                int age1 = GUtils.parseIntDef(r1, 4, 0);
+                int birthYear1 = GUtils.parseIntDef(r1, 4, 0);
+                int age1 = game.calcAge(birthYear1);
                 Ruler headOfState = new Ruler(r1[0], age1, r1[1], r1[2], r1[3].charAt(0));
                 String[] r2 = getValues(br.readLine());
-                int age2 = GUtils.parseIntDef(r2, 4, 0);
+                int birthYear2 = GUtils.parseIntDef(r2, 4, 0);
+                int age2 = game.calcAge(birthYear2);
                 Ruler headOfGovernment = new Ruler(r2[0], age2, r2[1], r2[2], r2[3].charAt(0));
                 government = new Government(type, headOfState, headOfGovernment);
             }
             String line;
-            if((line = br.readLine()) != null && line.toLowerCase().startsWith("elect")){
+            if ((line = br.readLine()) != null && line.toLowerCase().startsWith("elect")) {
                 String[] r = getValues(line);
-                int electionPeriod = GUtils.parseIntDef(r,0,0);
-                int lastElectionYear = GUtils.parseIntDef(r,1,0);
-                if(electionPeriod > 0 && lastElectionYear > 0 && lastElectionYear < game.getYear()){
+                int electionPeriod = GUtils.parseIntDef(r, 0, 0);
+                int lastElectionYear = GUtils.parseIntDef(r, 1, 0);
+                if (electionPeriod > 0 && lastElectionYear > 0 && lastElectionYear < game.getYear()) {
                     government.setElectionPeriod(electionPeriod);
-                    government.setYearsUntilNextElection(game.getYear(),lastElectionYear);
+                    government.setLastElectionYear(lastElectionYear);
+                    government.setYearsUntilNextElectionFromCurrYear(game.getYear());
                 }
             }
 
@@ -515,11 +519,36 @@ public class World implements Serializable {
     public void yearlyUpdate() {
         for (Country c : countries) {
             c.yearlyTick();
+
+
             if (c.hasElectionsThisYear()) {
-                //
-                Language lang = languages.get(c.getMainLanguage());
-                if (lang != null)
-                    c.getGovernment().changeLeadership(lang.generateMale());
+
+
+                if (Math.random() > 0.5) {
+                    Language lang = languages.get(c.getMainLanguage());
+                    if (lang != null)
+                        c.getGovernment().changeLeadership(lang.generateMale());
+                }
+                //else the same person wins/stays in power
+            } else{
+                if(c.getGovernment().isBothTheSame()){
+                    if(c.getGovernment().getHeadOfState().getOlder()) {
+                        Language lang = languages.get(c.getMainLanguage());
+                        if (lang != null)
+                            c.getGovernment().setRulerSame(lang.generateMale());
+                    }
+                } else{
+                    if(c.getGovernment().getHeadOfState().getOlder()) {
+                        Language lang = languages.get(c.getMainLanguage());
+                        if (lang != null)
+                            c.getGovernment().setHeadOfState(lang.generateMale());
+                    }
+                    if(c.getGovernment().getHeadOfGovernment().getOlder()) {
+                        Language lang = languages.get(c.getMainLanguage());
+                        if (lang != null)
+                            c.getGovernment().setHeadOfGovernment(lang.generateMale());
+                    }
+                }
             }
         }
         for (AdmDiv a : provinces) {

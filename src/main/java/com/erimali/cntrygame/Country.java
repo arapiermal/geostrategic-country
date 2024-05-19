@@ -1,6 +1,7 @@
 package com.erimali.cntrygame;
 
 import com.erimali.cntrymilitary.Military;
+import com.erimali.cntrymilitary.Person;
 
 import java.io.Serializable;
 import java.util.*;

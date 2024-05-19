@@ -8,7 +8,7 @@ enum RulerType {
 
 public class Ruler extends Person {
     private static final int MAX_AGE = 125;
-    private String type;
+    private String type; // move to government the type...
     private int age;
 
     //add properties for bonuses in Country game
@@ -56,7 +56,11 @@ public class Ruler extends Person {
 
     public boolean getOlder() {
         age++;
+        if(age > MAX_AGE){
+            return Math.random() > 0.5;
+        }
         double probOfDeath = (double) age / MAX_AGE;
-        return Math.random() < probOfDeath;
+        return Math.random() * 32 < probOfDeath;
     }
+
 }
