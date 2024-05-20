@@ -31,6 +31,7 @@ Government
 type:Republic
 headOfState:President,Sergio,Mattarella,Male
 headOfGov:Prime Minister,Giorgia,Meloni,Female
+elections:5,2022
 Economy
 currency:EUR,1.0%
 GDPUSD:2.254e12,1.2%

@@ -19,6 +19,7 @@ Government
 type:Republic
 headOfState:President,Stevo,Pendarovski,Male
 headOfGov:Prime Minister,Talat,Xhaferi,Male
+elections:4,2024
 Economy
 currency:EUR,1.0%
 GDPUSD:14766000000,9.0%

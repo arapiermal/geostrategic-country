@@ -25,6 +25,7 @@ Government
 type:Republic
 headOfState:President,Katerina,Sakellaropoulou,Female
 headOfGov:Prime Minister,Kyriakos,Mitsotakis,Male
+elections:4,2023
 Economy
 currency:EUR,11.0%
 GDPUSD:2.42385e11,2.0%

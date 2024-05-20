@@ -30,7 +30,8 @@ public class Language implements Comparable<Language>, Serializable {
         this.name = upperFirstLowerRestLetters(name);
         loadLanguage();
     }
-    public void loadLanguage() throws Exception{
+
+    public void loadLanguage() throws Exception {
         try (BufferedReader br = new BufferedReader(new FileReader(DEFLANGPATH + name + ".txt"))) {
             howMany = 1;
             mainPhrases = new ArrayList<>();
@@ -53,7 +54,8 @@ public class Language implements Comparable<Language>, Serializable {
         }
 
     }
-//These are added to the end of the world list or new list for comboLangs.
+
+    //These are added to the end of the world list or new list for comboLangs.
     // Unify languages
     public Language(Language... langs) {
         if (langs.length < 2) {
@@ -115,10 +117,14 @@ public class Language implements Comparable<Language>, Serializable {
     }
 
     public Person generateMale() {
-        Random r = new Random();
-        int name = r.nextInt(commonMaleNames.length);
-        int surname = r.nextInt(commonSurnames.length);
-        return new Person(commonMaleNames[name], commonSurnames[surname], Person.getMale());
+        try {
+            Random r = new Random();
+            int name = r.nextInt(commonMaleNames.length);
+            int surname = r.nextInt(commonSurnames.length);
+            return new Person(commonMaleNames[name], commonSurnames[surname], Person.getMale());
+        } catch (Exception e) {
+            return new Person("Filan", "Fisteku", Person.getMale());
+        }
     }
 
     public String generateMName() {

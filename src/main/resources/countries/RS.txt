@@ -36,6 +36,7 @@ Government
 type:Republic
 headOfState:President,Aleksandar,Vučić,Male
 headOfGov:Prime Minister,Miloš,Vučević,Male
+elections:4,2023
 Economy
 currency:RSD,1.0%
 GDPUSD:173.075e9,6.0%

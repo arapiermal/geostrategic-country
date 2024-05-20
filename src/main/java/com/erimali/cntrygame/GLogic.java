@@ -225,7 +225,7 @@ public class GLogic implements Serializable {
     public String toStringCountry(int c) {
         Country country = world.getCountry(c);
         if (country != null) {
-            return country.toString(0);
+            return country.toString(1);
         }
 
         return "";// No such country

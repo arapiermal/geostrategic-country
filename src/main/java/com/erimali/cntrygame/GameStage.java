@@ -30,6 +30,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
@@ -40,6 +41,7 @@ import javafx.util.Duration;
 import org.controlsfx.control.CheckListView;
 import org.controlsfx.control.Notifications;
 import org.controlsfx.control.SegmentedButton;
+import org.controlsfx.control.WorldMapView;
 
 class LimitedSizeList<T> {
     private final int maxSize;
@@ -281,7 +283,7 @@ public class GameStage extends Stage {
         //HBox.setHgrow(regTop, Priority.ALWAYS);
         //hTop.setSpacing(8);
         //hTop.setStyle("-fx-background-color: #f0f0f0;");
-        AnchorPane paneTop = new AnchorPane();
+        /*AnchorPane paneTop = new AnchorPane();
         paneTop.getChildren().addAll(hTopLeft, hTopCenter, hTopRight);
         AnchorPane.setTopAnchor(hTopLeft, 0.0);
         AnchorPane.setLeftAnchor(hTopLeft, 0.0);
@@ -290,14 +292,20 @@ public class GameStage extends Stage {
         AnchorPane.setTopAnchor(hTopCenter, 0.0);
         AnchorPane.setLeftAnchor(hTopCenter, (paneTop.getWidth() - hTopCenter.getWidth()) / 2);
         AnchorPane.setRightAnchor(hTopCenter, (paneTop.getWidth() - hTopCenter.getWidth()) / 2);
-        hTopCenter.setStyle("-fx-alignment: center;");
-        hTopCenterTooltip = new Tooltip();
-        Tooltip.install(hTopCenter, hTopCenterTooltip);
         AnchorPane.setTopAnchor(hTopRight, 0.0);
         AnchorPane.setRightAnchor(hTopRight, 0.0);
         AnchorPane.setBottomAnchor(hTopRight, 0.0);
         gameLayout.setTop(paneTop);
-
+        */
+        WorldMapView wmview = new WorldMapView();
+        hTopCenter.setStyle("-fx-alignment: center;");
+        hTopCenterTooltip = new Tooltip();
+        Tooltip.install(hTopCenter, hTopCenterTooltip);
+        BorderPane bpTop = new BorderPane();
+        bpTop.setLeft(hTopLeft);
+        bpTop.setCenter(hTopCenter);
+        bpTop.setRight(hTopRight);
+        gameLayout.setTop(bpTop);
         // CENTER
         ZoomableScrollPane scrollPane = map.getScrollPane();
         gameLayout.setCenter(scrollPane);
@@ -394,9 +402,15 @@ public class GameStage extends Stage {
         return gameLayout;
     }
 
-    private VBox makeGeneralInfoVBox() {
-        VBox vBox = new VBox(selectedCountryInfo, selectedProvInfo);
-        return vBox;
+    private SplitPane makeGeneralInfoVBox() {
+        //VBox vBox = new VBox(selectedCountryInfo, selectedProvInfo);
+        //return vBox;
+        selectedCountryInfo.setTextAlignment(TextAlignment.CENTER);
+        selectedProvInfo.setTextAlignment(TextAlignment.CENTER);
+        SplitPane splitPaneInfo = new SplitPane(selectedCountryInfo, selectedProvInfo);
+        splitPaneInfo.setOrientation(Orientation.VERTICAL);
+
+        return splitPaneInfo;
     }
 
 

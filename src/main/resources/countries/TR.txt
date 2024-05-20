@@ -91,6 +91,7 @@ kaq
 Government
 type:Republic
 single:President,Recep,Tayyip Erdoğan,Male
+elections:5,2023
 Economy
 currency:TRY,1.0%
 GDPUSD:3.832e12,1.2%

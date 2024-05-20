@@ -36,6 +36,7 @@ Government
 type:Republic
 headOfState:President,Jakov,Milatović,Male
 headOfGov:Prime Minister,Milojko,Spajić,Male
+elections:4,2023
 Economy
 currency:EUR,1.0%
 GDPUSD:17.431e9,6.0%
