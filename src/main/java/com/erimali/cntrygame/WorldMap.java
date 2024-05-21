@@ -1,10 +1,12 @@
 package com.erimali.cntrygame;
 
 import com.erimali.cntrymilitary.MilUnitData;
+import javafx.geometry.Bounds;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
@@ -12,6 +14,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
+import javafx.scene.text.*;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -583,7 +586,7 @@ public class WorldMap {
         Country o = cArr.get(oldSel);
         Country c = cArr.get(cId);
         //if was subject (?)
-        if(o != null) {
+        if (o != null) {
             setColorOnAdmDivs(o, defColor);
             for (short i : o.getDiplomacy().getAllies()) {
                 Country oldAlly = cArr.get(i);
@@ -835,4 +838,60 @@ public class WorldMap {
         }
     }
 
+    private Label[] labelsCountryNames = new Label[CountryArray.getMaxIso2Countries()];
+
+    public void removeLabelCountryName(int cId){
+        mapGroup.getChildren().remove(labelsCountryNames[cId]);
+        labelsCountryNames[cId] = null;
+    }
+
+    public void makeTextCountriesNames(CountryArray cArr) {
+
+        for (Country c : cArr) {
+            makeUpdateTextCountryName(c);
+        }
+    }
+
+    public void makeUpdateTextCountryName(Country c) {
+        if (c == null)
+            return;
+        double minX = Double.MAX_VALUE;
+        double minY = Double.MAX_VALUE;
+        double maxX = Double.MIN_VALUE;
+        double maxY = Double.MIN_VALUE;
+
+        for (AdmDiv a : c.getAdmDivs()) {
+            SVGPath province = a.getSvgProvince();
+            if (province != null) {
+                Bounds bounds = province.getBoundsInLocal();
+                minX = Math.min(minX, bounds.getMinX());
+                minY = Math.min(minY, bounds.getMinY());
+                maxX = Math.max(maxX, bounds.getMaxX());
+                maxY = Math.max(maxY, bounds.getMaxY());
+            }
+        }
+        int cId = c.getCountryId();
+        if (labelsCountryNames[cId] == null) {
+            labelsCountryNames[cId] = new Label(c.getName());
+            mapGroup.getChildren().add(labelsCountryNames[cId]);
+            labelsCountryNames[cId].setMouseTransparent(true);
+            labelsCountryNames[cId].setTextAlignment(TextAlignment.CENTER);
+            labelsCountryNames[cId].setFont(Font.font("System", FontWeight.BOLD, 14));
+
+        } else {
+            labelsCountryNames[cId].setText(c.getName());
+        }
+        labelsCountryNames[cId].setPrefWidth(maxX - minX);
+        labelsCountryNames[cId].setPrefHeight(maxY - minY);
+        //label.setMinSize(Label.USE_PREF_SIZE, Label.USE_PREF_SIZE);
+
+        //double scaleX = (maxX - minX) / label.getWidth();
+        //double scaleY = (maxY - minY) / label.getHeight();
+        //label.setScaleX(scaleX);
+        //label.setScaleY(scaleY);
+
+        labelsCountryNames[cId].setLayoutX(minX);
+        labelsCountryNames[cId].setLayoutY(minY);
+        TESTING.print(labelsCountryNames[cId], minX, minY);
+    }
 }

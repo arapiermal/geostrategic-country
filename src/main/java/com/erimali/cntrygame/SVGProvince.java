@@ -52,7 +52,6 @@ public class SVGProvince extends SVGPath implements DijkstraCalculable {
 
     @Override
     public double getCenterX() {
-
         return provX;
     }
 

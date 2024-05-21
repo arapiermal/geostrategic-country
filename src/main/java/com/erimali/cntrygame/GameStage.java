@@ -168,7 +168,9 @@ public class GameStage extends Stage {
         initFullScreen();
         //Initiate
         game.getWorld().initiateProvinces(map.getMapSVG());
+        makeWorldMapWorldUnison();
     }
+
 
     //Load game
     public GameStage(Main application, GLogic game) {
@@ -201,8 +203,14 @@ public class GameStage extends Stage {
 
         //Correlate
         game.getWorld().correlateProvinces(map.getMapSVG());
+        makeWorldMapWorldUnison();
     }
 
+    private void makeWorldMapWorldUnison() {
+        if(map != null && game != null){
+            map.makeTextCountriesNames(game.getWorld().getCountries());
+        }
+    }
     private void loadGameStageCSS() {
         URL cssURL = getClass().getResource("css/gameStage.css");
         if (cssURL != null)
@@ -1085,10 +1093,13 @@ public class GameStage extends Stage {
 
     //make more efficient
     public void changeSelectedCountryInfo() {
-        selectedCountryInfo.setText(game.toStringCountry(selectedCountry));
         Country selC = game.getWorld().getCountry(selectedCountry);
-        if (selC == null)
+        if (selC == null) {
+            String iso2 = CountryArray.getIndexISO2(map.getMapSVG()[selectedProv].getOwnerId());
+            selectedCountryInfo.setText(iso2);
             return;
+        }
+        selectedCountryInfo.setText(game.toStringCountry(selectedCountry));
         if (isPlayingCountry) {
             if (selectedCountry == game.getPlayerId()) {
 
@@ -1494,8 +1505,8 @@ public class GameStage extends Stage {
     //
     public void changeSelectedProvInfo() {
         AdmDiv a = game.getWorld().getAdmDiv(selectedProv);
-        selectedProvInfo.setText(game.getProvInfo(selectedProv));
         if (a != null) {
+            selectedProvInfo.setText(game.getProvInfo(selectedProv));
             int owner = a.getOwnerId();
             if (isPlayingCountry && (game.getPlayerId() == owner || game.isSubjectOfPlayer(owner))) {
                 recruitBuildButton.setVisible(true);
@@ -1506,6 +1517,9 @@ public class GameStage extends Stage {
                 recruitBuildButton.setVisible(false);
                 tableViewBuildings.setVisible(false);
             }
+        } else{
+            SVGProvince svgProvince = map.getMapSVG()[selectedProv];
+            selectedProvInfo.setText(svgProvince.getId());
         }
     }
 

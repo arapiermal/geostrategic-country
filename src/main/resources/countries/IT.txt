@@ -6,14 +6,14 @@ capital:Rome
 languages:Italian
 neighbours:FR,CH,AT,SI,SM,VA
 admDivision:Region
-Abruzzo,1307000,10832
-Aosta Valley,Valle d'Aosta:143000,3261
+Abruzzo:1307000,10832
+Aosta Valley,Valle_d_Aosta:143000,3261
 Apulia,Puglia:3945000,19541
 Basilicata:559000,10073
 Calabria:1870000,15222
 Campania:5615000,13671
 Emilia-Romagna:4452000,22453
-Friuli-Venezia Giulia,Furlanija-Julijska Krajina/Friûl-Vignesie Julie:1219000,7924
+Friuli-Venezia_Giulia,Furlanija-Julijska Krajina/Friûl-Vignesie Julie:1219000,7924
 Lazio:5745000,17232
 Liguria:1535000,5416
 Lombardy,Lombardia:10342000,23864
@@ -22,7 +22,7 @@ Molise:324000,4461
 Piedmont,Piemonte:4302000,25387
 Sardinia,Sardegna:1604000,24100
 Sicily,Sicilia:4825000,25832
-Trentino-South Tyrol,Trentino-Alto Adige/Südtirol:1111000,13606
+Trentino-South Tyrol,Trentino-Alto_Adige:1111000,13606
 Tuscany,Toscana:3698000,22987
 Umbria:930000,8464
 Veneto:4883000,18345
