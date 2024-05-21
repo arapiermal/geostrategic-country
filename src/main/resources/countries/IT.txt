@@ -2,7 +2,7 @@ Italy
 area:302068.26
 population:59933000
 popInc:0.07%
-capital:Rome
+capital:Lazio
 languages:Italian
 neighbours:FR,CH,AT,SI,SM,VA
 admDivision:Region

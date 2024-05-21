@@ -913,8 +913,6 @@ public class WorldMap {
             labelsCountryNames[cId].setMouseTransparent(true);
             labelsCountryNames[cId].setTextAlignment(TextAlignment.CENTER);
             labelsCountryNames[cId].setAlignment(Pos.CENTER);
-            //labelsCountryNames[cId].setFont(Font.font("System", FontWeight.BOLD, 10 + Math.log10(c.getArea())));
-            //labelsCountryNames[cId].setTextFill(Color.BLACK);
             labelsCountryNames[cId].setWrapText(true);
 
         } else {
@@ -927,18 +925,13 @@ public class WorldMap {
         double minHeight = (maxY - minY);
         double fontSize = Math.max(10, Math.min(minWidth / c.getName().length(), minHeight) / 1.5);
         labelsCountryNames[cId].setFont(Font.font("System", FontWeight.BOLD, fontSize));
-        labelsCountryNames[cId].setTextFill(Color.BLACK);
+        labelsCountryNames[cId].setTextFill(Color.WHITE);
 
         labelsCountryNames[cId].setMinWidth(minWidth);
         labelsCountryNames[cId].setMinHeight(minHeight);
         labelsCountryNames[cId].setLayoutX(centerX - minWidth / 2);
         labelsCountryNames[cId].setLayoutY(centerY - minHeight / 2);
 
-        //labelsCountryNames[cId].setLayoutX(minX);
-        //labelsCountryNames[cId].setLayoutY(minY);
-        //labelsCountryNames[cId].setRotate(calculateAngle(minX, minY, maxX, maxY));
-
-        //TESTING.print(labelsCountryNames[cId], minX, minY);
     }
 
     public static double calculateAngle(double x0, double y0, double x1, double y1) {
