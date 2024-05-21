@@ -1,7 +1,11 @@
 package com.erimali.cntrygame;
 
 import com.erimali.cntrymilitary.MilUnitData;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -9,6 +13,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -262,8 +267,8 @@ public class WorldMap {
             int oldSel = gs.getSelectedCountry();
             int pathOwn = clickedPath.getOwnerId();
             int provId = clickedPath.getProvId();
-            gs.setSelectedCountry(pathOwn);
             gs.setSelectedProvince(provId);
+            gs.setSelectedCountry(pathOwn);
             //System.out.println(clickedPath.getId() + " clicked");
             if (pathOwn != oldSel) {
                 if (mapMode == 1)
@@ -838,9 +843,20 @@ public class WorldMap {
         }
     }
 
-    private Label[] labelsCountryNames = new Label[CountryArray.getMaxIso2Countries()];
+    //slows down (?)
+    private final Label[] labelsCountryNames = new Label[CountryArray.getMaxIso2Countries()];
+    private boolean countryNameLabelVisibility = true;
 
-    public void removeLabelCountryName(int cId){
+    public void toggleLabelsCountryNamesVisibility() {
+        countryNameLabelVisibility = !countryNameLabelVisibility;
+        for (Label l : labelsCountryNames) {
+            if (l != null) {
+                l.setVisible(countryNameLabelVisibility);
+            }
+        }
+    }
+
+    public void removeLabelCountryName(int cId) {
         mapGroup.getChildren().remove(labelsCountryNames[cId]);
         labelsCountryNames[cId] = null;
     }
@@ -850,6 +866,23 @@ public class WorldMap {
         for (Country c : cArr) {
             makeUpdateTextCountryName(c);
         }
+    }
+
+    public Point2D calculateCountryCenter(Country c) {
+        int n = 0;
+        double sumX = 0;
+        double sumY = 0;
+        for (AdmDiv a : c.getAdmDivs()) {
+            SVGProvince svg = a.getSvgProvince();
+            if (svg != null) {
+                sumX += svg.getCenterX();
+                sumY += svg.getCenterY();
+                n++;
+            }
+        }
+        double cX = sumX / n;
+        double cY = sumY / n;
+        return new Point2D(cX, cY);
     }
 
     public void makeUpdateTextCountryName(Country c) {
@@ -870,28 +903,48 @@ public class WorldMap {
                 maxY = Math.max(maxY, bounds.getMaxY());
             }
         }
+        if (minX == Double.MAX_VALUE || minY == Double.MAX_VALUE || maxX == Double.MIN_VALUE || maxY == Double.MIN_VALUE) {
+            return;
+        }
         int cId = c.getCountryId();
         if (labelsCountryNames[cId] == null) {
             labelsCountryNames[cId] = new Label(c.getName());
             mapGroup.getChildren().add(labelsCountryNames[cId]);
             labelsCountryNames[cId].setMouseTransparent(true);
             labelsCountryNames[cId].setTextAlignment(TextAlignment.CENTER);
-            labelsCountryNames[cId].setFont(Font.font("System", FontWeight.BOLD, 14));
+            labelsCountryNames[cId].setAlignment(Pos.CENTER);
+            //labelsCountryNames[cId].setFont(Font.font("System", FontWeight.BOLD, 10 + Math.log10(c.getArea())));
+            //labelsCountryNames[cId].setTextFill(Color.BLACK);
+            labelsCountryNames[cId].setWrapText(true);
 
         } else {
             labelsCountryNames[cId].setText(c.getName());
         }
-        labelsCountryNames[cId].setPrefWidth(maxX - minX);
-        labelsCountryNames[cId].setPrefHeight(maxY - minY);
-        //label.setMinSize(Label.USE_PREF_SIZE, Label.USE_PREF_SIZE);
+        double centerX = (minX + maxX) / 2;
+        double centerY = (minY + maxY) / 2;
 
-        //double scaleX = (maxX - minX) / label.getWidth();
-        //double scaleY = (maxY - minY) / label.getHeight();
-        //label.setScaleX(scaleX);
-        //label.setScaleY(scaleY);
+        double minWidth = (maxX - minX);
+        double minHeight = (maxY - minY);
+        double fontSize = Math.max(10, Math.min(minWidth / c.getName().length(), minHeight) / 1.5);
+        labelsCountryNames[cId].setFont(Font.font("System", FontWeight.BOLD, fontSize));
+        labelsCountryNames[cId].setTextFill(Color.BLACK);
 
-        labelsCountryNames[cId].setLayoutX(minX);
-        labelsCountryNames[cId].setLayoutY(minY);
-        TESTING.print(labelsCountryNames[cId], minX, minY);
+        labelsCountryNames[cId].setMinWidth(minWidth);
+        labelsCountryNames[cId].setMinHeight(minHeight);
+        labelsCountryNames[cId].setLayoutX(centerX - minWidth / 2);
+        labelsCountryNames[cId].setLayoutY(centerY - minHeight / 2);
+
+        //labelsCountryNames[cId].setLayoutX(minX);
+        //labelsCountryNames[cId].setLayoutY(minY);
+        //labelsCountryNames[cId].setRotate(calculateAngle(minX, minY, maxX, maxY));
+
+        //TESTING.print(labelsCountryNames[cId], minX, minY);
+    }
+
+    public static double calculateAngle(double x0, double y0, double x1, double y1) {
+        double dX = x1 - x0;
+        double dY = y1 - y0;
+        double angleRad = Math.atan2(dY, dX);
+        return Math.toDegrees(angleRad);
     }
 }

@@ -38,10 +38,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
-import org.controlsfx.control.CheckListView;
-import org.controlsfx.control.Notifications;
-import org.controlsfx.control.SegmentedButton;
-import org.controlsfx.control.WorldMapView;
+import org.controlsfx.control.*;
 
 class LimitedSizeList<T> {
     private final int maxSize;
@@ -207,10 +204,11 @@ public class GameStage extends Stage {
     }
 
     private void makeWorldMapWorldUnison() {
-        if(map != null && game != null){
+        if (map != null && game != null) {
             map.makeTextCountriesNames(game.getWorld().getCountries());
         }
     }
+
     private void loadGameStageCSS() {
         URL cssURL = getClass().getResource("css/gameStage.css");
         if (cssURL != null)
@@ -388,6 +386,9 @@ public class GameStage extends Stage {
                 case KeyCode.F7:
                     tabPaneRightSelectionModel.select(2);
                     break;
+                case KeyCode.F8:
+                    tabPaneRightSelectionModel.select(3);
+                    break;
                 case KeyCode.BACK_QUOTE:
                     commandLineStage.show();
                     commandLineStage.requestFocus();
@@ -500,6 +501,10 @@ public class GameStage extends Stage {
         //flowPane.getChildren().addAll(zoomIn, zoomOut); // in vBox... but problem
         flowPane.getChildren().addAll(mapModes);
 
+        CheckBox viewNamingLabels = new CheckBox("Labels");
+        viewNamingLabels.setSelected(true);
+        viewNamingLabels.setOnAction(e -> map.toggleLabelsCountryNamesVisibility());
+        flowPane.getChildren().add(viewNamingLabels);
         return flowPane;
     }
 
@@ -508,18 +513,22 @@ public class GameStage extends Stage {
 
         tabPane.setMinWidth(280);
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-        Tab[] tabs = new Tab[3];
+        Tab[] tabs = new Tab[4];
         tabs[0] = makeTabMilitary();
         tabs[1] = makeTabBuildings();
         tabs[2] = makeTabUnions();
-
+        tabs[3] = makeTabSubjects();
 
         tabPane.getTabs().addAll(tabs);
         return tabPane;
     }
 
     private Tab makeTabMilitary() {
-        Label unitInfo = new Label();
+        //Label unitInfo = new Label();
+        TextArea unitInfo = new TextArea();
+        unitInfo.setEditable(false);
+        unitInfo.setWrapText(true);
+        unitInfo.setPrefWidth(240);
         recruitBuildButton = new Button("Recruit");
         TreeView<MilUnitData> treeUnitTypes = game.makeTreeViewUnitTypes();
 
@@ -631,6 +640,13 @@ public class GameStage extends Stage {
         HBox hBox = new HBox(joinButton, openPanel);
         VBox vBox = new VBox(listViewUnions, hBox);
         Tab tab = new Tab("Unions", vBox);
+        return tab;
+    }
+
+    private Tab makeTabSubjects() {
+
+
+        Tab tab = new Tab("Subjects");
         return tab;
     }
 
@@ -803,13 +819,16 @@ public class GameStage extends Stage {
         observableListGovPolicies = FXCollections.observableArrayList(
                 Arrays.stream(GovPolicy.values()).filter(GovPolicy::isRemovable).collect(Collectors.toList()));
         checkListViewGovPolicies = new CheckListView<>(observableListGovPolicies);
-        checkListViewGovPolicies.setMinHeight(100);
+        checkListViewGovPolicies.setPrefHeight(128);
+        checkListViewGovPolicies.setPrefWidth(160);
         TitledPane govPolicies = new TitledPane("Government Policies", checkListViewGovPolicies);
         Label conscriptRateLabel = new Label("Conscriptable population");
         toggleButtonsConscriptRate = makeToggleButtonsConscriptRate();
 
         SegmentedButton conscriptRateSegmentedButton = new SegmentedButton(toggleButtonsConscriptRate);
-        TitledPane milPolicies = new TitledPane("Military Policies/Research", conscriptRateSegmentedButton);
+
+        VBox vBoxMilPol = new VBox(conscriptRateLabel, conscriptRateSegmentedButton);
+        TitledPane milPolicies = new TitledPane("Military Policies/Research", vBoxMilPol);
         formablesPanel = makeVBoxListViewFormables();
         TitledPane formables = new TitledPane("Formables", formablesPanel);
         formables.setExpanded(false);
@@ -1517,7 +1536,7 @@ public class GameStage extends Stage {
                 recruitBuildButton.setVisible(false);
                 tableViewBuildings.setVisible(false);
             }
-        } else{
+        } else {
             SVGProvince svgProvince = map.getMapSVG()[selectedProv];
             selectedProvInfo.setText(svgProvince.getId());
         }

@@ -12,6 +12,7 @@ Government
 type:Theocracy
 headOfState:Pope,Francis,Francesco,Male
 headOfGov:President of the Governorate,Fernando,Vérgez Alzaga,Male
+elections:none, , , policies:BANNED_MILITARY(REMOVE IF POP > 10000)
 Economy
 currency:EUR,1.0%
 GDPUSD:16146843,1.2%
