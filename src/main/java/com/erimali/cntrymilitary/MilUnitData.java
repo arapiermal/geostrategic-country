@@ -1,13 +1,9 @@
 package com.erimali.cntrymilitary;
 
-import com.erimali.cntrygame.TESTING;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class MilUnitData implements Comparable<MilUnitData> {
@@ -255,5 +251,13 @@ public class MilUnitData implements Comparable<MilUnitData> {
 
     public int getMaxSize() {
         return maxSize;
+    }
+
+    public int getMinMilTech() {
+        return minMilTech;
+    }
+
+    public String getName() {
+        return name;
     }
 }

@@ -827,7 +827,9 @@ public class GameStage extends Stage {
 
         SegmentedButton conscriptRateSegmentedButton = new SegmentedButton(toggleButtonsConscriptRate);
 
-        VBox vBoxMilPol = new VBox(conscriptRateLabel, conscriptRateSegmentedButton);
+        Button researchPanelButton = new Button("Research Panel");
+        researchPanelButton.setOnAction(e -> popupResearchPanel());
+        VBox vBoxMilPol = new VBox(8,conscriptRateLabel, conscriptRateSegmentedButton, researchPanelButton);
         TitledPane milPolicies = new TitledPane("Military Policies/Research", vBoxMilPol);
         formablesPanel = makeVBoxListViewFormables();
         TitledPane formables = new TitledPane("Formables", formablesPanel);
@@ -835,6 +837,14 @@ public class GameStage extends Stage {
         //formables.setAnimated(false);
         VBox vBox = new VBox(govPolicies, milPolicies, formables);
         return vBox;
+    }
+
+    private void popupResearchPanel() {
+        SplitPane splitPane = Technology.makeMilResearchUnitSplitPane(game.getUnitTypes());
+        Scene scene = new Scene(splitPane);
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.show();
     }
 
     private VBox makeVBoxCountryOptions() {

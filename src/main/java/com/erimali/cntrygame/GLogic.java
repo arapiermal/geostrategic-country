@@ -906,4 +906,8 @@ public class GLogic implements Serializable {
         c1.spendTreasury(amount);
         //weekly sponsor in hashMap (?) / Object how to structure
     }
+
+    public List<MilUnitData>[] getUnitTypes() {
+        return unitTypes;
+    }
 }
