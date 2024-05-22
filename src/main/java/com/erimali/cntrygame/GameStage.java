@@ -1496,12 +1496,6 @@ public class GameStage extends Stage {
         this.map = map;
     }
 
-    ///////////////////////
-    public void popupUnionPanel(String unionName) {
-        Union union = game.getWorld().getUnions().get(unionName);
-
-    }
-
     public void popupGlobeViewer(int type) {
         Stage popupStage = new GlobeViewer(type);
         popupStage.initOwner(this);

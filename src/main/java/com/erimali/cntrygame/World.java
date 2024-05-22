@@ -12,6 +12,8 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class World implements Serializable {
+    private static final int EARTH_ID = 3;
+    private final int worldId;
     private GLogic game;
     private String name;
     private double totalLandArea;
@@ -33,6 +35,7 @@ public class World implements Serializable {
     // DEFAULT DATA
     public World(GLogic game) {
         this.game = game;
+        this.worldId = 3;
         try {
             name = "Earth";
             totalLandArea = 148940000;
@@ -69,6 +72,7 @@ public class World implements Serializable {
 
     public World(GLogic game, int type) {
         this.game = game;
+        this.worldId = type;
         try {
             switch (type) {
                 case 0:
@@ -767,6 +771,7 @@ public class World implements Serializable {
             o.removeAdmDiv(a);
             c.addAdmDiv(a);
         }
+        getMap().makeUpdateTextCountriesNames(countries);
     }
 
     public void releaseCountry(int cId) {
@@ -811,5 +816,11 @@ public class World implements Serializable {
         }
 
         return release;
+    }
+
+    public WorldMap getMap() {
+        if(worldId == EARTH_ID)
+            return game.getWorldMap();
+        return null;
     }
 }

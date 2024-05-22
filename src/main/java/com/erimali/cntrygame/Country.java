@@ -308,6 +308,7 @@ public class Country implements Serializable, Comparable<Country> {
 
         // delete opponent country
         cArray.remove(ind);
+        cArray.getWorld().getMap().makeUpdateTextCountriesNames(cArray);
     }
 
     //are they happy with annexation ... , change

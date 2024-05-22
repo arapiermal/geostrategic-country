@@ -841,28 +841,40 @@ public class WorldMap {
     }
 
     //slows down (?)
-    private final Label[] labelsCountryNames = new Label[CountryArray.getMaxIso2Countries()];
+    private final Map<Integer, Label> labelsCountryNames = new HashMap<>();
     private boolean countryNameLabelVisibility = true;
 
     public void toggleLabelsCountryNamesVisibility() {
         countryNameLabelVisibility = !countryNameLabelVisibility;
-        for (Label l : labelsCountryNames) {
-            if (l != null) {
-                l.setVisible(countryNameLabelVisibility);
-            }
+        for (Map.Entry<Integer, Label> l : labelsCountryNames.entrySet()) {
+            l.getValue().setVisible(countryNameLabelVisibility);
+
         }
     }
 
     public void removeLabelCountryName(int cId) {
-        mapGroup.getChildren().remove(labelsCountryNames[cId]);
-        labelsCountryNames[cId] = null;
+        Label remL = labelsCountryNames.remove(cId);
+        mapGroup.getChildren().remove(remL);
     }
 
     //any territorial change should trigger this...
     public void makeUpdateTextCountriesNames(CountryArray cArr) {
 
+        Iterator<Map.Entry<Integer, Label>> iterator = labelsCountryNames.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, Label> l = iterator.next();
+            int cId = l.getKey();
+            Country c = cArr.get(cId);
+            if (c == null) {
+                mapGroup.getChildren().remove(l.getValue());
+                iterator.remove();
+            } else {
+                makeUpdateTextCountryName(c);
+            }
+        }
         for (Country c : cArr) {
-            makeUpdateTextCountryName(c);
+            if(!labelsCountryNames.containsKey(c.getCountryId()))
+                makeUpdateTextCountryName(c);
         }
     }
 
@@ -905,16 +917,18 @@ public class WorldMap {
             return;
         }
         int cId = c.getCountryId();
-        if (labelsCountryNames[cId] == null) {
-            labelsCountryNames[cId] = new Label(c.getName());
-            mapGroup.getChildren().add(labelsCountryNames[cId]);
-            labelsCountryNames[cId].setMouseTransparent(true);
-            labelsCountryNames[cId].setTextAlignment(TextAlignment.CENTER);
-            labelsCountryNames[cId].setAlignment(Pos.CENTER);
-            labelsCountryNames[cId].setWrapText(true);
+        Label label = labelsCountryNames.get(cId);
+        if (label == null) {
+            label = new Label(c.getName());
+            labelsCountryNames.put(cId, label);
+            mapGroup.getChildren().add(label);
+            label.setMouseTransparent(true);
+            label.setTextAlignment(TextAlignment.CENTER);
+            label.setAlignment(Pos.CENTER);
+            label.setWrapText(true);
 
         } else {
-            labelsCountryNames[cId].setText(c.getName());
+            label.setText(c.getName());
         }
         double centerX = (minX + maxX) / 2;
         double centerY = (minY + maxY) / 2;
@@ -922,13 +936,13 @@ public class WorldMap {
         double minWidth = (maxX - minX);
         double minHeight = (maxY - minY);
         double fontSize = Math.max(10, Math.min(minWidth / c.getName().length(), minHeight) / 1.5);
-        labelsCountryNames[cId].setFont(Font.font("System", FontWeight.BOLD, fontSize));
-        labelsCountryNames[cId].setTextFill(Color.WHITE);
+        label.setFont(Font.font("System", FontWeight.BOLD, fontSize));
+        label.setTextFill(Color.WHITE);
 
-        labelsCountryNames[cId].setMinWidth(minWidth);
-        labelsCountryNames[cId].setMinHeight(minHeight);
-        labelsCountryNames[cId].setLayoutX(centerX - minWidth / 2);
-        labelsCountryNames[cId].setLayoutY(centerY - minHeight / 2);
+        label.setMinWidth(minWidth);
+        label.setMinHeight(minHeight);
+        label.setLayoutX(centerX - minWidth / 2);
+        label.setLayoutY(centerY - minHeight / 2);
 
     }
 
