@@ -859,7 +859,6 @@ public class WorldMap {
 
     //any territorial change should trigger this...
     public void makeUpdateTextCountriesNames(CountryArray cArr) {
-
         Iterator<Map.Entry<Integer, Label>> iterator = labelsCountryNames.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<Integer, Label> l = iterator.next();
@@ -872,6 +871,7 @@ public class WorldMap {
                 makeUpdateTextCountryName(c);
             }
         }
+        //If it's not there, add it
         for (Country c : cArr) {
             if(!labelsCountryNames.containsKey(c.getCountryId()))
                 makeUpdateTextCountryName(c);

@@ -72,7 +72,7 @@ public class PeaceNegotiation {
             }
         });
 
-        listSelectionView.getActions().add(new ListSelectionView.ListSelectionAction<AdmDiv>(getGlyph(FontAwesome.Glyph.BANK)) {
+        listSelectionView.getActions().add(new ListSelectionView.ListSelectionAction<AdmDiv>(GameStage.getGlyph(FontAwesome.Glyph.BANK)) {
             @Override
             public void initialize(ListView<AdmDiv> sourceListView, ListView<AdmDiv> targetListView) {
                 disabledProperty().bind(Bindings.lessThan(totalWarScore, warScoreRequired));
@@ -105,10 +105,6 @@ public class PeaceNegotiation {
         for (AdmDiv a : occupied) {
             System.out.println(a);
         }
-    }
-
-    private static Glyph getGlyph(FontAwesome.Glyph angleDoubleDown) {
-        return new FontAwesome().create(angleDoubleDown);
     }
 
 }

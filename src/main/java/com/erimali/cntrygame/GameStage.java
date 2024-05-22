@@ -11,6 +11,7 @@ import com.erimali.cntrymilitary.MilUnitData;
 import com.erimali.cntrymilitary.Military;
 import com.erimali.minigames.MG2048Stage;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -39,6 +40,8 @@ import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import org.controlsfx.control.*;
+import org.controlsfx.glyphfont.FontAwesome;
+import org.controlsfx.glyphfont.Glyph;
 
 class LimitedSizeList<T> {
     private final int maxSize;
@@ -92,8 +95,7 @@ public class GameStage extends Stage {
     private Label treasuryLabel;
     private Label manpowerLabel;
     private Label dateLabel;
-    private Label pausation;
-    private Button pauseButton;
+    private ToggleButton pauseButton;
     private Button chooseCountryButton;
     protected boolean paused;
     protected boolean isPlayingCountry;
@@ -236,6 +238,8 @@ public class GameStage extends Stage {
 
     private HBox makeGameSpeedHBox() {
         Label speedData = new Label("1.0");
+        speedData.setMinWidth(32);
+        speedData.setTextAlignment(TextAlignment.RIGHT);
         Text speedDataInfo = new Text("days/sec");
         Button speedUp = new Button("+");
         speedUp.setPrefHeight(16);
@@ -267,10 +271,13 @@ public class GameStage extends Stage {
         gameLayout.setCenter(new BorderPane());
         this.playerNameLabel = new Label("Select Country");
         this.dateLabel = new Label("Default Date");
-        this.pauseButton = new Button("Play");
+        this.pauseButton = new ToggleButton("Play");
         this.paused = true;
-        this.pauseButton.setOnAction(e -> pausePlayDate());
-        this.pausation = new Label("Paused");
+        pauseButton.setMinWidth(48);
+        pauseButton.setDisable(true);
+        //pauseButton.textProperty().bind(Bindings.when(pauseButton.selectedProperty()).then("Pause").otherwise("Play"));
+        makeGraphicalPlayPause();
+        pauseButton.setOnAction(e -> paused = !paused);
         Text treasuryText = new Text("Treasury $");
         this.treasuryLabel = new Label();
         Text manpowerText = new Text("Manpower ");
@@ -284,7 +291,7 @@ public class GameStage extends Stage {
         hTopCenter = new HBox(treasuryText, treasuryLabel, regTopCenter, manpowerText, manpowerLabel);
 
         HBox hGameSpeed = makeGameSpeedHBox();
-        HBox hTopRight = new HBox(pausation, pauseButton, dateLabel, hGameSpeed);
+        HBox hTopRight = new HBox(pauseButton, dateLabel, hGameSpeed);
         hTopRight.setSpacing(8);
 
 
@@ -415,7 +422,14 @@ public class GameStage extends Stage {
         gsOptionsStage = makeGSOptionsStage();
         return gameLayout;
     }
-
+    public void makeGraphicalPlayPause(){
+        pauseButton.setText("");
+        Glyph play = getGlyph(FontAwesome.Glyph.PLAY);
+        Glyph pause = getGlyph(FontAwesome.Glyph.PAUSE);
+        pauseButton.graphicProperty().bind(Bindings.when(pauseButton.selectedProperty())
+                .then(pause)
+                .otherwise(play));
+    }
     private SplitPane makeGeneralInfoVBox() {
         //VBox vBox = new VBox(selectedCountryInfo, selectedProvInfo);
         //return vBox;
@@ -1033,6 +1047,7 @@ public class GameStage extends Stage {
     private void startGame() {
         if (selectedCountry < 0 || isPlayingCountry)
             return;
+        pauseButton.setDisable(false);
         game.selectPlayer(selectedCountry);
         playerNameLabel.setText(game.getPlayer().getName());// !!!!!!!!
         playerNameLabel.setOnMouseClicked(e -> {
@@ -1058,27 +1073,24 @@ public class GameStage extends Stage {
         if (!isPlayingCountry)
             return;
         paused = !paused;
-        if (paused) {
-            pausation.setVisible(true);
-            pauseButton.setText("Play");
-        } else {
-            pausation.setVisible(false);
-            pauseButton.setText("Pause");
-        }
+        pauseButton.setSelected(!paused);
     }
+
 
     public void pausePlayDate(boolean b) {
         if (!isPlayingCountry)
             return;
-        if (paused && !b) {
+        /*if (paused && !b) {
             paused = false;
-            pausation.setVisible(true);
-            pauseButton.setText("Play");
         } else if (!paused && b) {
             paused = true;
-            pausation.setVisible(false);
-            pauseButton.setText("Pause");
-        }
+        }*/
+        paused = b;
+        pauseButton.setSelected(!paused);
+    }
+
+    public void updateTogglePauseButton() {
+        pauseButton.setSelected(!paused);
     }
 
     public void changeDateLabel(String d) {
@@ -1101,11 +1113,8 @@ public class GameStage extends Stage {
         this.dateLabel = dateLabel;
     }
 
-    public Label getPausation() {
-        return pausation;
-    }
 
-    public Button getPauseButton() {
+    public ToggleButton getPauseButton() {
         return pauseButton;
     }
 
@@ -1757,6 +1766,10 @@ public class GameStage extends Stage {
         Optional<Boolean> result = dialog.showAndWait();
 
         return result.isPresent() && result.get();
+    }
+
+    public static Glyph getGlyph(FontAwesome.Glyph angleDoubleDown) {
+        return new FontAwesome().create(angleDoubleDown);
     }
 
 }
