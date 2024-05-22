@@ -143,6 +143,8 @@ public class World implements Serializable {
                 if (a != null) {
                     a.setWaterAccess(true);
                 }
+                //increase country water provinces...
+
             }
         }
 

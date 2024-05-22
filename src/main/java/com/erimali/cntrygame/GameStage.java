@@ -140,6 +140,7 @@ public class GameStage extends Stage {
     private HBox hTopCenter;
     private Tooltip hTopCenterTooltip;
 
+    private TreeView<MilUnitData> treeUnitTypes;
     private BuildBuildings buildBuildings;
     private TableView<BuildBuildings.BuildBuildingTask> tableViewBuildings;
     private ToggleButton[] toggleButtonsConscriptRate;
@@ -238,7 +239,8 @@ public class GameStage extends Stage {
 
     private HBox makeGameSpeedHBox() {
         Label speedData = new Label("1.0");
-        speedData.setMinWidth(32);
+        speedData.setMinWidth(24);
+        speedData.setAlignment(Pos.CENTER_RIGHT);
         speedData.setTextAlignment(TextAlignment.RIGHT);
         Text speedDataInfo = new Text("days/sec");
         Button speedUp = new Button("+");
@@ -571,14 +573,14 @@ public class GameStage extends Stage {
         unitInfo.setWrapText(true);
         unitInfo.setPrefWidth(240);
         recruitBuildButton = new Button("Recruit");
-        TreeView<MilUnitData> treeUnitTypes = game.makeTreeViewUnitTypes();
+        treeUnitTypes = game.makeTreeViewUnitTypesBasic();
 
         treeUnitTypes.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
                     if (newValue != null && newValue != oldValue) {
                         MilUnitData selUnit = newValue.getValue();
                         unitInfo.setText(selUnit.toStringLong());
-                        unitInfo.setTooltip(new Tooltip(selUnit.getDesc()));
+                        //unitInfo.setTooltip(new Tooltip(selUnit.getDesc()));
                         recruitBuildButton.setText(selUnit.isVehicle() ? "Build" : "Recruit");
                     }
                 }
@@ -591,7 +593,7 @@ public class GameStage extends Stage {
             }
         });
         VBox vBox = new VBox(treeUnitTypes, recruitBuildButton, unitInfo);
-        VBox.setVgrow(unitInfo, Priority.ALWAYS); //
+        VBox.setVgrow(unitInfo, Priority.ALWAYS);
         recruitBuildButton.setVisible(false);
         Tab tab = new Tab("Military", vBox);
 
@@ -1346,9 +1348,11 @@ public class GameStage extends Stage {
         StackPane.setMargin(popupRoot, new Insets(20));
         Scene popupScene = makeGEventScene(container, popupStage);
 
-
         popupStage.setScene(popupScene);
         Platform.runLater(popupStage::showAndWait);
+    }
+    static class Delta {
+        double x, y;
     }
 
     private Scene makeGEventScene(StackPane container, Stage popupStage) {
@@ -1381,13 +1385,12 @@ public class GameStage extends Stage {
         setTooltipEcoTop(player.getEconomy().getLastMonthBalance());
         if (milResearchUnitsStage.isShowing())
             milResearchUnitsStage.updateScene(player.getMilitary());
+        game.updateTreeViewUnitTypes();
     }
 
-
-    static class Delta {
-        double x, y;
+    public TreeView<MilUnitData> getTreeUnitTypes() {
+        return treeUnitTypes;
     }
-
 
     public void popupWebNews() {
         File file = new File(GLogic.RESOURCESPATH + "web/news.html");

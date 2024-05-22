@@ -777,6 +777,7 @@ public class GLogic implements Serializable {
         for (List<MilUnitData> l : unitTypes) {
             if (!l.isEmpty()) {
                 TreeItem<MilUnitData> rl = new TreeItem<>(l.getFirst());
+
                 for (int i = 1; i < l.size(); i++) {
                     rl.getChildren().add(new TreeItem<>(l.get(i)));
                 }
@@ -785,6 +786,60 @@ public class GLogic implements Serializable {
         }
         tree.setShowRoot(false);
         return tree;
+    }
+
+    public TreeView<MilUnitData> makeTreeViewUnitTypesBasic() {
+        MilUnitData rootEmpty = new MilUnitData();
+        TreeItem<MilUnitData> root = new TreeItem<>(rootEmpty);
+
+        TreeView<MilUnitData> tree = new TreeView<>(root);
+        for (List<MilUnitData> l : unitTypes) {
+            if (!l.isEmpty()) {
+                TreeItem<MilUnitData> rl = new TreeItem<>(l.getFirst());
+                for (int i = 1; i < l.size(); i++) {
+                    MilUnitData data = l.get(i);
+                    if (data.getMinMilTech() < 1)
+                        rl.getChildren().add(new TreeItem<>(data));
+                }
+                root.getChildren().add(rl);
+            }
+        }
+        tree.setShowRoot(false);
+        return tree;
+    }
+
+    public void updateTreeViewUnitTypes() {
+        TreeView<MilUnitData> treeView = gs.getTreeUnitTypes();
+        if(treeView == null || player == null)
+            return;
+        //not most efficient...
+        TreeItem<MilUnitData> root = treeView.getRoot();
+        int type = 0;
+        for (List<MilUnitData> l : unitTypes) {
+            if (!l.isEmpty()) {
+                int milTechLevel = player.getMilitary().getMilTechLevel(type);
+                TreeItem<MilUnitData> rl = root.getChildren().get(type);
+                for (int i = 1; i < l.size(); i++) {
+                    MilUnitData data = l.get(i);
+                    int minMilTech = data.getMinMilTech();
+                    if (minMilTech > 0 && minMilTech <= milTechLevel){
+                        boolean flag = false;
+                        //if(!rl.getChildren().contains(treeItem)){rl.getChildren().add(treeItem);}//error
+                        for(TreeItem<MilUnitData> ti : rl.getChildren()){
+                            if(data.equals(ti.getValue())){
+                                flag = true;
+                                break;
+                            }
+                        }
+                        if(!flag) {
+                            TreeItem<MilUnitData> treeItem = new TreeItem<>(data);
+                            rl.getChildren().add(treeItem);
+                        }
+                    }
+                }
+            }
+            type++;
+        }
     }
 
     //manpower and resources of owner should be used
