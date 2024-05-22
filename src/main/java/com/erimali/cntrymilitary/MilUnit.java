@@ -182,4 +182,7 @@ public abstract class MilUnit implements Serializable {
         this.retreating = retreating;
     }
 
+    public double getSizeProgress() {
+        return (double) size / data.maxSize;
+    }
 }

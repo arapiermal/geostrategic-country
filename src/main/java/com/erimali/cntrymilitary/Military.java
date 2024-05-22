@@ -2,6 +2,8 @@ package com.erimali.cntrymilitary;
 
 import com.erimali.cntrygame.ErrorLog;
 import com.erimali.cntrygame.TESTING;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ToggleButton;
@@ -18,13 +20,16 @@ public class Military implements Serializable {
     private static final double[] DEF_POP_CONSCRIPTION_RATES = {0.01, 0.025, 0.05, 0.1, 0.25, 0.5};
     private static final int MAX_UNIT_TYPES = MilUnitData.getMaxTypes();
     private double popConscriptionRate;
-    private long manpower;//influenced by government policies / other attributes (popwillingness)
+    private LongProperty manpower;//influenced by government policies / other attributes (popwillingness)
+    //manpower down when making or recovering MilUnit
+    //manpower up when
     private long lastManpowerMonthlyIncrease;
-    private long activePersonnel; // when adding type isPersonnel() , battles -> activepersonnel down, population down
+    private long activePersonnel; // ! when adding type isPersonnel() , battles -> activepersonnel down, population down !
     private static final short MIL_TECH_LEVEL_CAP = 100;
     private final short[] milTechProgress;
     private final short[] milTechLevel;
     private final boolean[] researchingMilTech;
+    //extract the cost from the Country
     private short baseResearch;
     private final ObservableList<MilDiv> divisions;
     //Have at least 1 division in all times (?)
@@ -33,7 +38,7 @@ public class Military implements Serializable {
 
     public Military() {
         this.popConscriptionRate = 0.025;
-        this.manpower = 1000;
+        this.manpower = new SimpleLongProperty(1000);
         this.baseResearch = 10;
         this.divisions = FXCollections.observableArrayList();
         this.atWarWith = new HashSet<>();
@@ -103,6 +108,10 @@ public class Military implements Serializable {
         return milTechProgress[i];
     }
 
+    public short[] getMilTechProgress() {
+        return milTechProgress;
+    }
+
     public short getMilTechLevel(int i) {
         return milTechLevel[i];
     }
@@ -119,6 +128,12 @@ public class Military implements Serializable {
 
     public short getMilTechLevelCap() {
         return MIL_TECH_LEVEL_CAP;
+    }
+
+    //change !!!!!!!!!!!!!!!!!!!!!!!!!
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    public short getMilTechLevelCap(short lvl) {
+        return (short) (MIL_TECH_LEVEL_CAP * lvl);
     }
 
 
@@ -260,12 +275,16 @@ public class Military implements Serializable {
         d2.addUnit(u);
     }
 
-    public long getManpower() {
+    public LongProperty manpowerProperty(){
         return manpower;
     }
 
+    public long getManpower() {
+        return manpower.get();
+    }
+
     public void setManpower(long manpower) {
-        this.manpower = manpower;
+        this.manpower.set(manpower);
     }
 
     public void monthlyTick(long population, short researchBonus) {
@@ -276,7 +295,7 @@ public class Military implements Serializable {
     public void addManpowerFromPop(long population) {
         lastManpowerMonthlyIncrease = (long) (population * popConscriptionRate / 60);
         if (lastManpowerMonthlyIncrease < population) {
-            this.manpower += lastManpowerMonthlyIncrease;
+            manpower.set(manpower.get() + lastManpowerMonthlyIncrease);
         } else {
             lastManpowerMonthlyIncrease = 0;
         }
@@ -330,10 +349,18 @@ public class Military implements Serializable {
     }
 
     public int getPopConscriptionRateIndex() {
-        for(int i = 0; i < DEF_POP_CONSCRIPTION_RATES.length; i++){
-            if(popConscriptionRate == DEF_POP_CONSCRIPTION_RATES[i])
+        for (int i = 0; i < DEF_POP_CONSCRIPTION_RATES.length; i++) {
+            if (popConscriptionRate == DEF_POP_CONSCRIPTION_RATES[i])
                 return i;
         }
         return 0;
+    }
+
+    public short[] getMilTechLevel() {
+        return milTechLevel;
+    }
+
+    public boolean[] getResearchingMilTech() {
+        return researchingMilTech;
     }
 }

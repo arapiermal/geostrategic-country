@@ -1,8 +1,6 @@
 package com.erimali.cntrygame;
 
 import com.erimali.cntrymilitary.MilUnitData;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
@@ -13,7 +11,6 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -861,7 +858,8 @@ public class WorldMap {
         labelsCountryNames[cId] = null;
     }
 
-    public void makeTextCountriesNames(CountryArray cArr) {
+    //any territorial change should trigger this...
+    public void makeUpdateTextCountriesNames(CountryArray cArr) {
 
         for (Country c : cArr) {
             makeUpdateTextCountryName(c);

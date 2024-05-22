@@ -191,11 +191,10 @@ public class GLogic implements Serializable {
         }
         //...
         world.monthlyUpdate();
-        gs.setTooltipEcoTop(player.getEconomy().getLastMonthBalance());
 
         gs.changeSelectedProvInfo();
         gs.changeSelectedCountryInfo();
-
+        gs.updateMonthly();
         execPeriodicCommands(2);
     }
 

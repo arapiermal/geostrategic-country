@@ -90,6 +90,7 @@ public class GameStage extends Stage {
     private final Scene gameScene;
     private Label playerNameLabel;
     private Label treasuryLabel;
+    private Label manpowerLabel;
     private Label dateLabel;
     private Label pausation;
     private Button pauseButton;
@@ -140,8 +141,10 @@ public class GameStage extends Stage {
     private BuildBuildings buildBuildings;
     private TableView<BuildBuildings.BuildBuildingTask> tableViewBuildings;
     private ToggleButton[] toggleButtonsConscriptRate;
+    private Technology.MilResearchUnitsStage milResearchUnitsStage;
     private ObservableList<GovPolicy> observableListGovPolicies;
     private CheckListView<GovPolicy> checkListViewGovPolicies;
+
 
     public GameStage(Main application) {
         this.application = application;
@@ -205,7 +208,7 @@ public class GameStage extends Stage {
 
     private void makeWorldMapWorldUnison() {
         if (map != null && game != null) {
-            map.makeTextCountriesNames(game.getWorld().getCountries());
+            map.makeUpdateTextCountriesNames(game.getWorld().getCountries());
         }
     }
 
@@ -270,13 +273,15 @@ public class GameStage extends Stage {
         this.pausation = new Label("Paused");
         Text treasuryText = new Text("Treasury $");
         this.treasuryLabel = new Label();
-
+        Text manpowerText = new Text("Manpower ");
+        this.manpowerLabel = new Label();
         chooseCountryButton = new Button("Confirm");
         chooseCountryButton.setOnAction(e -> startGame());
         HBox hTopLeft = new HBox(playerNameLabel, chooseCountryButton);
         hTopLeft.setSpacing(8);
-
-        hTopCenter = new HBox(treasuryText, treasuryLabel);
+        Region regTopCenter = new Region();
+        regTopCenter.setMinWidth(16);
+        hTopCenter = new HBox(treasuryText, treasuryLabel, regTopCenter, manpowerText, manpowerLabel);
 
         HBox hGameSpeed = makeGameSpeedHBox();
         HBox hTopRight = new HBox(pausation, pauseButton, dateLabel, hGameSpeed);
@@ -444,6 +449,7 @@ public class GameStage extends Stage {
     private ToolBar makeBottomToolbar() {
         Button gsComputer = new Button("Computer");
         Button gsNews = new Button("News");
+        Button gsWorld = new Button("World");
         Button gsOptions = new Button("Settings");
         ImageView imgComputer = loadImgView("img/monitor_with_button.png", 24, 24);
         if (imgComputer != null) {
@@ -457,6 +463,14 @@ public class GameStage extends Stage {
             Tooltip.install(gsNews, new Tooltip(gsNews.getText()));
             gsNews.setText(null);
         }
+
+        ImageView imgWorld = loadImgView("img/globe_earth.png", 24, 24);
+        if (imgWorld != null) {
+            gsWorld.setGraphic(imgWorld);
+            Tooltip.install(gsWorld, new Tooltip(gsWorld.getText()));
+            gsWorld.setText(null);
+        }
+
         ImageView imgSettings = loadImgView("img/settings.png", 24, 24);
         if (imgSettings != null) {
             gsOptions.setGraphic(imgSettings);
@@ -466,15 +480,28 @@ public class GameStage extends Stage {
 
         gsComputer.setOnAction(e -> popupWebDesktop());
         gsNews.setOnAction(e -> popupWebNews());
+        gsWorld.setOnAction(e -> popupWorldInfo());
         gsOptions.setOnAction(e -> showGameStageOptions());
 
         if (GOptions.isDebugMode())
             toolBarReg = new HBox(8, new Label(), new Text(", Prov ID:"), new Label());
         else
             toolBarReg = new Region();
-        ToolBar toolBar = new ToolBar(gsComputer, gsNews, toolBarReg, gsOptions);
+        ToolBar toolBar = new ToolBar(gsComputer, gsNews, toolBarReg, gsWorld, gsOptions);
         HBox.setHgrow(toolBarReg, Priority.ALWAYS);
         return toolBar;
+    }
+
+    private void popupWorldInfo() {
+        World world = game.getWorld();
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("World info");
+        Button viewGlobe = new Button("View 3D");
+        viewGlobe.setOnAction(e -> popupGlobeViewer(0));
+        alert.setGraphic(viewGlobe);
+        alert.setHeaderText(world.toString());
+        alert.setContentText(world.toStringLongRest());
+        alert.show();
     }
 
     private FlowPane makeRightMapModesFlowPane(ZoomableScrollPane scrollPane) {
@@ -826,10 +853,10 @@ public class GameStage extends Stage {
         toggleButtonsConscriptRate = makeToggleButtonsConscriptRate();
 
         SegmentedButton conscriptRateSegmentedButton = new SegmentedButton(toggleButtonsConscriptRate);
-
+        milResearchUnitsStage = new Technology.MilResearchUnitsStage(game.getUnitTypes());
         Button researchPanelButton = new Button("Research Panel");
-        researchPanelButton.setOnAction(e -> popupResearchPanel());
-        VBox vBoxMilPol = new VBox(8,conscriptRateLabel, conscriptRateSegmentedButton, researchPanelButton);
+        researchPanelButton.setOnAction(e -> popupMilResearchPanel());
+        VBox vBoxMilPol = new VBox(8, conscriptRateLabel, conscriptRateSegmentedButton, researchPanelButton);
         TitledPane milPolicies = new TitledPane("Military Policies/Research", vBoxMilPol);
         formablesPanel = makeVBoxListViewFormables();
         TitledPane formables = new TitledPane("Formables", formablesPanel);
@@ -839,12 +866,9 @@ public class GameStage extends Stage {
         return vBox;
     }
 
-    private void popupResearchPanel() {
-        SplitPane splitPane = Technology.makeMilResearchUnitSplitPane(game.getUnitTypes());
-        Scene scene = new Scene(splitPane);
-        Stage stage = new Stage();
-        stage.setScene(scene);
-        stage.show();
+    private void popupMilResearchPanel() {
+        milResearchUnitsStage.updateScene(game.getPlayer().getMilitary());
+        milResearchUnitsStage.show();
     }
 
     private VBox makeVBoxCountryOptions() {
@@ -1022,8 +1046,10 @@ public class GameStage extends Stage {
         tableViewBuildings.setVisible(true);
         isPlayingCountry = true;
         treasuryLabel.textProperty().bind(GUtils.stringBindingDoubleCurrency(game.getPlayer().getEconomy().treasuryProperty()));//can also be formated!
+        manpowerLabel.textProperty().bind(GUtils.stringBindingLong(game.getPlayer().getMilitary().manpowerProperty()));
         correlateCheckListViewGovPolicies(game.getPlayer().getGovernment().getPolicies());
         toggleButtonsConscriptRate[game.getPlayer().getMilitary().getPopConscriptionRateIndex()].setSelected(true);
+        milResearchUnitsStage.updatePlayer(game.getPlayer().getMilitary());
         changeSelectedCountryInfo();
         changeSelectedProvInfo();
     }
@@ -1067,10 +1093,6 @@ public class GameStage extends Stage {
         return playerNameLabel;
     }
 
-    public void setPlayerNameLabel(Label playerNameLabel) {
-        this.playerNameLabel = playerNameLabel;
-    }
-
     public Label getDateLabel() {
         return dateLabel;
     }
@@ -1087,13 +1109,8 @@ public class GameStage extends Stage {
         return pauseButton;
     }
 
-
     public Button getChooseCountryButton() {
         return chooseCountryButton;
-    }
-
-    public void setChooseCountryButton(Button chooseCountryButton) {
-        this.chooseCountryButton = chooseCountryButton;
     }
 
     public int getSelectedCountry() {
@@ -1115,9 +1132,19 @@ public class GameStage extends Stage {
     public void changeLeftVBoxes(int i) {
         if (prevLeftVBoxInd == i)
             return;
+        if (i < 0) {
+            countryTab.getContent().setVisible(false);
+            provinceTab.getContent().setVisible(false);
+
+        } else {
+            if (prevLeftVBoxInd < 0) {
+                countryTab.getContent().setVisible(true);
+                provinceTab.getContent().setVisible(true);
+            }
+            countryTab.setContent(countryOptTypes[i]);
+            provinceTab.setContent(provOptTypes[i]);
+        }
         prevLeftVBoxInd = i;
-        countryTab.setContent(countryOptTypes[i]);
-        provinceTab.setContent(provOptTypes[i]);
     }
 
     //make more efficient
@@ -1126,6 +1153,8 @@ public class GameStage extends Stage {
         if (selC == null) {
             String iso2 = CountryArray.getIndexISO2(map.getMapSVG()[selectedProv].getOwnerId());
             selectedCountryInfo.setText(iso2);
+            changeLeftVBoxes(-1);
+
             return;
         }
         selectedCountryInfo.setText(game.toStringCountry(selectedCountry));
@@ -1133,7 +1162,6 @@ public class GameStage extends Stage {
             if (selectedCountry == game.getPlayerId()) {
 
                 changeLeftVBoxes(0);
-
             } else {
                 if (game.isSubjectOfPlayer(selectedCountry)) {
                     //Most stuff are same/similar...
@@ -1339,6 +1367,13 @@ public class GameStage extends Stage {
 
     }
 
+    public void updateMonthly() {
+        Country player = game.getPlayer();
+        setTooltipEcoTop(player.getEconomy().getLastMonthBalance());
+        if (milResearchUnitsStage.isShowing())
+            milResearchUnitsStage.updateScene(player.getMilitary());
+    }
+
 
     static class Delta {
         double x, y;
@@ -1471,7 +1506,6 @@ public class GameStage extends Stage {
         Stage popupStage = new GlobeViewer(type);
         popupStage.initOwner(this);
         popupStage.show();
-
     }
 
 
@@ -1549,6 +1583,8 @@ public class GameStage extends Stage {
         } else {
             SVGProvince svgProvince = map.getMapSVG()[selectedProv];
             selectedProvInfo.setText(svgProvince.getId());
+            recruitBuildButton.setVisible(false);
+            tableViewBuildings.setVisible(false);
         }
     }
 

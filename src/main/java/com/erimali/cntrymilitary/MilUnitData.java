@@ -1,5 +1,7 @@
 package com.erimali.cntrymilitary;
 
+import com.erimali.cntrygame.Language;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Arrays;
@@ -211,6 +213,13 @@ public class MilUnitData implements Comparable<MilUnitData> {
     public static String getUnitTypeName(int type) {
         if (type >= 0 && type < MAX_TYPES) {
             return TYPES[type];
+        }
+        return "";
+    }
+
+    public static String getUnitTypeNameUpper(int type) {
+        if (type >= 0 && type < MAX_TYPES) {
+            return Language.uppercaseFirstChar(TYPES[type]);
         }
         return "";
     }

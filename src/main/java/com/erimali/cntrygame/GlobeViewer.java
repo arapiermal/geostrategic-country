@@ -21,6 +21,7 @@ public class GlobeViewer extends Stage {
 
     private double MAP_WIDTH = 2048 / 2d;
     private double MAP_HEIGHT = 1024 / 2d;
+    private String[] GLOBE_NAMES = {"Earth", "Moon", "Sun"};
     private String[] DIFFUSE_MAP = {getResourceLoc("2k_earth_daymap.jpg"),
             getResourceLoc("2k_moon.jpg"),
             getResourceLoc("2k_sun.jpg")};
@@ -68,7 +69,7 @@ public class GlobeViewer extends Stage {
         Scene scene = new Scene(stackPane, VIEWPORT_SIZE, VIEWPORT_SIZE, true, SceneAntialiasing.BALANCED);
         scene.setCamera(new PerspectiveCamera());
         setScene(scene);
-
+        setTitle(GLOBE_NAMES[type]);
         rotateAroundYAxis(group, type).play();
     }
 

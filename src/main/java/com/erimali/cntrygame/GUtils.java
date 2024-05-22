@@ -2,6 +2,8 @@ package com.erimali.cntrygame;
 
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.LongProperty;
+import javafx.beans.value.ObservableValue;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -296,6 +298,9 @@ public class GUtils {
         };
     }
 
+    public static ObservableValue<String> stringBindingLong(LongProperty longProperty) {
+        return longProperty.asString();
+    }
     public static int romanValue(char r) {
         return switch (r) {
             case 'I' -> 1;
@@ -491,4 +496,5 @@ public class GUtils {
             return def;
         }
     }
+
 }

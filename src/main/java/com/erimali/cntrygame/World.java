@@ -15,6 +15,8 @@ public class World implements Serializable {
     private GLogic game;
     private String name;
     private double totalLandArea;
+
+    private static String areaUnit = "km²";
     private static final String ENDDELIMITER = "kaq";
     private List<Language> languages; // change (?)
 
@@ -34,7 +36,7 @@ public class World implements Serializable {
         try {
             name = "Earth";
             totalLandArea = 148940000;
-            countries = new CountryArray();
+            countries = new CountryArray(this);
             Path dir = Paths.get(GLogic.RESOURCESPATH + "countries");
             loadLanguages();
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
@@ -88,7 +90,7 @@ public class World implements Serializable {
                 default:
 
             }
-            countries = new CountryArray();
+            countries = new CountryArray(this);
 
         } catch (Exception e) {
             ErrorLog.logError(e);
@@ -495,6 +497,21 @@ public class World implements Serializable {
     @Override
     public String toString() {
         return name;
+    }
+
+    public String toStringLongRest() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Land area: ").append(totalLandArea).append(areaUnit).append('\n');
+        sb.append("Total countries: ").append(countries.size());
+        return sb.toString();
+    }
+
+    public static String getAreaUnit() {
+        return areaUnit;
+    }
+
+    public static void setAreaUnit(String areaUnit) {
+        World.areaUnit = areaUnit;
     }
 
     public String getProvInfo(int selectedProv) {

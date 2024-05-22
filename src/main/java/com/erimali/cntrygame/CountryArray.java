@@ -5,9 +5,11 @@ import java.util.*;
 
 public class CountryArray implements Iterable<Country>, Serializable {
     private static final int maxISO2Countries = 26 * 26;
+    private World world;
     private final Set<String> countriesISO2;
     private final Country[] countries;
     private int size;
+
     public static int getMaxIso2Countries() {
         return maxISO2Countries;
     }
@@ -15,6 +17,12 @@ public class CountryArray implements Iterable<Country>, Serializable {
     public CountryArray() {
         countries = new Country[maxISO2Countries];
         countriesISO2 = new TreeSet<>();
+    }
+
+    public CountryArray(World world) {
+        countries = new Country[maxISO2Countries];
+        countriesISO2 = new TreeSet<>();
+        this.world = world;
     }
 
     public static short getIndexShort(String iso2) {
@@ -57,7 +65,7 @@ public class CountryArray implements Iterable<Country>, Serializable {
     public void put(String iso2, Country country) {
         int index = getIndex(iso2);
         if (index >= 0 && index < maxISO2Countries) {
-            if(countries[index] == null)
+            if (countries[index] == null)
                 size++;
             countries[index] = country;
             countriesISO2.add(iso2);
@@ -67,7 +75,7 @@ public class CountryArray implements Iterable<Country>, Serializable {
     public void put(char c1, char c2, Country country) {
         int index = getIndex(c1, c2);
         if (index >= 0 && index < maxISO2Countries) {
-            if(countries[index] == null)
+            if (countries[index] == null)
                 size++;
             countries[index] = country;
             countriesISO2.add("" + c1 + c2);
@@ -76,7 +84,7 @@ public class CountryArray implements Iterable<Country>, Serializable {
 
     public void put(int index, Country country) {
         if (index >= 0 && index < maxISO2Countries) {
-            if(countries[index] == null)
+            if (countries[index] == null)
                 size++;
             countries[index] = country;
             countriesISO2.add(getIndexISO2(index));
@@ -103,7 +111,7 @@ public class CountryArray implements Iterable<Country>, Serializable {
 
     public void remove(String iso2) {
         int index = getIndex(iso2);
-        if(countries[index] == null)
+        if (countries[index] == null)
             size--;
         countries[index] = null;
         countriesISO2.remove(iso2);
@@ -111,7 +119,7 @@ public class CountryArray implements Iterable<Country>, Serializable {
 
     public void remove(char c1, char c2) {
         int index = getIndex(c1, c2);
-        if(countries[index] == null)
+        if (countries[index] == null)
             size--;
         countries[index] = null;
         countriesISO2.remove("" + c1 + c2);
@@ -119,7 +127,7 @@ public class CountryArray implements Iterable<Country>, Serializable {
 
     public void remove(int i) {
         if (i >= 0 && i < maxISO2Countries) {
-            if(countries[i] == null)
+            if (countries[i] == null)
                 size--;
             countries[i] = null;
             countriesISO2.remove(getIndexISO2(i));
@@ -262,7 +270,11 @@ public class CountryArray implements Iterable<Country>, Serializable {
         };
     }
 
-    public int size(){
+    public int size() {
         return size;
+    }
+
+    public World getWorld() {
+        return world;
     }
 }
