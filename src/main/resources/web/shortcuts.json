@@ -1,15 +1,5 @@
 [
   {
-    "name": "AirPods 2",
-    "action": "",
-	"icon": "computer.svg"
-  },
-  {
-    "name": "AirPods 3",
-    "action": "",
-	"icon": "computer.svg"
-  },
-  {
     "name": "Alert",
     "action": "alert('Hi')",
 	"icon": "computer.svg"

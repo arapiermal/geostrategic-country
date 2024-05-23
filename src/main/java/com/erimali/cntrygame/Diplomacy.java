@@ -1,8 +1,13 @@
 package com.erimali.cntrygame;
 
+import javafx.beans.binding.IntegerBinding;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+
 import java.io.Serializable;
 import java.util.*;
-enum DipOpinions{
+
+enum DipOpinions {
     //Can they be put in one ?
     IMPROVED_RELATIONS,
     SENT_GIFT,
@@ -16,11 +21,12 @@ enum DipOpinions{
     //private Map<DipOpinions, Short>[] opinions;
 
 }
+
 //!!!!!!!!!!!!!!!!!!!!
 public class Diplomacy implements Serializable {
     //private Country main;
     private static final short DEF_IMPROVE_RELATIONS_SIZE = 10;
-    private int diplomaticStatus;
+    private final IntegerProperty globalRespect;
     private short improveRelationsSize;
     private short[] relations;
     private short[] espionage;
@@ -30,6 +36,7 @@ public class Diplomacy implements Serializable {
 
     public Diplomacy() {
         this.improveRelationsSize = DEF_IMPROVE_RELATIONS_SIZE;
+        this.globalRespect = new SimpleIntegerProperty(0);
         this.allies = new HashSet<>();
         this.rivals = new HashSet<>();
         this.relations = new short[CountryArray.getMaxIso2Countries()];
@@ -68,9 +75,11 @@ public class Diplomacy implements Serializable {
         if (c >= 0 && c <= relations.length)
             relations[c] -= amount;
     }
+
     public boolean isAllyWith(int c) {
         return allies.contains((short) c);
     }
+
     public boolean isAllyWith(short c) {
         return allies.contains(c);
     }
@@ -137,14 +146,6 @@ public class Diplomacy implements Serializable {
         this.relations = relations;
     }
 
-    public int getDiplomaticStatus() {
-        return diplomaticStatus;
-    }
-
-    public void setDiplomaticStatus(int diplomaticStatus) {
-        this.diplomaticStatus = diplomaticStatus;
-    }
-
     public short getImproveRelationsSize() {
         return improveRelationsSize;
     }
@@ -156,7 +157,47 @@ public class Diplomacy implements Serializable {
     public boolean isRivalWith(short i) {
         return rivals.contains(i);
     }
+
     public boolean isRivalWith(int i) {
         return rivals.contains((short) i);
+    }
+
+    public IntegerProperty globalRespect() {
+        return globalRespect;
+    }
+
+    public int getGlobalRespect() {
+        return globalRespect.get();
+    }
+
+    public void setGlobalRespect(int globalRespect) {
+        this.globalRespect.set(globalRespect);
+    }
+
+    public void addGlobalRespect(int a) {
+        int sum = globalRespect.get() + a;
+        if(sum > 1000)
+            sum = 1000;
+        else if(sum < -1000)
+            sum = -1000;
+        globalRespect.set(sum);
+    }
+
+    public void incGlobalRespect(int a) {
+        if (a > 0) {
+            int sum = globalRespect.get() + a;
+            if(sum > 1000)
+                sum = 1000;
+            globalRespect.set(sum);
+        }
+    }
+
+    public void decGlobalRespect(int a) {
+        if (a > 0) {
+            int sum = globalRespect.get() - a;
+            if(sum < -1000)
+                sum = -1000;
+            globalRespect.set(sum);
+        }
     }
 }

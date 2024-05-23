@@ -283,6 +283,13 @@ public class CommandLine {
                             }
                         }
                         return "";
+                    case "RESPECT":
+                        int respect = GUtils.parseIntDef(k, 2, 0);
+                        if(respect != 0){
+                            mainCountry.getDiplomacy().addGlobalRespect(respect);
+                            return respect + " added to " + mainCountry.getIso2();
+                        } else
+                            return "NO RESPECT ADDED";
                     default:
                         return "ERROR: Invalid command";
                 }

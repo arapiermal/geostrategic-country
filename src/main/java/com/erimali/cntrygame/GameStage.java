@@ -95,6 +95,7 @@ public class GameStage extends Stage {
     private Label playerNameLabel;
     private Label treasuryLabel;
     private Label manpowerLabel;
+    private Label globalRespectLabel;
     private Label dateLabel;
     private ToggleButton pauseButton;
     private Button chooseCountryButton;
@@ -286,13 +287,15 @@ public class GameStage extends Stage {
         this.treasuryLabel = new Label();
         Text manpowerText = new Text("Manpower ");
         this.manpowerLabel = new Label();
+        Text globalRespectText = new Text("Global Respect ");
+        this.globalRespectLabel = new Label();
         chooseCountryButton = new Button("Confirm");
         chooseCountryButton.setOnAction(e -> startGame());
         HBox hTopLeft = new HBox(playerNameLabel, chooseCountryButton);
         hTopLeft.setSpacing(8);
         Region regTopCenter = new Region();
         regTopCenter.setMinWidth(16);
-        hTopCenter = new HBox(treasuryText, treasuryLabel, regTopCenter, manpowerText, manpowerLabel);
+        hTopCenter = new HBox(treasuryText, treasuryLabel, regTopCenter, manpowerText, manpowerLabel, globalRespectText, globalRespectLabel);
 
         HBox hGameSpeed = makeGameSpeedHBox();
         HBox hTopRight = new HBox(pauseButton, dateLabel, hGameSpeed);
@@ -901,7 +904,9 @@ public class GameStage extends Stage {
         sponsorRebels.setOnAction(e -> sponsorRebels());
         sponsorRebels.getStyleClass().add("sponsor-rebels-button");
 
-        VBox vboxWar = new VBox(optionsWar, declareWarButton, sponsorRebels);
+        Button dipInsultButton = new Button("Diplomatic Insult");
+        dipInsultButton.setOnAction(e -> sendDipInsult());
+        VBox vboxWar = new VBox(optionsWar, declareWarButton, sponsorRebels, dipInsultButton);
         vboxWar.setSpacing(8);
         Label preInfoRelations = new Label("Relations ");
         infoRelations = new Label();
@@ -937,6 +942,11 @@ public class GameStage extends Stage {
         titledPaneRelations.setAnimated(false);
 
         return new VBox(titledPaneWar, titledPaneRelations);
+    }
+
+    private void sendDipInsult() {
+        game.sendDipInsult(selectedCountry);
+        showAlert(Alert.AlertType.INFORMATION, "Diplomatic insult", "We have sent a diplomatic insult to " + CountryArray.getIndexISO2(selectedCountry) + "\nOur relations have worsened.");
     }
 
 
@@ -1023,6 +1033,7 @@ public class GameStage extends Stage {
 
     //being at war with the same country from multiple wars (!!!)
     public void negotiatePeace() {
+        //or List<War> in Military.................
         //one party with other
         //if not main-> peace only for self, war continues...
         List<War> activeWars = game.getWarsWith(selectedCountry);
@@ -1032,6 +1043,8 @@ public class GameStage extends Stage {
             } else {
                 War selWar = popupChooseFromList("Which war",
                         "There are a few wars between you and them, which one to negotiate for?", activeWars);
+                if(selWar == null)
+                    return;
                 peaceNegotiationStage.setDataFromWar(selWar);
             }
             peaceNegotiationStage.show();
@@ -1069,9 +1082,9 @@ public class GameStage extends Stage {
                         dialog.setHeaderText("Pick a casus belli.");
                         event.consume();
                     } else {
-                        if(game.declareWar(selectedCountry, cb)){
+                        if (game.declareWar(selectedCountry, cb)) {
                             GameAudio.playShortSound("big-impact.mp3");
-                        } else{
+                        } else {
                             showAlert(Alert.AlertType.WARNING, "War declaration failed", "We have already a main war with them");
                         }
 
@@ -1101,6 +1114,7 @@ public class GameStage extends Stage {
         isPlayingCountry = true;
         treasuryLabel.textProperty().bind(GUtils.stringBindingDoubleCurrency(game.getPlayer().getEconomy().treasuryProperty()));//can also be formated!
         manpowerLabel.textProperty().bind(GUtils.stringBindingLong(game.getPlayer().getMilitary().manpowerProperty()));
+        globalRespectLabel.textProperty().bind(game.getPlayer().getDiplomacy().globalRespect().asString());
         correlateCheckListViewGovPolicies(game.getPlayer().getGovernment().getPolicies());
         toggleButtonsConscriptRate[game.getPlayer().getMilitary().getPopConscriptionRateIndex()].setSelected(true);
         milResearchUnitsStage.updatePlayer(game.getPlayer().getMilitary());
@@ -1489,7 +1503,6 @@ public class GameStage extends Stage {
     public int parseChessResult(String in) {
         if (in.startsWith("checkmate")) {
             String colorLost = in.substring(10);
-            TESTING.print(colorLost);
             if (colorLost.equalsIgnoreCase("White")) {
                 return -8;
             } else if (colorLost.equalsIgnoreCase("Black")) {

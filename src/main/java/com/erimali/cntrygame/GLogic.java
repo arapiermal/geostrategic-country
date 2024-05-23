@@ -1001,4 +1001,18 @@ public class GLogic implements Serializable {
     public void forcePeace(War war, Country mainCountry, ObservableList<AdmDiv> selectedProvinces) {
 
     }
+
+    public void sendDipInsult(int selectedCountry) {
+        sendDipInsult(playerId,selectedCountry);
+    }
+    //List of insults
+    public void sendDipInsult(int cId1, int cId2) {
+        Country c1 = getCountry(cId1);
+        Country c2 = getCountry(cId2);
+        if(c1 == null || c2 == null)
+            return;
+        //types (?) ...
+        c1.improveRelations(cId2, (short) -50);
+        //update , if relations < 0 ...
+    }
 }
