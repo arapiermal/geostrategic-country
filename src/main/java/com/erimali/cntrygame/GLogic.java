@@ -668,19 +668,33 @@ public class GLogic implements Serializable {
 
     // WAR
 //////////////////////////////////////////////////
+    public boolean warBetweenMains(int cId1, int cId2){
+        for(War w : wars){
+            if(w.containsAsMains(cId1, cId2))
+                return true;
+        }
+        return false;
+    }
+    public boolean declareWar(int a, int o, CasusBelli casusBelli) {
+        if(warBetweenMains(a,o)){
+            return false;
+        }
 
-    public void declareWar(int a, int o, CasusBelli casusBelli) {
         Country c1 = getCountry(a);
         Country c2 = getCountry(o);
+        if(c1 == null || c2 == null){
+            return false;
+        }
         War w = c1.declareWar(o, world.getCountries(), casusBelli);
         if (w != null) {
             wars.add(w);
             addGameNews(c1.getName() + " declared war on " + c2.getName(), w.toString());
         }
+        return true;
     }
 
-    public void declareWar(int o, CasusBelli casusBelli) {
-        declareWar(playerId, o, casusBelli);
+    public boolean declareWar(int o, CasusBelli casusBelli) {
+        return declareWar(playerId, o, casusBelli);
     }
 // FIX
     //public void finishWar(int index) {finishedWars.add( wars.remove(index).toString() + "Won/Lost");}
@@ -810,7 +824,7 @@ public class GLogic implements Serializable {
 
     public void updateTreeViewUnitTypes() {
         TreeView<MilUnitData> treeView = gs.getTreeUnitTypes();
-        if(treeView == null || player == null)
+        if (treeView == null || player == null)
             return;
         //not most efficient...
         TreeItem<MilUnitData> root = treeView.getRoot();
@@ -822,16 +836,16 @@ public class GLogic implements Serializable {
                 for (int i = 1; i < l.size(); i++) {
                     MilUnitData data = l.get(i);
                     int minMilTech = data.getMinMilTech();
-                    if (minMilTech > 0 && minMilTech <= milTechLevel){
+                    if (minMilTech > 0 && minMilTech <= milTechLevel) {
                         boolean flag = false;
                         //if(!rl.getChildren().contains(treeItem)){rl.getChildren().add(treeItem);}//error
-                        for(TreeItem<MilUnitData> ti : rl.getChildren()){
-                            if(data.equals(ti.getValue())){
+                        for (TreeItem<MilUnitData> ti : rl.getChildren()) {
+                            if (data.equals(ti.getValue())) {
                                 flag = true;
                                 break;
                             }
                         }
-                        if(!flag) {
+                        if (!flag) {
                             TreeItem<MilUnitData> treeItem = new TreeItem<>(data);
                             rl.getChildren().add(treeItem);
                         }
@@ -963,5 +977,28 @@ public class GLogic implements Serializable {
 
     public List<MilUnitData>[] getUnitTypes() {
         return unitTypes;
+    }
+
+    public List<War> getWarsWith(int selectedCountry) {
+        return getWarsBetween(playerId, selectedCountry);
+    }
+
+    public List<War> getWarsBetween(int cId1, int cId2) {
+        List<War> between = new LinkedList<>();
+        for (War w : wars) {
+            if (w.contains(cId1) && w.contains(cId2)) {
+                between.add(w);
+            }
+        }
+        //or empty list if it comes to that
+        return between;
+    }
+
+    public void forcePeace(War war, ObservableList<AdmDiv> selectedProvinces) {
+        forcePeace(war, player, selectedProvinces);
+    }
+
+    public void forcePeace(War war, Country mainCountry, ObservableList<AdmDiv> selectedProvinces) {
+
     }
 }

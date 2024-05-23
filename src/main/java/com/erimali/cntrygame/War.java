@@ -2,6 +2,7 @@ package com.erimali.cntrygame;
 
 import com.erimali.cntrymilitary.MilDiv;
 import com.erimali.cntrymilitary.MilUnit;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListView;
 
@@ -17,6 +18,7 @@ interface ProvinceFight{
     int dayTick();
 }
 public class War implements Serializable {
+
     //if there's list in each province, no need for this stuff here.
     static class Battle implements Serializable {
         //if many MilDiv in the same province, after one is defeated, check province to fight the rest
@@ -95,7 +97,8 @@ public class War implements Serializable {
         opposingCountry.getMilitary().addAtWarWith(declaringCountry.getCountryId());
         this.casusBelli = casusBelli;
         this.activeBattles = new LinkedList<>();
-
+        this.declaringOccupiedProv = FXCollections.observableArrayList();
+        this.opposingOccupiedProv = FXCollections.observableArrayList();
     }
 
     public War(Country declaringCountry, Country opposingCountry, CasusBelli casusBelli, CountryArray cArr) {
@@ -105,7 +108,12 @@ public class War implements Serializable {
         opposingCountry.getMilitary().addAtWarWith(declaringCountry.getCountryId());
         this.casusBelli = casusBelli;
         this.activeBattles = new LinkedList<>();
+        this.declaringOccupiedProv = FXCollections.observableArrayList();
+        this.opposingOccupiedProv = FXCollections.observableArrayList();
 
+    }
+    public boolean contains(int cId) {
+        return declaringCountry.getCountryId() == cId || opposingCountry.getCountryId() == cId || declaringAllies.contains(cId) || opposingAllies.contains(cId);
     }
 
     //which side is AI...
@@ -178,6 +186,12 @@ public class War implements Serializable {
 
     public void setOpposingAllies(Set<Integer> opposingAllies) {
         this.opposingAllies = opposingAllies;
+    }
+
+    public boolean containsAsMains(int cId1, int cId2) {
+        int a = declaringCountry.getCountryId();
+        int o = opposingCountry.getCountryId();
+        return a == cId1 && o == cId2 || a == cId2 && o == cId1;
     }
 
     @Override

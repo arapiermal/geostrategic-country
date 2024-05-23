@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -147,7 +148,8 @@ public class GameStage extends Stage {
     private Technology.MilResearchUnitsStage milResearchUnitsStage;
     private ObservableList<GovPolicy> observableListGovPolicies;
     private CheckListView<GovPolicy> checkListViewGovPolicies;
-
+    private PeaceNegotiationStage peaceNegotiationStage;
+    private Button declareWarButton;
 
     public GameStage(Main application) {
         this.application = application;
@@ -424,7 +426,8 @@ public class GameStage extends Stage {
         gsOptionsStage = makeGSOptionsStage();
         return gameLayout;
     }
-    public void makeGraphicalPlayPause(){
+
+    public void makeGraphicalPlayPause() {
         pauseButton.setText("");
         Glyph play = getGlyph(FontAwesome.Glyph.PLAY);
         Glyph pause = getGlyph(FontAwesome.Glyph.PAUSE);
@@ -432,6 +435,7 @@ public class GameStage extends Stage {
                 .then(pause)
                 .otherwise(play));
     }
+
     private SplitPane makeGeneralInfoVBox() {
         //VBox vBox = new VBox(selectedCountryInfo, selectedProvInfo);
         //return vBox;
@@ -888,15 +892,16 @@ public class GameStage extends Stage {
     }
 
     private VBox makeVBoxCountryOptions() {
+        this.peaceNegotiationStage = new PeaceNegotiationStage(this);
         Label optionsWar = new Label("War");
-        Button declareWar = new Button("Declare War");
-        declareWar.setOnAction(e -> declareWarOrPeace());
-        declareWar.getStyleClass().add("declare-war-button");
+        declareWarButton = new Button("Declare War");
+        declareWarButton.setOnAction(e -> declareWarOrPeace());
+        declareWarButton.getStyleClass().add("declare-war-button");
         Button sponsorRebels = new Button("Sponsor Rebels");
         sponsorRebels.setOnAction(e -> sponsorRebels());
         sponsorRebels.getStyleClass().add("sponsor-rebels-button");
 
-        VBox vboxWar = new VBox(optionsWar, declareWar, sponsorRebels);
+        VBox vboxWar = new VBox(optionsWar, declareWarButton, sponsorRebels);
         vboxWar.setSpacing(8);
         Label preInfoRelations = new Label("Relations ");
         infoRelations = new Label();
@@ -1009,11 +1014,39 @@ public class GameStage extends Stage {
         } else {
             declareWar();
         }
+        updateDeclareWarButtonText();
     }
 
+    public void updateDeclareWarButtonText() {
+        declareWarButton.setText(game.getPlayer().isAtWarWith(selectedCountry) ? "Negotiate peace" : "Declare War");
+    }
+
+    //being at war with the same country from multiple wars (!!!)
     public void negotiatePeace() {
         //one party with other
         //if not main-> peace only for self, war continues...
+        List<War> activeWars = game.getWarsWith(selectedCountry);
+        if (!activeWars.isEmpty()) {
+            if (activeWars.size() == 1) {
+                peaceNegotiationStage.setDataFromWar(activeWars.getFirst());
+            } else {
+                War selWar = popupChooseFromList("Which war",
+                        "There are a few wars between you and them, which one to negotiate for?", activeWars);
+                peaceNegotiationStage.setDataFromWar(selWar);
+            }
+            peaceNegotiationStage.show();
+        }
+    }
+
+    public <T> T popupChooseFromList(String title, String desc, List<T> choices) {
+        if (choices == null || choices.isEmpty()) {
+            throw new IllegalArgumentException("Choices list cannot be null || empty");
+        }
+        ChoiceDialog<T> dialog = new ChoiceDialog<>(choices.getFirst(), choices);
+        dialog.setTitle(title);
+        dialog.setHeaderText(desc);
+        Optional<T> result = dialog.showAndWait();
+        return result.orElse(null);
     }
 
     public void declareWar() {
@@ -1036,8 +1069,12 @@ public class GameStage extends Stage {
                         dialog.setHeaderText("Pick a casus belli.");
                         event.consume();
                     } else {
-                        game.declareWar(selectedCountry, cb);
-                        GameAudio.playShortSound("big-impact.mp3");
+                        if(game.declareWar(selectedCountry, cb)){
+                            GameAudio.playShortSound("big-impact.mp3");
+                        } else{
+                            showAlert(Alert.AlertType.WARNING, "War declaration failed", "We have already a main war with them");
+                        }
+
                     }
                 }
         );
@@ -1099,10 +1136,6 @@ public class GameStage extends Stage {
         dateLabel.setText(d);
     }
 
-    public void changeCountryName(String cName) {
-        playerNameLabel.setText(cName);
-    }
-
     public Label getPlayerNameLabel() {
         return playerNameLabel;
     }
@@ -1110,11 +1143,6 @@ public class GameStage extends Stage {
     public Label getDateLabel() {
         return dateLabel;
     }
-
-    public void setDateLabel(Label dateLabel) {
-        this.dateLabel = dateLabel;
-    }
-
 
     public ToggleButton getPauseButton() {
         return pauseButton;
@@ -1186,6 +1214,7 @@ public class GameStage extends Stage {
                     sendAllianceRequest.setText("Alliance request");
 
                 }
+                updateDeclareWarButtonText();
                 changeLeftVBoxes(1);
 
                 //make more efficient
@@ -1351,6 +1380,7 @@ public class GameStage extends Stage {
         popupStage.setScene(popupScene);
         Platform.runLater(popupStage::showAndWait);
     }
+
     static class Delta {
         double x, y;
     }

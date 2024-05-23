@@ -13,23 +13,27 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import org.controlsfx.control.ListSelectionView;
 import org.controlsfx.glyphfont.FontAwesome;
-import org.controlsfx.glyphfont.Glyph;
+
+import java.util.EnumSet;
 
 
-public class PeaceNegotiation {
-    //redundant.
+public class PeaceNegotiationStage extends Stage {
+    //update based on war... (War war)
+    private GameStage gameStage;
     private War war;
+    private EnumSet<WarObjective> warObjectives; //can be done with a CheckListView
+    private DoubleProperty totalWarScore;
+    private DoubleProperty warScoreRequired;
+    private ListSelectionView<AdmDiv> listSelectionView;
+    private ObservableList<AdmDiv> selectedProvinces;
 
-    public PeaceNegotiation(War war) {
-        this.war = war;
-    }
-
-    public static Stage makePeaceNegotiationStage(ObservableList<AdmDiv> occupied) {
-        DoubleProperty totalWarScore = new SimpleDoubleProperty(0); // as arg DoubleProperty totalWarScore,
-        DoubleProperty warScoreRequired = new SimpleDoubleProperty(0);
+    public PeaceNegotiationStage(GameStage gameStage) {
+        this.gameStage = gameStage;
+        this.selectedProvinces = FXCollections.observableArrayList();
+        this.totalWarScore = new SimpleDoubleProperty(0); // as arg DoubleProperty totalWarScore,
+        this.warScoreRequired = new SimpleDoubleProperty(0);
 
         Label totalWarScoreLabel = new Label();
         totalWarScoreLabel.textProperty().bind(totalWarScore.asString());
@@ -38,27 +42,47 @@ public class PeaceNegotiation {
         Region reg = new Region();
         HBox hBox = new HBox(4, new Label("Total score: "), totalWarScoreLabel, reg, new Label("Required score: "), warScoreRequiredLabel);
         HBox.setHgrow(reg, Priority.ALWAYS);
-        Tab provinceLSV = new Tab("Annex", makeProvinceListSelectionView(totalWarScore, warScoreRequired, occupied));
+        makeProvinceListSelectionView();
+        Tab provinceLSV = new Tab("Annex", listSelectionView);
         Tab warObjectives = new Tab("War Objectives");
+
         TabPane tabPane = new TabPane(provinceLSV, warObjectives);
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-        Button dealButton = new Button("Deal");
-
+        Button dealButton = new Button("Deal"); //deal button makes other button useless !!!!!
+        dealButton.disableProperty().bind(Bindings.lessThan(totalWarScore, warScoreRequired));
+        dealButton.setOnAction(e -> dealPeace());
         VBox vBox = new VBox(hBox, tabPane, dealButton);
         VBox.setVgrow(tabPane, Priority.ALWAYS);
         HBox.setHgrow(tabPane, Priority.ALWAYS);
-        Stage stage = new Stage();
         Scene scene = new Scene(vBox);
-        stage.setScene(scene);
-        return stage;
+        setScene(scene);
+    }
+
+    private void dealPeace() {
+        if(warScoreRequired.get() == 0){
+            //white peace
+        } else{
+            gameStage.getGame().forcePeace(war, selectedProvinces);
+        }
+        listSelectionView.setSourceItems(null);
+        this.war = null;
+        this.selectedProvinces.clear();
+    }
+
+    public void setDataFromWar(War war) {
+        if (this.war != war) {
+            this.war = war;
+            setTitle(war.toString());
+            listSelectionView.setSourceItems(war.getOccupiedProvinces(gameStage.getGame().getPlayer()));
+            this.selectedProvinces.clear();
+        }
     }
 
     //occupation -> either by rebels or in war...
-    public static ListSelectionView<AdmDiv> makeProvinceListSelectionView(DoubleProperty totalWarScore, DoubleProperty warScoreRequired, ObservableList<AdmDiv> occupied) {
-        ObservableList<AdmDiv> selectedItems = FXCollections.observableArrayList();
-        ListSelectionView<AdmDiv> listSelectionView = new ListSelectionView<>();
-        listSelectionView.setSourceItems(occupied);
-        listSelectionView.setTargetItems(selectedItems);
+    public void makeProvinceListSelectionView() {
+        listSelectionView = new ListSelectionView<>();
+        //listSelectionView.setSourceItems(occupied);
+        listSelectionView.setTargetItems(selectedProvinces);
         listSelectionView.setPrefWidth(700);
 
         listSelectionView.setCellFactory(param -> new ListCell<>() {
@@ -76,11 +100,11 @@ public class PeaceNegotiation {
             @Override
             public void initialize(ListView<AdmDiv> sourceListView, ListView<AdmDiv> targetListView) {
                 disabledProperty().bind(Bindings.lessThan(totalWarScore, warScoreRequired));
-                setEventHandler(ae -> annexProvinces(selectedItems));
+                setEventHandler(ae -> annexProvinces());
             }
         });
 
-        selectedItems.addListener((ListChangeListener<AdmDiv>) change -> {
+        selectedProvinces.addListener((ListChangeListener<AdmDiv>) change -> {
             while (change.next()) {
                 if (change.wasAdded()) {
                     for (AdmDiv a : change.getAddedSubList()) {
@@ -97,12 +121,11 @@ public class PeaceNegotiation {
         });
         listSelectionView.setSourceHeader(new Label("Occupied provinces"));
         listSelectionView.setTargetHeader(new Label("Selected Provinces"));
-        return listSelectionView;
     }
 
-    public static void annexProvinces(ObservableList<AdmDiv> occupied) {
+    public void annexProvinces() {
         //popup...
-        for (AdmDiv a : occupied) {
+        for (AdmDiv a : selectedProvinces) {
             System.out.println(a);
         }
     }

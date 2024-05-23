@@ -441,15 +441,19 @@ public class CommandLine {
             //target country
             case "WAR":
                 CasusBelli casusBelli;
-                if (k.length == 2) {
-                    casusBelli = CasusBelli.IMPERIALISM;
-                } else {
+                try {
                     casusBelli = CasusBelli.valueOf(k[2]);
+                } catch (EnumConstantNotPresentException e) {
+                    casusBelli = CasusBelli.IMPERIALISM;
                 }
-                gs.getGame().declareWar(cIndex, CountryArray.getIndex(k[k.length - 1]), casusBelli);
+                if (gs.getGame().declareWar(cIndex, CountryArray.getIndex(k[k.length - 1]), casusBelli)) {
 
-                return "WAR STARTED";
+                    return "WAR STARTED";
 
+                } else {
+                    gs.showAlert(Alert.AlertType.WARNING, "War declaration failed", "There is already a main war with them");
+                    return "ERROR: WAR DECLARATION FAILED";
+                }
             case "PLAY":
                 switch (k[1]) {
                     case "CHESS":
