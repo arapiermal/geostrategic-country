@@ -1,6 +1,7 @@
 package com.erimali.cntrygame;
 
 import com.erimali.cntrymilitary.MilUnitData;
+import com.erimali.compute.EriScript;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
@@ -129,7 +130,8 @@ public class WorldMap {
                     while (j < line.length() && line.charAt(j) != '"') {
                         j++;
                     }
-                    String pathId = line.substring(10, j - 3);
+                    //String pathId = line.substring(10, j - 3);
+                    String pathId = subTrimRemove(line, 10, j - 3, '_');
                     String pathOwn = line.substring(j - 2, j);
                     int pathOwnId = CountryArray.getIndex(pathOwn);
                     j += 5;
@@ -222,6 +224,25 @@ public class WorldMap {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private String subTrimRemove(String in, int start, int end, char rem) {
+        if (start < 0) {
+            start = 0;
+        }
+        if (end > in.length()) {
+            end = in.length();
+        }
+        if (start > end)
+            return in;
+        char c;
+        while (start < end && (rem == (c = in.charAt(start)) || Character.isWhitespace(c))) {
+            start++;// (?!)
+        }
+        while (end > start && (rem == (c = in.charAt(end - 1)) || Character.isWhitespace(c))) {
+            end--;
+        }
+        return in.substring(start, end);
     }
 
     public SVGPath makeBackground() {
@@ -873,7 +894,7 @@ public class WorldMap {
         }
         //If it's not there, add it
         for (Country c : cArr) {
-            if(!labelsCountryNames.containsKey(c.getCountryId()))
+            if (!labelsCountryNames.containsKey(c.getCountryId()))
                 makeUpdateTextCountryName(c);
         }
     }

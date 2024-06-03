@@ -1569,11 +1569,11 @@ public class EriScript {
         return params != null;
     }
 
-    public String subTrim(String in, int start) {
+    public static String subTrim(String in, int start) {
         return subTrim(in, start, in.length());
     }
 
-    public String subTrim(String in, int start, int end) {
+    public static String subTrim(String in, int start, int end) {
         if (start < 0) {
             start = 0;
         }
