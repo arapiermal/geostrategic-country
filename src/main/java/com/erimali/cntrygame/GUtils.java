@@ -499,4 +499,16 @@ public class GUtils {
         }
     }
 
+    public static String getFlagEmoji(String countryCode) {
+        countryCode = countryCode.toUpperCase();
+        if (countryCode.length() != 2) {
+            throw new IllegalArgumentException("ONLY ISO2 ALLOWED");
+        }
+        // Convert the country code to the corresponding emoji
+        int firstChar = Character.codePointAt(countryCode, 0) - 0x41 + 0x1F1E6;
+        int secondChar = Character.codePointAt(countryCode, 1) - 0x41 + 0x1F1E6;
+
+        // Return the emoji string
+        return new String(Character.toChars(firstChar)) + new String(Character.toChars(secondChar));
+    }
 }

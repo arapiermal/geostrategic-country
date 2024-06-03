@@ -40,3 +40,4 @@ build/
 ###
 /backup/
 /saveGames/
+/logs/

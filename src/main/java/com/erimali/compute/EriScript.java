@@ -16,6 +16,8 @@ import com.erimali.cntrygame.*;
 // 2=> IF ... etc
 // List<Integer> rowType;
 // List<String[]> rows; // params
+//class EriRow {int type;String string;}
+
 public class EriScript {
     // class which is just a function that doesn't forget previous state?
     private static final String RETURN = "return";

@@ -285,7 +285,7 @@ public class CommandLine {
                         return "";
                     case "RESPECT":
                         int respect = GUtils.parseIntDef(k, 2, 0);
-                        if(respect != 0){
+                        if(respect != 0) {
                             mainCountry.getDiplomacy().addGlobalRespect(respect);
                             return respect + " added to " + mainCountry.getIso2();
                         } else
@@ -297,10 +297,12 @@ public class CommandLine {
                 switch (k[1]) {
                     case "GOV":
                         if (k.length == 4) {
-                            if (k[2].substring(0, 3).equalsIgnoreCase("POL")) {
+                            String subK = k[2].substring(0, 3);
+                            if (subK.equalsIgnoreCase("POL")) {
                                 try {
                                     GovPolicy govPolicy = GovPolicy.valueOf(k[3]);
                                     mainCountry.getGovernment().removePolicy(govPolicy, true);
+                                    return "REMOVED POLICY " + govPolicy;
                                 } catch (EnumConstantNotPresentException e) {
                                     return "ERROR: Invalid government policy to remove";
                                 }
