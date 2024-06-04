@@ -1,7 +1,5 @@
 package com.erimali.cntrygame;
 
-import java.time.LocalDate;
-
 public class GDate extends BaseDate {
     protected int dayOfWeek;
     protected static final String[] DAYS_OF_WEEK = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",

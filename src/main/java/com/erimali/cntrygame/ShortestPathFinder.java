@@ -11,21 +11,21 @@ public class ShortestPathFinder {
     private SVGProvince[] svgProvinces;
     private WaterBody[] waterBodies;
 
-//, WaterBody[] waterBodies
+    //, WaterBody[] waterBodies
     public ShortestPathFinder(SVGProvince[] svgProvinces, WaterBody[] waterBodies) {
         this.svgProvinces = svgProvinces;
         this.waterBodies = waterBodies;
         provinceData = generateNeighbourMap();
-        if(provinceData == null)
+        if (provinceData == null)
             throw new IllegalArgumentException("ERROR IN DIJKSTRA NEIGHBOURS DATA");
         fixBiDirectionalGraphMap(provinceData);
         generateWaterNeighbourMap();
     }
 
     private void generateWaterNeighbourMap() {
-        if(waterBodies != null){
+        if (waterBodies != null) {
             waterBodyData = new HashMap<>();
-            for(WaterBody w : waterBodies){
+            for (WaterBody w : waterBodies) {
                 waterBodyData.put(w.getWaterBodyId(), w.getNeighbours());
                 //fix here
             }
@@ -83,7 +83,7 @@ public class ShortestPathFinder {
                         pq.offer(new int[]{neighbor, newDist});
                     }
                 }
-            if(waterTravel) {
+            if (waterTravel) {
                 int[] waterNeighbours = waterBodyData.get(vertex);
                 if (waterNeighbours != null)
                     for (int neighbor : waterNeighbours) {
@@ -165,6 +165,14 @@ public class ShortestPathFinder {
         return arr;
     }
 
+    public static int[] setToBasicArr(Set<Integer> set) {
+        int[] arr = new int[set.size()];
+        Iterator<Integer> iterator = set.iterator();
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = iterator.next();
+        }
+        return arr;
+    }
     public static Map<Integer, int[]> generateNeighbourMap() {
         try (BufferedReader br = new BufferedReader(new FileReader(GLogic.RESOURCESPATH + "countries/dijkstra.data"))) {
             return generateNeighbourMap(br);
@@ -186,6 +194,22 @@ public class ShortestPathFinder {
         } else {
             System.out.println("Shortest path: " + shortestPath);
             System.out.println("Number of provinces in the shortest path: " + shortestPath.size());
+        }
+    }
+
+    public void appendProvinceData(List<Integer>[] append) {
+        for (int i = 0; i < append.length; i++) {
+            if (!provinceData.containsKey(i)) {
+                int[] arr = listToBasicArr(append[i]);
+                provinceData.put(i, arr);
+            } else{
+                Set<Integer> set = new HashSet<>(append[i]);
+                for(int a : provinceData.get(i)){
+                    set.add(a);
+                }
+                int[] arr = setToBasicArr(set);
+                provinceData.put(i, arr);
+            }
         }
     }
 

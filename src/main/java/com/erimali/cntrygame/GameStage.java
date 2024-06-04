@@ -215,6 +215,8 @@ public class GameStage extends Stage {
     private void makeWorldMapWorldUnison() {
         if (map != null && game != null) {
             map.makeUpdateTextCountriesNames(game.getWorld().getCountries());
+            //!!!!!!!!!!!!!!!!!!!!
+            map.bruteForceDijkstraFix();
         }
     }
 

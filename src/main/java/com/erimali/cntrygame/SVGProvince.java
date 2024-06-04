@@ -1,9 +1,11 @@
 package com.erimali.cntrygame;
 
+import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.SVGPath;
 
 
@@ -48,7 +50,7 @@ public class SVGProvince extends SVGPath implements DijkstraCalculable {
         this.provX = (minX + maxX) / 2;
         this.provY = (minY + maxY) / 2;
         if (getBoundsInLocal().getWidth() > WorldMap.getMapWidth() / 2) {
-            this.provX = maxX;
+            this.provX = maxX - 32;
             //TESTING.print(maxX, getId());
         }
     }
@@ -64,11 +66,11 @@ public class SVGProvince extends SVGPath implements DijkstraCalculable {
     }
 
 
-    //ellipse like
     public double getAvgRadius() {
         return (getBoundsInLocal().getWidth() + getBoundsInLocal().getHeight()) / 4;
     }
 
+    //ellipse like
     //Not accurate
     public double calcAvgArea(double mapW, double mapH) {
         double radiusX = getBoundsInLocal().getWidth() / 2;
@@ -107,6 +109,18 @@ public class SVGProvince extends SVGPath implements DijkstraCalculable {
         double distX = provX - dijkstraCalculable.getCenterX();
         double distY = provY - dijkstraCalculable.getCenterY();
         return Math.sqrt(distX * distX + distY * distY);
+    }
+
+    public boolean isProbNeighbour(SVGProvince o) {
+        Bounds main = getBoundsInLocal();
+        Bounds other = o.getBoundsInLocal();
+        if (main.getMaxX() <= other.getMinX() ||
+                main.getMinX() >= other.getMaxX() ||
+                main.getMaxY() <= other.getMinY() ||
+                main.getMinY() >= other.getMaxY()) {
+            return false;
+        }
+        return true; // Overlap
     }
 }
 

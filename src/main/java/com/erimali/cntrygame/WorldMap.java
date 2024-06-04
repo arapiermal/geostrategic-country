@@ -57,6 +57,7 @@ public class WorldMap {
 
     private final GameStage gs;
     private ShortestPathFinder roadFinder;
+
     private MilUnitRegion debugMilUnitRegion;
     private int mapMode;
 
@@ -931,7 +932,7 @@ public class WorldMap {
                 //provinces that wrap -> problematic
                 double boundsMinX = bounds.getMinX();
                 double boundsMaxX = bounds.getMaxX();
-                if(bounds.getWidth() > mapWidth / 2){
+                if (bounds.getWidth() > mapWidth / 2) {
                     boundsMinX = boundsMaxX - mapWidth / 64;
                 }
                 minX = Math.min(minX, boundsMinX);
@@ -979,5 +980,26 @@ public class WorldMap {
         double dY = y1 - y0;
         double angleRad = Math.atan2(dY, dX);
         return Math.toDegrees(angleRad);
+    }
+
+    public void bruteForceDijkstraFix() {
+        roadFinder.appendProvinceData(bruteForceDijkstraGen());
+
+    }
+
+    public List<Integer>[] bruteForceDijkstraGen() {
+        List<Integer>[] map = new LinkedList[mapSVG.length];
+        for (SVGProvince main : mapSVG) {
+            int mainId = main.getProvId();
+            List<Integer> list = new LinkedList<>();
+            map[mainId] = list;
+            for (SVGProvince o : mapSVG) {
+                int oId = o.getProvId();
+                if (oId != mainId && main.isProbNeighbour(o)) {
+                    list.add(oId);
+                }
+            }
+        }
+        return map;
     }
 }
