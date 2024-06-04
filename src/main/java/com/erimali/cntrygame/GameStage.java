@@ -1540,7 +1540,7 @@ public class GameStage extends Stage {
         Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
         dialogStage.setOnCloseRequest(event -> alert.setResult(closeButton));
 
-        alert.showAndWait();
+        alert.show();
     }
 
     public WorldMap getMap() {
