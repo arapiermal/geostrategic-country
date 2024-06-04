@@ -41,13 +41,16 @@ public class SVGProvince extends SVGPath implements DijkstraCalculable {
     }
 
     public void updateXY() {
-        double minX0 = this.getBoundsInLocal().getMinX();
-        double minY0 = this.getBoundsInLocal().getMinY();
-        double maxX0 = this.getBoundsInLocal().getMaxX();
-        double maxY0 = this.getBoundsInLocal().getMaxY();
-        this.provX = (minX0 + maxX0) / 2;
-        this.provY = (minY0 + maxY0) / 2;
-
+        double minX = getBoundsInLocal().getMinX();
+        double minY = getBoundsInLocal().getMinY();
+        double maxX = getBoundsInLocal().getMaxX();
+        double maxY = getBoundsInLocal().getMaxY();
+        this.provX = (minX + maxX) / 2;
+        this.provY = (minY + maxY) / 2;
+        if (getBoundsInLocal().getWidth() > WorldMap.getMapWidth() / 2) {
+            this.provX = maxX;
+            //TESTING.print(maxX, getId());
+        }
     }
 
     @Override

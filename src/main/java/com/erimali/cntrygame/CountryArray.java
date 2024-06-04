@@ -277,4 +277,32 @@ public class CountryArray implements Iterable<Country>, Serializable {
     public World getWorld() {
         return world;
     }
+
+    public int calcTotalAdmDivs(){
+        int n = 0;
+        for(Country c : countries){
+            if(c != null){
+                n += c.getAdmDivs().size();
+            }
+        }
+        return n;
+    }
+    public long calcTotalPopulation(){
+        long n = 0;
+        for(Country c : countries){
+            if(c != null){
+                n += c.getPopulation();
+            }
+        }
+        return n;
+    }
+    public double calcTotalArea(){
+        double v = 0;
+        for(Country c : countries){
+            if(c != null){
+                v += c.getArea();
+            }
+        }
+        return v;
+    }
 }

@@ -322,7 +322,6 @@ public class GameStage extends Stage {
         AnchorPane.setBottomAnchor(hTopRight, 0.0);
         gameLayout.setTop(paneTop);
         */
-        WorldMapView wmview = new WorldMapView();
         hTopCenter.setStyle("-fx-alignment: center;");
         hTopCenterTooltip = new Tooltip();
         Tooltip.install(hTopCenter, hTopCenterTooltip);

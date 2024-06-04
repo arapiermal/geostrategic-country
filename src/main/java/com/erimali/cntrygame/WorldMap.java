@@ -928,10 +928,17 @@ public class WorldMap {
             SVGPath province = a.getSvgProvince();
             if (province != null) {
                 Bounds bounds = province.getBoundsInLocal();
-                minX = Math.min(minX, bounds.getMinX());
+                //provinces that wrap -> problematic
+                double boundsMinX = bounds.getMinX();
+                double boundsMaxX = bounds.getMaxX();
+                if(bounds.getWidth() > mapWidth / 2){
+                    boundsMinX = boundsMaxX - mapWidth / 64;
+                }
+                minX = Math.min(minX, boundsMinX);
                 minY = Math.min(minY, bounds.getMinY());
-                maxX = Math.max(maxX, bounds.getMaxX());
+                maxX = Math.max(maxX, boundsMaxX);
                 maxY = Math.max(maxY, bounds.getMaxY());
+
             }
         }
         if (minX == Double.MAX_VALUE || minY == Double.MAX_VALUE || maxX == Double.MIN_VALUE || maxY == Double.MIN_VALUE) {

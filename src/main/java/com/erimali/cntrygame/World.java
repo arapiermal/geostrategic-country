@@ -11,10 +11,26 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+enum WorldType {
+    PLANET("Planet"),
+    SATELLITE("Satellite");
+    private final String desc;
+
+    WorldType(String desc) {
+        this.desc = desc;
+    }
+
+    @Override
+    public String toString() {
+        return desc;
+    }
+}
+
 public class World implements Serializable {
     private static final int EARTH_ID = 3;
     private final int worldId;
     private GLogic game;
+    private WorldType worldType;
     private String name;
     private double totalLandArea;
 
@@ -36,6 +52,7 @@ public class World implements Serializable {
     public World(GLogic game) {
         this.game = game;
         this.worldId = 3;
+        this.worldType = WorldType.PLANET;
         try {
             name = "Earth";
             totalLandArea = 148940000;
@@ -77,18 +94,22 @@ public class World implements Serializable {
             switch (type) {
                 case 0:
                     name = "Moon";
+                    worldType = WorldType.SATELLITE;
                     totalLandArea = 38e6;
                     break;
                 case 1:
                     name = "Mercury";
+                    worldType = WorldType.PLANET;
                     totalLandArea = 74.797e6;
                     break;
                 case 2:
                     name = "Venus";
+                    worldType = WorldType.PLANET;
                     totalLandArea = 460.23e6;
                     break;
                 case 4:
                     name = "Mars";
+                    worldType = WorldType.PLANET;
                     totalLandArea = 144.4e6;
                     break;
                 default:
@@ -502,13 +523,20 @@ public class World implements Serializable {
 
     @Override
     public String toString() {
-        return name;
+        return worldType + " " + name;
     }
 
     public String toStringLongRest() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Land area: ").append(totalLandArea).append(areaUnit).append('\n');
-        sb.append("Total countries: ").append(countries.size());
+        sb.append("World land area: ").append(totalLandArea).append(areaUnit).append('\n');
+        sb.append("Total countries: ").append(countries.size()).append('\n');
+        sb.append("Countries area: ").append(countries.calcTotalArea()).append('\n');
+        sb.append("Countries population: ").append(countries.calcTotalPopulation()).append('\n');
+        sb.append("Total administrative divisions (actual provinces): ").append(countries.calcTotalAdmDivs()).append('\n');
+        if (getMap() != null) {
+            sb.append("Total map provinces: ").append(getMap().getMapSVG().length).append('\n');
+        }
+
         return sb.toString();
     }
 
@@ -553,20 +581,20 @@ public class World implements Serializable {
                         c.getGovernment().changeLeadership(lang.generateMale());
                 }
                 //else the same person wins/stays in power
-            } else{
-                if(c.getGovernment().isBothTheSame()){
-                    if(c.getGovernment().getHeadOfState().getOlder()) {
+            } else {
+                if (c.getGovernment().isBothTheSame()) {
+                    if (c.getGovernment().getHeadOfState().getOlder()) {
                         Language lang = languages.get(c.getMainLanguage());
                         if (lang != null)
                             c.getGovernment().setRulerSame(lang.generateMale());
                     }
-                } else{
-                    if(c.getGovernment().getHeadOfState().getOlder()) {
+                } else {
+                    if (c.getGovernment().getHeadOfState().getOlder()) {
                         Language lang = languages.get(c.getMainLanguage());
                         if (lang != null)
                             c.getGovernment().setHeadOfState(lang.generateMale());
                     }
-                    if(c.getGovernment().getHeadOfGovernment().getOlder()) {
+                    if (c.getGovernment().getHeadOfGovernment().getOlder()) {
                         Language lang = languages.get(c.getMainLanguage());
                         if (lang != null)
                             c.getGovernment().setHeadOfGovernment(lang.generateMale());
@@ -821,7 +849,7 @@ public class World implements Serializable {
     }
 
     public WorldMap getMap() {
-        if(worldId == EARTH_ID)
+        if (worldId == EARTH_ID)
             return game.getWorldMap();
         return null;
     }
