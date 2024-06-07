@@ -1,7 +1,7 @@
-North Atlantic:South Atlantic,Strait of Gibraltar::2765,1382
-South Atlantic:North Atlantic,Indian,Southern,South Pacific
+North Atlantic:South Atlantic,Strait of Gibraltar,Bay of Fundy:3284,3285,3459,3460,3462,3463,3464,3465,3283,3277,1472,1471,1574,1570,3404,3408,3406,3407,1379,1380,1381,1382,2875,1384,1385,1386,721,1387,1388,1389:2765,1382
+South Atlantic:North Atlantic,Indian,Southern,South Pacific::1055,1094
 North Pacific:South Pacific
 South Pacific:North Pacific,Southern,Indian
 Indian:South Pacific,Southern,South Atlantic
-Southern:South Atlantic,South Pacific,Indian
+Southern:South Atlantic,South Pacific,Indian:1575:1575,3777
 Arctic:

@@ -18,6 +18,7 @@ public class WaterBody implements DijkstraCalculable {
     public enum WaterBodyType {
         OCEAN("Ocean", Color.DARKBLUE),
         SEA("Sea", Color.CORNFLOWERBLUE),
+        OTHER("",Color.MEDIUMSLATEBLUE)
         ;
         //if not final could be changed for translation (!)
         private final String desc;
@@ -103,6 +104,8 @@ public class WaterBody implements DijkstraCalculable {
 
     @Override
     public String toString() {
+        if(type == WaterBodyType.OTHER)
+            return name;
         return name + " " + type.toString();
     }
 
