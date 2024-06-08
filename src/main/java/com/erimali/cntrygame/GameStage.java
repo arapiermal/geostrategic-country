@@ -1040,13 +1040,13 @@ public class GameStage extends Stage {
         List<War> activeWars = game.getWarsWith(selectedCountry);
         if (!activeWars.isEmpty()) {
             if (activeWars.size() == 1) {
-                peaceNegotiationStage.setDataFromWar(activeWars.getFirst());
+                peaceNegotiationStage.setDataFromWar(activeWars.getFirst(), game.getPlayer());
             } else {
                 War selWar = popupChooseFromList("Which war",
                         "There are a few wars between you and them, which one to negotiate for?", activeWars);
                 if(selWar == null)
                     return;
-                peaceNegotiationStage.setDataFromWar(selWar);
+                peaceNegotiationStage.setDataFromWar(selWar, game.getPlayer());
             }
             peaceNegotiationStage.show();
         }

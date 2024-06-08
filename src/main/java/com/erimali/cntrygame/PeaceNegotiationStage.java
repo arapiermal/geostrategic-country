@@ -24,19 +24,17 @@ public class PeaceNegotiationStage extends Stage {
     private GameStage gameStage;
     private War war;
     private EnumSet<WarObjective> warObjectives; //can be done with a CheckListView
-    private DoubleProperty totalWarScore;
     private DoubleProperty warScoreRequired;
     private ListSelectionView<AdmDiv> listSelectionView;
     private ObservableList<AdmDiv> selectedProvinces;
-
+    private Button dealButton;
+    private Label totalWarScoreLabel;
     public PeaceNegotiationStage(GameStage gameStage) {
         this.gameStage = gameStage;
         this.selectedProvinces = FXCollections.observableArrayList();
-        this.totalWarScore = new SimpleDoubleProperty(0); // as arg DoubleProperty totalWarScore,
         this.warScoreRequired = new SimpleDoubleProperty(0);
 
-        Label totalWarScoreLabel = new Label();
-        totalWarScoreLabel.textProperty().bind(totalWarScore.asString());
+        totalWarScoreLabel = new Label();
         Label warScoreRequiredLabel = new Label();
         warScoreRequiredLabel.textProperty().bind(warScoreRequired.asString());
         Region reg = new Region();
@@ -48,8 +46,7 @@ public class PeaceNegotiationStage extends Stage {
 
         TabPane tabPane = new TabPane(provinceLSV, warObjectives);
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-        Button dealButton = new Button("Deal"); //deal button makes other button useless !!!!!
-        dealButton.disableProperty().bind(Bindings.lessThan(totalWarScore, warScoreRequired));
+        dealButton = new Button("Deal"); //deal button makes other button useless !!!!!
         dealButton.setOnAction(e -> dealPeace());
         VBox vBox = new VBox(hBox, tabPane, dealButton);
         VBox.setVgrow(tabPane, Priority.ALWAYS);
@@ -69,9 +66,12 @@ public class PeaceNegotiationStage extends Stage {
         this.selectedProvinces.clear();
     }
 
-    public void setDataFromWar(War war) {
+    public void setDataFromWar(War war, Country c) {
         if (this.war != war) {
             this.war = war;
+            DoubleProperty totalWarScore = war.warStateProperty(c);
+            totalWarScoreLabel.textProperty().bind(totalWarScore.asString());
+            dealButton.disableProperty().bind(Bindings.lessThan(totalWarScore, warScoreRequired));
             setTitle(war.toString());
             listSelectionView.setSourceItems(war.getOccupiedProvinces(gameStage.getGame().getPlayer()));
             this.selectedProvinces.clear();
@@ -93,14 +93,6 @@ public class PeaceNegotiationStage extends Stage {
                 } else {
                     setText(item.getName() + " - " + item.calcWarCost());
                 }
-            }
-        });
-
-        listSelectionView.getActions().add(new ListSelectionView.ListSelectionAction<AdmDiv>(GameStage.getGlyph(FontAwesome.Glyph.BANK)) {
-            @Override
-            public void initialize(ListView<AdmDiv> sourceListView, ListView<AdmDiv> targetListView) {
-                disabledProperty().bind(Bindings.lessThan(totalWarScore, warScoreRequired));
-                setEventHandler(ae -> annexProvinces());
             }
         });
 
