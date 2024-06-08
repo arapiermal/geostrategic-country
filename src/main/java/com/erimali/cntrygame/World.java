@@ -157,15 +157,15 @@ public class World implements Serializable {
             }
         }
         initialProvinces = new CFormable.FirstAdmDivs(countries, provinces);
-        //water access here or in svg (better in svg for save games...
         for (int i : game.getWorldMap().getWaterProvinces()) {
             if (i >= 0 && i < provinces.length) {
                 AdmDiv a = provinces[i];
                 if (a != null) {
                     a.setWaterAccess(true);
+                    Country c = countries.get(a.getOwnerId());
+                    if(c != null)
+                        c.incWaterProvCount();
                 }
-                //increase country water provinces...
-
             }
         }
 

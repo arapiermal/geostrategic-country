@@ -986,7 +986,6 @@ public class WorldMap {
         roadFinder.appendProvinceData(bruteForceDijkstraGen());
 
     }
-
     public List<Integer>[] bruteForceDijkstraGen() {
         List<Integer>[] map = new LinkedList[mapSVG.length];
         for (SVGProvince main : mapSVG) {

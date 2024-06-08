@@ -356,7 +356,9 @@ public class Country implements Serializable, Comparable<Country> {
     public List<AdmDiv> getAdmDivs() {
         return admDivisions;
     }
-
+    public int getAdmDivsSize(){
+        return admDivisions.size();
+    }
     public void setAdmDivs(List<AdmDiv> admDivisions) {
         this.admDivisions = admDivisions;
     }
@@ -892,7 +894,7 @@ public class Country implements Serializable, Comparable<Country> {
     }
 
     //call in end
-    public void calcWaterAccess() {
+    public void calcSetWaterAccess() {
         waterProvinces = 0;
         for (AdmDiv a : admDivisions)
             if (a.hasWaterAccess())
@@ -1091,5 +1093,9 @@ public class Country implements Serializable, Comparable<Country> {
 
     public boolean hasElectionsThisYear() {
         return gov.hasElectionsThisYear();
+    }
+
+    public void incWaterProvCount() {
+        waterProvinces++;
     }
 }

@@ -8,7 +8,7 @@ neighbours:XK,GR,ME,MK
 admDivision:County
 Berat:1798,122003
 Dibër:2586,115857
-Durrës:766,290697:water
+Durrës:766,290697
 Elbasan:3199,270074
 Fier:1890,289889
 Gjirokastër:2884,59381
