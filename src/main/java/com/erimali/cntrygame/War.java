@@ -8,15 +8,13 @@ import javafx.scene.control.ListView;
 
 
 import java.io.Serializable;
-import java.util.EnumSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-interface ProvinceFight{
+interface ProvinceFight {
 
     int dayTick();
 }
+
 public class War implements Serializable {
 
     //if there's list in each province, no need for this stuff here.
@@ -93,6 +91,8 @@ public class War implements Serializable {
     public War(Country declaringCountry, Country opposingCountry, CasusBelli casusBelli) {
         this.declaringCountry = declaringCountry;
         this.opposingCountry = opposingCountry;
+        this.declaringAllies = new HashSet<>();
+        this.opposingAllies = new HashSet<>();
         declaringCountry.getMilitary().addAtWarWith(opposingCountry.getCountryId());
         opposingCountry.getMilitary().addAtWarWith(declaringCountry.getCountryId());
         this.casusBelli = casusBelli;
@@ -104,6 +104,8 @@ public class War implements Serializable {
     public War(Country declaringCountry, Country opposingCountry, CasusBelli casusBelli, CountryArray cArr) {
         this.declaringCountry = declaringCountry;
         this.opposingCountry = opposingCountry;
+        this.declaringAllies = new HashSet<>();
+        this.opposingAllies = new HashSet<>();
         declaringCountry.getMilitary().addAtWarWith(opposingCountry.getCountryId());
         opposingCountry.getMilitary().addAtWarWith(declaringCountry.getCountryId());
         this.casusBelli = casusBelli;
@@ -112,6 +114,7 @@ public class War implements Serializable {
         this.opposingOccupiedProv = FXCollections.observableArrayList();
 
     }
+
     public boolean contains(int cId) {
         return declaringCountry.getCountryId() == cId || opposingCountry.getCountryId() == cId || declaringAllies.contains(cId) || opposingAllies.contains(cId);
     }
@@ -125,13 +128,30 @@ public class War implements Serializable {
     public void bringAlly() {
 
     }
-//or float/double warState[] based on country ...
+
+    //or float/double warState[] based on country ...
     public double getWarState(Country c) {
-        return (c == declaringCountry || declaringAllies.contains(c)) ? warState : -warState;
+        return (c == declaringCountry || declaringAllies.contains(c.getCountryId())) ? warState : -warState;
     }
 
     public ObservableList<AdmDiv> getOccupiedProvinces(Country c) {
-        return (c == declaringCountry || declaringAllies.contains(c)) ? declaringOccupiedProv : opposingOccupiedProv;
+        return (c == declaringCountry || declaringAllies.contains(c.getCountryId())) ? declaringOccupiedProv : opposingOccupiedProv;
+    }
+
+    public ObservableList<AdmDiv> getOccupiedProvinces(boolean isDeclaring) {
+        return isDeclaring ? declaringOccupiedProv : opposingOccupiedProv;
+    }
+
+    public boolean isDeclaring(int cId) {
+        return (declaringCountry.getCountryId() == cId || declaringAllies.contains(cId));
+    }
+
+    public ObservableList<AdmDiv> getOccupiedProvincesByDeclaring() {
+        return declaringOccupiedProv;
+    }
+
+    public ObservableList<AdmDiv> getOccupiedProvincesByOpposing() {
+        return opposingOccupiedProv;
     }
 
     public void startBattle(int provId, List<MilUnit> a, List<MilUnit> o) {
@@ -165,7 +185,7 @@ public class War implements Serializable {
     public static <T extends Enum<T> & CValidatable> ListView<T> makeListViewValidatable(GLogic game, int cInd1, int cInd2, Class<T> enumClass) {
         ListView<T> lv = new ListView<>();
         for (T it : enumClass.getEnumConstants()) {
-            if (it.isValid(game,cInd1,cInd2)) {
+            if (it.isValid(game, cInd1, cInd2)) {
                 lv.getItems().add(it);
             }
         }
@@ -176,16 +196,8 @@ public class War implements Serializable {
         return declaringAllies;
     }
 
-    public void setDeclaringAllies(Set<Integer> declaringAllies) {
-        this.declaringAllies = declaringAllies;
-    }
-
     public Set<Integer> getOpposingAllies() {
         return opposingAllies;
-    }
-
-    public void setOpposingAllies(Set<Integer> opposingAllies) {
-        this.opposingAllies = opposingAllies;
     }
 
     public boolean containsAsMains(int cId1, int cId2) {
@@ -197,6 +209,15 @@ public class War implements Serializable {
     @Override
     public String toString() {
         return declaringCountry.getName() + " vs " + opposingCountry.getName() + " - " + casusBelli.toString();
+    }
+
+    public void addWarState(int cId, int val) {
+        if (isDeclaring(cId)) {
+            warState += val;
+        } else {
+            warState -= val;
+        }
+        TESTING.print(warState);
     }
 
 }

@@ -1,4 +1,4 @@
-Vatican City
+Vatican City{
 area:0.49
 population:764
 popInc:0.5%
@@ -7,14 +7,16 @@ languages:Latin,Italian
 neighbours:IT
 admDivision:City_State
 Vatican:0.49,764
-kaq
-Government
+}
+Government{
 type:Theocracy
 headOfState:Pope,Francis,Francesco,Male
 headOfGov:President of the Governorate,Fernando,Vérgez Alzaga,Male
 elections:none, , , policies:BANNED_MILITARY(REMOVE IF POP > 10000)
-Economy
+}
+Economy{
 currency:EUR,1.0%
 GDPUSD:16146843,1.2%
 taxation:2.5%
 unemployment:0%
+}

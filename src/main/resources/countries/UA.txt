@@ -1,4 +1,4 @@
-Ukraine
+Ukraine{
 area:603628
 population:33365000
 popInc:3.25%
@@ -33,14 +33,16 @@ Chernivtsi:8097,896566
 Chernihiv:31865,976701
 Kyiv_city:839,2962180
 Sevastopol:864,385870
-kaq
-Government
+}
+Government{
 type:Republic
 headOfState:President,Volodymyr,Zelenskyy,Male
 headOfGov:Prime Minister,Denys,Shmyhal,Male
 elections:5,2019
-Economy
+}
+Economy{
 currency:UAH,1.0%
 GDPUSD:188.943e9,4.6%
 taxation:2.5%
 unemployment:16.5%
+}

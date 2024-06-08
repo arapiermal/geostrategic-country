@@ -1,4 +1,4 @@
-Kosovo
+Kosovo{
 area:10887
 population:1964327
 popInc:0.235%
@@ -13,19 +13,22 @@ Gjilan:1206,180783
 Gjakova:1129,194672
 Prizren:1397,331670
 Ferizaj:1030,185806
-kaq
-Government
+}
+Government{
 type:Republic
 headOfState:President,Vjosa,Osmani,Female
 headOfGov:Prime Minister,Albin,Kurti,Male
-Economy
+}
+Economy{
 currency:EUR,1.0%
 GDPUSD:9900000000,3.8%
 taxation:2.5%
 unemployment:12.6%
 elections:4,2021
-Military
-Divizioni 1-Pristina
-1000 soldiers
+}
+Military{
+Divizioni 1-Pristina{
+1000 soldiers // based on latest type available to the country if String/type, if int -> get type & subtype
 10 vehicles
-kaq
+}
+}

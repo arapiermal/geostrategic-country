@@ -1,4 +1,4 @@
-Italy
+Italy{
 area:302068.26
 population:59933000
 popInc:0.07%
@@ -26,14 +26,16 @@ Trentino-South Tyrol,Trentino-Alto_Adige:1111000,13606
 Tuscany,Toscana:3698000,22987
 Umbria:930000,8464
 Veneto:4883000,18345
-kaq
-Government
+}
+Government{
 type:Republic
 headOfState:President,Sergio,Mattarella,Male
 headOfGov:Prime Minister,Giorgia,Meloni,Female
 elections:5,2022
-Economy
+}
+Economy{
 currency:EUR,1.0%
 GDPUSD:2.254e12,1.2%
 taxation:2.5%
 unemployment:7.2%
+}

@@ -1,4 +1,4 @@
-Russia
+Russia{
 area:17098246
 population:147182123
 popInc:-0.34%
@@ -89,14 +89,16 @@ Nenets_Autonomous,Nenets:176810,41434
 Khanty–Mansi_Autonomousm-Yugra,Khanty-Mansiy:534801,1711480
 Chukotka_Autonomous,Chukchi_Autonomous_Okrug:721481,47490
 Yamalo-Nenets_Autonomous,Yamal-Nenets:769250,510490
-kaq
-Government
+}
+Government{
 type:Republic
 headOfState:President,Vladimir,Putin,Male
 headOfGov:Prime Minister,Mikhail,Mishustin,Male
 elections:6,2024
-Economy
+}
+Economy{
 currency:RUB,1.0%
 GDPUSD:2.057e12,3.2%
 taxation:2.5%
 unemployment:2.8%
+}

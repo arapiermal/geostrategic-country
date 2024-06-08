@@ -1,4 +1,4 @@
-Albania
+Albania{
 area:28748
 population:2868436
 popInc:-0.34%
@@ -18,23 +18,25 @@ Lezhë:1620,122700
 Shkodër:3562,200007
 Tirana:1652,906166
 Vlorë:2706,188922
-kaq
-Government
+}
+Government{
 type:Republic
 headOfState:President,Bajram,Begaj,Male,1967
 headOfGov:Prime Minister,Edi,Rama,Male,1964
 elections:4,2021
-Economy
+}
+Economy{
 currency:ALL,1.0%
 GDPUSD:42000000000,3.3%
 taxation:2.5%
 unemployment:10.7%
-Military
-Divizioni 1-Elbasan
+}
+Military{
+Divizioni 1-Elbasan{
 1000 soldiers
 10 vehicles
-kaq
-Divizioni 2-Tirana
+}
+Divizioni 2-Tirana{
 
-
-kaq
+}
+}

@@ -1,4 +1,4 @@
-Serbia
+Serbia{
 area:77612
 population:6647003
 popInc:-0.73%
@@ -31,14 +31,20 @@ South_Bačka,Južno-backi:4016,607178
 South_Banat,Južno-banatski:4245,260244
 Srem,Sremski:3486,282547
 West_Bačka,Zapadno-backi:2420,154491
-kaq
-Government
+}
+Government{
 type:Republic
 headOfState:President,Aleksandar,Vučić,Male
 headOfGov:Prime Minister,Miloš,Vučević,Male
 elections:4,2023
-Economy
+}
+Economy{
 currency:RSD,1.0%
 GDPUSD:173.075e9,6.0%
 taxation:2.5%
 unemployment:9.1%
+}
+Military{
+nukes:5580
+
+}

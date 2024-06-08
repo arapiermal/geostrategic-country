@@ -1,4 +1,4 @@
-Montenegro
+Montenegro{
 area:13812
 population:633158
 popInc:-0.06%
@@ -31,14 +31,16 @@ Tuzi:236,13142,2
 Ulcinj:255,21395,2
 Žabljak:445,3002,1
 Zeta:153,16206
-kaq
-Government
+}
+Government{
 type:Republic
 headOfState:President,Jakov,Milatović,Male
 headOfGov:Prime Minister,Milojko,Spajić,Male
 elections:4,2023
-Economy
+}
+Economy{
 currency:EUR,1.0%
 GDPUSD:17.431e9,6.0%
 taxation:2.5%
 unemployment:12.88%
+}

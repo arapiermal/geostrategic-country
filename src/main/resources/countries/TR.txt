@@ -1,4 +1,4 @@
-Turkey
+Turkey{
 area:783562
 population:85372377
 popInc:0.07%
@@ -87,13 +87,15 @@ Karabük:4108.80,249287
 Kilis:1427.76,145826
 Osmaniye:3195.99,553012
 Düzce:2592.95,400976
-kaq
-Government
+}
+Government{
 type:Republic
 single:President,Recep,Tayyip Erdoğan,Male
 elections:5,2023
-Economy
+}
+Economy{
 currency:TRY,1.0%
 GDPUSD:3.832e12,1.2%
 taxation:2.5%
 unemployment:10.0%
+}

@@ -35,7 +35,7 @@ public class World implements Serializable {
     private double totalLandArea;
 
     private static String areaUnit = "km²";
-    private static final String ENDDELIMITER = "kaq";
+    private static final String ENDDELIMITER = "}";
     private List<Language> languages; // change (?)
 
     private CountryArray countries;
@@ -168,7 +168,7 @@ public class World implements Serializable {
                 }
             }
         }
-
+        game.loadWars();
     }
 
     public void loadLanguages() {
@@ -214,7 +214,7 @@ public class World implements Serializable {
 
     public Country countryFromFile(File p) {
         try (BufferedReader br = new BufferedReader(new FileReader(p))) {
-            String name = br.readLine();
+            String name = getValueStart(br.readLine());
             double area = Double.parseDouble(getVal(br.readLine()));
             long population = Long.parseLong(getVal(br.readLine()));
             //double populationGrowthRate = Double.parseDouble(getVal(br.readLine()));
@@ -225,19 +225,38 @@ public class World implements Serializable {
             String[] neighbours = getValues(br.readLine());
             String admDivisionType = getVal(br.readLine());
             List<AdmDiv> admDivisions = admDivisionsFromFile(br, languages);
+            String lineTopic;
+            Government government = null;
+            Economy economy = null;
+            Military military = new Military();
+            while((lineTopic = br.readLine()) != null){
+                switch(getValueStart(lineTopic).toLowerCase()){
+                    case "government":
+                        government = governmentFromFile(br);
+                        break;
+                    case "economy":
+                        economy = economyFromFile(br);
+                        break;
+                    case "military":
+                        militaryFromFile(br, military);
+                        break;
+                }
 
-            br.readLine();
-            Government government = governmentFromFile(br);
-            if (!government.holdsElections())
-                br.readLine();
-            Economy economy = economyFromFile(br);
-            br.readLine();
-            Military military = militaryFromFile(br);
+            }
+
             return new Country(name, area, population, populationGrowthRate, capital, admDivisionType,
                     admDivisions, languages, neighbours, government, economy, military);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+    public static String getValueStart(String in){
+        int ind = in.indexOf('{');
+        if(ind > -1){
+            return in.substring(0, ind).trim();
+        } else{
+            return in.trim();
         }
     }
 
@@ -264,20 +283,22 @@ public class World implements Serializable {
                 government = new Government(type, headOfState, headOfGovernment);
             }
             String line;
-            if ((line = br.readLine()) != null && line.toLowerCase().startsWith("elect")) {
-                String[] r = getValues(line);
-                int electionPeriod = GUtils.parseIntDef(r, 0, 0);
-                int lastElectionYear = GUtils.parseIntDef(r, 1, 0);
-                if (electionPeriod > 0 && lastElectionYear > 0 && lastElectionYear < game.getYear()) {
-                    government.setElectionPeriod(electionPeriod);
-                    government.setLastElectionYear(lastElectionYear);
-                    government.setYearsUntilNextElectionFromCurrYear(game.getYear());
+
+            while((line = br.readLine()) != null && (line = line.trim()).charAt(0) != '}'){
+                if (line.toLowerCase().startsWith("elect")) {
+                    String[] r = getValues(line);
+                    int electionPeriod = GUtils.parseIntDef(r, 0, 0);
+                    int lastElectionYear = GUtils.parseIntDef(r, 1, 0);
+                    if (electionPeriod > 0 && lastElectionYear > 0 && lastElectionYear < game.getYear()) {
+                        government.setElectionPeriod(electionPeriod);
+                        government.setLastElectionYear(lastElectionYear);
+                        government.setYearsUntilNextElectionFromCurrYear(game.getYear());
+                    }
                 }
             }
-
             return government;
         } catch (Exception e) {
-            return null; // new Government() empty??
+            return null; // new Government() empty?? (BASED ON LANGUAGE RULER!)
         }
     }
 
@@ -295,11 +316,11 @@ public class World implements Serializable {
         }
     }
 
-    private Military militaryFromFile(BufferedReader br) {
+    private void militaryFromFile(BufferedReader br, Military military) {
         try {
-            return new Military();
+
         } catch (Exception e) {
-            return new Military();
+
         }
     }
 

@@ -1,4 +1,4 @@
-Greece
+Greece{
 area:131957
 population:10413982
 popInc:-0.52%
@@ -20,14 +20,16 @@ Thessalia:14037,11608
 Western_Greece:11350,10659
 Western_Macedonia:9451,5506
 Mount_Athos,Agion_Oros:0.1,336
-kaq
-Government
+}
+Government{
 type:Republic
 headOfState:President,Katerina,Sakellaropoulou,Female
 headOfGov:Prime Minister,Kyriakos,Mitsotakis,Male
 elections:4,2023
-Economy
+}
+Economy{
 currency:EUR,11.0%
 GDPUSD:2.42385e11,2.0%
 taxation:2.5%
 unemployment:5.0%
+}

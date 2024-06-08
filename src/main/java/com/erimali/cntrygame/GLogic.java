@@ -668,21 +668,22 @@ public class GLogic implements Serializable {
 
     // WAR
 //////////////////////////////////////////////////
-    public boolean warBetweenMains(int cId1, int cId2){
-        for(War w : wars){
-            if(w.containsAsMains(cId1, cId2))
+    public boolean warBetweenMains(int cId1, int cId2) {
+        for (War w : wars) {
+            if (w.containsAsMains(cId1, cId2))
                 return true;
         }
         return false;
     }
+
     public boolean declareWar(int a, int o, CasusBelli casusBelli) {
-        if(warBetweenMains(a,o)){
+        if (warBetweenMains(a, o)) {
             return false;
         }
 
         Country c1 = getCountry(a);
         Country c2 = getCountry(o);
-        if(c1 == null || c2 == null){
+        if (c1 == null || c2 == null) {
             return false;
         }
         War w = c1.declareWar(o, world.getCountries(), casusBelli);
@@ -1003,16 +1004,76 @@ public class GLogic implements Serializable {
     }
 
     public void sendDipInsult(int selectedCountry) {
-        sendDipInsult(playerId,selectedCountry);
+        sendDipInsult(playerId, selectedCountry);
     }
+
     //List of insults
     public void sendDipInsult(int cId1, int cId2) {
         Country c1 = getCountry(cId1);
         Country c2 = getCountry(cId2);
-        if(c1 == null || c2 == null)
+        if (c1 == null || c2 == null)
             return;
         //types (?) ...
         c1.improveRelations(cId2, (short) -50);
         //update , if relations < 0 ...
+    }
+
+    public void loadWars() {
+        try (BufferedReader br = new BufferedReader(new FileReader(RESOURCESPATH + "data/wars.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] k = World.getValueStart(line).split("\\s*-\\s*");
+                if (k.length > 1) {
+                    Country c1 = getCountry(k[0]);
+                    Country c2 = getCountry(k[1]);
+                    if (c1 != null && c2 != null) {
+                        CasusBelli casusBelli = CasusBelli.IMPERIALISM;
+                        if (k.length > 2) {
+                            try {
+                                casusBelli = CasusBelli.valueOf(k[2]);
+                            } catch (Exception en) {
+
+                            }
+                        }
+                        War war = new War(c1, c2, casusBelli);
+                        loadOccupiedInWar(war, br);
+                        wars.add(war);
+                    }
+
+                }
+            }
+            if(gs != null)
+                gs.getMap().refreshMap();
+        } catch (IOException e) {
+
+        }
+    }
+
+    private void loadOccupiedInWar(War war, BufferedReader br) throws IOException {
+        String line;
+        while ((line = br.readLine()) != null && (line = line.trim()).charAt(0) != '}') {
+            String[] k = line.split("\\s*:\\s*");
+            if (k.length > 1) {
+                Country c = getCountry(k[0]);
+                if (c != null) {
+                    int cId = c.getCountryId();
+                    boolean isDeclaring = war.isDeclaring(cId);
+                    Set<Integer> provIds = GUtils.parseIntSet(k[1], ',');
+                    for (int i : provIds) {
+                        AdmDiv admDiv = getAdmDiv(i);
+                        if (admDiv != null) {
+                            admDiv.setOccupierId(cId);
+                            war.getOccupiedProvinces(isDeclaring).add(admDiv);
+                            war.addWarState(cId, 1);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public AdmDiv getAdmDiv(int i) {
+        //can be changed in future for other planets.
+        return world.getAdmDiv(i);
     }
 }

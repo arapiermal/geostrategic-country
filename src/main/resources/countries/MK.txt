@@ -1,4 +1,4 @@
-North Macedonia
+North Macedonia{
 area:25713
 population:1836713
 popInc:-0.3%
@@ -14,14 +14,16 @@ Skopje:1812,607007
 Southeastern:2739,148387
 Southwestern:3340,177398
 Vardar:4042,138722
-kaq
-Government
+}
+Government{
 type:Republic
 headOfState:President,Stevo,Pendarovski,Male
 headOfGov:Prime Minister,Talat,Xhaferi,Male
 elections:4,2024
-Economy
+}
+Economy{
 currency:EUR,1.0%
 GDPUSD:14766000000,9.0%
 taxation:2.5%
 unemployment:13.2%
+}

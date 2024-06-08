@@ -489,12 +489,12 @@ public class GUtils {
     }
 
     public static int parseIntDef(String[] k, int i, int def) {
-        try{
-            if(i >= k.length || i < 0)
+        try {
+            if (i >= k.length || i < 0)
                 return def;
             int a = Integer.parseInt(k[i]);
             return a;
-        } catch(Exception e){
+        } catch (Exception e) {
             return def;
         }
     }
@@ -510,5 +510,27 @@ public class GUtils {
 
         // Return the emoji string
         return new String(Character.toChars(firstChar)) + new String(Character.toChars(secondChar));
+    }
+
+    public static Set<Integer> parseIntSet(String s, char sep) {
+        Set<Integer> set = new HashSet<>();
+        int currentNumber = 0;
+        boolean buildingNumber = false;
+
+        for (char c : s.toCharArray()) {
+            if (Character.isDigit(c)) {
+                currentNumber = currentNumber * 10 + (c - '0');
+                buildingNumber = true;
+            } else if (c == sep && buildingNumber) {
+                set.add(currentNumber);
+                currentNumber = 0;
+                buildingNumber = false;
+            }
+        }
+
+        if (buildingNumber) {
+            set.add(currentNumber);
+        }
+        return set;
     }
 }
