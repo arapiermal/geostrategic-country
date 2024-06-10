@@ -94,11 +94,8 @@ public class CSubject implements Serializable {
     }
 
     // WAR FOR INDEPENDENCE
-    public War declareIndependence() {
+    public void declareIndependence() {
         main.releaseSubject(subject.getCountryId());
-        War independenceWar = new War(subject, main, CasusBelli.INDEPENDENCE);
-
-        return independenceWar;
     }
 
     public void changeSubjectType(int i) {

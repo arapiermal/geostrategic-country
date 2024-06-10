@@ -208,7 +208,8 @@ public class Country implements Serializable, Comparable<Country> {
     }
 
     // War
-    public War declareWar(int opId, CountryArray cArr, CasusBelli casusBelli) {
+    public War declareWar(int opId, GLogic game, CasusBelli casusBelli) {
+        CountryArray cArr = game.getWorld().getCountries();
         Country op = cArr.get(opId);
         if (op == null)
             return null;
@@ -245,7 +246,7 @@ public class Country implements Serializable, Comparable<Country> {
                 }
             }
 
-            return new War(this, op, casusBelli, cArr);
+            return new War(game, this, op, casusBelli);
         }
         return null;
     }
@@ -532,7 +533,7 @@ public class Country implements Serializable, Comparable<Country> {
         return new CSubject(this, c, type);
     }
 
-    // WAR FOR INDEPENDENCE?!?
+    // WAR FOR INDEPENDENCE OR RELEASE
     public void releaseSubject(int iso2) {
         if (subjects.containsKey(iso2)) {
             decAvailableBuildings(subjects.get(iso2).getSubject());
@@ -544,10 +545,6 @@ public class Country implements Serializable, Comparable<Country> {
 
     public void checkSubjects() {
         // CHECK FOR REBELLION
-    }
-
-    public War declareIndependence() {
-        return subjectOf == null ? null : subjectOf.declareIndependence();
     }
 
     public Map<Integer, CSubject> getSubjects() {

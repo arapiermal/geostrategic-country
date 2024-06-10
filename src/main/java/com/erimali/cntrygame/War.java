@@ -76,6 +76,7 @@ public class War implements Serializable {
 
     // each country in war having warState?
     // if warState in disfavor, AI likely to accept terms
+    private final GLogic game;
     private final CasusBelli casusBelli; //enum? array? //loadable casus bellis?
     private EnumSet<WarObjective> allowedObjectives;//?? dependent on casusBelli
     private DoubleProperty[] warStates; // from -100 to 100
@@ -90,7 +91,7 @@ public class War implements Serializable {
     private String warResult; //...
 
     //get allies -> check relations and stability of those countries... join war
-    public War(Country declaringCountry, Country opposingCountry, CasusBelli casusBelli) {
+    public War(GLogic game, Country declaringCountry, Country opposingCountry, CasusBelli casusBelli) {
         this.warStates = new DoubleProperty[2];
         warStates[0] = new SimpleDoubleProperty(0);
         warStates[1] = new SimpleDoubleProperty(0);
@@ -104,24 +105,9 @@ public class War implements Serializable {
         this.activeBattles = new LinkedList<>();
         this.declaringOccupiedProv = FXCollections.observableArrayList();
         this.opposingOccupiedProv = FXCollections.observableArrayList();
+        this.game = game;
     }
 
-    public War(Country declaringCountry, Country opposingCountry, CasusBelli casusBelli, CountryArray cArr) {
-        this.warStates = new DoubleProperty[2];
-        warStates[0] = new SimpleDoubleProperty(0);
-        warStates[1] = new SimpleDoubleProperty(0);
-        this.declaringCountry = declaringCountry;
-        this.opposingCountry = opposingCountry;
-        this.declaringAllies = new HashSet<>();
-        this.opposingAllies = new HashSet<>();
-        declaringCountry.getMilitary().addAtWarWith(opposingCountry.getCountryId());
-        opposingCountry.getMilitary().addAtWarWith(declaringCountry.getCountryId());
-        this.casusBelli = casusBelli;
-        this.activeBattles = new LinkedList<>();
-        this.declaringOccupiedProv = FXCollections.observableArrayList();
-        this.opposingOccupiedProv = FXCollections.observableArrayList();
-
-    }
 
     public boolean contains(int cId) {
         return declaringCountry.getCountryId() == cId || opposingCountry.getCountryId() == cId || declaringAllies.contains(cId) || opposingAllies.contains(cId);
@@ -152,6 +138,10 @@ public class War implements Serializable {
 
     public boolean isDeclaring(int cId) {
         return (declaringCountry.getCountryId() == cId || declaringAllies.contains(cId));
+    }
+
+    public boolean isOpposing(int cId) {
+        return (opposingCountry.getCountryId() == cId || opposingAllies.contains(cId));
     }
 
     public ObservableList<AdmDiv> getOccupiedProvincesByDeclaring() {
@@ -212,6 +202,10 @@ public class War implements Serializable {
         int a = declaringCountry.getCountryId();
         int o = opposingCountry.getCountryId();
         return a == cId1 && o == cId2 || a == cId2 && o == cId1;
+    }
+
+    public boolean containsAsMains(Country c1, Country c2) {
+        return c1.equals(declaringCountry) && c2.equals(opposingCountry) || c2.equals(declaringCountry) && c1.equals(opposingCountry);
     }
 
     @Override

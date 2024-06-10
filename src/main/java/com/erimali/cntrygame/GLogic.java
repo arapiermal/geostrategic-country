@@ -686,7 +686,7 @@ public class GLogic implements Serializable {
         if (c1 == null || c2 == null) {
             return false;
         }
-        War w = c1.declareWar(o, world.getCountries(), casusBelli);
+        War w = c1.declareWar(o, this, casusBelli);
         if (w != null) {
             wars.add(w);
             addGameNews(c1.getName() + " declared war on " + c2.getName(), w.toString());
@@ -1035,14 +1035,14 @@ public class GLogic implements Serializable {
 
                             }
                         }
-                        War war = new War(c1, c2, casusBelli);
+                        War war = new War(this, c1, c2, casusBelli);
                         loadOccupiedInWar(war, br);
                         wars.add(war);
                     }
 
                 }
             }
-            if(gs != null)
+            if (gs != null)
                 gs.getMap().refreshMap();
         } catch (IOException e) {
 
@@ -1070,6 +1070,20 @@ public class GLogic implements Serializable {
                 }
             }
         }
+    }
+
+    public boolean declareIndependence(int cId) {
+        Country sub = getCountry(cId);
+        if (sub != null) {
+            if (sub.isNotSubject()) {
+                return false;
+            } else {
+                CSubject rel = sub.getSubjectOf();
+                rel.declareIndependence();
+                return declareWar(cId, rel.getMain().getCountryId(), CasusBelli.INDEPENDENCE);
+            }
+        }
+        return false;
     }
 
     public AdmDiv getAdmDiv(int i) {
