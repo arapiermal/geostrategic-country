@@ -222,7 +222,7 @@ public class GLogic implements Serializable {
     }
 
     public String toStringCountry(int c) {
-        Country country = world.getCountry(c);
+        Country country = getCountry(c);
         if (country != null) {
             return country.toString(1);
         }
@@ -261,7 +261,7 @@ public class GLogic implements Serializable {
     }
 
     public void selectPlayer(int cPlayer) {
-        Country c = world.getCountry(cPlayer);
+        Country c = getCountry(cPlayer);
         if (c != null) {
             playerId = cPlayer;
             player = c;
@@ -327,11 +327,11 @@ public class GLogic implements Serializable {
     }
 
     public void improveRelations(int c1, int c2) {
-        world.getCountry(c1).improveRelations(c2);
+        getCountry(c1).improveRelations(c2);
     }
 
     public void improveRelations(int c1, int c2, short amount) {
-        world.getCountry(c1).improveRelations(c2, amount);
+        getCountry(c1).improveRelations(c2, amount);
     }
 
 
@@ -546,7 +546,7 @@ public class GLogic implements Serializable {
                     if (reference.equals("SELF")) {
                         c = player;
                     } else {
-                        c = world.getCountry(reference);
+                        c = getCountry(reference);
                     }
                     if (c == null)
                         return "NULL";
@@ -722,19 +722,15 @@ public class GLogic implements Serializable {
     }
 
     public boolean sendAllianceRequest(int c) {
-        return player.sendAllianceRequest(world.getCountries(), c);
+        return player.sendAllianceRequest(this, c);
     }
 
     public boolean breakAlliance(int c) {
-        return player.breakAlliance(world.getCountries(), c);
+        return player.breakAlliance(this, c);
     }
 
     public Currencies getCurrencies() {
         return currencies;
-    }
-
-    public void setCurrencies(Currencies currencies) {
-        this.currencies = currencies;
     }
 
     public void setCurrencySignPreFix() {
@@ -760,8 +756,8 @@ public class GLogic implements Serializable {
     }
 
     public void giveMoney(int i1, int i2, double amount) {
-        Country c1 = world.getCountry(i1);
-        Country c2 = world.getCountry(i2);
+        Country c1 = getCountry(i1);
+        Country c2 = getCountry(i2);
         if (c1 != null && c2 != null) {
             c1.getEconomy().giveMoney(c2, amount);
         }
@@ -995,13 +991,6 @@ public class GLogic implements Serializable {
         return between;
     }
 
-    public void forcePeace(War war, ObservableList<AdmDiv> selectedProvinces) {
-        forcePeace(war, player, selectedProvinces);
-    }
-
-    public void forcePeace(War war, Country mainCountry, ObservableList<AdmDiv> selectedProvinces) {
-
-    }
 
     public void sendDipInsult(int selectedCountry) {
         sendDipInsult(playerId, selectedCountry);
@@ -1089,5 +1078,26 @@ public class GLogic implements Serializable {
     public AdmDiv getAdmDiv(int i) {
         //can be changed in future for other planets.
         return world.getAdmDiv(i);
+    }
+
+    public void removeWar(War war) {
+        wars.remove(war);
+    }
+
+    public void forcePeace(War war, ObservableList<AdmDiv> selectedProvinces) {
+        forcePeace(war, player, selectedProvinces);
+    }
+
+    public void forcePeace(War war, Country mainCountry, ObservableList<AdmDiv> selectedProvinces) {
+
+    }
+
+    public boolean negotiatePeace(War war, int sender, int opponent, int... args){
+        if(war.isWillingToEnd(sender, opponent, args)){
+            war.finishWar(args);
+            removeWar(war);
+            return true;
+        }
+        return false;
     }
 }

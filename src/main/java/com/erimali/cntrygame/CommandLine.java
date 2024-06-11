@@ -456,7 +456,9 @@ public class CommandLine {
                     casusBelli = CasusBelli.IMPERIALISM;
                 }
                 if (gs.getGame().declareWar(cIndex, CountryArray.getIndex(k[k.length - 1]), casusBelli)) {
-
+                    if(casusBelli == CasusBelli.INDEPENDENCE){
+                        mainCountry.releaseSubject(k[2]);
+                    }
                     return "WAR STARTED";
 
                 } else {

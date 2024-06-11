@@ -532,15 +532,18 @@ public class Country implements Serializable, Comparable<Country> {
         }
         return new CSubject(this, c, type);
     }
-
+    public boolean releaseSubject(String iso2){
+        return releaseSubject(CountryArray.getIndex(iso2));
+    }
     // WAR FOR INDEPENDENCE OR RELEASE
-    public void releaseSubject(int iso2) {
+    public boolean releaseSubject(int iso2) {
         if (subjects.containsKey(iso2)) {
             decAvailableBuildings(subjects.get(iso2).getSubject());
             subjects.get(iso2).getSubject().subjectOf = null;
             subjects.remove(iso2);
-
+            return true;
         }
+        return false;
     }
 
     public void checkSubjects() {
@@ -608,8 +611,8 @@ public class Country implements Serializable, Comparable<Country> {
     }
 
     //Country c as input for more ?
-    public boolean sendAllianceRequest(CountryArray cArr, int c) {
-        Country o = cArr.get(c);
+    public boolean sendAllianceRequest(GLogic game, int c) {
+        Country o = game.getCountry(c);
         //other reasons, why would AI accept
         boolean goodRelations = (this.getMainLanguage() == o.getMainLanguage());
 
@@ -623,8 +626,8 @@ public class Country implements Serializable, Comparable<Country> {
 
     }
 
-    public boolean breakAlliance(CountryArray cArr, int c) {
-        Country o = cArr.get(c);
+    public boolean breakAlliance(GLogic game, int c) {
+        Country o = game.getCountry(c);
         if (isAllyWith(c)) {
             removeAlly(c);
             o.removeAlly(countryId);

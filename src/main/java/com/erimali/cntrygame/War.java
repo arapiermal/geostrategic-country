@@ -127,7 +127,9 @@ public class War implements Serializable {
     public double getWarState(Country c) {
         return (c == declaringCountry || declaringAllies.contains(c.getCountryId())) ? warStates[0].get() : warStates[1].get();
     }
-
+    public double getWarState(int c) {
+        return isDeclaring(c) ? warStates[0].get() : isOpposing(c) ? warStates[1].get() : Double.NaN;
+    }
     public ObservableList<AdmDiv> getOccupiedProvinces(Country c) {
         return (c == declaringCountry || declaringAllies.contains(c.getCountryId())) ? declaringOccupiedProv : opposingOccupiedProv;
     }
@@ -160,15 +162,27 @@ public class War implements Serializable {
 
     }
 
-    //or int... arg
-    public void finishWar(int... arg) {
-        if (arg.length == 0) {
+    public void finishWar(int... args) {
+        if (args.length == 0) {
             // withdrawal/draw
+
         } else {
 
         }
     }
+    public boolean isWillingToEnd(int sender, int opponent, int... args){
+        double senderPoints = getWarState(sender);
+        double oPoints = getWarState(opponent);
+        if (args.length == 0) {
+            if(senderPoints >= oPoints && isDeclaring(sender)){
+                return true;
+            }
+        } else {
 
+        }
+
+        return false;
+    }
     /*
     public static ListView<CasusBelli> makeListViewCasusBelli(Country c1, Country c2) {
         ListView<CasusBelli> lv = new ListView<>();

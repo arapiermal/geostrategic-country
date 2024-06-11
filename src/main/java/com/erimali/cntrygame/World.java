@@ -595,7 +595,6 @@ public class World implements Serializable {
 
             if (c.hasElectionsThisYear()) {
 
-
                 if (Math.random() > 0.5) {
                     Language lang = languages.get(c.getMainLanguage());
                     if (lang != null)

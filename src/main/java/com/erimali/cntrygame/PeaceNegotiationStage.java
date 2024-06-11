@@ -20,8 +20,7 @@ import java.util.EnumSet;
 
 
 public class PeaceNegotiationStage extends Stage {
-    //update based on war... (War war)
-    private GameStage gameStage;
+    private final GameStage gameStage;
     private War war;
     private EnumSet<WarObjective> warObjectives; //can be done with a CheckListView
     private DoubleProperty warScoreRequired;
@@ -29,6 +28,7 @@ public class PeaceNegotiationStage extends Stage {
     private ObservableList<AdmDiv> selectedProvinces;
     private Button dealButton;
     private Label totalWarScoreLabel;
+    //fix when moving back and front the stuff in list... OBSERVABLE LIST INSIDE WAR IS TOUCHED!!!
     public PeaceNegotiationStage(GameStage gameStage) {
         this.gameStage = gameStage;
         this.selectedProvinces = FXCollections.observableArrayList();
@@ -81,7 +81,6 @@ public class PeaceNegotiationStage extends Stage {
     //occupation -> either by rebels or in war...
     public void makeProvinceListSelectionView() {
         listSelectionView = new ListSelectionView<>();
-        //listSelectionView.setSourceItems(occupied);
         listSelectionView.setTargetItems(selectedProvinces);
         listSelectionView.setPrefWidth(700);
 
