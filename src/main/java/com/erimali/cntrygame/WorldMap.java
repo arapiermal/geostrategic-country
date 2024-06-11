@@ -1,7 +1,10 @@
 package com.erimali.cntrygame;
 
 import com.erimali.cntrymilitary.MilUnitData;
-import com.erimali.compute.EriScript;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.SequentialTransition;
+import javafx.animation.Timeline;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
@@ -18,6 +21,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
 import javafx.scene.text.*;
+import javafx.util.Duration;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -118,9 +122,12 @@ public class WorldMap {
         }
     }
 
-
     public ZoomableScrollPane start() {
-        try (BufferedReader br = new BufferedReader(new FileReader("src/main/resources/map/illustMap.svg"))) {
+        return start("src/main/resources/map/illustMap.svg");
+    }
+
+    public ZoomableScrollPane start(String loc) {
+        try (BufferedReader br = new BufferedReader(new FileReader(loc))) {
             // Load SVG file
             List<SVGProvince> svgPaths = new LinkedList<>(); //LINKED LIST MORE EFFICIENT?!? SINCE WILL BE CONVERTED TO ARRAY?
             String line;
@@ -171,9 +178,7 @@ public class WorldMap {
             //mapGroup.getChildren().addAll();
             //If number of Paths already known, no need
             mapGroup.setOnMouseClicked(this::onPathClicked);
-
             //mapGroup.setOnMouseEntered(this::onMouseHover);
-
 
             mapGroup.setCursor(Cursor.HAND);
             ZoomableScrollPane scrollPane = new ZoomableScrollPane(mapGroup);
@@ -182,42 +187,12 @@ public class WorldMap {
             debugMilUnitRegion = makeMilUnitImg(0, 3198, 0);
 
             ContextMenu cm = new ContextMenu();
-            MenuItem[] menuItems = new MenuItem[GOptions.isDebugMode() ? 6 : 2];
-            menuItems[0] = new MenuItem("Manage units/divisions");
-            menuItems[1] = new MenuItem("");
-            if (menuItems.length > 2) {
-                menuItems[2] = new MenuItem("Debug-dijk: mainProv");
-                menuItems[2].setOnAction(e -> {
-                    System.out.println();
-                    int provInd = gs.getSelectedProv();
-                    System.out.print(provInd + ":");
-                    mapSVG[provInd].setFill(Color.BLACK);
-
-                });
-                menuItems[3] = new MenuItem("Debug-dijk: neighProvs");
-                menuItems[3].setOnAction(e -> {
-                    int provInd = gs.getSelectedProv();
-                    System.out.print(provInd + ",");
-                    mapSVG[provInd].setFill(Color.CRIMSON);
-
-                });
-                menuItems[4] = new MenuItem("Debug-move: dest DebugUnit");
-                menuItems[4].setOnAction(e -> {
-                    int dstInd = gs.getSelectedProv();
-                    debugMilUnitRegion.move(dstInd);
-                    //debugMilUnitRegion.makeLines(roadFinder.findShortestPath(srcInd, dstInd));
-
-                });
-                menuItems[5] = new MenuItem("Debug-move: move DebugUnit");
-                menuItems[5].setOnAction(e -> {
-                    TESTING.print(debugMilUnitRegion.moveTick());
-                });
-            }
+            MenuItem[] menuItems = makeContextMenuItems();
             cm.getItems().addAll(menuItems);
             scrollPane.setContextMenu(cm);
             scrollPane.setHvalue(scrollPane.getHmax() / 2);
             scrollPane.setVvalue(scrollPane.getVmax() / 2);
-            URL css = getClass().getResource("css/worldMap.css");
+            URL css = getClass().getResource("css/worldMap.css");//...
             if (css != null)
                 scrollPane.getStylesheets().add(css.toExternalForm());
             return scrollPane;
@@ -225,6 +200,48 @@ public class WorldMap {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private MenuItem[] makeContextMenuItems() {
+        MenuItem[] menuItems = new MenuItem[GOptions.isDebugMode() ? 6 : 1];
+        menuItems[0] = new MenuItem("Manage units/divisions");
+        //
+        if (menuItems.length > 1) {
+            menuItems[1] = new MenuItem("Debug: Nuke");
+            menuItems[1].setOnAction(e -> {
+                int selProv = gs.getSelectedProv();
+                if (selProv >= 0 && selProv < mapSVG.length) {
+                    nuclearFallout(mapSVG[selProv]);
+                }
+            });
+            menuItems[2] = new MenuItem("Debug-dijk: mainProv");
+            menuItems[2].setOnAction(e -> {
+                System.out.println();
+                int provInd = gs.getSelectedProv();
+                System.out.print(provInd + ":");
+                mapSVG[provInd].setFill(Color.BLACK);
+
+            });
+            menuItems[3] = new MenuItem("Debug-dijk: neighProvs");
+            menuItems[3].setOnAction(e -> {
+                int provInd = gs.getSelectedProv();
+                System.out.print(provInd + ",");
+                mapSVG[provInd].setFill(Color.CRIMSON);
+
+            });
+            menuItems[4] = new MenuItem("Debug-move: dest DebugUnit");
+            menuItems[4].setOnAction(e -> {
+                int dstInd = gs.getSelectedProv();
+                debugMilUnitRegion.move(dstInd);
+                //debugMilUnitRegion.makeLines(roadFinder.findShortestPath(srcInd, dstInd));
+
+            });
+            menuItems[5] = new MenuItem("Debug-move: move DebugUnit");
+            menuItems[5].setOnAction(e -> {
+                TESTING.print(debugMilUnitRegion.moveTick());
+            });
+        }
+        return menuItems;
     }
 
     private String subTrimRemove(String in, int start, int end, char rem) {
@@ -986,6 +1003,7 @@ public class WorldMap {
         roadFinder.appendProvinceData(bruteForceDijkstraGen());
 
     }
+
     public List<Integer>[] bruteForceDijkstraGen() {
         List<Integer>[] map = new LinkedList[mapSVG.length];
         for (SVGProvince main : mapSVG) {
@@ -1000,5 +1018,51 @@ public class WorldMap {
             }
         }
         return map;
+    }
+
+    public void nuclearFallout(SVGProvince svgProvince) {
+        //GameAudio.playShortSound("");// nuke... take care filesystem...
+
+        double centerX = svgProvince.getCenterX();
+        double centerY = svgProvince.getCenterY();
+        double initRadius = svgProvince.getAvgRadius() / 4;
+        double finalRadius = initRadius * 3;
+        Circle explosion = new Circle(centerX, centerY, initRadius, Color.RED);
+        explosion.setOpacity(0.8);
+        mapGroup.getChildren().add(explosion);
+
+        Circle fallout = new Circle(centerX, centerY, initRadius, Color.ORANGE);
+        fallout.setOpacity(0.6);
+        mapGroup.getChildren().add(fallout);
+//duration based on playing or not (?)
+        //Timeline explosionTimeline = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(explosion.radiusProperty(), initRadius)),new KeyFrame(Duration.seconds(0.75), new KeyValue(explosion.radiusProperty(), finalRadius)),new KeyFrame(Duration.seconds(0.75), new KeyValue(explosion.opacityProperty(), 0)));
+        //Timeline falloutTimeline = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(fallout.radiusProperty(), initRadius)),new KeyFrame(Duration.seconds(2), new KeyValue(fallout.radiusProperty(), finalRadius * 1.5)),new KeyFrame(Duration.seconds(2), new KeyValue(fallout.opacityProperty(), 0)));
+        Timeline explosionTimeline = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(explosion.radiusProperty(), initRadius),
+                        new KeyValue(explosion.opacityProperty(), 0.8)
+                ),
+                new KeyFrame(Duration.seconds(0.6),
+                        new KeyValue(explosion.radiusProperty(), finalRadius),
+                        new KeyValue(explosion.opacityProperty(), 0)
+                )
+        );
+
+        Timeline falloutTimeline = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(fallout.radiusProperty(), initRadius),
+                        new KeyValue(fallout.opacityProperty(), 0.6)
+                ),
+                new KeyFrame(Duration.seconds(2),
+                        new KeyValue(fallout.radiusProperty(), finalRadius * 1.5),
+                        new KeyValue(fallout.opacityProperty(), 0)
+                )
+        );
+        // Combined!
+        SequentialTransition seqTransition = new SequentialTransition(explosionTimeline, falloutTimeline);
+        seqTransition.setOnFinished(event -> mapGroup.getChildren().removeAll(explosion, fallout));
+        seqTransition.play();
+
+        //add somewhere to control playing or not...
     }
 }

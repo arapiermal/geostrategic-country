@@ -7,11 +7,7 @@ public enum WarObjective {
     //if all provinces selected -> full annexation
     //There can be partly annexation! cost cannot be a stuck value, what can be better
     ANNEX(100) {
-        //flip flop warState, if negative but the opponent is player, make positive?
-        //2 cArr if different worlds (?!?!?)
-        //or should there be reference to world in each country ????
 
-        //link glogic here? and getCountry of glogic calculate...
         public void action(GLogic game, War war, int cInd1, int cInd2, int... args) {
             //factors that effect?
             Country c1 = game.getCountry(cInd1);
@@ -28,8 +24,7 @@ public enum WarObjective {
     SUBJUGATE(80) {
         @Override
         public void action(GLogic game, War war, int cInd1, int cInd2, int... args) {
-            //c1.subjugateCountry(c2);
-
+            game.subjugateCountry(cInd1,cInd2, args);
         }
     },
     LIBERATE_ANNEXED(100){
@@ -41,9 +36,9 @@ public enum WarObjective {
                 return;
             }
             List<Integer> released = world.releaseAllCountries(cInd2, true);
-
+            short improveRel;
             for (int i : released) {
-                short improveRel = (short) 100;
+                improveRel = (short) 100;
 
                 c1.improveRelations(i, improveRel);
             }
@@ -84,8 +79,10 @@ public enum WarObjective {
         public void action(GLogic game, War war, int cInd1, int cInd2, int... args) {
             //Country c1 = game.getCountry(cInd1);
             Country c2 = game.getCountry(cInd2);
-            c2.setMilitary(null);
-            int years = args[0];
+            c2.setMilitary(null); //erases all progress !!!!!!...
+            int years = 5;
+            if(args.length > 0)
+             years = args[0];
             c2.getGovernment().addPolicy(GovPolicy.BANNED_MILITARY, years);
         }
     },
@@ -98,8 +95,6 @@ public enum WarObjective {
     }
 
 
-    //public abstract void action(Country c1, Country c2, double warState, int... args);
-    //double warState
     //negotiation one on one (?)...
     //or one on many... (occupied provinces shared in war)
     public abstract void action(GLogic game, War war, int cInd1, int cInd2, int... args);
@@ -108,7 +103,7 @@ public enum WarObjective {
         return cost;
     }
 
-    public void setCost(float cost) {
+    public void setCost(double cost) {
         this.cost = cost;
     }
 }

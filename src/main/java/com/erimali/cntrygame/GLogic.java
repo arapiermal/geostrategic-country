@@ -60,6 +60,7 @@ public class GLogic implements Serializable {
 
     // Improving Relations
     private Map<Short, Set<Short>> improvingRelations;
+    //rebel sponsoring here (?)
     private Map<Integer, List<MilUnit>> recruitingBuildUnits;
     //can be decentralized if i have a Set<Short> inside Diplomacy...
     //still would require method traverse...
@@ -1089,15 +1090,28 @@ public class GLogic implements Serializable {
     }
 
     public void forcePeace(War war, Country mainCountry, ObservableList<AdmDiv> selectedProvinces) {
-
+//well for simplicity only 1 opponent ? but maybe allow annexing provinces of allies?
     }
 
-    public boolean negotiatePeace(War war, int sender, int opponent, int... args){
-        if(war.isWillingToEnd(sender, opponent, args)){
+    public boolean negotiatePeace(War war, int sender, int opponent, int... args) {
+        if (war.isWillingToEnd(sender, opponent, args)) {
             war.finishWar(args);
             removeWar(war);
             return true;
         }
         return false;
+    }
+
+    public boolean subjugateCountry(int cInd1, int cInd2, int... args) {
+        Country c1 = getCountry(cInd1);
+        Country c2 = getCountry(cInd2);
+        if (c1 == null || c2 == null)
+            return false;
+        SubjectType type = SubjectType.PUPPET;
+        if (args.length >= 1)
+            if (args[0] >= 0 && args[0] < SubjectType.values().length)
+                type = SubjectType.values()[args[0]];
+        c1.subjugateCountry(c2, type);
+        return true;
     }
 }

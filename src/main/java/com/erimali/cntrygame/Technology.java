@@ -28,6 +28,9 @@ public class Technology {
     public static class MilTech {
 
     }
+    public static class NuclearResearchStage extends Stage{
+
+    }
 
     public static class MilResearchUnitsStage extends Stage {
         //bind...

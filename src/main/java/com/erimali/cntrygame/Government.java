@@ -11,16 +11,16 @@ public class Government implements Serializable {
     //private static GovTypes; // load from file?
     //improve type?
     private String type;
-
-
     private boolean bothTheSame;
+    private String headOfStateType;
     private Ruler headOfState;// ruling monarch, executive president -> main
     // constitutional monarch, non-executive president -> not main
     private boolean isHeadOfStateStronger;
+    private String headOfGovernmentType;
     private Ruler headOfGovernment;
     private int stability;
-    private float corruption;
-    private float corruptionGrowth;
+    private float corruption; //yearly effect on stability
+    private float corruptionGrowth; //monthly
     private int publicOpinion;
 
     //Elections/Ruler change
@@ -47,6 +47,7 @@ public class Government implements Serializable {
         this.headOfGovernment = ruler;
         this.bothTheSame = true;
         this.policies = FXCollections.observableMap(new EnumMap<>(GovPolicy.class));
+        setTypesFromRulers();
     }
 
     public Government(String type, Ruler headOfState, Ruler headOfGovernment) {
@@ -54,6 +55,7 @@ public class Government implements Serializable {
         this.headOfState = headOfState;
         this.headOfGovernment = headOfGovernment;
         this.policies = FXCollections.observableMap(new EnumMap<>(GovPolicy.class));
+        setTypesFromRulers();
     }
 
     public Government(String type, Ruler headOfState, Ruler headOfGovernment, boolean isHeadOfStateStronger) {
@@ -62,7 +64,7 @@ public class Government implements Serializable {
         this.headOfGovernment = headOfGovernment;
         this.isHeadOfStateStronger = isHeadOfStateStronger;
         this.policies = FXCollections.observableMap(new EnumMap<>(GovPolicy.class));
-
+        setTypesFromRulers();
     }
 
     public void setRulerSame(Ruler ruler) {
@@ -77,6 +79,11 @@ public class Government implements Serializable {
         setRulerSame(ruler);
     }
 
+    public void setTypesFromRulers() {
+        headOfStateType = headOfState.getType();
+        headOfGovernmentType = headOfGovernment.getType();
+    }
+
     public boolean sameType(Government o) {
         return type.equalsIgnoreCase(o.type) && holdsElections() == o.holdsElections();
     }
@@ -89,11 +96,51 @@ public class Government implements Serializable {
         this.type = type;
     }
 
+    public void incStability() {
+        stability++;
+        if (stability > 100)
+            stability = 100;
+    }
+
+    public void decStability() {
+        stability--;
+        if (stability < -100)
+            stability = -100;
+    }
+
+    public void incStability(int amount) {
+        if(amount > 0) {
+            stability += amount;
+            if (stability > 100)
+                stability = 100;
+        }
+    }
+
+    public void decStability(int amount) {
+        if(amount > 0) {
+            stability -= amount;
+            if (stability < -100)
+                stability = -100;
+        }
+    }
+
+    public void addStability(int amount){
+        stability += amount;
+        if (stability > 100)
+            stability = 100;
+        else if (stability < -100)
+            stability = -100;
+    }
+
     public int getStability() {
         return stability;
     }
 
     public void setStability(int stability) {
+        if (stability > 100)
+            stability = 100;
+        else if (stability < -100)
+            stability = -100;
         this.stability = stability;
     }
 
@@ -163,7 +210,7 @@ public class Government implements Serializable {
     }
 
     public void changeLeadership(Person person) {
-        String type = isHeadOfStateStronger ? headOfState.getType() : headOfGovernment.getType();
+        String type = isHeadOfStateStronger ? headOfStateType : headOfGovernmentType;
         Ruler ruler = new Ruler(type, person);
         if (bothTheSame) {
             headOfGovernment = ruler;
@@ -178,7 +225,7 @@ public class Government implements Serializable {
     public void changeNonPrimaryLeadership(Person person) {
         if (bothTheSame)
             return;
-        String type = !isHeadOfStateStronger ? headOfState.getType() : headOfGovernment.getType();
+        String type = !isHeadOfStateStronger ? headOfStateType : headOfGovernmentType;
         Ruler ruler = new Ruler(type, person);
         if (!isHeadOfStateStronger) {
             headOfState = ruler;
@@ -229,7 +276,8 @@ public class Government implements Serializable {
     }
 
     public void setHeadOfGovernment(Person headOfGovernment) {
-        this.headOfGovernment =  new Ruler(this.headOfGovernment.getType(), headOfGovernment);;
+        this.headOfGovernment = new Ruler(this.headOfGovernment.getType(), headOfGovernment);
+        ;
     }
 
     public boolean canDeclareWar() {
@@ -264,14 +312,13 @@ public class Government implements Serializable {
         int nextElectionYear = lastElectionYear + (periodsSinceLastElection + 1) * electionPeriod;
         this.yearsUntilNextElection = nextElectionYear - currYear;
 
-        //TESTING.print(yearsUntilNextElection);
     }
 
     public boolean isBothTheSame() {
         return bothTheSame;
     }
 
-    public short researchBoost(){
+    public short researchBoost() {
         return policies.containsKey(GovPolicy.INCENTIVIZE_RESEARCH) ? (short) 10 : 0;
     }
 

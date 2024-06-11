@@ -164,8 +164,8 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
         if (pop > 0)
             return;
         this.population -= pop;
-        if (this.population < 2)
-            this.population = 2;
+        if (this.population < 100)
+            this.population = 100;
     }
 
     public int incPopulation(double percent) {
@@ -174,7 +174,15 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
         return pop;
     }
 
-    public void substractAllRebellion(byte a) {
+    public int decPopulation(double percent) {
+        int pop = (int) (population * percent);
+        population -= pop;
+        if (this.population < 100)
+            this.population = 100;
+        return pop;
+    }
+
+    public void subtractAllRebellion(byte a) {
         for (int i = 0; i < rebellion.length; i++) {
             if (rebellion[i] > 0) {
                 rebellion[i] -= a;
@@ -186,11 +194,11 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
 
     public void monthlyTick() {
         if (friendlyUnits != null && !friendlyUnits.isEmpty())
-            substractAllRebellion((byte) 1);
+            subtractAllRebellion((byte) 1);
     }
 
     public void yearlyTick() {
-        substractAllRebellion((byte) 10);
+        subtractAllRebellion((byte) 10);
 
     }
 
@@ -509,5 +517,41 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
 
     public void setWaterAccess(boolean waterAccess) {
         this.waterAccess = waterAccess;
+    }
+
+    //Nuclear technology
+    public boolean isNukeable(){
+        //first have to check for friendly fire...
+        if(hasEnemyTroops())
+            return false;
+        for(Building b : buildings) {
+            if(b.isMilitary())
+                return true;
+        }
+        return false;
+    }
+    //class Nuke extends Missile (?)
+    public int nuclearFallout(){
+        //based on bigger area reduce % pop damaged
+        destroyAllUnits();
+        double destruction = 0.9;
+        destruction /= Math.log10(area);
+        if(infrastructure > 1)
+            infrastructure = 1;
+        if(defense > 1)
+            defense = 1;
+        return decPopulation(destruction);
+    }
+
+    private void destroyAllUnits() {
+
+    }
+
+    private boolean hasEnemyTroops() {
+        return enemyUnits != null && !enemyUnits.isEmpty();
+    }
+
+    private boolean hasFriendlyTroops() {
+        return friendlyUnits != null && !friendlyUnits.isEmpty();
     }
 }

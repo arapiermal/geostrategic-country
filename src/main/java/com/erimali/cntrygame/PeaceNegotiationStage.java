@@ -58,7 +58,7 @@ public class PeaceNegotiationStage extends Stage {
     private void dealPeace() {
         if(warScoreRequired.get() == 0){
             //white peace
-        } else{
+        } else {
             gameStage.getGame().forcePeace(war, selectedProvinces);
         }
         listSelectionView.setSourceItems(null);
