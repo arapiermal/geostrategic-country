@@ -15,7 +15,6 @@ public class SVGProvince extends SVGPath implements DijkstraCalculable {
     private int ownerId;
     private int provId;
     private int occupierId;
-    //cache the color as well ?
     private RadialGradient radialGradient; // Cache
 
     //private AdmDiv admDiv;
@@ -80,11 +79,11 @@ public class SVGProvince extends SVGPath implements DijkstraCalculable {
     }
 
     public void setFillExtra(Paint owner, Paint occupier) {
-        if (owner instanceof Color && occupier instanceof Color) {
+        if (owner instanceof Color ownerColor && occupier instanceof Color occupierColor) {
             //linear gradient javafx.scene.paint.CycleMethod.REPEAT
             if (radialGradient == null) {
                 radialGradient = new RadialGradient(0, 0, 0.5, 0.5, 0.5, true,
-                        javafx.scene.paint.CycleMethod.NO_CYCLE, new Stop(0, (Color) occupier), new Stop(1, (Color) owner));
+                        javafx.scene.paint.CycleMethod.NO_CYCLE, new Stop(0, occupierColor), new Stop(1, ownerColor));
             }
             setFill(radialGradient);
         } else {
@@ -98,7 +97,7 @@ public class SVGProvince extends SVGPath implements DijkstraCalculable {
 
     public void setOccupierId(int occupierId) {
         this.occupierId = occupierId;
-        radialGradient = null;
+        radialGradient = null; // if WorldMap is known ... you can do the coloring here... careful with mapMode...
     }
 
     public int getOccupierId() {
