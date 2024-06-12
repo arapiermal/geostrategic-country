@@ -1,4 +1,3 @@
-malenames:Ermal,Arjon,Agron,Ilmi,Altin,Durim,Edmond
-surnames:Arapi,Kapxhiu
-phrases:po,jo,gjithmonë,zakonisht,ndonjëherë,kurrë,përshëndetje,çkemi,mirësevini,faleminderit,ndihmë,sigurisht,zotëri,provokim
-alphabet:a,b,c,ç,d,dh,e,ë,f,g,gj,h,i,j,k,l,ll,m,n,nj,o,p,q,r,rr,s,sh,t,th,u,v,x,xh,y,z,zh
+malenames:Leonardo,Francesco,Tommaso,Edoardo,Alessandro,Lorenzo,Mattia,Gabriele,Riccardo,Andrea,Diego,Nicolo',Matteo,Giuseppe,Federico,Antonio,Enea,Samuele,Giovanni,Pietro,Filippo,Davide,Giulio,Gioele,Christian,Michele,Gabriel,Luca,Marco,Elia,Salvatore,Vincenzo,Liam,Thomas,Emanuele,Noah,Alessio,Samuel,Nathan,Giacomo,Jacopo,Giorgio,Simone,Ettore,Luigi,Manuel,Damiano,Daniele,Domenico,Daniel
+surnames:Rossi,Russo,Ferrari,Esposito,Bianchi,Colombo,Romano,Ricci,Gallo,Bruno,Greco,Marino,Conti,Giordano,Rizzo,De Luca,Costa,Mancini,Lombardi,Barbieri,Fontana,Moretti,Mariani,Caruso,Galli,Ferrara,Santoro,Rinaldi,Longo,Villa,Sala,Leone,Martini,Dalla,D’Angelo,Bianco,Martinelli,Gatti,Vitale,Serra,Coppola,Gentile,Cattaneo,Ferri,Messina,Monti,Marchetti,Marini,Fabbri,Ferraro
+phrases:sì,no,sempre,di solito,a volte,mai,ciao,come va,benvenuto,grazia,aiuto,certo,signore,provocazione

@@ -4,7 +4,7 @@ population:147182123
 popInc:-0.34%
 capital:Moscow
 languages:Russian,Ossetic,Ukrainian,Buryat,Kalmyk,Chechen,Ingush,Abaza,Adyghe,Cherkess,Kabardian,Altai,Bashkir,Chuvash,Crimean Tatar,Karachay-Balkar,Khakas,Nogai,Tatar,Tuvan,Yakut,Erzya,Komi,Hill Mari,Meadow Mari,Moksha,Udmurt
-neighbours:BY,PL,SK,HU,RO,UA
+neighbours:BY,PL,SK,UA,NO,FI,EE,LV,LT,GE,AZ,KZ,CN,MN,KP
 admDivs:Republic/Oblast
 Adygea,Adygey:7792,496934
 Bashkortostan:142947,4091423

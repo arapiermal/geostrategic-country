@@ -1,10 +1,10 @@
 Bosnia and Herzegovina{
-area:26110
-population:2219220
-popInc:-1.03%
-capital:Sofia_City
-languages:Bulgarian,Turkish
-neighbours:GR,TR,MK,RS,RO
+area:51209
+population:3434000
+popInc:-0.4%
+capital:Sarajevo
+languages:Bosnian,Serbian,Croatian
+neighbours:RS,ME,HR
 admDivision:canton
 Una-Sana:4125,273261
 Posavina:324.6,43453
@@ -16,16 +16,18 @@ Herzegovina-Neretva:4401,222007
 West_Herzegovina:1362.2,94898
 Sarajevo:1276.9,413593
 Canton_10:4934.9,84127
+Serbian_Republic:24532.8,1209000,1
+Brčko:493,85000
 }
 Government{
 type:Republic
-headOfState:President,Rumen,Radev,Male
-headOfGov:Prime Minister,Dimitar,Glavchev,Male
-elections:4,2021
+headOfState:President,Željka,Cvijanović,Male
+headOfGov:Prime Minister,Nermin,Nikšić,Male
+elections:4,2022
 }
 Economy{
 currency:EUR,1.0%
-GDPUSD:103.099e9,3.9%
+GDPUSD:29.078e9,1.7%
 taxation:2.5%
-unemployment:4.3%
+unemployment:12.7%
 }
