@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import com.erimali.cntrymilitary.MilUnitData;
 import com.erimali.compute.EriScript;
+import com.erimali.minigames.MGSnakeStage;
 import javafx.scene.control.Alert;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -285,7 +286,7 @@ public class CommandLine {
                         return "";
                     case "RESPECT":
                         int respect = GUtils.parseIntDef(k, 2, 0);
-                        if(respect != 0) {
+                        if (respect != 0) {
                             mainCountry.getDiplomacy().addGlobalRespect(respect);
                             return respect + " added to " + mainCountry.getIso2();
                         } else
@@ -456,7 +457,7 @@ public class CommandLine {
                     casusBelli = CasusBelli.IMPERIALISM;
                 }
                 if (gs.getGame().declareWar(cIndex, CountryArray.getIndex(k[k.length - 1]), casusBelli)) {
-                    if(casusBelli == CasusBelli.INDEPENDENCE){
+                    if (casusBelli == CasusBelli.INDEPENDENCE) {
                         mainCountry.releaseSubject(k[2]);
                     }
                     return "WAR STARTED";
@@ -504,6 +505,11 @@ public class CommandLine {
                             return String.valueOf(gs.popupMG2048());
                         else
                             return String.valueOf((int) (Math.random() * 2048));
+                    case "SNAKE":
+                        if (isPlayer)
+                            return String.valueOf(gs.popupMGSnake());
+                        else
+                            return String.valueOf((int) (Math.random() / 1.5 * (Math.pow(MGSnakeStage.getDefSize(), 2))));
                     default:
                         return "ERROR: No such game available";
                 }

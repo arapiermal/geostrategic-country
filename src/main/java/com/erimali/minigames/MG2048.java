@@ -13,8 +13,8 @@ import javafx.scene.text.TextAlignment;
 public class MG2048 {
     private static final int DEF_SIZE = 4;
     private static final int DEF_BASEVAL = 2;
-	private final int baseVal;
-	private final int[][] board;
+    private final int baseVal;
+    private final int[][] board;
     private final int size;
     private int score;
 
@@ -338,9 +338,9 @@ class Tile {
     private Label createLabel() {
         Label newLabel = new Label(Integer.toString(value));
         newLabel.setFont(new Font(24)); // Customize font size
-		newLabel.setMinWidth(100);
-		newLabel.setAlignment(Pos.CENTER);
-		newLabel.setTextAlignment(TextAlignment.CENTER);
+        newLabel.setMinWidth(100);
+        newLabel.setAlignment(Pos.CENTER);
+        newLabel.setTextAlignment(TextAlignment.CENTER);
         return newLabel;
     }
 

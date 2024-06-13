@@ -66,7 +66,7 @@ public class WorldMap {
     private int mapMode;
 
     private SVGPath[] milSVG;
-    private static final String[] MAP_MODE_NAMES = new String[]{"Default", "Allies", "Unions", "Neighbours", "Continents", "Water"};
+    private static final String[] MAP_MODE_NAMES = new String[]{"Default", "Allies", "Unions", "Neighbours", "Continents", "Waters"};
 
     private Set<Integer> waterProvinces;
 

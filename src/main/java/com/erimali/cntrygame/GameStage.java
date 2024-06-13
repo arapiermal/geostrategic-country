@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 import com.erimali.cntrymilitary.MilUnitData;
 import com.erimali.cntrymilitary.Military;
 import com.erimali.minigames.MG2048Stage;
+import com.erimali.minigames.MGSnakeStage;
+import com.erimali.minigames.MGTicTacToe;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -1472,6 +1474,13 @@ public class GameStage extends Stage {
         mg2048.initOwner(this);
         mg2048.showAndWait();
         return mg2048.getScore();
+    }
+
+    public int popupMGSnake() {
+        MGSnakeStage snake = new MGSnakeStage();
+        snake.initOwner(this);
+        snake.showAndWait();
+        return snake.getScore();
     }
 
     public int popupChess(String cName) {

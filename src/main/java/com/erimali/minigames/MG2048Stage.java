@@ -31,9 +31,11 @@ public class MG2048Stage extends Stage {
         this.setTitle("X^11 Game");
         scene.setOnKeyPressed(event -> handleKeyPress(event.getCode()));
     }
-    public int getScore(){
+
+    public int getScore() {
         return minigame.getScore();
     }
+
     private void handleKeyPress(KeyCode code) {
 
         boolean ended = false;

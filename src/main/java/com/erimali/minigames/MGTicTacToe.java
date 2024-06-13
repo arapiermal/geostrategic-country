@@ -1,4 +1,4 @@
-package com.erimali.cntrygame;
+package com.erimali.minigames;
 
 import java.util.Random;
 
