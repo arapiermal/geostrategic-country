@@ -595,8 +595,13 @@ public class CommandLine {
     }
 
     public static void setPlayerCountry(String playerISO2) {
-        CommandLine.playerISO2 = playerISO2;
-        CommandLine.playerId = CountryArray.getIndex(playerISO2);
+        if(playerISO2 == null){
+            CommandLine.playerISO2 = null;
+            CommandLine.playerId = -1;
+        } else {
+            CommandLine.playerISO2 = playerISO2;
+            CommandLine.playerId = CountryArray.getIndex(playerISO2);
+        }
     }
 
     public static void setPlayerCountry(int playerId) {
@@ -620,7 +625,7 @@ public class CommandLine {
 
     //updating HAS requires updating
     public static boolean checkStatement(String in, String separator) {
-        boolean isPlaying = playerId > 0;
+        boolean isPlaying = playerId >= 0;
         String[] k = in.toUpperCase().split(separator);
         if (k[0].equals("NONE")) {
             return true;

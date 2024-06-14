@@ -269,7 +269,15 @@ public class GLogic implements Serializable {
             updateCannotHappenGameEvents();
         }
     }
-
+    public void abandonPlayer(){
+        if(player != null || playerId >= 0){
+            playerId = -1;
+            player = null;
+            CommandLine.setPlayerCountry(null);
+            playerFormables.clear();
+            //updateCannotHappenGameEvents();
+        }
+    }
     public void updateCannotHappenGameEvents() {
         for (GEvent ge : gameEvents) {
             ge.setCanHappen();

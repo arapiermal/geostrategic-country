@@ -20,17 +20,23 @@ public class Military implements Serializable {
     private static final double[] DEF_POP_CONSCRIPTION_RATES = {0.01, 0.025, 0.05, 0.1, 0.25, 0.5};
     private static final int MAX_UNIT_TYPES = MilUnitData.getMaxTypes();
     private double popConscriptionRate;
-    private LongProperty manpower;//influenced by government policies / other attributes (popwillingness)
+    private final LongProperty manpower;//influenced by government policies / other attributes (popwillingness)
     //manpower down when making or recovering MilUnit
-    //manpower up when
+    //manpower up when disbanding unit or monthly
     private long lastManpowerMonthlyIncrease;
     private long activePersonnel; // ! when adding type isPersonnel() , battles -> activepersonnel down, population down !
     private static final short MIL_TECH_LEVEL_CAP = 100;
+
     private final short[] milTechProgress;
     private final short[] milTechLevel;
     private final boolean[] researchingMilTech;
     //extract the cost from the Country
     private short baseResearch;
+
+    private int nuclearTechLevel;
+    private int nuclearTechProgress;
+    private int nukes;
+
     private final ObservableList<MilDiv> divisions;
     //Have at least 1 division in all times (?)
     private final Set<Integer> atWarWith;
@@ -52,16 +58,39 @@ public class Military implements Serializable {
 
 
     //if true pop up benefits/new available units
+    //TO DELETE!
     private boolean progressMilTech(int type, int amount) {
         if (type < 0 || type >= milTechProgress.length || amount < 0)
             return false;
         milTechProgress[type] += (short) amount;
         if (milTechProgress[type] >= MIL_TECH_LEVEL_CAP) {
             milTechLevel[type]++;
+            //short lvlCap = MIL_TECH_LEVEL_CAP * milTechLevel[type];
             milTechProgress[type] -= MIL_TECH_LEVEL_CAP;
             return true;
         }
         return false;
+    }
+
+    public void addMilTechProgress(int type, short amount) {
+        if (type < 0 || type >= milTechProgress.length || amount < 0)
+            return;
+        milTechProgress[type] += amount;
+        if (milTechProgress[type] >= MIL_TECH_LEVEL_CAP) {
+            short lvlUp = (short) (milTechProgress[type] / MIL_TECH_LEVEL_CAP);
+            milTechLevel[type] += lvlUp;
+            milTechProgress[type] %= MIL_TECH_LEVEL_CAP;
+        }
+    }
+    public void addNuclearTechProgress(int amount) {
+        if (amount < 0)
+            return;
+        nuclearTechProgress += amount;
+        int lvlCap;
+        while (nuclearTechProgress >= (lvlCap  = MIL_TECH_LEVEL_CAP * nuclearTechLevel)) {
+            nuclearTechLevel++;
+            nuclearTechProgress -= lvlCap;
+        }
     }
 
     public void monthlyResearch(short researchBonus) {
@@ -72,8 +101,36 @@ public class Military implements Serializable {
         }
     }
 
-    public void makeUnit() {
+    public void setNuclearTechLevel(int nuclearTechLevel){
+        this.nuclearTechLevel = Math.max(0,  nuclearTechLevel);
+    }
+    public int getNuclearTechLevel() {
+        return nuclearTechLevel;
+    }
 
+    public int getNuclearTechProgress() {
+        return nuclearTechProgress;
+    }
+
+    public void setNukes(int nukes) {
+        this.nukes = Math.max(0,  nukes);
+    }
+
+    public int getNukes() {
+        return nukes;
+    }
+
+    public void produceNuke(){
+        nukes++;
+    }
+
+    public void produceNukes(int amount){
+        if(amount > 0)
+            nukes += amount;
+    }
+
+    public void makeUnit() {
+        //TOP DOWN ?!? DIVISION AUTOMATIC (!!?)
     }
 
     public void addDivision(MilDiv d) {
@@ -114,16 +171,6 @@ public class Military implements Serializable {
 
     public short getMilTechLevel(int i) {
         return milTechLevel[i];
-    }
-
-    public void addMilTechProgress(int type, short amount) {
-        milTechProgress[type] += amount;
-        //short lvlCap = MIL_TECH_LEVEL_CAP * milTechLevel[type];
-        if (milTechProgress[type] >= MIL_TECH_LEVEL_CAP) {
-            short lvlUp = (short) (milTechProgress[type] / MIL_TECH_LEVEL_CAP);
-            milTechLevel[type] += lvlUp;
-            milTechProgress[type] %= MIL_TECH_LEVEL_CAP;
-        }
     }
 
     public short getMilTechLevelCap() {
@@ -275,7 +322,7 @@ public class Military implements Serializable {
         d2.addUnit(u);
     }
 
-    public LongProperty manpowerProperty(){
+    public LongProperty manpowerProperty() {
         return manpower;
     }
 

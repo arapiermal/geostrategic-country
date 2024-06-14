@@ -9,6 +9,7 @@ import java.io.Serializable;
 
 public abstract class MilUnit implements Serializable {
     protected transient MilUnitData data;
+    private MilDiv division;
     protected int dataId;
     protected int ownerId; //rebellious units -> change ownerId
     protected int provId; //(?) for movement / save/load
@@ -28,6 +29,29 @@ public abstract class MilUnit implements Serializable {
     public MilUnit(MilUnitData data, int ownerId) {
         this.data = data;
         this.ownerId = ownerId;
+        this.provId = -1;
+        this.dataId = data.getDataId();
+        this.id = CURR_ID++;
+        this.morale = 100;
+        this.lvl = 1;
+    }
+
+    public MilUnit(MilUnitData data, int ownerId, int provId) {
+        this.data = data;
+        this.ownerId = ownerId;
+        this.provId = provId;
+        this.dataId = data.getDataId();
+        this.id = CURR_ID++;
+        this.morale = 100;
+        this.lvl = 1;
+    }
+
+    public MilUnit(MilDiv division, MilUnitData data, int ownerId, int provId) {
+        this.division = division; //rebels just added to enemyUnits list in AdmDiv (?)
+        //To remove from division u use this (?) // what about just an int, since ownerId is known..., update int when adding or removing MilDiv
+        this.data = data;
+        this.ownerId = ownerId;
+        this.provId = provId;
         this.dataId = data.getDataId();
         this.id = CURR_ID++;
         this.morale = 100;
@@ -177,12 +201,20 @@ public abstract class MilUnit implements Serializable {
 
     public void setRetreating(boolean retreating) {
         if (!retreating) {
-            this.morale = 100;
+            this.morale = 80; //replenish morale?
         }
         this.retreating = retreating;
     }
 
     public double getSizeProgress() {
         return (double) size / data.maxSize;
+    }
+
+    public int getProvId() {
+        return provId;
+    }
+
+    public void setProvId(int provId) {
+        this.provId = provId;
     }
 }

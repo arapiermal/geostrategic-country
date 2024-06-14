@@ -28,7 +28,8 @@ public class Technology {
     public static class MilTech {
 
     }
-    public static class NuclearResearchStage extends Stage{
+
+    public static class NuclearResearchStage extends Stage {
 
     }
 
@@ -90,10 +91,16 @@ public class Technology {
         }
 
         public void updatePlayer(Military mil) {
-            boolean[] researchingMilTech = mil.getResearchingMilTech();
-            for (int i = 0; i < researchButtons.length; i++) {
-                int finalI = i;
-                researchButtons[i].setOnAction(e -> researchingMilTech[finalI] = !researchingMilTech[finalI]);
+            if (mil != null) {
+                boolean[] researchingMilTech = mil.getResearchingMilTech();
+                for (int i = 0; i < researchButtons.length; i++) {
+                    int finalI = i;
+                    researchButtons[i].setOnAction(e -> researchingMilTech[finalI] = !researchingMilTech[finalI]);
+                }
+            } else {
+                for (ToggleButton researchButton : researchButtons) {
+                    researchButton.setOnAction(null);
+                }
             }
         }
 

@@ -300,7 +300,7 @@ public class GameStage extends Stage {
         Region regTopCenter = new Region();
         regTopCenter.setMinWidth(16);
         hTopCenter = new HBox(treasuryText, treasuryLabel, regTopCenter, manpowerText, manpowerLabel, globalRespectText, globalRespectLabel);
-
+        hTopCenter.setVisible(false);
         HBox hGameSpeed = makeGameSpeedHBox();
         HBox hTopRight = new HBox(pauseButton, dateLabel, hGameSpeed);
         hTopRight.setSpacing(8);
@@ -434,13 +434,15 @@ public class GameStage extends Stage {
             return null;
         }
     }
-    private void makeImgViewButton(ImageView imgView, Button button){
-        if(imgView != null){
+
+    private void makeImgViewButton(ImageView imgView, Button button) {
+        if (imgView != null) {
             button.setGraphic(imgView);
             Tooltip.install(button, new Tooltip(button.getText()));
             button.setText(null);
         }
     }
+
     private ToolBar makeBottomToolbar() {
         Button gsComputer = new Button("Computer");
         Button gsNews = new Button("News");
@@ -648,8 +650,6 @@ public class GameStage extends Stage {
     }
 
     private Tab makeTabSubjects() {
-
-
         Tab tab = new Tab("Subjects");
         return tab;
     }
@@ -660,10 +660,11 @@ public class GameStage extends Stage {
             saveTextField.setText(getCurrDefSaveGameName());
             gsOptionsStage.setScene(gsOptionsScenes[1]);
         });
-
+        Button abandonCountry = new Button("Abandon Country");
+        abandonCountry.setOnAction(e -> endPlayingCountry());
         Button exitToMainButton = new Button("Exit to main menu");
         exitToMainButton.setOnAction(e -> exitToMain());
-        VBox vBox = new VBox(10, saveOptions, exitToMainButton);
+        VBox vBox = new VBox(10, saveOptions,abandonCountry, exitToMainButton);
         vBox.setAlignment(Pos.CENTER);
         vBox.setPadding(new Insets(20));
         Scene scene = new Scene(vBox, 400, 300);
@@ -684,8 +685,8 @@ public class GameStage extends Stage {
         if (i >= 0 && i < gsOptionsScenes.length)
             gsOptionsStage.setScene(gsOptionsScenes[i]);
         else if (i == -1) {
-            //go to Main...
-            // -2 for save (String currentSaveName) & exit
+            //go to Main... (?)
+            // -2 for save (String currentSaveName) & exit (?)
         }
     }
 
@@ -997,7 +998,7 @@ public class GameStage extends Stage {
             } else {
                 War selWar = popupChooseFromList("Which war",
                         "There are a few wars between you and them, which one to negotiate for?", activeWars);
-                if(selWar == null)
+                if (selWar == null)
                     return;
                 peaceNegotiationStage.setDataFromWar(selWar, game.getPlayer());
             }
@@ -1062,6 +1063,7 @@ public class GameStage extends Stage {
         });
         countryTab.getContent().setVisible(true);
         provinceTab.getContent().setVisible(true);
+        hTopCenter.setVisible(true);
 
         chooseCountryButton.setVisible(false);
         tableViewBuildings.setVisible(true);
@@ -1072,6 +1074,27 @@ public class GameStage extends Stage {
         correlateCheckListViewGovPolicies(game.getPlayer().getGovernment().getPolicies());
         toggleButtonsConscriptRate[game.getPlayer().getMilitary().getPopConscriptionRateIndex()].setSelected(true);
         milResearchUnitsStage.updatePlayer(game.getPlayer().getMilitary());
+        changeSelectedCountryInfo();
+        changeSelectedProvInfo();
+    }
+
+    private void endPlayingCountry() {
+        Country oldPlayer = game.getPlayer();
+        pauseButton.setDisable(false);
+        game.abandonPlayer();
+        playerNameLabel.setText("Select Country");
+        playerNameLabel.setOnMouseClicked(null);
+        countryTab.getContent().setVisible(false);
+        provinceTab.getContent().setVisible(false);
+        hTopCenter.setVisible(false);
+        chooseCountryButton.setVisible(true);
+        tableViewBuildings.setVisible(false);
+        isPlayingCountry = false;
+        treasuryLabel.textProperty().unbind();
+        manpowerLabel.textProperty().unbind();
+        globalRespectLabel.textProperty().unbind();
+        removeCorrelationCheckListViewGovPolicies(oldPlayer.getGovernment().getPolicies());
+        milResearchUnitsStage.updatePlayer(null);
         changeSelectedCountryInfo();
         changeSelectedProvInfo();
     }
@@ -1648,9 +1671,21 @@ public class GameStage extends Stage {
 
     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     //Take care if switching countries in game
+    private MapChangeListener<GovPolicy, Integer> mapChangeListener;
+    private ListChangeListener<GovPolicy> listChangeListener;
+
+    public void removeCorrelationCheckListViewGovPolicies(ObservableMap<GovPolicy, Integer> observableMap) {
+        if (mapChangeListener != null) {
+            observableMap.removeListener(mapChangeListener);
+        }
+        if (listChangeListener != null) {
+            checkListViewGovPolicies.getCheckModel().getCheckedItems().removeListener(listChangeListener);
+        }
+    }
+
     public void correlateCheckListViewGovPolicies(ObservableMap<GovPolicy, Integer> observableMap) {
         BooleanProperty changedBoolean = new SimpleBooleanProperty(false);
-        observableMap.addListener((MapChangeListener<GovPolicy, Integer>) change -> {
+        mapChangeListener = change -> {
             if (change.wasAdded()) {
                 GovPolicy addedPolicy = change.getKey();
                 changedBoolean.set(true);
@@ -1673,8 +1708,9 @@ public class GameStage extends Stage {
 
                 }
             }
-        });
-        ListChangeListener<GovPolicy> listChangeListener = change -> {
+        };
+        observableMap.addListener(mapChangeListener);
+        listChangeListener = change -> {
             if (!changedBoolean.get()) {
                 while (change.next()) {
                     if (change.wasAdded() || change.wasRemoved()) {

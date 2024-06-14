@@ -4,10 +4,10 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 public class Economy implements Serializable {
-    private DoubleProperty treasury;
-    //private double treasury;
+    private final DoubleProperty treasury;
     private double lastMonthBalance;
     private String currency;// USD, EUR, ALL,...
     //private String currencyLongName; in the Currencies class
@@ -19,7 +19,7 @@ public class Economy implements Serializable {
 
     private double unemploymentRate;
 
-    //private List<Industry> industries;
+    // private List<Industry> industries;
     // EXPORT VS IMPORT
     private TradeManagement tradeManagement;
 
@@ -70,7 +70,7 @@ public class Economy implements Serializable {
 
     private double getValueOrDef(String[] strings, int i, double v) {
         try {
-            double val = GUtils.parseDoubleAndPercentThrow(strings[i]);// Double.parseDouble(strings[i]);
+            double val = GUtils.parseDoubleAndPercentThrow(strings[i]);
             return val;
         } catch (Exception e) {
             return v;
@@ -235,7 +235,7 @@ public class Economy implements Serializable {
         return treasury;
     }
 
-    public String toStringLong(){
+    public String toStringLong() {
         StringBuilder sb = new StringBuilder();
 
         return sb.toString();

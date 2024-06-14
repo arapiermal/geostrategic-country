@@ -307,8 +307,8 @@ public class World implements Serializable {
             String[][] data = new String[5][];
             int i = 0;
             String line;
-            while ((line = br.readLine()) != null && i < 5) {
-                data[i++] = getValues2(line);
+            while ((line = br.readLine()) != null && i < 5 && !(line = line.trim()).startsWith(ENDDELIMITER)) {
+                data[i++] = getValues(line);
             }
             return new Economy(i, data);
         } catch (Exception e) {
