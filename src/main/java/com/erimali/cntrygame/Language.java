@@ -12,7 +12,7 @@ enum Phrases {
 }
 
 public class Language implements Comparable<Language>, Serializable {
-    private static final String DEFLANGPATH = GLogic.RESOURCESPATH + "countries/languages/";
+    private static final String DEFLANGPATH = GLogic.RESOURCES_PATH + "countries/languages/";
     // maybe synchronize, ENG to ALB
     private String name;
     private transient List<String> mainPhrases;

@@ -1,19 +1,24 @@
 package com.erimali.cntrygame;
+
 import javafx.scene.media.AudioClip;
 
-import java.net.URISyntaxException;
+import java.net.URL;
 
 public class GameAudio {
-    private static final String DEFAUDIOLOC = "audio/";
+    private static final String DEF_AUDIO_LOC = "audio/";
 
     public static void playShortSound(String name) {
         try {
-            AudioClip ac = new AudioClip(GameAudio.class.getResource(DEFAUDIOLOC + name).toExternalForm());
-            ac.setVolume(GOptions.getVolume());
-            ac.play();
-        }
-        catch(Exception e){
-
+            URL url = GameAudio.class.getResource(DEF_AUDIO_LOC + name);
+            if (url != null) {
+                AudioClip ac = new AudioClip(url.toExternalForm());
+                ac.setVolume(GOptions.getVolume());
+                ac.play();
+            } else{
+                ErrorLog.logError("ERROR: NO SUCH FILE FOUND");
+            }
+        } catch (Exception e) {
+            ErrorLog.logError(e);
         }
     }
 

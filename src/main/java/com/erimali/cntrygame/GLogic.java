@@ -14,14 +14,12 @@ import javafx.scene.control.TreeView;
 import javafx.util.Duration;
 
 public class GLogic implements Serializable {
-    protected static final String RESOURCESPATH = "src/main/resources/";
-    private transient GameStage gs; // keep reference
-
+    protected static final String RESOURCES_PATH = "src/main/resources/";
+    private transient GameStage gs; // keep reference that doesn't get saved
     private transient Timeline timeline;
     private transient KeyFrame keyframe;
     private transient Duration interval;
     private static final double defaultIntervalInSeconds = 1;
-    //keep in double or int (?) Math.pow might be problematic
     private static final double MIN_GAME_SPEED_INTERVAL = 0.25;
     private static final double MAX_GAME_SPEED_INTERVAL = 4;
     private double gameSpeedInterval;
@@ -36,7 +34,7 @@ public class GLogic implements Serializable {
 
     // World with countries
     private World world;
-    private World[] moon_planets;//solar system
+    private World[] solarSystem;//POTENTIAL FEATURE: moon + planets
 
     private transient List<MilUnitData>[] unitTypes;
 
@@ -52,8 +50,8 @@ public class GLogic implements Serializable {
     private PriorityQueue<GEvent> gameEvents;
     private transient Map<String, BaseEvent> baseEvents;
     private List<CommandLine.PeriodicCommand>[] periodicCommands;
-    private static final String DEF_GAME_EVENTS_PATH = RESOURCESPATH + "data/gameEvents.txt";
-    private static final String DEF_BASE_EVENTS_PATH = RESOURCESPATH + "data/baseEvents.txt";
+    private static final String DEF_GAME_EVENTS_PATH = RESOURCES_PATH + "data/gameEvents.txt";
+    private static final String DEF_BASE_EVENTS_PATH = RESOURCES_PATH + "data/baseEvents.txt";
     // Game news
     private List<GNews> gameNews; // is it even necessary
     // if webview news.html only wanted
@@ -706,9 +704,8 @@ public class GLogic implements Serializable {
     }
 
     public World getMoon() {
-        return moon_planets[0];
+        return solarSystem[0];
     }
-
 
     public String getRelationsWith(String c) {
         return String.format("%d", player.getRelations(c));
@@ -751,6 +748,8 @@ public class GLogic implements Serializable {
             w.dayTick();
         }
     }
+
+
 
     public void giveMoney(int selectedCountry, Double result) {
         giveMoney(playerId, selectedCountry, result);
@@ -1009,7 +1008,7 @@ public class GLogic implements Serializable {
     }
 
     public void loadWars() {
-        try (BufferedReader br = new BufferedReader(new FileReader(RESOURCESPATH + "data/wars.txt"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(RESOURCES_PATH + "data/wars.txt"))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] k = World.getValueStart(line).split("\\s*-\\s*");

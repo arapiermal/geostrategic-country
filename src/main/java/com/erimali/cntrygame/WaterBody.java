@@ -1,10 +1,7 @@
 package com.erimali.cntrygame;
 
-import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.SVGPath;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -224,7 +221,7 @@ public class WaterBody implements DijkstraCalculable {
 
     public static List<WaterBody> loadListWaterBody(WaterBody.WaterBodyType type, List<Set<String>> waterNeighboursList, Set<Integer> waterProvinces) {
         List<WaterBody> list = new LinkedList<>();
-        String pathName = GLogic.RESOURCESPATH + "countries/water/" + type.name().toLowerCase() + "s.data";
+        String pathName = GLogic.RESOURCES_PATH + "countries/water/" + type.name().toLowerCase() + "s.data";
         try (BufferedReader br = new BufferedReader(new FileReader(pathName))) {
             String line;
             while ((line = br.readLine()) != null) {

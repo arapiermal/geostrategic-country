@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class Currencies implements Serializable {
-	private static final String DEFAULT_CURR_LOC = GLogic.RESOURCESPATH + "data/";
+	private static final String DEFAULT_CURR_LOC = GLogic.RESOURCES_PATH + "data/";
 	private Map<String, Double> unitsPerXAU;
 	private String mainCurrency = "USD";
 	private String playerCurrency;

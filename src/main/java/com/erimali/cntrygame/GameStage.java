@@ -305,27 +305,6 @@ public class GameStage extends Stage {
         HBox hTopRight = new HBox(pauseButton, dateLabel, hGameSpeed);
         hTopRight.setSpacing(8);
 
-
-        //Region regTop = new Region();
-        //HBox hTop = new HBox(hTopLeft, regTop, hTopRight);
-        //hTop.setAlignment(Pos.CENTER);
-        //HBox.setHgrow(regTop, Priority.ALWAYS);
-        //hTop.setSpacing(8);
-        //hTop.setStyle("-fx-background-color: #f0f0f0;");
-        /*AnchorPane paneTop = new AnchorPane();
-        paneTop.getChildren().addAll(hTopLeft, hTopCenter, hTopRight);
-        AnchorPane.setTopAnchor(hTopLeft, 0.0);
-        AnchorPane.setLeftAnchor(hTopLeft, 0.0);
-        AnchorPane.setBottomAnchor(hTopLeft, 0.0);
-
-        AnchorPane.setTopAnchor(hTopCenter, 0.0);
-        AnchorPane.setLeftAnchor(hTopCenter, (paneTop.getWidth() - hTopCenter.getWidth()) / 2);
-        AnchorPane.setRightAnchor(hTopCenter, (paneTop.getWidth() - hTopCenter.getWidth()) / 2);
-        AnchorPane.setTopAnchor(hTopRight, 0.0);
-        AnchorPane.setRightAnchor(hTopRight, 0.0);
-        AnchorPane.setBottomAnchor(hTopRight, 0.0);
-        gameLayout.setTop(paneTop);
-        */
         hTopCenter.setStyle("-fx-alignment: center;");
         hTopCenterTooltip = new Tooltip();
         Tooltip.install(hTopCenter, hTopCenterTooltip);
@@ -339,14 +318,9 @@ public class GameStage extends Stage {
         gameLayout.setCenter(scrollPane);
 
         // LEFT
-        // close X
-        //ScrollPane leftScrollPane = new ScrollPane();
-        //leftScrollPane.setMinWidth(240);
         selectedCountryInfo = new Label();
         selectedProvInfo = new Label();
         initVBoxLeftOptions();
-//selectedCountryInfo
-        //selectedProvInfo
         leftGeneral = new TabPane();
         leftGeneral.setMinWidth(240);
         Tab infoTab = new Tab("Info", makeGeneralInfoVBox());
@@ -357,22 +331,13 @@ public class GameStage extends Stage {
         countryTab.getContent().setVisible(false);
         provinceTab.getContent().setVisible(false);
 
-        //leftScrollPane.setContent(leftGeneral);
         gameLayout.setLeft(leftGeneral);
 
-        //Bottom
-        //hoveringCountry = new Label("Hovering");
-        //HBox hBottomLeft = new HBox(hoveringCountry);
-
+        //BOTTOM
         ToolBar toolBarBottom = makeBottomToolbar();
-        //Region regBottom = new Region();
-        //HBox bottom = new HBox(hBottomLeft, regBottom, toolBarBottom);
-        //HBox.setHgrow(regBottom, Priority.ALWAYS);
-
         gameLayout.setBottom(toolBarBottom);
-        // maybe Button[], setOnAction( i ...);
 
-
+        //RIGHT
         TabPane tabPaneRight = makeRightTabPane();
 
         Region regRight = new Region();
@@ -443,8 +408,6 @@ public class GameStage extends Stage {
     }
 
     private SplitPane makeGeneralInfoVBox() {
-        //VBox vBox = new VBox(selectedCountryInfo, selectedProvInfo);
-        //return vBox;
         selectedCountryInfo.setTextAlignment(TextAlignment.CENTER);
         selectedProvInfo.setTextAlignment(TextAlignment.CENTER);
         SplitPane splitPaneInfo = new SplitPane(selectedCountryInfo, selectedProvInfo);
@@ -471,38 +434,26 @@ public class GameStage extends Stage {
             return null;
         }
     }
-
+    private void makeImgViewButton(ImageView imgView, Button button){
+        if(imgView != null){
+            button.setGraphic(imgView);
+            Tooltip.install(button, new Tooltip(button.getText()));
+            button.setText(null);
+        }
+    }
     private ToolBar makeBottomToolbar() {
         Button gsComputer = new Button("Computer");
         Button gsNews = new Button("News");
         Button gsWorld = new Button("World");
         Button gsOptions = new Button("Settings");
         ImageView imgComputer = loadImgView("img/monitor_with_button.png", 24, 24);
-        if (imgComputer != null) {
-            gsComputer.setGraphic(imgComputer);
-            Tooltip.install(gsComputer, new Tooltip(gsComputer.getText()));
-            gsComputer.setText(null);
-        }
+        makeImgViewButton(imgComputer, gsComputer);
         ImageView imgNews = loadImgView("img/design_view_dark.png", 24, 24);
-        if (imgNews != null) {
-            gsNews.setGraphic(imgNews);
-            Tooltip.install(gsNews, new Tooltip(gsNews.getText()));
-            gsNews.setText(null);
-        }
-
+        makeImgViewButton(imgNews, gsNews);
         ImageView imgWorld = loadImgView("img/globe_earth.png", 24, 24);
-        if (imgWorld != null) {
-            gsWorld.setGraphic(imgWorld);
-            Tooltip.install(gsWorld, new Tooltip(gsWorld.getText()));
-            gsWorld.setText(null);
-        }
-
-        ImageView imgSettings = loadImgView("img/settings.png", 24, 24);
-        if (imgSettings != null) {
-            gsOptions.setGraphic(imgSettings);
-            Tooltip.install(gsOptions, new Tooltip(gsOptions.getText()));
-            gsOptions.setText(null);
-        }
+        makeImgViewButton(imgWorld, gsWorld);
+        ImageView imgOptions = loadImgView("img/settings.png", 24, 24);
+        makeImgViewButton(imgOptions, gsOptions);
 
         gsComputer.setOnAction(e -> popupWebDesktop());
         gsNews.setOnAction(e -> popupWebNews());
@@ -510,7 +461,7 @@ public class GameStage extends Stage {
         gsOptions.setOnAction(e -> showGameStageOptions());
 
         if (GOptions.isDebugMode())
-            toolBarReg = new HBox(8, new Label(), new Text(", Prov ID:"), new Label());
+            toolBarReg = new HBox(8, new Text("Prov ID:"), new Label());
         else
             toolBarReg = new Region();
         ToolBar toolBar = new ToolBar(gsComputer, gsNews, toolBarReg, gsWorld, gsOptions);
@@ -1440,7 +1391,7 @@ public class GameStage extends Stage {
     }
 
     public void popupWebNews() {
-        File file = new File(GLogic.RESOURCESPATH + "web/news.html");
+        File file = new File(GLogic.RESOURCES_PATH + "web/news.html");
         String filePath = file.toURI() + "?gameid=" + game.getUniqueId();
 
         WebView webView = new WebView();
@@ -1454,7 +1405,7 @@ public class GameStage extends Stage {
     }
 
     public void popupWebDesktop() {
-        File file = new File(GLogic.RESOURCESPATH + "web/pcdesktop.html");
+        File file = new File(GLogic.RESOURCES_PATH + "web/pcdesktop.html");
         String filePath = file.toURI() + "?gameid=" + game.getUniqueId();
         WebView webView = new WebView();
         webView.setContextMenuEnabled(false);
@@ -1493,7 +1444,7 @@ public class GameStage extends Stage {
 
         String PLAYER = game.getPlayer().getGovernment().toStringMainRuler();
         String OPPONENT = game.getWorldCountries().get(cId).getGovernment().toStringMainRuler();
-        File file = new File(GLogic.RESOURCESPATH + "web/chess/chess.html");
+        File file = new File(GLogic.RESOURCES_PATH + "web/chess/chess.html");
         String filePath = file.toURI() + "?player=" + PLAYER + "&opponent=" + OPPONENT + "&src=countrysim";
 
         WebView webView = new WebView();
@@ -1541,12 +1492,17 @@ public class GameStage extends Stage {
         alert.setContentText(message);
         alert.initModality(Modality.APPLICATION_MODAL);
 
-        // Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-        // stage.getIcons().add(new javafx.scene.image.Image("icon.png"));
-        // alert.getDialogPane().getStyleClass().add("custom-style-class");
-        ButtonType closeButton = new ButtonType("Close");
-        alert.getButtonTypes().add(closeButton);
-        //ButtonType.CLOSE
+        ButtonType closeButton;
+        if (alert.getButtonTypes().contains(ButtonType.CLOSE)) {
+            closeButton = ButtonType.CLOSE;
+        } else if (alert.getButtonTypes().contains(ButtonType.CANCEL)) {
+            closeButton = ButtonType.CANCEL;
+        } else {
+            closeButton = new ButtonType("Close");
+            alert.getButtonTypes().add(closeButton);
+        }
+
+
         Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
         dialogStage.setOnCloseRequest(event -> alert.setResult(closeButton));
 
@@ -1687,12 +1643,6 @@ public class GameStage extends Stage {
 
     public void setSelectedCountry(int ownerId) {
         selectedCountry = ownerId;
-        if (toolBarReg instanceof HBox) {
-            Node node = ((HBox) toolBarReg).getChildren().getFirst();
-            if (node instanceof Label) {
-                ((Label) node).setText(CountryArray.getIndexISO2(ownerId));
-            }
-        }
         changeSelectedCountryInfo();
     }
 
@@ -1768,6 +1718,7 @@ public class GameStage extends Stage {
             GridPane grid = new GridPane();
             grid.setHgap(10);
             grid.setVgap(10);
+            Label infoLabel = new Label(policy.getInfo());
             Text priceText = new Text("Price: ");
             Label priceLabel = new Label();
 
@@ -1792,10 +1743,11 @@ public class GameStage extends Stage {
                 boolean hasTreasury = game.canPurchase(newValue.doubleValue());
                 okButton.setDisable(!hasTreasury);
             });
-            grid.add(priceText, 0, 0);
-            grid.add(priceLabel, 1, 0);
-            grid.add(yearsLabel, 0, 1);
-            grid.add(yearsSlider, 1, 1);
+            grid.add(infoLabel, 0, 0);
+            grid.add(priceText, 0, 1);
+            grid.add(priceLabel, 1, 1);
+            grid.add(yearsLabel, 0, 2);
+            grid.add(yearsSlider, 1, 2);
             dialog.getDialogPane().setContent(grid);
             dialog.setResultConverter(dialogButton -> {
                 if (dialogButton == confirmButtonType) {

@@ -78,7 +78,7 @@ public class MGSnakeStage extends Stage {
             }
         }).start();
     }
-
+    
     public static int getDefSize() {
         return DEF_SIZE;
     }
@@ -106,9 +106,13 @@ public class MGSnakeStage extends Stage {
                 break;
             case F:
                 delay /= 2;
+                if (delay < 25)
+                    delay = 25;
                 break;
             case S:
                 delay *= 2;
+                if (delay > 1000)
+                    delay = 1000;
                 break;
             default:
                 break;

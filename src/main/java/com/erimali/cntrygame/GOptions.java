@@ -47,7 +47,7 @@ public class GOptions {
         int defValue;
     }
 
-    private static final String DEF_SETTINGS_PATH = GLogic.RESOURCESPATH + "settings.ini";
+    private static final String DEF_SETTINGS_PATH = GLogic.RESOURCES_PATH + "settings.ini";
     private static String modsPath = "mods/";
 
     private static boolean fullScreen = false;

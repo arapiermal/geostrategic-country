@@ -10,7 +10,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.*;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -29,7 +28,7 @@ public class GlobeViewer extends Stage {
     private String[] SPECULAR_MAP = {getResourceLoc("2k_earth_specular_map.jpg")};
 
     private String getResourceLoc(String im) {
-        return GLogic.RESOURCESPATH + "map/" + im;
+        return GLogic.RESOURCES_PATH + "map/" + im;
     }
 
     private Group buildScene(int type) {

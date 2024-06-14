@@ -1,0 +1,5 @@
+x=IND/4...200
+y=sin(x[IND])...200
+graph:x:y
+//z=sin(x[IND]+y[IND])...200
+//graph:x:z

@@ -174,7 +174,7 @@ public class ShortestPathFinder {
         return arr;
     }
     public static Map<Integer, int[]> generateNeighbourMap() {
-        try (BufferedReader br = new BufferedReader(new FileReader(GLogic.RESOURCESPATH + "countries/dijkstra.data"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(GLogic.RESOURCES_PATH + "countries/dijkstra.data"))) {
             return generateNeighbourMap(br);
         } catch (IOException ioe) {
             return null;

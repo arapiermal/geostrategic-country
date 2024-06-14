@@ -57,7 +57,7 @@ public class World implements Serializable {
             name = "Earth";
             totalLandArea = 148940000;
             countries = new CountryArray(this);
-            Path dir = Paths.get(GLogic.RESOURCESPATH + "countries");
+            Path dir = Paths.get(GLogic.RESOURCES_PATH + "countries");
             loadLanguages();
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
                 for (Path entry : stream) {
@@ -80,7 +80,7 @@ public class World implements Serializable {
             this.unions = FXCollections.observableMap(new HashMap<>());
             loadUnions();
             loadFormables();
-            Continent.setFromFolderCSV(GLogic.RESOURCESPATH + "countries/continents/", this);
+            Continent.setFromFolderCSV(GLogic.RESOURCES_PATH + "countries/continents/", this);
         } catch (Exception e) {
             ErrorLog.logError(e);
         }
@@ -175,7 +175,7 @@ public class World implements Serializable {
         //REMOVING THE MAP<STRING,LANGUAGE>
         //Language[] languages;
         languages = new ArrayList<>();
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(GLogic.RESOURCESPATH + "countries/languages"))) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(GLogic.RESOURCES_PATH + "countries/languages"))) {
             List<String> langList = new LinkedList<>();
             for (Path entry : stream) {
                 String name = entry.getFileName().toString();
@@ -650,7 +650,7 @@ public class World implements Serializable {
     }
 
     public void loadFormables() {
-        List<CFormable> temp = CFormable.loadFormables(GLogic.RESOURCESPATH + "/data/formables.txt");
+        List<CFormable> temp = CFormable.loadFormables(GLogic.RESOURCES_PATH + "/data/formables.txt");
         if (temp != null) {
             formables = temp;
         }
@@ -659,7 +659,7 @@ public class World implements Serializable {
     public void loadUnions() {
         if (unions == null)
             unions = FXCollections.observableMap(new HashMap<>());
-        Path dir = Paths.get(GLogic.RESOURCESPATH + "/countries/unions");
+        Path dir = Paths.get(GLogic.RESOURCES_PATH + "/countries/unions");
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
             for (Path entry : stream) {
                 try {

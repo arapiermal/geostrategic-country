@@ -11,7 +11,7 @@ public abstract class MilUnit implements Serializable {
     protected transient MilUnitData data;
     protected int dataId;
     protected int ownerId; //rebellious units -> change ownerId
-    //provId (?) for movement
+    protected int provId; //(?) for movement / save/load
     private static int CURR_ID = 0;
     protected final int id;
     //////////////////////////////////////////////////////////////////////

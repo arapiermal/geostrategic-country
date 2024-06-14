@@ -2,19 +2,14 @@ package com.erimali.cntrygame;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Period;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.erimali.cntrymilitary.MilUnitData;
 import com.erimali.compute.EriScript;
 import com.erimali.minigames.MGSnakeStage;
 import javafx.scene.control.Alert;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.Stage;
 
 
 class Command {
@@ -86,7 +81,7 @@ public class CommandLine {
     //
     private static Map<String, EriScript> eriScripts = new HashMap<>();
     //Make changeable in GOptions (?)
-    private static final String scriptsPath = GLogic.RESOURCESPATH + "scripts/";
+    private static final String scriptsPath = GLogic.RESOURCES_PATH + "scripts/";
 
     public static void loadEriScripts(String scriptsPath) {
         File filesPath = new File(scriptsPath);
