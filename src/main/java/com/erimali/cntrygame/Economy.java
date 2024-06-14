@@ -206,7 +206,7 @@ public class Economy implements Serializable {
     }
 
     public void addTreasuryOrPercent(double amount) {
-        if(amount < 2 && amount > -2){
+        if (amount < 2 && amount > -2) {
             treasury.set(treasury.get() + Math.abs(treasury.get()) * amount);
         } else {
             treasury.set(treasury.get() + amount);
@@ -235,8 +235,18 @@ public class Economy implements Serializable {
         return treasury;
     }
 
+    private static String stringFormatToPercent(double val) {
+        return String.format("%.2f", val * 100);
+    }
+
     public String toStringLong() {
         StringBuilder sb = new StringBuilder();
+        sb.append("Currency: ").append(currency).append('\n');
+        sb.append("Inflation: ").append(stringFormatToPercent(inflationRate)).append('%').append('\n');
+        sb.append("GDP:$").append(GUtils.doubleToString(gdp)).append('\n');
+        sb.append("GDP yearly growth rate: ").append(stringFormatToPercent(economicGrowthRate)).append('%').append('\n');
+        sb.append("Taxation: ").append(stringFormatToPercent(taxation)).append('%').append('\n');
+        sb.append("Unemployment rate: ").append(stringFormatToPercent(unemploymentRate)).append('%').append('\n');
 
         return sb.toString();
     }

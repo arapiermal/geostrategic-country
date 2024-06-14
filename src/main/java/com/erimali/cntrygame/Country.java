@@ -184,7 +184,10 @@ public class Country implements Serializable, Comparable<Country> {
     public String toStringRulers() {
         return gov.toStringRulers();
     }
-
+    public String toStringEconomy(){
+        return eco.toStringLong();
+    }
+    
     // SPECIAL GETs
     public double getPopulationPerCapita() {
         if (area > 0) {

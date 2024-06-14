@@ -46,48 +46,40 @@ import org.controlsfx.control.*;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.Glyph;
 
-class LimitedSizeList<T> {
-    private final int maxSize;
-    private final LinkedList<T> list;
-    private int index;
+class LabelledText extends HBox {
+    private Text text;
+    private final Label label;
 
-    public LimitedSizeList(int maxSize) {
-        this.maxSize = maxSize;
-        this.list = new LinkedList<>();
+    public LabelledText(String text) {
+        this.text = new Text(text);
+        this.label = new Label();
+        this.getChildren().addAll(this.text, this.label);
     }
 
-    public void add(T el) {
-        if (list.size() >= maxSize) {
-            list.removeLast();
-        }
-        list.addFirst(el);
-        //reset
-        index = list.size() - 1;
+    public LabelledText(String text, String label) {
+        this.text = new Text(text);
+        this.label = new Label(label);
+        this.getChildren().addAll(this.text, this.label);
     }
 
-    //iterator for speed?
-    public T get(int i) {
-        if (i < 0 || i >= list.size())
-            return null;
-        return list.get(i);
+    public Text getText() {
+        return text;
     }
 
-    public T getUp() {
-        if (list.isEmpty())
-            return null;
-        index++;
-        index %= list.size();
-        return get(index);
+    public void setText(String s) {
+        this.text = new Text(s);
+        this.getChildren().removeFirst();
+        this.getChildren().addFirst(text);
     }
 
-    public T getDown() {
-        if (list.isEmpty())
-            return null;
-        index--;
-        if (index < 0)
-            index = list.size() - 1;
-        return get(index);
+    public Label getLabel() {
+        return label;
     }
+
+    public void changeLabelText(String s) {
+        label.setText(s);
+    }
+
 }
 
 public class GameStage extends Stage {
@@ -114,6 +106,7 @@ public class GameStage extends Stage {
     private ObservableIntegerValue selProv;
 
     private Label selectedCountryInfo;
+    private Label selectedCountryEconomyInfo;
     private Label selectedProvInfo;
 
     private Label mgResult;
@@ -287,19 +280,19 @@ public class GameStage extends Stage {
         //pauseButton.textProperty().bind(Bindings.when(pauseButton.selectedProperty()).then("Pause").otherwise("Play"));
         makeGraphicalPlayPause();
         pauseButton.setOnAction(e -> paused = !paused);
-        Text treasuryText = new Text("Treasury $");
+        Text treasuryText = new Text("Treasury USD");
         this.treasuryLabel = new Label();
-        Text manpowerText = new Text("Manpower ");
+        Text manpowerText = new Text("Manpower");
         this.manpowerLabel = new Label();
-        Text globalRespectText = new Text("Global Respect ");
+        Text globalRespectText = new Text("Global Respect");
         this.globalRespectLabel = new Label();
         chooseCountryButton = new Button("Confirm");
         chooseCountryButton.setOnAction(e -> startGame());
         HBox hTopLeft = new HBox(playerNameLabel, chooseCountryButton);
         hTopLeft.setSpacing(8);
-        Region regTopCenter = new Region();
-        regTopCenter.setMinWidth(16);
-        hTopCenter = new HBox(treasuryText, treasuryLabel, regTopCenter, manpowerText, manpowerLabel, globalRespectText, globalRespectLabel);
+        //Region regTopCenter[] = new Region();
+        //regTopCenter.setMinWidth(16);
+        hTopCenter = new HBox(8, treasuryText, treasuryLabel, manpowerText, manpowerLabel, globalRespectText, globalRespectLabel);
         hTopCenter.setVisible(false);
         HBox hGameSpeed = makeGameSpeedHBox();
         HBox hTopRight = new HBox(pauseButton, dateLabel, hGameSpeed);
@@ -319,10 +312,11 @@ public class GameStage extends Stage {
 
         // LEFT
         selectedCountryInfo = new Label();
+        selectedCountryEconomyInfo = new Label();
         selectedProvInfo = new Label();
         initVBoxLeftOptions();
         leftGeneral = new TabPane();
-        leftGeneral.setMinWidth(240);
+        leftGeneral.setMinWidth(240); //was 240
         Tab infoTab = new Tab("Info", makeGeneralInfoVBox());
         countryTab = new Tab("Country", countryOptTypes[0]);
         provinceTab = new Tab("Adm-Division", provOptTypes[0]);
@@ -345,7 +339,7 @@ public class GameStage extends Stage {
         FlowPane mapChoices = makeRightMapModesFlowPane(scrollPane);
 
         VBox vBoxRight = new VBox(tabPaneRight, regRight, label, mapChoices);
-        vBoxRight.setPadding(new Insets(4));
+        //vBoxRight.setPadding(new Insets(4)); //padding elsewhere
         VBox.setVgrow(regRight, Priority.SOMETIMES);
         VBox.setVgrow(tabPaneRight, Priority.SOMETIMES);
 
@@ -409,8 +403,9 @@ public class GameStage extends Stage {
 
     private SplitPane makeGeneralInfoVBox() {
         selectedCountryInfo.setTextAlignment(TextAlignment.CENTER);
+        selectedCountryEconomyInfo.setTextAlignment(TextAlignment.CENTER);
         selectedProvInfo.setTextAlignment(TextAlignment.CENTER);
-        SplitPane splitPaneInfo = new SplitPane(selectedCountryInfo, selectedProvInfo);
+        SplitPane splitPaneInfo = new SplitPane(selectedCountryInfo, selectedCountryEconomyInfo, selectedProvInfo);
         splitPaneInfo.setOrientation(Orientation.VERTICAL);
 
         return splitPaneInfo;
@@ -486,6 +481,7 @@ public class GameStage extends Stage {
     private FlowPane makeRightMapModesFlowPane(ZoomableScrollPane scrollPane) {
         FlowPane flowPane = new FlowPane(Orientation.HORIZONTAL, 10, 10);
         flowPane.setPrefWidth(240);
+        flowPane.setPadding(new Insets(4));
         /*
         Button zoomIn = new Button();
         zoomIn.setGraphic(WorldMap.loadSVGPath("img/zoom_in.svg"));
@@ -517,7 +513,7 @@ public class GameStage extends Stage {
     private TabPane makeRightTabPane() {
         TabPane tabPane = new TabPane();
 
-        tabPane.setMinWidth(280);
+        tabPane.setMinWidth(240);
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         Tab[] tabs = new Tab[4];
         tabs[0] = makeTabMilitary();
@@ -664,7 +660,7 @@ public class GameStage extends Stage {
         abandonCountry.setOnAction(e -> endPlayingCountry());
         Button exitToMainButton = new Button("Exit to main menu");
         exitToMainButton.setOnAction(e -> exitToMain());
-        VBox vBox = new VBox(10, saveOptions,abandonCountry, exitToMainButton);
+        VBox vBox = new VBox(10, saveOptions, abandonCountry, exitToMainButton);
         vBox.setAlignment(Pos.CENTER);
         vBox.setPadding(new Insets(20));
         Scene scene = new Scene(vBox, 400, 300);
@@ -776,7 +772,7 @@ public class GameStage extends Stage {
         // Autocomplete for already entered commands (?) !ControlsFX!
         TextField commandLine = new TextField();
         Button commandSubmit = new Button("Enter");
-        commandLine.setPrefWidth(240);
+        commandLine.setPrefWidth(320);
         commandSubmit.setPrefWidth(60);
         HBox commandHBox = new HBox(commandLine, commandSubmit);
         Label commandResult = new Label();
@@ -1080,7 +1076,8 @@ public class GameStage extends Stage {
 
     private void endPlayingCountry() {
         Country oldPlayer = game.getPlayer();
-        pauseButton.setDisable(false);
+        pauseButton.setDisable(true);
+        paused = true;
         game.abandonPlayer();
         playerNameLabel.setText("Select Country");
         playerNameLabel.setOnMouseClicked(null);
@@ -1188,6 +1185,7 @@ public class GameStage extends Stage {
             return;
         }
         selectedCountryInfo.setText(game.toStringCountry(selectedCountry));
+        selectedCountryEconomyInfo.setText(game.toStringEconomy(selectedCountry));
         if (isPlayingCountry) {
             if (selectedCountry == game.getPlayerId()) {
 
@@ -1814,6 +1812,54 @@ public class GameStage extends Stage {
 
     public static Glyph getGlyph(FontAwesome.Glyph angleDoubleDown) {
         return new FontAwesome().create(angleDoubleDown);
+    }
+
+
+
+
+
+    static class LimitedSizeList<T> {
+        private final int maxSize;
+        private final LinkedList<T> list;
+        private int index;
+
+        public LimitedSizeList(int maxSize) {
+            this.maxSize = maxSize;
+            this.list = new LinkedList<>();
+        }
+
+        public void add(T el) {
+            if (list.size() >= maxSize) {
+                list.removeLast();
+            }
+            list.addFirst(el);
+            //reset
+            index = list.size() - 1;
+        }
+
+        //iterator for speed?
+        public T get(int i) {
+            if (i < 0 || i >= list.size())
+                return null;
+            return list.get(i);
+        }
+
+        public T getUp() {
+            if (list.isEmpty())
+                return null;
+            index++;
+            index %= list.size();
+            return get(index);
+        }
+
+        public T getDown() {
+            if (list.isEmpty())
+                return null;
+            index--;
+            if (index < 0)
+                index = list.size() - 1;
+            return get(index);
+        }
     }
 
 }

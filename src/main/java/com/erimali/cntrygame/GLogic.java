@@ -229,6 +229,14 @@ public class GLogic implements Serializable {
         return "";// No such country
     }
 
+    public String toStringEconomy(int c) {
+        Country country = getCountry(c);
+        if (country != null) {
+            return country.toStringEconomy();
+        }
+
+        return "";// No such country
+    }
     public CountryArray getWorldCountries() {
         return world.getCountries();
     }
@@ -1121,4 +1129,5 @@ public class GLogic implements Serializable {
         c1.subjugateCountry(c2, type);
         return true;
     }
+
 }
