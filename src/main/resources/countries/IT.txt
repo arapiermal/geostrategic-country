@@ -4,7 +4,6 @@ population:59933000
 popInc:0.07%
 capital:Lazio
 languages:Italian
-neighbours:FR,CH,AT,SI,SM,VA
 admDivision:Region
 Abruzzo:1307000,10832
 Aosta Valley,Valle_d_Aosta:143000,3261

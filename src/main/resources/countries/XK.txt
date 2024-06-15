@@ -4,7 +4,6 @@ population:1964327
 popInc:0.235%
 capital:Pristina
 languages:Albanian,Serbian
-neighbours:AL,ME,MK,RS
 admDivision:District
 Peja,Peć:1365,174235
 Mitrovica,Kosovska_Mitrovica:2077,272247

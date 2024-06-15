@@ -4,7 +4,6 @@ population:2868436
 popInc:-0.34%
 capital:Tirana
 languages:Albanian
-neighbours:XK,GR,ME,MK
 admDivision:County
 Berat:1798,122003
 Dibër:2586,115857

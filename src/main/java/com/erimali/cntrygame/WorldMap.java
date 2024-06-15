@@ -75,6 +75,7 @@ public class WorldMap {
         this.waterBodies = WaterBody.loadWaterBodies(waterProvinces);
         loadColors();
         loadMilSVGData();
+        loadCountryNeighboursMap();
         this.gs = gs;
         this.scrollPane = start();
     }
@@ -503,8 +504,19 @@ public class WorldMap {
     public void paintMapNeighbours() {
         int cId = gs.getSelectedCountry();
         Country c = gs.getGame().getCountry(cId);
-        if (c != null) {
-            Set<Integer> neighbours = c.getNeighbours();
+        Set<Integer> neighbours;
+        if (c != null && (neighbours = c.getNeighbours()) != null) {
+            for (SVGProvince t : mapSVG) {
+                int ownerId = t.getOwnerId();
+                if (neighbours.contains(ownerId)) {
+                    t.setFill(defNeutralColor);
+                } else if (cId == ownerId) {
+                    t.setFill(defSelectedColor);
+                } else {
+                    t.setFill(defColor);
+                }
+            }
+        } else if ((neighbours = countryNeighboursMap.get(cId)) != null) {
             for (SVGProvince t : mapSVG) {
                 int ownerId = t.getOwnerId();
                 if (neighbours.contains(ownerId)) {
@@ -1073,4 +1085,52 @@ public class WorldMap {
 
         //add somewhere to control playing or not...
     }
+
+    private Map<Integer, Set<Integer>> countryNeighboursMap;
+
+    public void loadCountryNeighboursMap() {
+        if (this.countryNeighboursMap == null)
+            this.countryNeighboursMap = new HashMap<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(GLogic.RESOURCES_PATH + "countries/countryNeighbours.csv"))) {
+            loadCountryNeighbors(br, countryNeighboursMap);
+        } catch (IOException ioException) {
+            ErrorLog.logError(ioException);
+        }
+
+    }
+
+    public Map<Integer, Set<Integer>> getCountryNeighboursMap() {
+        return countryNeighboursMap;
+    }
+
+    public Set<Integer> getCountryNeighbours(int id) {
+        return countryNeighboursMap.get(id);
+    }
+
+    public static void loadCountryNeighbors(BufferedReader br, Map<Integer, Set<Integer>> map) throws IOException {
+        String line;
+        while ((line = br.readLine()) != null) {
+            int ind = line.indexOf(':');
+            if (ind < 0)
+                continue;
+            int c0 = CountryArray.getIndexAdv(line.substring(0, ind));
+            Set<Integer> set;
+            if (!map.containsKey(c0)) {
+                set = new HashSet<>();
+                map.put(c0, set);
+            } else {
+                set = map.get(c0);
+            }
+            String rest = line.substring(ind + 1).trim();
+            if (!rest.isEmpty()) {
+                String[] k = rest.split("\\s*,\\s*");
+                for (String s : k) {
+                    int nId = CountryArray.getIndex(s);
+                    set.add(nId);
+                }
+            }
+        }
+    }
+
+
 }

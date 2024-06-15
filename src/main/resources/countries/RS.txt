@@ -4,7 +4,6 @@ population:6647003
 popInc:-0.73%
 capital:Belgrade
 languages:Serbian,Hungarian,Slovak,Albanian,Romanian,Bulgarian,Macedonian
-neighbours:BA,BG,ME,MK,RO,HR,HU,XK
 admDivision:district
 Belgrade,Grad_Beograd:3237.7,1671663
 Kolubara,Kolubarski:2474,154497

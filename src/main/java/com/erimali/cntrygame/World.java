@@ -163,7 +163,7 @@ public class World implements Serializable {
                 if (a != null) {
                     a.setWaterAccess(true);
                     Country c = countries.get(a.getOwnerId());
-                    if(c != null)
+                    if (c != null)
                         c.incWaterProvCount();
                 }
             }
@@ -222,15 +222,14 @@ public class World implements Serializable {
             String capital = getVal(br.readLine());
             String[] langNameArr = getValues(br.readLine());
             List<Short> languages = genLanguageIndexList(langNameArr);
-            String[] neighbours = getValues(br.readLine());
             String admDivisionType = getVal(br.readLine());
             List<AdmDiv> admDivisions = admDivisionsFromFile(br, languages);
             String lineTopic;
             Government government = null;
             Economy economy = null;
             Military military = new Military();
-            while((lineTopic = br.readLine()) != null){
-                switch(getValueStart(lineTopic).toLowerCase()){
+            while ((lineTopic = br.readLine()) != null) {
+                switch (getValueStart(lineTopic).toLowerCase()) {
                     case "government":
                         government = governmentFromFile(br);
                         break;
@@ -245,17 +244,18 @@ public class World implements Serializable {
             }
 
             return new Country(name, area, population, populationGrowthRate, capital, admDivisionType,
-                    admDivisions, languages, neighbours, government, economy, military);
+                    admDivisions, languages, government, economy, military);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
-    public static String getValueStart(String in){
+
+    public static String getValueStart(String in) {
         int ind = in.indexOf('{');
-        if(ind > -1){
+        if (ind > -1) {
             return in.substring(0, ind).trim();
-        } else{
+        } else {
             return in.trim();
         }
     }
@@ -284,7 +284,7 @@ public class World implements Serializable {
             }
             String line;
 
-            while((line = br.readLine()) != null && (line = line.trim()).charAt(0) != '}'){
+            while ((line = br.readLine()) != null && (line = line.trim()).charAt(0) != '}') {
                 if (line.toLowerCase().startsWith("elect")) {
                     String[] r = getValues(line);
                     int electionPeriod = GUtils.parseIntDef(r, 0, 0);
@@ -580,7 +580,7 @@ public class World implements Serializable {
         //keep track with set for less overhead
         for (AdmDiv a : provinces) {
             if (a != null) {
-                a.buildingTick();
+                a.buildingTick(countries.get(a.getOwnerId()));
             }
         }
         for (Country c : countries) {
@@ -872,5 +872,14 @@ public class World implements Serializable {
         if (worldId == EARTH_ID)
             return game.getWorldMap();
         return null;
+    }
+
+    public void correlateCountryNeighbours(Map<Integer, Set<Integer>> map) {
+        for (Country c : countries) {
+            if (c != null) {
+                Set<Integer> set = map.getOrDefault(c.getCountryId(), new HashSet<>());
+                c.setNeighbours(set);
+            }
+        }
     }
 }

@@ -4,7 +4,6 @@ population:764
 popInc:0.5%
 capital:Vatican_City
 languages:Latin,Italian
-neighbours:IT
 admDivision:City_State
 Vatican:0.49,764
 }

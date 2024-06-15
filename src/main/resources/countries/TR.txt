@@ -4,7 +4,6 @@ population:85372377
 popInc:0.07%
 capital:Ankara
 languages:Turkish
-neighbours:GR,BG,GE,AM,AZ,IR,IQ,SY
 admDivision:Region
 Adana:14045.56,2263373
 Adıyaman:7606.16,632148

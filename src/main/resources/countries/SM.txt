@@ -4,7 +4,6 @@ population:35436
 popInc:0.24%
 capital:San_Marino
 languages:Italian
-neighbours:IT
 admDivision:City_State
 San_Marino:61.19,35436
 }

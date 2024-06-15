@@ -47,7 +47,7 @@ public class Country implements Serializable, Comparable<Country> {
     // Constructors
     public Country(String name, double area, long population, double populationIncrease, String capital,
                    String admDivisionType, List<AdmDiv> admDivisions, List<Short> languages,
-                   Set<Integer> neighbours, Government gov, Economy eco, Military mil, Diplomacy dip) {
+                   Government gov, Economy eco, Military mil, Diplomacy dip) {
         this.name = name;
         this.continents = EnumSet.noneOf(Continent.class);
         this.area = area;
@@ -60,7 +60,6 @@ public class Country implements Serializable, Comparable<Country> {
         this.gov = gov;
         this.dip = dip;
         this.mil = mil;
-        this.neighbours = neighbours;
         AdmDiv cap = getAdmDiv(capital);
         this.capital = cap != null ? cap : admDivisions.getFirst();
 
@@ -75,7 +74,7 @@ public class Country implements Serializable, Comparable<Country> {
 
     public Country(String name, double area, long population, double populationIncrease, String capital,
                    String admDivisionType, List<AdmDiv> admDivisions, List<Short> languages,
-                   String[] neighbours, Government gov, Economy eco, Military military) {
+             Government gov, Economy eco, Military military) {
         this.name = name;
         this.continents = EnumSet.noneOf(Continent.class);
         this.area = area;
@@ -88,12 +87,6 @@ public class Country implements Serializable, Comparable<Country> {
         this.eco = eco;
         this.mil = military;
         this.dip = new Diplomacy();
-
-        this.neighbours = new TreeSet<>();
-        for (String n : neighbours) {
-            int ind = CountryArray.getIndex(n);
-            this.neighbours.add(ind);
-        }
 
         AdmDiv cap = getAdmDiv(capital);
         this.capital = cap != null ? cap : admDivisions.getFirst();
@@ -124,7 +117,7 @@ public class Country implements Serializable, Comparable<Country> {
 
     public void monthlyTick() {
         //mil/tech progress
-        short milResearchBonus = (short) (gov.researchBoost() + 2 * availableBuildings[Building.MIL_RESEARCH_FACILITY.ordinal()]);
+        short milResearchBonus = (short) (gov.researchBoost() + 4 * availableBuildings[Building.MIL_RESEARCH_FACILITY.ordinal()]);
         double gdp = eco.getGDP();
         double milExpenditures = mil.monthlyTick(population, gdp, milResearchBonus);
         eco.monthlyTreasuryUpdate(milExpenditures);
@@ -855,7 +848,7 @@ public class Country implements Serializable, Comparable<Country> {
         double area = calcTotalArea(admDivs);
         long population = calcTotalPop(admDivs);
         List<Short> languages = calcTotalLanguages(admDivs);
-        Country c = new Country(name, area, population, 0.1, "", "", admDivs, languages, null, null, null, null, null);
+        Country c = new Country(name, area, population, 0.1, "", "", admDivs, languages, null, null, null, null);
         c.setIso2(iso2);
         return c;
     }
@@ -1109,5 +1102,9 @@ public class Country implements Serializable, Comparable<Country> {
 
     public void incWaterProvCount() {
         waterProvinces++;
+    }
+
+    public void setNeighbours(Set<Integer> neighbours) {
+        this.neighbours = neighbours;
     }
 }

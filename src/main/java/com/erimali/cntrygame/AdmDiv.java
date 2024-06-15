@@ -203,14 +203,16 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
     }
 
     // (int amount) for speed ups
-    public void buildingTick() {
+    public void buildingTick(Country main) {
         for (EnumMap.Entry<Building, Byte> entry : buildingBuildings.entrySet()) {
             Building b = entry.getKey();
             byte val = (byte) (entry.getValue() + 1);
             if (val >= b.getStepsToBuild()) {
                 buildingBuildings.remove(b);
                 buildings.add(b);
-            } else {
+                main.addAvailableBuilding(b);
+            }
+            else {
                 entry.setValue(val);
             }
         }

@@ -4,7 +4,6 @@ population:6519789
 popInc:-1.03%
 capital:Sofia_City
 languages:Bulgarian,Turkish
-neighbours:GR,TR,MK,RS,RO
 admDivision:province
 Blagoevgrad:6449.47,292227
 Burgas:7748.07,380286

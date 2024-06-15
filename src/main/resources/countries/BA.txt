@@ -4,7 +4,6 @@ population:3434000
 popInc:-0.4%
 capital:Sarajevo
 languages:Bosnian,Serbian,Croatian
-neighbours:RS,ME,HR
 admDivision:canton
 Una-Sana:4125,273261
 Posavina:324.6,43453

@@ -4,7 +4,6 @@ population:33365000
 popInc:3.25%
 capital:Kyiv_city
 languages:Ukrainian,Russian
-neighbours:BY,PL,SK,HU,RO,MD,RU,XT
 admDivs:Oblast
 Crimea:26081,1967259
 Vinnytsia,Vinnytsya:26513,1529123

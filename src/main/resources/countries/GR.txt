@@ -4,7 +4,6 @@ population:10413982
 popInc:-0.52%
 capital:Athens
 languages:Greek
-neighbours:AL,MK,BG,TR
 admDivision:region
 Attica,Attiki:3808,110546
 Central_Greece,Stereá_Elláda:15549,10537

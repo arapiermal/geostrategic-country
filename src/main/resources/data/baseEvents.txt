@@ -4,4 +4,4 @@ The world is progressing fast technologically. ~ Should we strive in this progre
 add tech 1
 Better not.
 
-~~~ HOW TO INCLUDE GENERAL EVENTS
+~~~

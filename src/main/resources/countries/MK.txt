@@ -4,7 +4,6 @@ population:1836713
 popInc:-0.3%
 capital:Skopje
 languages:Macedonian,Albanian
-neighbours:AL,GR,BG,XK,RS
 admDivision:region
 Eastern:3537,150234
 Northeastern:2310,152982
