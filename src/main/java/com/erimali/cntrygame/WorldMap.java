@@ -15,6 +15,8 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -212,7 +214,7 @@ public class WorldMap {
     }
 
     private MenuItem[] makeContextMenuItems() {
-        MenuItem[] menuItems = new MenuItem[GOptions.isDebugMode() ? 6 : 1];
+        MenuItem[] menuItems = new MenuItem[GOptions.isDebugMode() ? 7 : 1];
         menuItems[0] = new MenuItem("Manage units/divisions");
         //
         if (menuItems.length > 1) {
@@ -238,15 +240,26 @@ public class WorldMap {
                 mapSVG[provInd].setFill(Color.CRIMSON);
 
             });
-            menuItems[4] = new MenuItem("Debug-move: dest DebugUnit");
+
+            menuItems[4] = new MenuItem("Debug-copy: provincename");
             menuItems[4].setOnAction(e -> {
+                int provInd = gs.getSelectedProv();
+                String ids = mapSVG[provInd].getId();
+                System.out.println(ids);
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                ClipboardContent content = new ClipboardContent();
+                content.putString(ids);
+                clipboard.setContent(content);
+            });
+            menuItems[5] = new MenuItem("Debug-move: dest DebugUnit");
+            menuItems[5].setOnAction(e -> {
                 int dstInd = gs.getSelectedProv();
                 debugMilUnitRegion.move(dstInd);
                 //debugMilUnitRegion.makeLines(roadFinder.findShortestPath(srcInd, dstInd));
 
             });
-            menuItems[5] = new MenuItem("Debug-move: move DebugUnit");
-            menuItems[5].setOnAction(e -> {
+            menuItems[6] = new MenuItem("Debug-move: move DebugUnit");
+            menuItems[6].setOnAction(e -> {
                 TESTING.print(debugMilUnitRegion.moveTick());
             });
         }

@@ -24,7 +24,7 @@ Shumen:3389.68,151465
 Silistra:2846.29,97770
 Sliven:3544.07,172690
 Smolyan:3192.85,96284
-Sofia_City,Grad_sofia:1348.90,1274290
+Sofia_City,Grad_Sofiya:1348.90,1274290
 Sofia_Province,Sofia:7062.33,231989
 Stara_Zagora:5151.12,296507
 Targovishte:2558.53,98144

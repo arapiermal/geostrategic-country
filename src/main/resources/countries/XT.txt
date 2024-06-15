@@ -1,0 +1,25 @@
+Transnistria{
+area:4163
+population:367776
+popInc:0.1%
+capital_Tiraspol:Slobozia
+languages:Russian,Romanian,Ukrainian
+admDivision:Raion
+Camenca:434.5,21000
+Rîbnița,Rîbni_x21B_a_x5F:850.2,69000
+Dubăsari:381.2,31000
+Grigoriopol:822,40000
+Slobozia:873.24,84000
+}
+Government{
+type:Republic
+headOfState:President,Vadim,Krasnoselsky,Male
+headOfGov:Prime Minister,Aleksandr,Rozenberg,Male
+elections:5,2020
+}
+Economy{
+currency:RUP,1.0%
+GDPUSD:1.201e9,3.8%
+taxation:2.5%
+unemployment:4.3%
+}

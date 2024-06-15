@@ -382,8 +382,8 @@ public class World implements Serializable {
 
     //If individual files, needs BIG CHANGES
     public List<AdmDiv> admDivisionsFromFile(BufferedReader br, List<Short> indexLangs) {
+        List<AdmDiv> list = new ArrayList<>();
         try {
-            List<AdmDiv> list = new ArrayList<>();
             String line;
             while ((line = br.readLine()) != null) {
                 line = line.trim();
@@ -407,14 +407,14 @@ public class World implements Serializable {
                     }
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    ErrorLog.logError(e);
                 }
             }
             //FOR BINARY SEARCH ? list.sort(...);
-            return list;
         } catch (Exception e) {
-            return new ArrayList<>();
+            ErrorLog.logError(e);
         }
+        return list;
     }
 
     private String[][] getValuesArrArr(String line) {
