@@ -123,12 +123,16 @@ public class Country implements Serializable, Comparable<Country> {
     }
 
     public void monthlyTick() {
-        eco.monthlyTreasuryUpdate();
+        //mil/tech progress
+        short milResearchBonus = (short) (gov.researchBoost() + 2 * availableBuildings[Building.MIL_RESEARCH_FACILITY.ordinal()]);
+        double gdp = eco.getGDP();
+        double milExpenditures = mil.monthlyTick(population, gdp, milResearchBonus);
+        eco.monthlyTreasuryUpdate(milExpenditures);
+        if(eco.getTreasury() < 0)
+            mil.stopAllResearch();
         taxSubjects();
 
-        short milResearchBonus = (short) (gov.researchBoost() + 2 * availableBuildings[Building.MIL_RESEARCH_FACILITY.ordinal()]);
-        mil.monthlyTick(population, milResearchBonus);
-        //mil/tech progress
+
         //if is researching...
     }
 
@@ -184,10 +188,11 @@ public class Country implements Serializable, Comparable<Country> {
     public String toStringRulers() {
         return gov.toStringRulers();
     }
-    public String toStringEconomy(){
+
+    public String toStringEconomy() {
         return eco.toStringLong();
     }
-    
+
     // SPECIAL GETs
     public double getPopulationPerCapita() {
         if (area > 0) {
@@ -360,9 +365,11 @@ public class Country implements Serializable, Comparable<Country> {
     public List<AdmDiv> getAdmDivs() {
         return admDivisions;
     }
-    public int getAdmDivsSize(){
+
+    public int getAdmDivsSize() {
         return admDivisions.size();
     }
+
     public void setAdmDivs(List<AdmDiv> admDivisions) {
         this.admDivisions = admDivisions;
     }
@@ -535,9 +542,11 @@ public class Country implements Serializable, Comparable<Country> {
         }
         return new CSubject(this, c, type);
     }
-    public boolean releaseSubject(String iso2){
+
+    public boolean releaseSubject(String iso2) {
         return releaseSubject(CountryArray.getIndex(iso2));
     }
+
     // WAR FOR INDEPENDENCE OR RELEASE
     public boolean releaseSubject(int iso2) {
         if (subjects.containsKey(iso2)) {

@@ -842,7 +842,10 @@ public class GameStage extends Stage {
 
     private void popupMilResearchPanel() {
         milResearchUnitsStage.updateScene(game.getPlayer().getMilitary());
-        milResearchUnitsStage.show();
+        if (milResearchUnitsStage.isShowing()) {
+            milResearchUnitsStage.requestFocus();
+        } else
+            milResearchUnitsStage.show();
     }
 
     private VBox makeVBoxCountryOptions() {
@@ -1813,9 +1816,6 @@ public class GameStage extends Stage {
     public static Glyph getGlyph(FontAwesome.Glyph angleDoubleDown) {
         return new FontAwesome().create(angleDoubleDown);
     }
-
-
-
 
 
     static class LimitedSizeList<T> {

@@ -6,6 +6,8 @@ import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.ToggleButton;
 
 import java.io.IOException;
@@ -27,12 +29,16 @@ public class Military implements Serializable {
     private long activePersonnel; // ! when adding type isPersonnel() , battles -> activepersonnel down, population down !
     private static final short MIL_TECH_LEVEL_CAP = 100;
 
+    private short lastMonthResearchBonus;
+
     private final short[] milTechProgress;
     private final short[] milTechLevel;
     private final boolean[] researchingMilTech;
     //extract the cost from the Country
     private short baseResearch;
-
+    //Nuclear
+    private static final int MIN_NUCLEAR_TECH_FOR_NUKES = 1;
+    private boolean researchingNuclearTech;
     private int nuclearTechLevel;
     private int nuclearTechProgress;
     private int nukes;
@@ -40,6 +46,7 @@ public class Military implements Serializable {
     private final ObservableList<MilDiv> divisions;
     //Have at least 1 division in all times (?)
     private final Set<Integer> atWarWith;
+    private double lastMonthResearchCost;
 
 
     public Military() {
@@ -54,6 +61,7 @@ public class Military implements Serializable {
         Arrays.fill(milTechLevel, (short) 0);
         this.researchingMilTech = new boolean[MAX_UNIT_TYPES];
         Arrays.fill(researchingMilTech, false);
+
     }
 
 
@@ -82,28 +90,43 @@ public class Military implements Serializable {
             milTechProgress[type] %= MIL_TECH_LEVEL_CAP;
         }
     }
+
     public void addNuclearTechProgress(int amount) {
         if (amount < 0)
             return;
         nuclearTechProgress += amount;
         int lvlCap;
-        while (nuclearTechProgress >= (lvlCap  = MIL_TECH_LEVEL_CAP * nuclearTechLevel)) {
+        while (nuclearTechProgress >= (lvlCap = getNuclearTechLevelCap())) {
             nuclearTechLevel++;
             nuclearTechProgress -= lvlCap;
         }
     }
 
-    public void monthlyResearch(short researchBonus) {
+    public int getNuclearTechLevelCap() {
+        return MIL_TECH_LEVEL_CAP * nuclearTechLevel;
+    }
+
+    public double monthlyResearch(long population, double gdp, short researchBonus) {
+        this.lastMonthResearchBonus = researchBonus;
+        double gdpPerCapita = gdp / population;
+        double cost = 0;
         for (int i = 0; i < MAX_UNIT_TYPES; i++) {
             if (researchingMilTech[i]) {
                 addMilTechProgress(i, (short) (baseResearch + researchBonus));
+                cost += gdpPerCapita * 200 * (i + 1);
             }
         }
+        if (researchingNuclearTech) {
+            addNuclearTechProgress(baseResearch + researchBonus);
+            cost += gdpPerCapita * 2000;
+        }
+        return cost;
     }
 
-    public void setNuclearTechLevel(int nuclearTechLevel){
-        this.nuclearTechLevel = Math.max(0,  nuclearTechLevel);
+    public void setNuclearTechLevel(int nuclearTechLevel) {
+        this.nuclearTechLevel = Math.max(0, nuclearTechLevel);
     }
+
     public int getNuclearTechLevel() {
         return nuclearTechLevel;
     }
@@ -113,22 +136,27 @@ public class Military implements Serializable {
     }
 
     public void setNukes(int nukes) {
-        this.nukes = Math.max(0,  nukes);
+        this.nukes = Math.max(0, nukes);
     }
 
     public int getNukes() {
         return nukes;
     }
 
-    public void produceNuke(){
+    public void produceNuke() {
         nukes++;
     }
 
-    public void produceNukes(int amount){
-        if(amount > 0)
+    public void produceNukes(int amount) {
+        if (amount > 0)
             nukes += amount;
     }
 
+    public void addNukes(int amount) {
+        nukes += amount;
+        if (nukes < 0)
+            nukes = 0;
+    }
     public void makeUnit() {
         //TOP DOWN ?!? DIVISION AUTOMATIC (!!?)
     }
@@ -334,9 +362,13 @@ public class Military implements Serializable {
         this.manpower.set(manpower);
     }
 
-    public void monthlyTick(long population, short researchBonus) {
+    public double monthlyTick(long population, double gdp, short researchBonus) {
+        double cost = 0;
         addManpowerFromPop(population);
-        monthlyResearch(researchBonus);
+        cost += activePersonnel * (gdp / population) / 120;
+        cost += (lastMonthResearchCost = monthlyResearch(population,gdp,researchBonus));
+
+        return cost;
     }
 
     public void addManpowerFromPop(long population) {
@@ -389,6 +421,12 @@ public class Military implements Serializable {
             baseResearch = 1;
     }
 
+    public void addBaseResearch(short amount) {
+        baseResearch += amount;
+        if (baseResearch < 1)
+            baseResearch = 1;
+    }
+
     public void toggleResearching(int i) {
         if (i >= 0 && i < researchingMilTech.length) {
             researchingMilTech[i] = !researchingMilTech[i];
@@ -409,5 +447,35 @@ public class Military implements Serializable {
 
     public boolean[] getResearchingMilTech() {
         return researchingMilTech;
+    }
+
+    public void stopAllResearch() {
+        Arrays.fill(researchingMilTech, false);
+        researchingNuclearTech = false;
+    }
+
+    public boolean isResearchingNuclearTech() {
+        return researchingNuclearTech;
+    }
+
+    public void setResearchingNuclearTech(boolean researchingNuclearTech) {
+        this.researchingNuclearTech = researchingNuclearTech;
+    }
+
+
+    public short getLastMonthResearchBonus() {
+        return lastMonthResearchBonus;
+    }
+
+    public void toggleResearchingNuclear() {
+        researchingNuclearTech = !researchingNuclearTech;
+    }
+
+    public double getLastMonthResearchCost() {
+        return lastMonthResearchCost;
+    }
+
+    public short getBaseResearch() {
+        return baseResearch;
     }
 }

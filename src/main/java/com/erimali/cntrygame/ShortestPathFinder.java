@@ -22,6 +22,22 @@ public class ShortestPathFinder {
         generateWaterNeighbourMap();
     }
 
+    public DijkstraCalculable getNeighbours(int id) {
+        DijkstraCalculable dc = getCalculableByIndex(id);
+        if (dc != null) {
+            //no need for instanceof if int[] becomes part of the interface..
+        }
+        return null;
+    }
+
+    public int[] getProvNeighbours(int id) {
+        return provinceData.get(id);
+    }
+
+    public int[] getWaterNeighbours(int id) {
+        return waterBodyData.get(id);
+    }
+
     private void generateWaterNeighbourMap() {
         if (waterBodies != null) {
             waterBodyData = new HashMap<>();
@@ -173,6 +189,7 @@ public class ShortestPathFinder {
         }
         return arr;
     }
+
     public static Map<Integer, int[]> generateNeighbourMap() {
         try (BufferedReader br = new BufferedReader(new FileReader(GLogic.RESOURCES_PATH + "countries/dijkstra.data"))) {
             return generateNeighbourMap(br);
@@ -202,15 +219,19 @@ public class ShortestPathFinder {
             if (!provinceData.containsKey(i)) {
                 int[] arr = listToBasicArr(append[i]);
                 provinceData.put(i, arr);
-            } else{
+            } else {
                 Set<Integer> set = new HashSet<>(append[i]);
-                for(int a : provinceData.get(i)){
+                for (int a : provinceData.get(i)) {
                     set.add(a);
                 }
                 int[] arr = setToBasicArr(set);
                 provinceData.put(i, arr);
             }
         }
+    }
+
+    public boolean isWaterBody(int id) {
+        return id >= Short.MAX_VALUE;
     }
 
     public DijkstraCalculable getCalculableByIndex(int i) {

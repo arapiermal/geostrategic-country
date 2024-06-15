@@ -279,6 +279,22 @@ public class CommandLine {
                             }
                         }
                         return "";
+                    case "MIL":
+                        if (k.length > 2)
+                            switch (k[2]) {
+                                case "RESEARCH":
+                                    short addBaseResearch = GUtils.parseShortDef(k, 3, (short) 1);
+                                    mainCountry.getMilitary().addBaseResearch(addBaseResearch);
+                                    return "ADDED " + addBaseResearch + " BASE MILITARY RESEARCH";
+                                case "NUKES":
+                                    int addNukes = GUtils.parseIntDef(k, 3, 1);
+                                    mainCountry.getMilitary().addNukes(addNukes);
+                                    return "ADDED " + addNukes + " NUKES IN MILITARY ARSENAL";
+                                case "UNIT":
+                                    //add in the country first division if not specified and the worldmap...
+                                    return "";
+                            }
+                        return "";
                     case "RESPECT":
                         int respect = GUtils.parseIntDef(k, 2, 0);
                         if (respect != 0) {
@@ -595,7 +611,7 @@ public class CommandLine {
     }
 
     public static void setPlayerCountry(String playerISO2) {
-        if(playerISO2 == null){
+        if (playerISO2 == null) {
             CommandLine.playerISO2 = null;
             CommandLine.playerId = -1;
         } else {

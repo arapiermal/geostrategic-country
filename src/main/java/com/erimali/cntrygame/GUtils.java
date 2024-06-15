@@ -499,6 +499,17 @@ public class GUtils {
         }
     }
 
+    public static short parseShortDef(String[] k, int i, short def) {
+        try {
+            if (i >= k.length || i < 0)
+                return def;
+            short a = Short.parseShort(k[i]);
+            return a;
+        } catch (Exception e) {
+            return def;
+        }
+    }
+
     public static String getFlagEmoji(String countryCode) {
         countryCode = countryCode.toUpperCase();
         if (countryCode.length() != 2) {

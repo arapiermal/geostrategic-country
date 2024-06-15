@@ -3,16 +3,14 @@ package com.erimali.cntrygame;
 import com.erimali.cntrymilitary.MilUnitData;
 import com.erimali.cntrymilitary.Military;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.scene.text.Text;
 
@@ -29,8 +27,74 @@ public class Technology {
 
     }
 
-    public static class NuclearResearchStage extends Stage {
+    static class InfoResearchBox extends VBox {
+        private final Label labelBaseResearch;
+        private final Label labelBonusResearch;
+        private final Label labelLastResearchCost;
 
+        public InfoResearchBox() {
+            Text textNuclear = new Text("Research Panel");
+            this.labelBaseResearch = new Label();
+            this.labelBonusResearch = new Label();
+            this.labelLastResearchCost = new Label();
+            HBox hBox1 = new HBox(8, new Text("Base Research"), labelBaseResearch, new Text("Last Month Bonus Research"), labelBonusResearch);
+            hBox1.setAlignment(Pos.CENTER);
+            HBox hBox2 =  new HBox(8, new Text("Last Month Research Spending"), labelLastResearchCost);
+            hBox2.setAlignment(Pos.CENTER);
+            this.setAlignment(Pos.CENTER);
+            this.getChildren().addAll(textNuclear, hBox1,hBox2);
+            this.setSpacing(8);
+            this.setPadding(new Insets(4));
+        }
+
+        public void updateScene(Military mil) {
+            if (mil != null) {
+                labelBaseResearch.setText(String.valueOf(mil.getBaseResearch()));
+                labelBonusResearch.setText(String.valueOf(mil.getLastMonthResearchBonus()));
+                labelLastResearchCost.setText(GUtils.doubleToString(mil.getLastMonthResearchCost()));
+            }
+        }
+    }
+
+    //IF GAMESTAGE IS SAVED HERE YOU CAN CALL THE GAME.DOSOMETHINGTOPLAYER()
+    static class NuclearResearchBox extends VBox {
+        private final Label labelCurrLvl;
+        private final Label labelProgress;
+        private final ToggleButton researchButton;
+        private final ProgressBar progressBar;
+
+        //show what you unlock horizontally !
+        public NuclearResearchBox() {
+            Text textNuclear = new Text("Nuclear research");
+            this.labelCurrLvl = new Label();
+            this.labelProgress = new Label();
+            HBox hBox = new HBox(8, new Text("Level"), labelCurrLvl, new Text("Progress"), labelProgress);
+            hBox.setAlignment(Pos.CENTER);
+            this.researchButton = new ToggleButton("Research Nuclear");
+            this.progressBar = new ProgressBar(0);
+            this.setAlignment(Pos.CENTER);
+            this.getChildren().addAll(textNuclear, hBox, researchButton, progressBar);
+            this.setSpacing(8);
+            this.setPadding(new Insets(4));
+        }
+
+        public void updatePlayer(Military mil) {
+            if (mil != null)
+                researchButton.setOnAction(e -> mil.toggleResearchingNuclear());
+            else
+                researchButton.setOnAction(null);
+        }
+
+        public void updateScene(Military mil) {
+            if (mil != null) {
+                labelCurrLvl.setText(String.valueOf(mil.getNuclearTechLevel()));
+                int progress = mil.getNuclearTechProgress();
+                int lvlCap = mil.getNuclearTechLevelCap();
+                labelProgress.setText(progress + "/" + lvlCap);
+                progressBar.setProgress((double) progress / lvlCap);
+                researchButton.setSelected(mil.isResearchingNuclearTech());
+            }
+        }
     }
 
     public static class MilResearchUnitsStage extends Stage {
@@ -40,8 +104,12 @@ public class Technology {
         private final ProgressBar[] progressBars;
         private final ToggleButton[] researchButtons;
         private final SplitPane splitPane;
+        private final BorderPane borderPane;
+        private final NuclearResearchBox nuclearResearch;
+        private final InfoResearchBox infoResearchBox;
 
         public MilResearchUnitsStage(List<MilUnitData>[] dataTypes) {
+            setTitle("Research");
             int n = dataTypes.length; //MilUnitData.getMaxTypes();
             this.labelTypeCurrLvl = new Label[n];
             this.labelTypeProgress = new Label[n];
@@ -57,7 +125,13 @@ public class Technology {
                 dividerPositions[i - 1] = i / (double) n;
             }
             splitPane.setDividerPositions(dividerPositions);
-            Scene scene = new Scene(splitPane);
+
+            this.borderPane = new BorderPane(splitPane);
+            this.nuclearResearch = new NuclearResearchBox();
+            this.infoResearchBox = new InfoResearchBox();
+            borderPane.setTop(infoResearchBox);
+            borderPane.setBottom(nuclearResearch);
+            Scene scene = new Scene(borderPane);
             setScene(scene);
         }
 
@@ -92,31 +166,38 @@ public class Technology {
 
         public void updatePlayer(Military mil) {
             if (mil != null) {
+                //if mil is stored somewhere here no need for these stuff to be like this
                 boolean[] researchingMilTech = mil.getResearchingMilTech();
                 for (int i = 0; i < researchButtons.length; i++) {
                     int finalI = i;
                     researchButtons[i].setOnAction(e -> researchingMilTech[finalI] = !researchingMilTech[finalI]);
                 }
+                nuclearResearch.updatePlayer(mil);
             } else {
                 for (ToggleButton researchButton : researchButtons) {
                     researchButton.setOnAction(null);
                 }
+                nuclearResearch.updatePlayer(null);
             }
         }
 
         //monthly update (?)
         public void updateScene(Military mil) {
-            short[] milTechProgress = mil.getMilTechProgress();
-            short[] milTechLevel = mil.getMilTechLevel();
-            boolean[] researchingMilTech = mil.getResearchingMilTech();
-            for (int i = 0; i < labelTypeCurrLvl.length; i++) {
-                short lvl = milTechLevel[i];
-                labelTypeCurrLvl[i].setText(Short.toString(lvl));
-                short progress = milTechProgress[i];
-                short lvlCap = mil.getMilTechLevelCap();
-                labelTypeProgress[i].setText(progress + "/" + lvlCap);
-                progressBars[i].setProgress((double) progress / lvlCap);
-                researchButtons[i].setSelected(researchingMilTech[i]);
+            if (mil != null) {
+                short[] milTechProgress = mil.getMilTechProgress();
+                short[] milTechLevel = mil.getMilTechLevel();
+                boolean[] researchingMilTech = mil.getResearchingMilTech();
+                for (int i = 0; i < labelTypeCurrLvl.length; i++) {
+                    short lvl = milTechLevel[i];
+                    labelTypeCurrLvl[i].setText(Short.toString(lvl));
+                    short progress = milTechProgress[i];
+                    short lvlCap = mil.getMilTechLevelCap();
+                    labelTypeProgress[i].setText(progress + "/" + lvlCap);
+                    progressBars[i].setProgress((double) progress / lvlCap);
+                    researchButtons[i].setSelected(researchingMilTech[i]);
+                }
+                nuclearResearch.updateScene(mil);
+                infoResearchBox.updateScene(mil);
             }
         }
 

@@ -77,11 +77,11 @@ public class Economy implements Serializable {
         }
     }
 
-    public void monthlyTreasuryUpdate() {
+    public void monthlyTreasuryUpdate(double milExpenditures) {
         //revenue vs expenditures
         double revenue = taxation * (gdp / 12);
-
-        double expenditures = 0;//research spendings, soldiers upkeep, gov spendings
+        //research spendings, soldiers upkeep, gov spendings
+        double expenditures = milExpenditures;
         lastMonthBalance = tradeManagement.diffExportImportMonthly() + revenue - expenditures;
         treasury.set(treasury.get() + lastMonthBalance);
     }

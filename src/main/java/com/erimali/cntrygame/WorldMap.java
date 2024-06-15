@@ -103,6 +103,14 @@ public class WorldMap {
         }
     }
 
+    //!!!!!!!!!!, for retreat etc
+    public int[] getProvNeighbours(int id) {
+        if (roadFinder != null) {
+            return roadFinder.getProvNeighbours(id);
+        }
+        return null;
+    }
+
     public void loadMilSVGData() {
         URL p = getClass().getResource("img/milsvgdata.txt");
         if (p == null) {
