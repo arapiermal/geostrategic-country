@@ -7,19 +7,25 @@ import java.util.*;
 
 //move stuff related to country in military class
 public class MilDiv implements Serializable {
+    private Military military; //if null -> rebels
     private String name;
     private MilLeader leader;
     private List<MilUnit> units;
     private int speed; //Math.min of all milunits?
 
+    //private int provId; if tied to province
+    //
+
     public MilDiv(String name) {
         this.name = name;
         this.units = new ArrayList<>();
     }
+
     public MilDiv(String name, List<MilUnit> units) {
         this.name = name;
         this.units = units;
     }
+
     public MilDiv(String name, MilLeader leader) {
         this.name = name;
         this.leader = leader;
@@ -102,7 +108,7 @@ public class MilDiv implements Serializable {
                 res = u1.attack(u2);
                 if (res == -2) {
                     score -= 2;
-                    units.remove(a1);
+                    units.remove(a1).removeSelf(); //remove self assumes MilDiv.list != this list
                     if (units.isEmpty())
                         return Integer.MIN_VALUE;
                 } else if (res == -1) {
@@ -115,7 +121,7 @@ public class MilDiv implements Serializable {
                     u2.setRetreating(true);
                 } else if (res == 2) {
                     score += 2;
-                    o.remove(a2);
+                    o.remove(a2).removeSelf();
                     if (o.isEmpty())
                         return Integer.MAX_VALUE;
                 }
@@ -128,8 +134,21 @@ public class MilDiv implements Serializable {
         }
         return score;
     }
+    //
     public static boolean attack(List<MilUnit> units, AdmDiv a){
         int n = units.size();
+        int i = 0;
+        while(i < n && !a.isOccupied()){
+            switch(units.get(i).attack(a)){
+                case 2:
+                    return true;
+                case 0:
+                    break;
+                case -2:
+                    units.remove(i).removeSelf();
+                    break;
+            }
+        }
         return false;
     }
     public int attack(MilDiv o) {

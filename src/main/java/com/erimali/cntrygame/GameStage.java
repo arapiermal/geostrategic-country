@@ -125,11 +125,13 @@ public class GameStage extends Stage {
     private LimitedSizeList<String> lastCommands;
     private Label infoRelations;
     private Button sendAllianceRequest;
+    private Label nukesLabel;
+    private Button sendNuclearStrike;
 
     private Stage gsOptionsStage;
     private Scene[] gsOptionsScenes;
     private TextField saveTextField;
-    private Button recruitBuildButton;
+    private Button recruitBuildMilButton;
     private UnionStage unionStage;
     private VBox formablesPanel;
     private Node toolBarReg;
@@ -169,6 +171,7 @@ public class GameStage extends Stage {
         initFullScreen();
         //Initiate
         game.getWorld().initiateProvinces(map.getMapSVG());
+        game.loadWars();
         makeWorldMapWorldUnison();
     }
 
@@ -211,8 +214,12 @@ public class GameStage extends Stage {
         if (map != null && game != null) {
             map.makeUpdateTextCountriesNames(game.getWorld().getCountries());
             game.getWorld().correlateCountryNeighbours(map.getCountryNeighboursMap());
-            //!!!!!!!!!!!!!!!!!!!!
+            //!!!!!!!!!!!!!!!!!!!! BASED ON SOME GAME OPTION GOptions.isTrue() (?)
             map.bruteForceDijkstraFix();
+            map.setRestRandomColors();
+
+
+            map.refreshMap(); //also useful because of GLogic wars
         }
     }
 
@@ -532,7 +539,7 @@ public class GameStage extends Stage {
         unitInfo.setEditable(false);
         unitInfo.setWrapText(true);
         unitInfo.setPrefWidth(240);
-        recruitBuildButton = new Button("Recruit");
+        recruitBuildMilButton = new Button("Recruit");
         treeUnitTypes = game.makeTreeViewUnitTypesBasic();
 
         treeUnitTypes.getSelectionModel().selectedItemProperty().addListener(
@@ -541,20 +548,20 @@ public class GameStage extends Stage {
                         MilUnitData selUnit = newValue.getValue();
                         unitInfo.setText(selUnit.toStringLong());
                         //unitInfo.setTooltip(new Tooltip(selUnit.getDesc()));
-                        recruitBuildButton.setText(selUnit.isVehicle() ? "Build" : "Recruit");
+                        recruitBuildMilButton.setText(selUnit.isVehicle() ? "Build" : "Recruit");
                     }
                 }
         );
-        recruitBuildButton.setOnAction(e -> {
+        recruitBuildMilButton.setOnAction(e -> {
             TreeItem<MilUnitData> selectedItem = treeUnitTypes.getSelectionModel().getSelectedItem();
             if (selectedItem != null) {
                 MilUnitData selUnit = selectedItem.getValue();
                 game.makeMilUnit(game.getPlayerId(), selectedProv, selUnit);
             }
         });
-        VBox vBox = new VBox(treeUnitTypes, recruitBuildButton, unitInfo);
+        VBox vBox = new VBox(treeUnitTypes, recruitBuildMilButton, unitInfo);
         VBox.setVgrow(unitInfo, Priority.ALWAYS);
-        recruitBuildButton.setVisible(false);
+        recruitBuildMilButton.setVisible(false);
         Tab tab = new Tab("Military", vBox);
 
         return tab;
@@ -906,22 +913,64 @@ public class GameStage extends Stage {
 
 
     private VBox makeVBoxPlayerProvOptions() {
-        Button raiseFunds = new Button("Raise municipal funds");
-        Button investInProv = new Button("Invest");
-        VBox vBox = new VBox(raiseFunds, investInProv);
-        vBox.setSpacing(8);
-        TitledPane titledPane = new TitledPane("", vBox);
-        titledPane.setAnimated(false);
-        return new VBox(titledPane);
+        Button investInfrastructure = new Button("Invest in infrastructure");
+        Button improveDefenses = new Button("Improve defenses");//defense level label on top (?)
+        //on damaged try to improve situation, Button fixDestruction
+
+        investInfrastructure.setOnAction(e -> {
+            game.investProvInfrastructure(selectedProv);
+        });
+        improveDefenses.setOnAction(e -> {
+            game.investProvDefenses(selectedProv);
+        });
+
+        VBox vBoxInvest = new VBox(investInfrastructure, improveDefenses);
+        vBoxInvest.setSpacing(8);
+        TitledPane investmentTitled = new TitledPane("Investment", vBoxInvest);
+        //titledPane.setAnimated(false);
+        //disabled on multilinguisticism
+        Button spreadMainLanguage = new Button("Spread main language");
+        Button crushRebellion = new Button("Crush rebellion"); //disabled if rebellion in prov == 0
+        VBox vBoxLinguistic = new VBox(spreadMainLanguage, crushRebellion);
+        vBoxLinguistic.setSpacing(8);
+        TitledPane linguisticTitled = new TitledPane("Population and rebellion", vBoxLinguistic);
+
+
+        return new VBox(investmentTitled, linguisticTitled);
     }
 
     private VBox makeVBoxOtherProvOptions() {
+        nukesLabel = new Label(); // tie with nukes as ObservableInteger (?)
+        sendNuclearStrike = new Button("Nuclear strike");
+        sendNuclearStrike.setDisable(true);
+        sendNuclearStrike.setOnAction(e -> {
+            if (game.sendNuclearStrike(selectedProv)) {
+                //keep track for condemnation
+                map.nuclearFallout(selectedProv);
+                if (!game.getPlayer().hasNukes()) {
+                    sendNuclearStrike.setDisable(true);
+                }
+                showAlert(Alert.AlertType.WARNING, "Global opinion wrecked", "Your use of nuclear weapons has brought forth a lot of destruction. The world opinion has turned severely against you.");
+            } else {
+                showAlert(Alert.AlertType.WARNING, "No nuclear strike", "We couldn't nuke the province.");
+            }
+        });
+        VBox vBoxWar = new VBox(nukesLabel, sendNuclearStrike);
+        vBoxWar.setSpacing(8);
+        TitledPane warProvTitled = new TitledPane("War", sendNuclearStrike);
 
-        return new VBox();
+        return new VBox(warProvTitled);
     }
-    ////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////
-    // if(game.isSubjectOfPlayer(selectedCountry))
+
+    private void setEnabledOrDisabledNuclearStrike() {
+        Country player = game.getPlayer();
+        if (player != null && player.hasNukes() && player.isAtWarWith(selectedCountry)) {
+            sendNuclearStrike.setDisable(false);
+        } else {
+            sendNuclearStrike.setDisable(true);
+        }
+
+    }
 
     public ToggleButton[] makeToggleButtonsConscriptRate() {
         double[] defRates = Military.getDefPopConscriptionRates();
@@ -1184,6 +1233,7 @@ public class GameStage extends Stage {
         if (selC == null) {
             String iso2 = CountryArray.getIndexISO2(map.getMapSVG()[selectedProv].getOwnerId());
             selectedCountryInfo.setText(iso2);
+            selectedCountryEconomyInfo.setText("");
             changeLeftVBoxes(-1);
 
             return;
@@ -1373,6 +1423,7 @@ public class GameStage extends Stage {
         popupStage.setScene(popupScene);
         Platform.runLater(popupStage::showAndWait);
     }
+
 
     static class Delta {
         double x, y;
@@ -1612,18 +1663,22 @@ public class GameStage extends Stage {
             selectedProvInfo.setText(game.getProvInfo(selectedProv));
             int owner = a.getOwnerId();
             if (isPlayingCountry && (game.getPlayerId() == owner || game.isSubjectOfPlayer(owner))) {
-                recruitBuildButton.setVisible(true);
+
+                recruitBuildMilButton.setVisible(true);
                 tableViewBuildings.setVisible(true);
                 buildBuildings.setFromProv(a);
                 a.setValuesFromEnumMapSet(tableViewBuildings);
             } else {
-                recruitBuildButton.setVisible(false);
+                setEnabledOrDisabledNuclearStrike();
+
+
+                recruitBuildMilButton.setVisible(false);
                 tableViewBuildings.setVisible(false);
             }
         } else {
             SVGProvince svgProvince = map.getMapSVG()[selectedProv];
             selectedProvInfo.setText(svgProvince.getId());
-            recruitBuildButton.setVisible(false);
+            recruitBuildMilButton.setVisible(false);
             tableViewBuildings.setVisible(false);
         }
     }
@@ -1664,6 +1719,12 @@ public class GameStage extends Stage {
 
         VBox vBox = new VBox(listViewFormables, requirements, form);
         return vBox;
+    }
+
+    public void setSelected(int ownerId, int provId) {
+
+        setSelectedCountry(ownerId);
+        setSelectedProvince(provId);
     }
 
     public void setSelectedCountry(int ownerId) {

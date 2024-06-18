@@ -38,19 +38,17 @@ public class WorldMap {
     private static double mapHeight = 6149.8;
     private ZoomableScrollPane scrollPane;
     private Paint[] colors;
+
     private Color backgroundColor = Color.valueOf("#ADD8E6");
-    private Color colDefTransparent = new Color(0, 0, 0, 0);
-    private String defColorString = "#ececec";
-    private Color defColor = Color.valueOf(defColorString);
-    private Color defColorCountry = new Color(0, 0, 0, 0);
-    private String defBorderColorString = "#000000";
-    private Paint defBorderColor = Paint.valueOf(defBorderColorString);
+    private Color defColor = Color.valueOf("#ececec");
+    //private Color defColorCountry = new Color(0, 0, 0, 0);
+    private Paint defBorderColor = Paint.valueOf("#000000");
     private Paint defAtWarWithColor = Color.RED;
-    private Paint defAllyColor = Paint.valueOf("blue");
-    private Paint defNeutralColor = Paint.valueOf("lightgreen");
-    private Paint defSelectedColor = Paint.valueOf("gray");
-    private Paint defSubjectColor = Paint.valueOf("green");
-    private Paint defOwnerColor = Paint.valueOf("yellow");
+    private Paint defAllyColor = Color.BLUE;
+    private Paint defNeutralColor = Color.LIGHTGREEN;
+    private Paint defSelectedColor = Color.GRAY;
+    private Paint defSubjectColor = Color.GREEN;
+    private Paint defOwnerColor = Color.YELLOW;
     private Group mapGroup;
 
     // CURSOR
@@ -71,9 +69,11 @@ public class WorldMap {
     private static final String[] MAP_MODE_NAMES = new String[]{"Default", "Allies", "Unions", "Neighbours", "Continents", "Waters"};
 
     private Set<Integer> waterProvinces;
+    private Set<Integer> worldMapCountries;
 
     public WorldMap(GameStage gs) {
-        waterProvinces = new HashSet<>();
+        this.worldMapCountries = new TreeSet<>();
+        this.waterProvinces = new HashSet<>();
         this.waterBodies = WaterBody.loadWaterBodies(waterProvinces);
         loadColors();
         loadMilSVGData();
@@ -160,11 +160,14 @@ public class WorldMap {
                     }
                     String pathData = line.substring(beginPath, j);
                     try {
-
-                        SVGProvince svgPath = new SVGProvince(CountryArray.getIndex(pathOwn), currProvId++);
+                        int ownIndex = CountryArray.getIndex(pathOwn);
+                        SVGProvince svgPath = new SVGProvince(ownIndex, currProvId++);
                         svgPath.setId(pathId);
                         svgPath.setContent(pathData);
                         svgPath.updateXY();
+
+                        worldMapCountries.add(ownIndex);
+
                         //OR LOAD PROVINCE FROM HERE
                         // AL/Elbasan.txt
                         if (containsColor(pathOwnId)) {
@@ -174,7 +177,6 @@ public class WorldMap {
                             setColor(pathOwnId, defColor);
 
                         }
-                        //svgPath.setOnMouseClicked(this::onPathClicked);
                         svgPath.setStroke(defBorderColor);
                         svgPaths.add(svgPath);
                     } catch (Exception e) {
@@ -297,8 +299,32 @@ public class WorldMap {
         return bg;
     }
 
+    public void setRestRandomColors() {
+        for (int id : worldMapCountries) {
+            if (colors[id].equals(defColor)) {
+                Set<Paint> usedColors = new HashSet<>();
+                Set<Integer> neighbours = countryNeighboursMap.get(id);
+                if(neighbours == null) {
+                    setColor(id, getRandomColor());
+                    continue;
+                }
+                for (int i : neighbours) {
+                    usedColors.add(colors[i]);
+                }
+                int times = 0;
+                Color rand;
+                do {
+                    rand = getRandomColor();
+                } while (usedColors.contains(rand) && times++ < 100);//don't get stuck in infinite loop
+
+                setColor(id, rand);
+            }
+        }
+    }
+
     public void loadColors() {
         colors = new Paint[CountryArray.getMaxIso2Countries()];
+
         try (BufferedReader br = new BufferedReader(new FileReader(GLogic.RESOURCES_PATH + "map/colors.csv"))) {
             String row = br.readLine(); // Skip first row
             while ((row = br.readLine()) != null) {
@@ -312,7 +338,6 @@ public class WorldMap {
                     }
                 }
             }
-
         } catch (Exception e) {
 
         }
@@ -325,8 +350,8 @@ public class WorldMap {
             int oldSel = gs.getSelectedCountry();
             int pathOwn = clickedPath.getOwnerId();
             int provId = clickedPath.getProvId();
-            gs.setSelectedProvince(provId);
-            gs.setSelectedCountry(pathOwn);
+            gs.setSelected(pathOwn, provId);
+            //switched!!!
             //System.out.println(clickedPath.getId() + " clicked");
             if (pathOwn != oldSel) {
                 if (mapMode == 1)
@@ -717,6 +742,12 @@ public class WorldMap {
         colors[id] = color;
     }
 
+    public void addColor(int id, Paint color) {
+        if (id >= 0 && id < colors.length && colors[id] == null) {
+            colors[id] = color;
+        }
+    }
+
     public Paint[] getColors() {
         return colors;
     }
@@ -1052,7 +1083,12 @@ public class WorldMap {
         }
         return map;
     }
-
+    public void nuclearFallout(int provId){
+        if(provId >= 0 && provId < mapSVG.length){
+            SVGProvince svgProvince = mapSVG[provId];
+            nuclearFallout(svgProvince);
+        }
+    }
     public void nuclearFallout(SVGProvince svgProvince) {
         //GameAudio.playShortSound("");// nuke... take care filesystem...
 
@@ -1144,6 +1180,159 @@ public class WorldMap {
             }
         }
     }
+    //Commend out colors that are not used
+    private static final Color[] DEF_NAMED_COLORS = {
+            Color.ALICEBLUE,
+            Color.ANTIQUEWHITE,
+            Color.AQUA,
+            Color.AQUAMARINE,
+            Color.AZURE,
+            Color.BEIGE,
+            Color.BISQUE,
+            Color.BLACK,
+            Color.BLANCHEDALMOND,
+            Color.BLUE,
+            Color.BLUEVIOLET,
+            Color.BROWN,
+            Color.BURLYWOOD,
+            Color.CADETBLUE,
+            Color.CHARTREUSE,
+            Color.CHOCOLATE,
+            Color.CORAL,
+            Color.CORNFLOWERBLUE,
+            Color.CORNSILK,
+            Color.CRIMSON,
+            Color.CYAN,
+            Color.DARKBLUE,
+            Color.DARKCYAN,
+            Color.DARKGOLDENROD,
+            Color.DARKGRAY,
+            Color.DARKGREEN,
+            Color.DARKGREY,
+            Color.DARKKHAKI,
+            Color.DARKMAGENTA,
+            Color.DARKOLIVEGREEN,
+            Color.DARKORANGE,
+            Color.DARKORCHID,
+            Color.DARKRED,
+            Color.DARKSALMON,
+            Color.DARKSEAGREEN,
+            Color.DARKSLATEBLUE,
+            Color.DARKSLATEGRAY,
+            Color.DARKSLATEGREY,
+            Color.DARKTURQUOISE,
+            Color.DARKVIOLET,
+            Color.DEEPPINK,
+            Color.DEEPSKYBLUE,
+            Color.DIMGRAY,
+            Color.DIMGREY,
+            Color.DODGERBLUE,
+            Color.FIREBRICK,
+            //Color.FLORALWHITE,
+            Color.FORESTGREEN,
+            Color.FUCHSIA,
+            Color.GAINSBORO,
+            //Color.GHOSTWHITE,
+            Color.GOLD,
+            Color.GOLDENROD,
+            Color.GRAY,
+            Color.GREEN,
+            Color.GREENYELLOW,
+            Color.GREY,
+            Color.HONEYDEW,
+            Color.HOTPINK,
+            Color.INDIANRED,
+            Color.INDIGO,
+            Color.IVORY,
+            Color.KHAKI,
+            Color.LAVENDER,
+            Color.LAVENDERBLUSH,
+            Color.LAWNGREEN,
+            Color.LEMONCHIFFON,
+            Color.LIGHTBLUE,
+            Color.LIGHTCORAL,
+            Color.LIGHTCYAN,
+            Color.LIGHTGOLDENRODYELLOW,
+            Color.LIGHTGRAY,
+            Color.LIGHTGREEN,
+            Color.LIGHTGREY,
+            Color.LIGHTPINK,
+            Color.LIGHTSALMON,
+            Color.LIGHTSEAGREEN,
+            Color.LIGHTSKYBLUE,
+            Color.LIGHTSLATEGRAY,
+            Color.LIGHTSLATEGREY,
+            Color.LIGHTSTEELBLUE,
+            Color.LIGHTYELLOW,
+            Color.LIME,
+            Color.LIMEGREEN,
+            Color.LINEN,
+            Color.MAGENTA,
+            Color.MAROON,
+            Color.MEDIUMAQUAMARINE,
+            Color.MEDIUMBLUE,
+            Color.MEDIUMORCHID,
+            Color.MEDIUMPURPLE,
+            Color.MEDIUMSEAGREEN,
+            Color.MEDIUMSLATEBLUE,
+            Color.MEDIUMSPRINGGREEN,
+            Color.MEDIUMTURQUOISE,
+            Color.MEDIUMVIOLETRED,
+            Color.MIDNIGHTBLUE,
+            Color.MINTCREAM,
+            Color.MISTYROSE,
+            Color.MOCCASIN,
+            Color.NAVAJOWHITE,
+            Color.NAVY,
+            Color.OLDLACE,
+            Color.OLIVE,
+            Color.OLIVEDRAB,
+            Color.ORANGE,
+            Color.ORANGERED,
+            Color.ORCHID,
+            Color.PALEGOLDENROD,
+            Color.PALEGREEN,
+            Color.PALETURQUOISE,
+            Color.PALEVIOLETRED,
+            Color.PAPAYAWHIP,
+            Color.PEACHPUFF,
+            Color.PERU,
+            Color.PINK,
+            Color.PLUM,
+            Color.POWDERBLUE,
+            Color.PURPLE,
+            Color.RED,
+            Color.ROSYBROWN,
+            Color.ROYALBLUE,
+            Color.SADDLEBROWN,
+            Color.SALMON,
+            Color.SANDYBROWN,
+            Color.SEAGREEN,
+            Color.SEASHELL,
+            Color.SIENNA,
+            Color.SILVER,
+            Color.SKYBLUE,
+            Color.SLATEBLUE,
+            Color.SLATEGRAY,
+            Color.SLATEGREY,
+            Color.SNOW,
+            Color.SPRINGGREEN,
+            Color.STEELBLUE,
+            Color.TAN,
+            Color.TEAL,
+            Color.THISTLE,
+            Color.TOMATO,
+            //Color.TRANSPARENT,
+            Color.TURQUOISE,
+            Color.VIOLET,
+            Color.WHEAT,
+            //Color.WHITE,
+            //Color.WHITESMOKE,
+            Color.YELLOW,
+            Color.YELLOWGREEN
+    };
 
-
+    public static Color getRandomColor() {
+        return DEF_NAMED_COLORS[(int) (Math.random() * DEF_NAMED_COLORS.length)];
+    }
 }

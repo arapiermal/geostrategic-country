@@ -1,0 +1,32 @@
+Slovenia{
+area:20271
+population:2123103
+popInc:-0.01%
+capital-Ljubljana:Central_Slovenia
+languages:Slovenian
+admDivision:district
+Mura,Pomurska:1337,114287
+Drava,Podravska:2170,324104
+Carinthia,Koroška:1041,70588
+Savinja,Savinjska:2384,261851
+Central_Sava,Zasavska:264,41606
+Lower_Sava,Posavska:885,70067
+Southeast_Slovenia,Jugovzhodna_Slovenija:2675,144032
+Littoral_Inner_Carniola,Primorsko-notranjska:1456,52544
+Central_Slovenia,Osrednjeslovenska:2555,564527
+Upper_Carniola,Gorenjska:2137,204670
+Gorizia,Goriška:2325,117616
+Coastal_Karst,Obalno-kraška:1044,115016
+}
+Government{
+type:Republic
+headOfState:President,Nataša,Pirc Musar,Female
+headOfGov:Prime Minister,Robert,Golob,Male
+elections:4,2022
+}
+Economy{
+currency:EUR,1.0%
+GDPUSD:72.101e9,2.3%
+taxation:2.5%
+unemployment:4.7%
+}

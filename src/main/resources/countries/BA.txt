@@ -9,7 +9,7 @@ Una-Sana:4125,273261
 Posavina:324.6,43453
 Tuzla:2649,445028
 Zenica-Doboj:3334.3,364433
-Bosnian-Podrinje_Goražde:504.6,23734
+Bosnian-Podrinje_Goražde,Bosnian_Podrinje:504.6,23734
 Central_Bosnia:3189,254686
 Herzegovina-Neretva:4401,222007
 West_Herzegovina:1362.2,94898

@@ -127,6 +127,10 @@ public class Military implements Serializable {
         this.nuclearTechLevel = Math.max(0, nuclearTechLevel);
     }
 
+    public void setNuclearTechLevel() {
+        this.nuclearTechLevel = MIN_NUCLEAR_TECH_FOR_NUKES;
+    }
+
     public int getNuclearTechLevel() {
         return nuclearTechLevel;
     }
@@ -152,13 +156,27 @@ public class Military implements Serializable {
             nukes += amount;
     }
 
+    public boolean hasNukes() {
+        return nukes > 0;
+    }
+
+    public boolean useNuke() {
+        if (nukes > 0) {
+            nukes--;
+            return true;
+        }
+        return false;
+    }
+
     public void addNukes(int amount) {
         nukes += amount;
         if (nukes < 0)
             nukes = 0;
     }
-    public void makeUnit() {
+
+    public void makeUnit(MilUnit unit) {
         //TOP DOWN ?!? DIVISION AUTOMATIC (!!?)
+
     }
 
     public void addDivision(MilDiv d) {
@@ -366,7 +384,7 @@ public class Military implements Serializable {
         double cost = 0;
         addManpowerFromPop(population);
         cost += activePersonnel * (gdp / population) / 120;
-        cost += (lastMonthResearchCost = monthlyResearch(population,gdp,researchBonus));
+        cost += (lastMonthResearchCost = monthlyResearch(population, gdp, researchBonus));
 
         return cost;
     }
@@ -478,4 +496,5 @@ public class Military implements Serializable {
     public short getBaseResearch() {
         return baseResearch;
     }
+
 }

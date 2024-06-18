@@ -101,3 +101,8 @@ GDPUSD:2.057e12,3.2%
 taxation:2.5%
 unemployment:2.8%
 }
+
+Military{
+nukes:5580
+
+}

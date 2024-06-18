@@ -237,6 +237,8 @@ public class GLogic implements Serializable {
 
         return "";// No such country
     }
+
+    //based on (int countryId) for more world implementation
     public CountryArray getWorldCountries() {
         return world.getCountries();
     }
@@ -277,8 +279,9 @@ public class GLogic implements Serializable {
             updateCannotHappenGameEvents();
         }
     }
-    public void abandonPlayer(){
-        if(player != null || playerId >= 0){
+
+    public void abandonPlayer() {
+        if (player != null || playerId >= 0) {
             playerId = -1;
             player = null;
             CommandLine.setPlayerCountry(null);
@@ -286,6 +289,7 @@ public class GLogic implements Serializable {
             //updateCannotHappenGameEvents();
         }
     }
+
     public void updateCannotHappenGameEvents() {
         for (GEvent ge : gameEvents) {
             ge.setCanHappen();
@@ -705,8 +709,10 @@ public class GLogic implements Serializable {
         if (w != null) {
             wars.add(w);
             addGameNews(c1.getName() + " declared war on " + c2.getName(), w.toString());
+            return true;
+        } else{
+            return false;
         }
-        return true;
     }
 
     public boolean declareWar(int o, CasusBelli casusBelli) {
@@ -764,7 +770,6 @@ public class GLogic implements Serializable {
             w.dayTick();
         }
     }
-
 
 
     public void giveMoney(int selectedCountry, Double result) {
@@ -1019,7 +1024,7 @@ public class GLogic implements Serializable {
         if (c1 == null || c2 == null)
             return;
         //types (?) ...
-        c1.improveRelations(cId2, (short) -50);
+        c1.worsenRelations(cId2, (short) 50);
         //update , if relations < 0 ...
     }
 
@@ -1041,14 +1046,15 @@ public class GLogic implements Serializable {
                             }
                         }
                         War war = new War(this, c1, c2, casusBelli);
+                        c1.reputationHitFromWar(c2, getWorldCountries(), casusBelli);
                         loadOccupiedInWar(war, br);
                         wars.add(war);
                     }
 
                 }
             }
-            if (gs != null)
-                gs.getMap().refreshMap();
+            //if (gs != null)
+            //gs.getMap().refreshMap();
         } catch (IOException e) {
 
         }
@@ -1130,4 +1136,90 @@ public class GLogic implements Serializable {
         return true;
     }
 
+    public boolean sendNuclearStrike(int selectedProvince) {
+        return sendNuclearStrike(playerId, selectedProvince);
+    }
+
+    public boolean sendNuclearStrike(int mainId, int provId) {
+        Country c = getCountry(mainId);
+        AdmDiv admDiv = getAdmDiv(provId);
+        if (c != null && admDiv != null && c.hasNukes()) {
+            int oId = admDiv.getOwnerId();
+            Country o = getCountry(oId);
+            if (o != null && c.isAtWarWith(oId) && c.getMilitary().useNuke()) {
+                int popDec = admDiv.nuclearFallout();
+                o.removePopulation(popDec);
+                c.getDiplomacy().decGlobalRespect(10);
+                short badRep = (short) 40;
+                short badRepFriendly = (short) (badRep / 2);
+                for (Country i : getWorldCountries()) {
+                    if (i != null && i != c) {
+                        int nId = i.getCountryId();
+                        if (c.isAllyWith(nId) || c.hasSubject(nId)) {
+                            c.worsenRelations(nId, badRepFriendly);
+                        } else {
+                            c.worsenRelations(nId, badRep);
+                        }
+                    }
+                }
+                return true;
+            }
+
+        }
+
+        return false;
+    }
+
+    public void investProvInfrastructure(int selectedProv) {
+        investProvInfrastructure(playerId, selectedProv);
+
+    }
+
+    public boolean investProvInfrastructure(int mainId, int provId) {
+        //increases next month (?) and only once per month (!)
+        //investing in subject provinces
+        Country main = getCountry(mainId);
+        AdmDiv admDiv = getAdmDiv(provId);
+        if(main != null && admDiv != null) {
+            double cost = admDiv.calcInfrastructureCost(); //this should be seen in label or alert
+            if (main.getTreasury() >= cost) {
+                if (admDiv.getOwnerId() == mainId) {
+                    main.incInfrastructure(admDiv);
+                } else {
+                    Country sub = getCountry(admDiv.getOwnerId());
+                    sub.incInfrastructure(admDiv);
+                }
+                main.spendTreasury(cost);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void investProvDefenses(int selectedProv) {
+        investProvDefenses(playerId, selectedProv);
+
+    }
+
+    public boolean investProvDefenses(int mainId, int provId) {
+        //investing in subject provinces
+        Country main = getCountry(mainId);
+        AdmDiv admDiv = getAdmDiv(provId);
+        if(main != null && admDiv != null) {
+            double cost = admDiv.calcInfrastructureCost(); //this should be seen in label or alert
+            if (main.getTreasury() >= cost) {
+                int ownerId = admDiv.getOwnerId();
+                if (ownerId == mainId) {
+                    //main.incMaxDefenses(admDiv);
+                } else {
+                    main.improveRelations(ownerId, (short) 5);
+                    Country sub = getCountry(ownerId);
+                    //sub.incMaxDefenses(admDiv);
+                }
+                main.spendTreasury(cost);
+                return true;
+            }
+        }
+        return false;
+    }
 }

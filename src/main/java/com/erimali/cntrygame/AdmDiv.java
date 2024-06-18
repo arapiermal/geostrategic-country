@@ -513,6 +513,10 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
         return Math.log(area) + Math.sqrt(Math.log10(population));
     }
 
+    public double calcInfrastructureCost(){
+        return calcWarCost() * infrastructure * gdpPerCapita * 1000;
+    }
+
     public double getGDP(){
         return gdpPerCapita * population;
     }
@@ -546,7 +550,7 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
     }
 
     private void destroyAllUnits() {
-
+        //milUnit.removeSelf() REMOVE FROM ADMDIV
     }
 
     private boolean hasEnemyTroops() {

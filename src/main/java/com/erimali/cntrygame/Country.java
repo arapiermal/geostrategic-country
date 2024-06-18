@@ -74,7 +74,7 @@ public class Country implements Serializable, Comparable<Country> {
 
     public Country(String name, double area, long population, double populationIncrease, String capital,
                    String admDivisionType, List<AdmDiv> admDivisions, List<Short> languages,
-             Government gov, Economy eco, Military military) {
+                   Government gov, Economy eco, Military military) {
         this.name = name;
         this.continents = EnumSet.noneOf(Continent.class);
         this.area = area;
@@ -89,7 +89,7 @@ public class Country implements Serializable, Comparable<Country> {
         this.dip = new Diplomacy();
 
         AdmDiv cap = getAdmDiv(capital);
-        this.capital = cap != null ? cap : admDivisions.getFirst();
+        this.capital = cap != null ? cap : admDivisions.isEmpty() ? null : admDivisions.getFirst();
 
         this.subjects = new HashMap<>();
         this.unions = new LinkedList<>();
@@ -121,7 +121,7 @@ public class Country implements Serializable, Comparable<Country> {
         double gdp = eco.getGDP();
         double milExpenditures = mil.monthlyTick(population, gdp, milResearchBonus);
         eco.monthlyTreasuryUpdate(milExpenditures);
-        if(eco.getTreasury() < 0)
+        if (eco.getTreasury() < 0)
             mil.stopAllResearch();
         taxSubjects();
 
@@ -208,23 +208,38 @@ public class Country implements Serializable, Comparable<Country> {
         eco.addGDP(gdp);
     }
 
+    public void reputationHitFromWar(Country op, CountryArray cArr, CasusBelli casusBelli) {
+        for (Union u : unions) {
+            if (u.containsCountry(op.getCountryId())) {
+                for (int i : u.getUnionCountries()) {
+                    if (i != countryId) {
+                        dip.worsenRelations(i, casusBelli.getPerceivedAggressiveness());
+                    }
+                }
+            }
+        }
+        if (neighbours != null)
+            for (int i : neighbours) {
+                if (cArr.containsKey(i)) {
+                    Country c = cArr.get(i); //(?)
+                    if (c.getDiplomacy().isRivalWith(op.countryId)) {
+                        dip.improveRelations(i, casusBelli.getPerceivedAggressiveness());
+                    } else if (c.getDiplomacy().isAllyWith(op.countryId)) {
+                        dip.worsenRelations(i, (short) (2 * casusBelli.getPerceivedAggressiveness()));
+                    } else {
+                        dip.worsenRelations(i, casusBelli.getPerceivedAggressiveness());
+                    }
+                }
+            }
+    }
+
     // War
     public War declareWar(int opId, GLogic game, CasusBelli casusBelli) {
-        CountryArray cArr = game.getWorld().getCountries();
+        CountryArray cArr = game.getWorldCountries();
         Country op = cArr.get(opId);
         if (op == null)
             return null;
         if (gov.canDeclareWar()) {
-            //my unions or op unions ?!?
-            for (Union u : unions) {
-                if (u.containsCountry(op.getCountryId())) {
-                    for (int i : u.getUnionCountries()) {
-                        if (i != countryId) {
-                            dip.worsenRelations(i, casusBelli.getPerceivedAggressiveness());
-                        }
-                    }
-                }
-            }
             Set<Integer> opUnionAllies = new HashSet<>();
             for (Union u : op.unions) {
                 if (u.hasType(u.MILITARY) && !u.containsCountry(this.countryId)) {
@@ -234,19 +249,7 @@ public class Country implements Serializable, Comparable<Country> {
             if (!opUnionAllies.isEmpty()) {
                 opUnionAllies.remove(op.countryId);
             }
-            for (int i : neighbours) {
-                if (cArr.containsKey(i)) {
-                    Country c = cArr.get(i);
-                    if (c.getDiplomacy().isRivalWith(i)) {
-                        dip.improveRelations(i, casusBelli.getPerceivedAggressiveness());
-                    } else if (c.getDiplomacy().isAllyWith(i)) {
-                        dip.worsenRelations(i, (short) (2 * casusBelli.getPerceivedAggressiveness()));
-                    } else {
-                        dip.worsenRelations(i, casusBelli.getPerceivedAggressiveness());
-                    }
-                }
-            }
-
+            reputationHitFromWar(op, cArr, casusBelli);
             return new War(game, this, op, casusBelli);
         }
         return null;
@@ -476,7 +479,7 @@ public class Country implements Serializable, Comparable<Country> {
         return dip.isAllyWith(c);
     }
 
-    private void worsenRelations(int c, short amount) {
+    public void worsenRelations(int c, short amount) {
         dip.worsenRelations(c, amount);
     }
 
@@ -636,7 +639,7 @@ public class Country implements Serializable, Comparable<Country> {
         if (isAllyWith(c)) {
             removeAlly(c);
             o.removeAlly(countryId);
-            improveRelations(c, (short) -10);
+            worsenRelations(c, (short) 20);
             return true;
         }
         return false;
@@ -1019,6 +1022,7 @@ public class Country implements Serializable, Comparable<Country> {
     }
 
     public void incInfrastructure(int i) {
+        //dangerous not based on provId
         if (i < 0 || i >= admDivisions.size())
             return;
         AdmDiv admDiv = admDivisions.get(i);
@@ -1106,5 +1110,17 @@ public class Country implements Serializable, Comparable<Country> {
 
     public void setNeighbours(Set<Integer> neighbours) {
         this.neighbours = neighbours;
+    }
+
+    public void removePopulation(int popDec) {
+        if (popDec > 0) {
+            this.population -= popDec;
+            if (popDec < 0)
+                population = 0;
+        }
+    }
+
+    public boolean hasNukes() {
+        return mil.hasNukes();
     }
 }

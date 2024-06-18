@@ -168,7 +168,6 @@ public class World implements Serializable {
                 }
             }
         }
-        game.loadWars();
     }
 
     public void loadLanguages() {
@@ -318,7 +317,42 @@ public class World implements Serializable {
 
     private void militaryFromFile(BufferedReader br, Military military) {
         try {
+            //chief commander (?)
+            String line;
+            while ((line = br.readLine()) != null && !(line = line.trim()).isBlank()) {
+                String[] k = line.split("\\s*:\\s*");
+                if (k.length >= 2) {
+                    switch (k[0].toLowerCase()) {
+                        case "nukes":
+                            military.setNuclearTechLevel();
+                            military.setNukes(GUtils.parseIntOrMinMaxDef(k[1], 0, 100000, 1));
+                            break;
+                        case "tech":
+                            //tech:0[type-soldiers]:2[lvl]
+                            if(k.length == 3) {
 
+                            }
+                            break;
+                    }
+                } else {
+                    String milDivName = getValueStart(line);
+                    int indCity = milDivName.indexOf('-');
+                    if (indCity > 0) {
+                        String cityName = milDivName.substring(indCity + 1); //can be an id...
+                        milDivName = milDivName.substring(0, indCity);
+                        int cityId;
+                        try {
+                            cityId = Integer.parseInt(cityName);
+                        } catch (NumberFormatException nfe) {
+
+                        }
+
+
+                    } else {
+                        //assume capital
+                    }
+                }
+            }
         } catch (Exception e) {
 
         }

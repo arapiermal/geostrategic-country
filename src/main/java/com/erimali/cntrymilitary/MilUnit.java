@@ -217,4 +217,9 @@ public abstract class MilUnit implements Serializable {
     public void setProvId(int provId) {
         this.provId = provId;
     }
+
+    public void removeSelf() {
+        if(division != null)
+            division.removeUnit(this);
+    }
 }
