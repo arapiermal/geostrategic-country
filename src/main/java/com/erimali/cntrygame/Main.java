@@ -14,15 +14,17 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
 
 public class Main extends Application {
-    protected static final String APP_NAME = "Strategical Geopolitics Simulator";
+    protected static final String APP_NAME = "Geostrategic Country Simulator"; //Strategical Geopolitics Simulator
     private static Image gameIcon;
     private static Image settingsIcon;
 
@@ -52,6 +54,8 @@ public class Main extends Application {
 
         primaryStage.setTitle(APP_NAME + " - Main Menu");
         loadGameIcon(primaryStage);
+        Text titleText = new Text(APP_NAME);
+        titleText.getStyleClass().add("title-text");
         Button startButton = createButton("New Game", this::startGame);
         Button loadButton = createButton("Load Game", this::loadGame);
 
@@ -63,7 +67,7 @@ public class Main extends Application {
         Button esGUI = createButton("EriScript GUI", this::openEriScriptGUI);
         Button disclaimerButton = createButton("Disclaimer", this::openDisclaimer);
 
-        VBox menuLayout = createMenuLayout(startButton, loadButton, optionsButton, exitButton, extraContent, esGUI, disclaimerButton);
+        VBox menuLayout = createMenuLayout(titleText, startButton, loadButton, optionsButton, exitButton, extraContent, esGUI, disclaimerButton);
 
         BorderPane root = createRootContainer(menuLayout);
 
@@ -87,7 +91,9 @@ public class Main extends Application {
 
         Scene scene = new Scene(root, 1280, 720);
         //scene.getStylesheets().add(getClass().getResource("css/main.css").toExternalForm());
-
+        URL cssURL = getClass().getResource("css/main.css");
+        if (cssURL != null)
+            scene.getStylesheets().add(cssURL.toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
     }

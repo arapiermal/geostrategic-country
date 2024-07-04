@@ -148,6 +148,8 @@ public class GameStage extends Stage {
     private CheckListView<GovPolicy> checkListViewGovPolicies;
     private PeaceNegotiationStage peaceNegotiationStage;
     private Button declareWarButton;
+    private Button crushRebellion;
+    private Button spreadMainLanguage;
 
     public GameStage(Main application) {
         this.application = application;
@@ -929,8 +931,12 @@ public class GameStage extends Stage {
         TitledPane investmentTitled = new TitledPane("Investment", vBoxInvest);
         //titledPane.setAnimated(false);
         //disabled on multilinguisticism
-        Button spreadMainLanguage = new Button("Spread main language");
-        Button crushRebellion = new Button("Crush rebellion"); //disabled if rebellion in prov == 0
+        spreadMainLanguage = new Button("Spread main language");
+        spreadMainLanguage.setOnAction(e -> {
+
+        });
+        crushRebellion = new Button("Crush rebellion"); //disabled if rebellion in prov == 0
+
         VBox vBoxLinguistic = new VBox(spreadMainLanguage, crushRebellion);
         vBoxLinguistic.setSpacing(8);
         TitledPane linguisticTitled = new TitledPane("Population and rebellion", vBoxLinguistic);
@@ -950,6 +956,7 @@ public class GameStage extends Stage {
                 if (!game.getPlayer().hasNukes()) {
                     sendNuclearStrike.setDisable(true);
                 }
+                GameAudio.playShortSound("nuclear_explosion.mp3");
                 showAlert(Alert.AlertType.WARNING, "Global opinion wrecked", "Your use of nuclear weapons has brought forth a lot of destruction. The world opinion has turned severely against you.");
             } else {
                 showAlert(Alert.AlertType.WARNING, "No nuclear strike", "We couldn't nuke the province.");
@@ -964,8 +971,10 @@ public class GameStage extends Stage {
 
     private void setEnabledOrDisabledNuclearStrike() {
         Country player = game.getPlayer();
-        if (player != null && player.hasNukes() && player.isAtWarWith(selectedCountry)) {
-            sendNuclearStrike.setDisable(false);
+        if (player != null) {
+            nukesLabel.setText(player.getMilitary().getNukes() + " nukes");
+            if(player.hasNukes() && player.isAtWarWith(selectedCountry))
+                sendNuclearStrike.setDisable(false);
         } else {
             sendNuclearStrike.setDisable(true);
         }
@@ -1668,6 +1677,9 @@ public class GameStage extends Stage {
                 tableViewBuildings.setVisible(true);
                 buildBuildings.setFromProv(a);
                 a.setValuesFromEnumMapSet(tableViewBuildings);
+                crushRebellion.setDisable(!a.hasRebellion());
+                boolean hasSameLang = game.getCountry(owner).getMainLanguage() == a.getMainLanguage();
+                spreadMainLanguage.setDisable(hasSameLang);
             } else {
                 setEnabledOrDisabledNuclearStrike();
 

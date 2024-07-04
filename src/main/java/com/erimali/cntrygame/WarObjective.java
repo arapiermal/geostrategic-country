@@ -7,7 +7,6 @@ public enum WarObjective {
     //if all provinces selected -> full annexation
     //There can be partly annexation! cost cannot be a stuck value, what can be better
     ANNEX(100) {
-
         public void action(GLogic game, War war, int cInd1, int cInd2, int... args) {
             //factors that effect?
             Country c1 = game.getCountry(cInd1);
@@ -24,15 +23,15 @@ public enum WarObjective {
     SUBJUGATE(80) {
         @Override
         public void action(GLogic game, War war, int cInd1, int cInd2, int... args) {
-            game.subjugateCountry(cInd1,cInd2, args);
+            game.subjugateCountry(cInd1, cInd2, args);
         }
     },
-    LIBERATE_ANNEXED(100){
+    LIBERATE_ANNEXED(100) {
         //taking care of partial annexation...
         public void action(GLogic game, War war, int cInd1, int cInd2, int... args) {
             Country c1 = game.getCountry(cInd1);
             World world = game.getWorld();
-            if(!world.getInitialProvinces().ownsOthers(c1)){
+            if (!world.getInitialProvinces().ownsOthers(c1)) {
                 return;
             }
             List<Integer> released = world.releaseAllCountries(cInd2, true);
@@ -52,9 +51,9 @@ public enum WarObjective {
             for (int i : c2.getSubjects().keySet()) {
                 CSubject subject = c2.getSubject(i);
                 short improveRel;
-                if(subject.isAtGoodTerms()){
-                    improveRel =  (short) (c2.getRelations(i) / 8);//-
-                } else{
+                if (subject.isAtGoodTerms()) {
+                    improveRel = (short) (c2.getRelations(i) / 8);//-
+                } else {
                     improveRel = (short) (subject.getIndependenceDesire() * 2);
                 }
                 c1.improveRelations(i, improveRel);
@@ -81,8 +80,8 @@ public enum WarObjective {
             Country c2 = game.getCountry(cInd2);
             c2.setMilitary(null); //erases all progress !!!!!!...
             int years = 5;
-            if(args.length > 0)
-             years = args[0];
+            if (args.length > 0)
+                years = args[0];
             c2.getGovernment().addPolicy(GovPolicy.BANNED_MILITARY, years);
         }
     },
@@ -90,6 +89,7 @@ public enum WarObjective {
     ;
     private double cost;
     private EnumSet<WarObjective> exclude;
+
     WarObjective(double cost) {
         this.cost = cost;
     }

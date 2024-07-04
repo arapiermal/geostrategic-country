@@ -8,6 +8,9 @@ public class MilRebels extends MilSoldiers {
             1, new int[]{1, 1, 1, 1, 1, 1, 1, 1}, new int[]{1, 1, 1, 1, 1, 1, 1, 1}, 5, 900, 0, null);
     private RebelType rebelType;
 
+    //not transient here, removes need for correlation
+    protected MilUnitData data;
+
     //ownerId = the sponsor ? or -1 for not affiliated with any state
     public MilRebels(int ownerId, RebelType rebelType, boolean full) {
         super(REBEL_SOLDIERS, CountryArray.getMaxIso2Countries() + ownerId);

@@ -53,10 +53,10 @@ public class World implements Serializable {
         this.game = game;
         this.worldId = 3;
         this.worldType = WorldType.PLANET;
+        this.name = "Earth";
+        this.totalLandArea = 148940000;
+        this.countries = new CountryArray(this);
         try {
-            name = "Earth";
-            totalLandArea = 148940000;
-            countries = new CountryArray(this);
             Path dir = Paths.get(GLogic.RESOURCES_PATH + "countries");
             loadLanguages();
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {

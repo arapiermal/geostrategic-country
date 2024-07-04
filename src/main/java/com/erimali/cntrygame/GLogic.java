@@ -1106,14 +1106,28 @@ public class GLogic implements Serializable {
         wars.remove(war);
     }
 
-    public void forcePeace(War war, ObservableList<AdmDiv> selectedProvinces) {
+    public void forcePeace(War war, ObservableList<AdmDiv> selectedProvinces, int... args) {
         forcePeace(war, player, selectedProvinces);
+        //
     }
+//....
 
+    //Star sign on every capital like Label (?)
     public void forcePeace(War war, Country mainCountry, ObservableList<AdmDiv> selectedProvinces) {
 //well for simplicity only 1 opponent ? but maybe allow annexing provinces of allies?
+        for(AdmDiv a : selectedProvinces){
+            Country owner = getCountry(a.getOwnerId());
+            a.setUnoccupied();
+            owner.removeAdmDivAttr(a);
+            mainCountry.addAdmDiv(a);
+        }
+        war.clear();
+        wars.remove(war);
     }
-
+    public void whitePeace(War war){
+        war.clear();
+        wars.remove(war);
+    }
     public boolean negotiatePeace(War war, int sender, int opponent, int... args) {
         if (war.isWillingToEnd(sender, opponent, args)) {
             war.finishWar(args);

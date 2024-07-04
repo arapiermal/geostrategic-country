@@ -41,7 +41,8 @@ public class War implements Serializable {
     static class BattleResult implements Serializable {
 
     }
-
+//implement MilAttack
+    //MilDiv morale!?
     //also through wars ...
     public void dayTick() {
         for (Battle b : activeBattles) {
@@ -235,7 +236,7 @@ public class War implements Serializable {
         return isDeclaring ? warStates[0] : warStates[1];
     }
 
-    public void addWarState(int cId, int val) {
+    public void addWarState(int cId, double val) {
         if (isDeclaring(cId)) {
             addWarState(val);
         } else {
@@ -243,8 +244,22 @@ public class War implements Serializable {
         }
     }
 
-    public void addWarState(int val) {
+    public void addWarState(double val) {
         warStates[0].set(warStates[0].get() + val);
         warStates[1].set(warStates[1].get() - val);
+    }
+
+    public void clear(){
+        for(AdmDiv a : declaringOccupiedProv) {
+            a.setUnoccupied();
+        }
+        declaringOccupiedProv.clear();;
+        for(AdmDiv a : opposingOccupiedProv) {
+            a.setUnoccupied();
+        }
+        opposingOccupiedProv.clear();
+
+        declaringCountry.removeAtWarWith(opposingCountry.getCountryId());
+        opposingCountry.removeAtWarWith(declaringCountry.getCountryId());
     }
 }

@@ -28,7 +28,11 @@ public class Language implements Comparable<Language>, Serializable {
 
     public Language(String name, boolean b) throws Exception {
         this.name = upperFirstLowerRestLetters(name);
-        loadLanguage();
+        try {
+            loadLanguage();
+        } catch(Exception e){
+            ErrorLog.logError(e);
+        }
     }
 
     public void loadLanguage() throws Exception {

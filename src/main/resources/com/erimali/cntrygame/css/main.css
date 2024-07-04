@@ -1,7 +1,35 @@
+.title-text {
+    -fx-font-size: 32px;
+    -fx-font-family: "Times New Roman";
+    -fx-fill: #FFFFFF;
+}
+
 .button {
     -fx-background-color: #2ea44f;
     -fx-text-fill: white;
     -fx-font-size: 14px;
     -fx-padding: 10px 20px;
     -fx-border-radius: 5px;
+    -fx-border-color: #2c974b;
+    -fx-border-width: 1px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0.5, 0, 1);
+    -fx-transition: background-color 0.3s, -fx-transform 0.2s;
+}
+
+.button:hover {
+    -fx-background-color: #27923b;
+    /*-fx-transform: scale(1.05);*/
+}
+
+.button:pressed {
+    -fx-background-color: #236c31;
+    /*-fx-transform: scale(0.95);*/
+}
+
+.button:focused {
+    -fx-background-color: #2ea44f;
+    -fx-border-color: #2c974b;
+    -fx-border-width: 2px;
 }

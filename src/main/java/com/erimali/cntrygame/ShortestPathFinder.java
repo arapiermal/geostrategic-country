@@ -84,7 +84,7 @@ public class ShortestPathFinder {
                 break;
             }
             int[] provNeighbours = provinceData.get(vertex);
-            if (provNeighbours != null)
+            if (provNeighbours != null) {
                 for (int neighbor : provNeighbours) {
                     int newDist;
                     if (svgProvinces == null) {
@@ -99,6 +99,7 @@ public class ShortestPathFinder {
                         pq.offer(new int[]{neighbor, newDist});
                     }
                 }
+            }
             if (waterTravel) {
                 int[] waterNeighbours = waterBodyData.get(vertex);
                 if (waterNeighbours != null)

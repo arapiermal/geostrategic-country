@@ -56,14 +56,18 @@ public class PeaceNegotiationStage extends Stage {
     }
 
     private void dealPeace() {
-        if(warScoreRequired.get() == 0){
+        boolean isInitiator = war.isDeclaring(gameStage.getGame().getPlayer().getCountryId());
+        if(warScoreRequired.get() == 0 && isInitiator){
             //white peace
+            gameStage.getGame().whitePeace(war);
         } else {
-            gameStage.getGame().forcePeace(war, selectedProvinces);
+            gameStage.getGame().forcePeace(war, selectedProvinces); //
+            gameStage.getMap().makeUpdateTextCountriesNames(gameStage.getGame().getWorldCountries());
         }
         listSelectionView.setSourceItems(null);
         this.war = null;
         this.selectedProvinces.clear();
+        gameStage.getMap().refreshMap();
     }
 
     public void setDataFromWar(War war, Country c) {

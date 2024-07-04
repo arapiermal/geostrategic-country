@@ -605,6 +605,7 @@ public class EriScript {
                 // make with $#%
                 break;
             case "break":
+                //would need knowledge of where end is (.)
                 break;// implement getting out of FOR LOOP
             case "wait":
                 try {

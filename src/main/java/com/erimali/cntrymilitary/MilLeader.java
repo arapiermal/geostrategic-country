@@ -19,7 +19,7 @@ public class MilLeader extends Person implements Serializable {
     }
 
     public MilLeader() {
-        super("Filan" + CURR_ID, "Fisteku " + CURR_ID++);
+        super("Filan " + CURR_ID, "Fisteku " + CURR_ID++);
         this.type = MilLeaderType.values()[(int) (Math.random() * MilLeaderType.values().length)];
         this.strategy = 1 + (int) (Math.random() * 10);
         this.strategy = 1 + (int) (Math.random() * 10);

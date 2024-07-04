@@ -260,12 +260,25 @@ public class CommandLine {
                             return "ERROR: FAILED TO ADD EVENT";
                     case "WARSCORE":
                         double amount = GUtils.parseD(k[2]);
+                        int mainId = mainCountry.getCountryId();
                         if (k.length == 3) {
-                            for (int i : mainCountry.getMilitary().getAtWarWith()) {
-
+                            //adds if duplicate (!)
+                            for (int i : mainCountry.getMilitary().getAtWarWith()){
+                                List<War> wars = gs.getGame().getWarsBetween(mainId, i);
+                                for(War w : wars){
+                                    w.addWarState(mainId, amount);
+                                }
                             }
+                            return "ADDED " + amount + " WARSCORE TO ALL WARS WITH US IN IT";
+                        } else if(k.length == 4){
+                            int oId = CountryArray.getIndex(k[3]);
+                            List<War> wars = gs.getGame().getWarsBetween(mainId, oId);
+                            for(War w : wars){
+                                w.addWarState(mainId, amount);
+                            }
+                            return "ADDED " + amount + " WARSCORE TO ALL WARS BETWEEN US AND " + k[3];
                         }
-                        return "";
+                        return "Invalid amount of arguments";
                     case "GOV":
                         if (k.length >= 4) {
                             if (k[2].substring(0, 3).equalsIgnoreCase("POL")) {

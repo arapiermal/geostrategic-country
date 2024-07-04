@@ -1,9 +1,7 @@
 package com.erimali.cntrygame;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 
 import java.io.*;
@@ -11,7 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class SaveGame {
-    //does every class/object inside need serializable!??!?!
     protected static String saveGamePath = "saveGames/";
     protected static final String saveExtension = ".save";
     protected static final ObservableList<String> saves = FXCollections.observableArrayList();
@@ -71,7 +68,7 @@ public class SaveGame {
                 saves.add(name);
             }
         } catch (IOException ioException) {
-            ioException.printStackTrace();
+            ErrorLog.logError(ioException);
         }
     }
 
@@ -86,10 +83,10 @@ public class SaveGame {
             fileIn.close();
             return g;
         } catch (IOException ioException) {
-            ioException.printStackTrace();
+            ErrorLog.logError(ioException);
             return null;
         } catch (ClassNotFoundException c) {
-            c.printStackTrace();
+            ErrorLog.logError(c);
             return null;
         }
     }

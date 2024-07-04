@@ -32,10 +32,12 @@ public class MilDiv implements Serializable {
         this.units = new ArrayList<>();
     }
 
-    public MilDiv(String name, MilLeader leader, List<MilUnit> units) {
+
+    public MilDiv(Military military, String name, MilLeader leader) {
+        this.military = military;
         this.name = name;
         this.leader = leader;
-        this.units = units;
+        this.units = new ArrayList<>();
     }
 
     public MilUnit getUnit(int i) {
@@ -53,6 +55,7 @@ public class MilDiv implements Serializable {
     public void addUnit(MilUnit u) {
         if (leader != null)
             u.setBonuses(leader.getAtkBonus(), leader.getDefBonus());
+
         units.add(u);
     }
 
@@ -227,4 +230,13 @@ public class MilDiv implements Serializable {
         }
     }
     //////////////////////////////////////////////////////////////
+
+    public Military getMilitary() {
+        return military;
+    }
+
+    public void setMilitary(Military military) {
+        this.military = military;
+    }
+
 }

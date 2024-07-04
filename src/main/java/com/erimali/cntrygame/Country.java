@@ -1123,4 +1123,8 @@ public class Country implements Serializable, Comparable<Country> {
     public boolean hasNukes() {
         return mil.hasNukes();
     }
+
+    public void removeAtWarWith(int countryId) {
+        mil.getAtWarWith().remove(countryId);
+    }
 }

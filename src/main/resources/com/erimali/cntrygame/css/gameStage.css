@@ -47,15 +47,15 @@
     -fx-background-color: #C0392B;
 }
 
-.progress-button-table-cell .Button {
+.progress-button-table-cell .button {
 
     cursor: pointer;
 }
 
-.progress-button-table-cell .Button:hover {
+.progress-button-table-cell .button:hover {
 }
 
-.progress-button-table-cell .Button {
+.progress-button-table-cell .button {
 
 }
 
@@ -74,8 +74,6 @@
 .alliance-request-button {
     -fx-background-color: lightblue;
     -fx-text-fill: #000000;
-}
-
-.alliance-request-button .text {
     -fx-font-weight: bold;
+
 }

@@ -48,6 +48,8 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
     private List<MilUnit> enemyUnits;
 //boolean or sth
 
+    //Appoint ruler in MilDiv optionally through World.Country.Military
+
     public String toString() {
         return name;
     }
@@ -559,5 +561,13 @@ public class AdmDiv implements Serializable, Comparable<AdmDiv> {
 
     private boolean hasFriendlyTroops() {
         return friendlyUnits != null && !friendlyUnits.isEmpty();
+    }
+
+    public boolean hasRebellion(){
+        for(byte b : rebellion) {
+            if(b > 0)
+                return true;
+        }
+        return false;
     }
 }
