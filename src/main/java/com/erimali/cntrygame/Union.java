@@ -325,13 +325,13 @@ public class Union implements Serializable {
     public boolean containsCountry(int playerId) {
         return unionCountries.contains(playerId);
     }
-
+//1 week/month or more delay for application
     public boolean applyToJoin(int playerId) {
-        return false;
+        return Math.random() > 0.5;
     }
-
+//TO BE CHANGED
     public boolean applyToLeave(int playerId) {
-        return false;
+        return Math.random() > 0.5;
     }
 
     //Bitwise operations

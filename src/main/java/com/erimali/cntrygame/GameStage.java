@@ -2,10 +2,7 @@ package com.erimali.cntrygame;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.erimali.cntrymilitary.MilUnitData;
@@ -125,6 +122,7 @@ public class GameStage extends Stage {
     private LimitedSizeList<String> lastCommands;
     private Label infoRelations;
     private Button sendAllianceRequest;
+    private Button sendSubjectRequest;
     private Label nukesLabel;
     private Button sendNuclearStrike;
 
@@ -532,6 +530,7 @@ public class GameStage extends Stage {
         tabs[3] = makeTabSubjects();
 
         tabPane.getTabs().addAll(tabs);
+
         return tabPane;
     }
 
@@ -551,6 +550,7 @@ public class GameStage extends Stage {
                         unitInfo.setText(selUnit.toStringLong());
                         //unitInfo.setTooltip(new Tooltip(selUnit.getDesc()));
                         recruitBuildMilButton.setText(selUnit.isVehicle() ? "Build" : "Recruit");
+
                     }
                 }
         );
@@ -655,9 +655,28 @@ public class GameStage extends Stage {
         return tab;
     }
 
+    Label playerSubjectList;
+
     private Tab makeTabSubjects() {
-        Tab tab = new Tab("Subjects");
+        Text subjectText = new Text("Subject List");
+        playerSubjectList = new Label("None");
+        VBox vBox = new VBox(subjectText, playerSubjectList);
+        Tab tab = new Tab("Subjects", vBox);
         return tab;
+    }
+
+    public void updateSubjectList() {
+        StringBuilder sb = new StringBuilder();
+        try {
+            for (Map.Entry<Integer, CSubject> map : game.getPlayer().getSubjects().entrySet()) {
+                CSubject rel = map.getValue();
+                sb.append(rel.getSubject().toStringLong());
+                sb.append('\n');
+            }
+        } catch (Exception e) {
+
+        }
+        playerSubjectList.setText(sb.toString());
     }
 
     private Scene makeGSOptionsDefScene() {
@@ -870,6 +889,8 @@ public class GameStage extends Stage {
 
         Button dipInsultButton = new Button("Diplomatic Insult");
         dipInsultButton.setOnAction(e -> sendDipInsult());
+        dipInsultButton.getStyleClass().add("diplomatic-insult-button");
+
         VBox vboxWar = new VBox(optionsWar, declareWarButton, sponsorRebels, dipInsultButton);
         vboxWar.setSpacing(8);
         Label preInfoRelations = new Label("Relations ");
@@ -894,11 +915,20 @@ public class GameStage extends Stage {
         sendAllianceRequest.setOnAction(e -> {
             sendAllianceRequest();
         });
+        sendSubjectRequest = new Button("Subject request");
+        sendSubjectRequest.getStyleClass().add("subject-request-button");
+        sendSubjectRequest.setOnAction(e -> {
+            sendMakeSubjectRequest();
+            updateSubjectList();
+        });
+
         Button sendDonation = new Button("Send donation");
         sendDonation.setOnAction(e -> {
             sendDonation();
         });
-        VBox vboxRelations = new VBox(optionsRelations, improveRelations, sendAllianceRequest, sendDonation);
+        sendDonation.getStyleClass().add("send-donation-button");
+
+        VBox vboxRelations = new VBox(optionsRelations, improveRelations, sendAllianceRequest, sendSubjectRequest, sendDonation);
         vboxRelations.setSpacing(8);
         TitledPane titledPaneWar = new TitledPane("War", vboxWar);
         titledPaneWar.setAnimated(false);
@@ -920,10 +950,21 @@ public class GameStage extends Stage {
         //on damaged try to improve situation, Button fixDestruction
 
         investInfrastructure.setOnAction(e -> {
-            game.investProvInfrastructure(selectedProv);
+            if(game.investProvInfrastructure(selectedProv)){
+                showAlert("Successfully invested in province infrastructure");
+            } else{
+                showAlert("Not enough resources");
+
+            }
         });
         improveDefenses.setOnAction(e -> {
-            game.investProvDefenses(selectedProv);
+            if(game.investProvDefenses(selectedProv)){
+                showAlert("Successfully invested in province defense");
+
+            } else{
+                showAlert("Not enough resources");
+
+            }
         });
 
         VBox vBoxInvest = new VBox(investInfrastructure, improveDefenses);
@@ -973,7 +1014,7 @@ public class GameStage extends Stage {
         Country player = game.getPlayer();
         if (player != null) {
             nukesLabel.setText(player.getMilitary().getNukes() + " nukes");
-            if(player.hasNukes() && player.isAtWarWith(selectedCountry))
+            if (player.hasNukes() && player.isAtWarWith(selectedCountry))
                 sendNuclearStrike.setDisable(false);
         } else {
             sendNuclearStrike.setDisable(true);
@@ -1028,7 +1069,15 @@ public class GameStage extends Stage {
     }
 
     public void sendMakeSubjectRequest() {
-
+        if (game.isAllyWith(selectedCountry)) {
+            if (game.sendSubjectRequest(selectedCountry)) {
+                showAlert("They have accepted our request to become our subjects");
+            } else {
+                showAlert("Subject request declined");
+            }
+        } else {
+            showAlert("You are not an ally with the selected country");
+        }
     }
 
     private void declareWarOrPeace() {

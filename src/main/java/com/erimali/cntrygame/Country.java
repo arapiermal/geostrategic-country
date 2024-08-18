@@ -633,6 +633,19 @@ public class Country implements Serializable, Comparable<Country> {
         }
 
     }
+    public boolean sendSubjectRequest(GLogic game, int c) {
+        Country o = game.getCountry(c);
+        //other reasons, why would AI accept
+        boolean goodRelations = (this.getMainLanguage() == o.getMainLanguage());
+
+        if (o.isNotSubject() && (this.getRelations(c) > 200 || (goodRelations && Math.random() > 0.6))) {
+            subjugateCountry(o, SubjectType.SATELLITE);
+            return true;
+        } else {
+            return false;
+        }
+
+    }
 
     public boolean breakAlliance(GLogic game, int c) {
         Country o = game.getCountry(c);
@@ -640,6 +653,9 @@ public class Country implements Serializable, Comparable<Country> {
             removeAlly(c);
             o.removeAlly(countryId);
             worsenRelations(c, (short) 20);
+            if(hasSubject(c)){
+                releaseSubject(c);
+            }
             return true;
         }
         return false;

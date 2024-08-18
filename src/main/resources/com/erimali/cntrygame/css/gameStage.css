@@ -1,6 +1,12 @@
-.improve-relations-toggle-button {
+.improve-relations-toggle-button{
     -fx-background-color: #00FF00;
     -fx-text-fill: #000000;
+    -fx-font-weight: bold;
+}
+.send-donation-button{
+    -fx-background-color: #00FF00;
+    -fx-text-fill: #000000;
+    -fx-font-weight: bold;
 }
 
 .improve-relations-toggle-button:selected {
@@ -8,9 +14,6 @@
 	
 }
 
-.improve-relations-toggle-button .text {
-    -fx-font-weight: bold;
-}
 .declare-war-button {
     -fx-background-color: #FF5733;
     -fx-background-radius: 5px;
@@ -29,7 +32,17 @@
     -fx-background-color: #C0392B;
 }
 
-.sponsor-rebels-button {
+.sponsor-rebels-button{
+    -fx-background-color: #FF5733;
+    -fx-background-radius: 5px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 4px 8px;
+    -fx-border-color: transparent;
+}
+
+.diplomatic-insult-button{
     -fx-background-color: #FF5733;
     -fx-background-radius: 5px;
     -fx-text-fill: white;
@@ -74,6 +87,13 @@
 .alliance-request-button {
     -fx-background-color: lightblue;
     -fx-text-fill: #000000;
+    -fx-font-weight: bold;
+
+}
+
+.subject-request-button {
+    -fx-background-color: darkblue;
+    -fx-text-fill: #FFFFFF;
     -fx-font-weight: bold;
 
 }

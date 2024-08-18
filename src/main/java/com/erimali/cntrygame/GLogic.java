@@ -745,6 +745,9 @@ public class GLogic implements Serializable {
         return player.sendAllianceRequest(this, c);
     }
 
+    public boolean sendSubjectRequest(int c) {
+        return player.sendSubjectRequest(this, c);
+    }
     public boolean breakAlliance(int c) {
         return player.breakAlliance(this, c);
     }
@@ -1184,8 +1187,8 @@ public class GLogic implements Serializable {
         return false;
     }
 
-    public void investProvInfrastructure(int selectedProv) {
-        investProvInfrastructure(playerId, selectedProv);
+    public boolean investProvInfrastructure(int selectedProv) {
+        return investProvInfrastructure(playerId, selectedProv);
 
     }
 
@@ -1204,14 +1207,15 @@ public class GLogic implements Serializable {
                     sub.incInfrastructure(admDiv);
                 }
                 main.spendTreasury(cost);
+                TESTING.print("INVESTED");
                 return true;
             }
         }
         return false;
     }
 
-    public void investProvDefenses(int selectedProv) {
-        investProvDefenses(playerId, selectedProv);
+    public boolean investProvDefenses(int selectedProv) {
+        return investProvDefenses(playerId, selectedProv);
 
     }
 
@@ -1236,4 +1240,5 @@ public class GLogic implements Serializable {
         }
         return false;
     }
+
 }
