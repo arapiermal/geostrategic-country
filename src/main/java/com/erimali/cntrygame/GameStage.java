@@ -103,6 +103,7 @@ public class GameStage extends Stage {
     private ObservableIntegerValue selProv;
 
     private Label selectedCountryInfo;
+    private ImageView selectedCountryFlag;
     private Label selectedCountryEconomyInfo;
     private Label selectedProvInfo;
 
@@ -320,6 +321,7 @@ public class GameStage extends Stage {
 
         // LEFT
         selectedCountryInfo = new Label();
+        selectedCountryFlag = new ImageView();
         selectedCountryEconomyInfo = new Label();
         selectedProvInfo = new Label();
         initVBoxLeftOptions();
@@ -413,7 +415,7 @@ public class GameStage extends Stage {
         selectedCountryInfo.setTextAlignment(TextAlignment.CENTER);
         selectedCountryEconomyInfo.setTextAlignment(TextAlignment.CENTER);
         selectedProvInfo.setTextAlignment(TextAlignment.CENTER);
-        SplitPane splitPaneInfo = new SplitPane(selectedCountryInfo, selectedCountryEconomyInfo, selectedProvInfo);
+        SplitPane splitPaneInfo = new SplitPane(selectedCountryInfo, selectedCountryFlag, selectedCountryEconomyInfo, selectedProvInfo);
         splitPaneInfo.setOrientation(Orientation.VERTICAL);
 
         return splitPaneInfo;
@@ -1165,8 +1167,7 @@ public class GameStage extends Stage {
         game.selectPlayer(selectedCountry);
         playerNameLabel.setText(game.getPlayer().getName());// !!!!!!!!
         playerNameLabel.setOnMouseClicked(e -> {
-            setSelectedCountry(game.getPlayerId());
-            setSelectedProvince(game.getPlayer().getCapitalId());
+            setSelected(game.getPlayerId(), game.getPlayer().getCapitalId());
         });
         countryTab.getContent().setVisible(true);
         provinceTab.getContent().setVisible(true);
@@ -1288,8 +1289,12 @@ public class GameStage extends Stage {
     //make more efficient
     public void changeSelectedCountryInfo() {
         Country selC = game.getWorld().getCountry(selectedCountry);
+        int id = map.getMapSVG()[selectedProv].getOwnerId();
+        selectedCountryFlag.setImage(map.getCountryFlag(id));
+
         if (selC == null) {
-            String iso2 = CountryArray.getIndexISO2(map.getMapSVG()[selectedProv].getOwnerId());
+            // REDUNDANT (?)
+            String iso2 = CountryArray.getIndexISO2(id);
             selectedCountryInfo.setText(iso2);
             selectedCountryEconomyInfo.setText("");
             changeLeftVBoxes(-1);
@@ -1701,18 +1706,6 @@ public class GameStage extends Stage {
         alert.showAndWait();
     }
 
-    public void setSelectedProvince(int provId) {
-        if (selectedProv != provId) {
-            if (toolBarReg instanceof HBox) {
-                Node node = ((HBox) toolBarReg).getChildren().getLast();
-                if (node instanceof Label) {
-                    ((Label) node).setText(String.valueOf(provId));
-                }
-            }
-            selectedProv = provId;
-            changeSelectedProvInfo();
-        }
-    }
 
     //
     public void changeSelectedProvInfo() {
@@ -1783,17 +1776,27 @@ public class GameStage extends Stage {
     }
 
     public void setSelected(int ownerId, int provId) {
-
-        setSelectedCountry(ownerId);
-        setSelectedProvince(provId);
-    }
-
-    public void setSelectedCountry(int ownerId) {
-        selectedCountry = ownerId;
+        // CHANGE REST OF LOGIC
+        int oldProvId = selectedProv;
+        this.selectedCountry = ownerId;
+        this.selectedProv = provId;
         changeSelectedCountryInfo();
+        if (oldProvId != provId) {
+            if (toolBarReg instanceof HBox) {
+                Node node = ((HBox) toolBarReg).getChildren().getLast();
+                if (node instanceof Label) {
+                    ((Label) node).setText(String.valueOf(provId));
+                }
+            }
+            changeSelectedProvInfo();
+        }
     }
 
+    //public void setSelectedCountry(int ownerId) {}
+    //can be redone to take the ownerId from WorldMap
+    //public void setSelectedProvince(int provId) {}
     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     //Take care if switching countries in game
     private MapChangeListener<GovPolicy, Integer> mapChangeListener;
     private ListChangeListener<GovPolicy> listChangeListener;

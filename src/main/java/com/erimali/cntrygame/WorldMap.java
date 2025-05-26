@@ -15,6 +15,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
@@ -25,20 +26,19 @@ import javafx.scene.shape.*;
 import javafx.scene.text.*;
 import javafx.util.Duration;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 import java.util.*;
 
 public class WorldMap {
-    private static double mapWidth = 12200;
-    private static double mapHeight = 6149.8;
+    private static int DEF_PROV_COUNT = 3815; // FIND CORRECT VALUE
+    private static double DEF_MAP_WIDTH = 12200;
+    private static double DEF_MAP_HEIGHT = 6149.8;
+    private double mapWidth = DEF_MAP_WIDTH;
+    private double mapHeight = DEF_MAP_HEIGHT;
     private ZoomableScrollPane scrollPane;
     private Paint[] colors;
-
+    private Image[] countryFlags;
     private Color backgroundColor = Color.valueOf("#ADD8E6");
     private Color defColor = Color.valueOf("#ececec");
     //private Color defColorCountry = new Color(0, 0, 0, 0);
@@ -78,16 +78,22 @@ public class WorldMap {
         loadColors();
         loadMilSVGData();
         loadCountryNeighboursMap();
+        loadCountryFlags();
         this.gs = gs;
         this.scrollPane = start();
     }
 
-    public static double getMapWidth() {
-        return mapWidth;
+
+    public static double getDefMapWidth() {
+        return DEF_MAP_WIDTH;
     }
 
-    public static double getMapHeight() {
-        return mapHeight;
+    public static double getDefMapHeight() {
+        return DEF_MAP_HEIGHT;
+    }
+
+    public static int getDefProvCount() {
+        return DEF_PROV_COUNT;
     }
 
     public Set<Integer> getWaterProvinces() {
@@ -290,7 +296,7 @@ public class WorldMap {
     public SVGPath makeBackground() {
         // Set background to water color
         SVGPath bg = new SVGPath();
-        bg.setContent("M0," + mapHeight + "V0h" + mapWidth + "v" + mapHeight + "H0z");
+        bg.setContent("M0," + DEF_MAP_HEIGHT + "V0h" + DEF_MAP_WIDTH + "v" + DEF_MAP_HEIGHT + "H0z");
         bg.setFill(backgroundColor);
         bg.setStroke(Paint.valueOf("black"));
         bg.setStrokeLineCap(StrokeLineCap.ROUND);
@@ -304,7 +310,7 @@ public class WorldMap {
             if (colors[id].equals(defColor)) {
                 Set<Paint> usedColors = new HashSet<>();
                 Set<Integer> neighbours = countryNeighboursMap.get(id);
-                if(neighbours == null) {
+                if (neighbours == null) {
                     setColor(id, getRandomColor());
                     continue;
                 }
@@ -343,6 +349,32 @@ public class WorldMap {
         }
     }
 
+    private void loadCountryFlags() {
+        this.countryFlags = new Image[CountryArray.getMaxIso2Countries()];
+        File dir = new File("src/main/resources/countries/flags");
+        if (dir.exists() && dir.isDirectory()) {
+            File[] pngFiles = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".png"));
+            if (pngFiles != null) {
+                for (File file : pngFiles) {
+                    String[] nameParts = file.getName().trim().split("\\s*\\.\\s*");
+                    String iso2 = nameParts[0];
+                    if (iso2.length() == 2) {
+                        int id = CountryArray.getIndex(iso2);
+                        if (id >= 0 && id < countryFlags.length) {
+                            try {
+                                countryFlags[id] = new Image(file.toURI().toString());
+                            } catch (Exception e) {
+                                ErrorLog.logError(e);
+                            }
+                        } else {
+                            System.err.println("WARNING: Unrecognized country code -> " + iso2);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private void onPathClicked(MouseEvent event) {
         Node clickedNode = (Node) event.getTarget();
         if (clickedNode instanceof SVGProvince clickedPath) {
@@ -372,6 +404,12 @@ public class WorldMap {
 
     public ZoomableScrollPane getScrollPane() {
         return scrollPane;
+    }
+
+    public Image getCountryFlag(int id) {
+        if (id >= 0 && id < countryFlags.length)
+            return countryFlags[id];
+        return null;
     }
 
     //cancel when new...
@@ -1083,12 +1121,14 @@ public class WorldMap {
         }
         return map;
     }
-    public void nuclearFallout(int provId){
-        if(provId >= 0 && provId < mapSVG.length){
+
+    public void nuclearFallout(int provId) {
+        if (provId >= 0 && provId < mapSVG.length) {
             SVGProvince svgProvince = mapSVG[provId];
             nuclearFallout(svgProvince);
         }
     }
+
     public void nuclearFallout(SVGProvince svgProvince) {
         //GameAudio.playShortSound("");// nuke... take care filesystem...
 
@@ -1180,6 +1220,7 @@ public class WorldMap {
             }
         }
     }
+
     //Commend out colors that are not used
     private static final Color[] DEF_NAMED_COLORS = {
             Color.ALICEBLUE,

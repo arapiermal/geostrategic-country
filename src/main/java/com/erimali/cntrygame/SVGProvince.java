@@ -48,7 +48,8 @@ public class SVGProvince extends SVGPath implements DijkstraCalculable {
         double maxY = getBoundsInLocal().getMaxY();
         this.provX = (minX + maxX) / 2;
         this.provY = (minY + maxY) / 2;
-        if (getBoundsInLocal().getWidth() > WorldMap.getMapWidth() / 2) {
+        // Dealing with provinces which appear in both the East and West of the globe because of wrapping (example: Alaska)
+        if (getBoundsInLocal().getWidth() > WorldMap.getDefMapWidth() / 2) {
             this.provX = maxX - 32;
             //TESTING.print(maxX, getId());
         }
