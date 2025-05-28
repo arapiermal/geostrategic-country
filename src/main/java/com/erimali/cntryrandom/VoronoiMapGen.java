@@ -4,7 +4,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
 
-import java.awt.geom.Point2D;
+import javafx.geometry.Point2D;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -89,7 +89,7 @@ public class VoronoiMapGen {
                 double t = currentEval / (currentEval - nextEval);
                 double ix = current.getX() + t * (next.getX() - current.getX());
                 double iy = current.getY() + t * (next.getY() - current.getY());
-                output.add(new Point2D.Double(ix, iy));
+                output.add(new Point2D(ix, iy));
             }
         }
         return output;
@@ -116,10 +116,10 @@ public class VoronoiMapGen {
 
         // Construct a rectangle (counter-clockwise order).
         List<Point2D> box = new ArrayList<>();
-        box.add(new Point2D.Double(xl, yt));
-        box.add(new Point2D.Double(xr, yt));
-        box.add(new Point2D.Double(xr, yb));
-        box.add(new Point2D.Double(xl, yb));
+        box.add(new Point2D(xl, yt));
+        box.add(new Point2D(xr, yt));
+        box.add(new Point2D(xr, yb));
+        box.add(new Point2D(xl, yb));
         return box;
     }
 
@@ -129,7 +129,7 @@ public class VoronoiMapGen {
         for (int i = 0; i < count; i++) {
             double x = rand.nextInt(width);
             double y = rand.nextInt(height);
-            sites.add(new Point2D.Double(x, y));
+            sites.add(new Point2D(x, y));
         }
         return sites;
     }
