@@ -6,6 +6,7 @@ public class PerlinNoiseElevationGen {
     private final int[] p;
     private final Random rand;
 
+
     public PerlinNoiseElevationGen(long seed) {
         rand = new Random(seed);
         p = new int[512];
@@ -19,6 +20,8 @@ public class PerlinNoiseElevationGen {
         }
         for (int i = 0; i < 512; i++) p[i] = permutation[i & 255];
     }
+
+
 
     // Noise with octaves
     public double octaveNoise(double x, double y, int octaves, double persistence, double scale) {
@@ -36,6 +39,7 @@ public class PerlinNoiseElevationGen {
 
         return total / maxValue;
     }
+
 
     // Island-shaped noise (masking based on distance from center)
     public double islandNoise(double x, double y, double width, double height, int octaves, double persistence, double scale) {

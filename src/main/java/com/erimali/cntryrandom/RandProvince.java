@@ -33,6 +33,9 @@ public class RandProvince extends GeoPolZone {
     }
 
     public Color getColor(){
+        if(color == null)
+            return Color.LIGHTGRAY;
+
         return color;
     }
 

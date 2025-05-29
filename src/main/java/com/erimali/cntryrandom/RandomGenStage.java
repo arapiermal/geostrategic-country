@@ -1,14 +1,15 @@
 package com.erimali.cntryrandom;
 
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+enum VoronoiEnum{
+    BASIC, JITTERED;
+}
 
 public class RandomGenStage extends Stage {
     private Scene mainScene;
@@ -17,6 +18,7 @@ public class RandomGenStage extends Stage {
     private BorderPane root;
     // Text Fields for parameters (width, height, number of provinces, etc.)
     private VBox rightVBox;
+    private ComboBox<VoronoiEnum> voronoiComboBox;
     private TextField textFieldWidth;
     private TextField textFieldHeight;
     private TextField textFieldTotalCells;
@@ -34,7 +36,9 @@ public class RandomGenStage extends Stage {
         genButton.setOnAction(e -> generateRandomMap());
         saveSVGButton.setOnAction(e -> saveAsSVG());
 
-        rightVBox = new VBox();
+        voronoiComboBox = new ComboBox<>();
+        voronoiComboBox.getItems().setAll(VoronoiEnum.values());
+        rightVBox = new VBox(voronoiComboBox);
         scrollPane = new ScrollPane();
         root = new BorderPane(scrollPane);
         root.setBottom(bottomToolBar);
@@ -54,7 +58,15 @@ public class RandomGenStage extends Stage {
         double mapHeight = 600;
 
         randMap = new RandWorldMap(mapWidth, mapHeight);
+        VoronoiEnum chosenVoronoi = voronoiComboBox.getValue();
+        if(chosenVoronoi.equals(VoronoiEnum.BASIC)){
+            randMap.basicVoronoi();
+        } else if (chosenVoronoi.equals(VoronoiEnum.JITTERED)){
+            randMap.jitteredVoronoi();
+        }
+        randMap.generateZones();
         randMapPane = RandMapFX.createPaneFX(randMap);
         scrollPane.setContent(randMapPane);
+
     }
 }

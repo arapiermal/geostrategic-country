@@ -5,97 +5,134 @@ import javafx.geometry.Point2D;
 
 import java.util.*;
 
-/*
-// use SVGProvince directly (?)
-class RandomizedProv {
-    double centerX;
-    double centerY;
-    // store shape data
-    int ownerId; // can be set later
-    //group provinces based on their nearness and create RandomizedCountry
-
-    // random population and calculated area...
-}
-*/
-/*
-class RandomizedCountry {
-    //can be more general, to work with main game regardless
-    //
-    public RandomizedCountry(Random rnd, RandomizedProv... provinces) {
-
-    }
-}
-*/
-//This can use the Voronoi Map Gen (or others) so make it generalized (?) (? abstract)
 public class RandWorldMap {
-    private final Random rnd;
-    private final long seed;
-    private final double width;
-    private final double height;
-    private final int totalProv;
-    private final List<GeoPolZone> zones;
+    private Random rand;
+    private long seed;
+    private double width;
+    private double height;
+    private int totalProv;
+    private int totalCountries;
+    private List<GeoPolZone> zones;
     private Set<Integer> countryIds = new HashSet<>();
     private List<RandCountry> countries = new ArrayList<>();
+    private Voronoi voronoi;
+    private PerlinNoiseElevationGen perlinNoise;
 
-
-    public RandWorldMap(double width, double height){
-        this.rnd = new Random();
-        this.seed = rnd.nextLong();
-        rnd.setSeed(seed);
+    public RandWorldMap(double width, double height) {
+        this.rand = new Random();
+        this.seed = rand.nextLong();
+        rand.setSeed(seed);
         this.width = width;
         this.height = height;
         //decide number of provinces to be generated based on width & height of default WorldMap
         this.totalProv = calcTotalProv();
+        this.totalCountries = calcTotalCountries();
         this.zones = new ArrayList<>(totalProv);
+        this.perlinNoise = new PerlinNoiseElevationGen(seed);
     }
 
 
-    public RandWorldMap(double width, double height, long seed, int totalProv) {
-        this.rnd = new Random(seed);
+    public RandWorldMap(double width, double height, long seed, int totalProv, int totalCountries) {
+        this.rand = new Random(seed);
         this.seed = seed;
         this.width = width;
         this.height = height;
         this.totalProv = totalProv;
+        if(totalCountries > totalProv)
+            this.totalCountries = calcTotalCountries();
+        else
+            this.totalCountries = calcTotalProv();
         this.zones = new ArrayList<>(totalProv);
+        this.perlinNoise = new PerlinNoiseElevationGen(seed);
     }
 
-    protected int calcTotalProv(){
-        //rename getDefMapHeight()
+
+    public void basicVoronoi() {
+        voronoi = new VoronoiMapGen(totalProv, (int) width, (int) height);
+
+    }
+
+    public void jitteredVoronoi() {
+        int[] rowsCols = JitteredGridVoronoi.calcRowsColsFromTotalProv(totalProv, width, height);
+        jitteredVoronoi(rowsCols[0], rowsCols[1]);
+    }
+
+    public void jitteredVoronoi(int rows, int cols) {
+        this.totalProv = rows * cols;
+        voronoi = new JitteredGridVoronoi(rows, cols, width, height, 0.7);
+    }
+
+
+    public void relaxVoronoi(int n){
+        if(voronoi != null && n > 1){
+            voronoi.relax(n);
+        }
+    }
+
+    public Voronoi getVoronoi(){
+        return voronoi;
+    }
+
+    public void generateZones(){
+        if(voronoi == null){
+            return;
+        }
+
+        int octaves = 4;
+        double persistence = 0.5;
+        double scale = 0.005;
+
+        List<Point2D> sites = voronoi.getSites();
+        List<List<Point2D>> cells = voronoi.getVoronoiCells();
+        int n = sites.size();
+        for(int i = 0; i < n; i++){
+            Point2D site = sites.get(i);
+            List<Point2D> boundary = cells.get(i);
+            double x = site.getX();
+            double y = site.getY();
+
+            double elevation = perlinNoise.islandNoise(x,y,width,height,octaves,persistence,scale);
+            GeoPolZone zone;
+            if(elevation < GeoPolZone.getSeaLevel()){
+                zone = new RandWaterBody(site, boundary);
+                zone.setElevation(elevation);
+            } else{
+                zone = new RandProvince(site, boundary);
+                zone.setElevation(elevation);
+            }
+            zones.add(zone);
+
+        }
+    }
+
+    public void generateCountries(){
+
+
+    }
+
+    protected int calcTotalProv() {
         double ratioWidth = width / WorldMap.getDefMapWidth();
         double ratioHeight = height / WorldMap.getDefMapHeight();
         int p = WorldMap.getDefProvCount();
-        return (int) (p * ratioWidth * ratioHeight * rnd.nextDouble(0.9,1.1));
+        return (int) (p * ratioWidth * ratioHeight * rand.nextDouble(0.9, 1.1));
     }
 
-
-    /*
-    private void generateProvinces() {
-        // create more points and discard some of them in certain regions to simulate waters
-        // totalProv + (ratio water/earth)(?) * totalProv
-        // 70% land -> totalProv, 30% water -> y
-        // calculate biggest watermass
-        Point2D[] points = new Point2D[totalProv];
-        for(int i = 0; i < totalProv; i++){
-            points[i] = randomPoint();
-            System.out.println(i+ " -> " + points[i]);
-        }
-        //centerX and centerY recalculated later...
+    protected int calcTotalCountries() {
+        return Math.max(1, totalProv / 10);
     }
 
-    private Point2D randomPoint() {
-        return new Point2D(rnd.nextDouble() * width, rnd.nextDouble() * height);
-    }
-*/
-    public long getSeed(){
+    public long getSeed() {
         return seed;
     }
-    public int getTotalProv(){
+
+    public int getTotalProv() {
         return totalProv;
     }
 
     public double getMapWidth() {
         return width;
     }
+
     public double getMapHeight() {
         return height;
     }

@@ -48,6 +48,10 @@ public enum RandCultures {
         this.suffixes = suffixes;
     }
 
+    public static RandCultures getRandomCulture() {
+        return values()[(int) (Math.random() * values().length)];
+    }
+
     public String[] getPrefixes() {
         return prefixes;
     }

@@ -31,6 +31,7 @@ public class JitteredGridVoronoi implements Voronoi {
         generateVoronoiCells();
     }
 
+
     private void generateJitteredGrid() {
         Random rand = new Random();
         for (int i = 0; i < rows; i++) {
@@ -44,19 +45,29 @@ public class JitteredGridVoronoi implements Voronoi {
         }
     }
 
+    public static int[] calcRowsColsFromTotalProv(int totalProv, double mapWidth, double mapHeight) {
+        double aspectRatio = mapWidth / mapHeight;
+
+        // Estimate columns based on square root and aspect ratio
+        int cols = (int) Math.sqrt(totalProv * aspectRatio);
+        int rows = (int) Math.ceil((double) totalProv / cols);
+
+        return new int[]{rows, cols};
+    }
+
     @Override
     public List<Point2D> getSites() {
         return sites;
     }
 
     @Override
-    public List<List<Point2D>> getVoronoiCells(){
+    public List<List<Point2D>> getVoronoiCells() {
         return cells;
     }
 
     @Override
-    public void setSites(List<Point2D> sites){
-        if(this.sites != sites && this.sites.size() == sites.size()){
+    public void setSites(List<Point2D> sites) {
+        if (this.sites != sites && this.sites.size() == sites.size()) {
             this.sites = sites;
             int k = 0;
             for (int i = 0; i < rows; i++) {

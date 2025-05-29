@@ -4,6 +4,7 @@ import javafx.geometry.Point2D;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public interface Voronoi {
     List<List<Point2D>> getVoronoiCells();
@@ -29,6 +30,10 @@ public interface Voronoi {
 
             this.setSites(newSites);
         }
+    }
+
+    default Point2D getRandomSite(Random rand){
+        return getSites().get(rand.nextInt(getSites().size()));
     }
 
 }
