@@ -59,7 +59,7 @@ public class RandWorldMap {
 
     public void jitteredVoronoi(int rows, int cols) {
         this.totalProv = rows * cols;
-        voronoi = new JitteredGridVoronoi(rows, cols, width, height, 0.7);
+        voronoi = new JitteredGridVoronoi(rows, cols, width, height, 0.4);
     }
 
 
@@ -67,6 +67,11 @@ public class RandWorldMap {
         if(voronoi != null && n > 1){
             voronoi.relax(n);
         }
+    }
+
+    public void reset(){
+        zones.clear();
+        // clear other stuff as well
     }
 
     public Voronoi getVoronoi(){
@@ -77,7 +82,7 @@ public class RandWorldMap {
         if(voronoi == null){
             return;
         }
-
+        reset();
         int octaves = 4;
         double persistence = 0.5;
         double scale = 0.005;

@@ -48,7 +48,7 @@ public class VoronoiMapGen implements Voronoi {
 
     @Override
     public void generateVoronoiCells(){
-        computeVoronoiCells(sites);
+        this.cells = computeVoronoiCells(sites);
     }
 
     // a*x + b*y + c = 0

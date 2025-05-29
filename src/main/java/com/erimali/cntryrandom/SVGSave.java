@@ -98,6 +98,7 @@ public class SVGSave {
         return svg.toString();
     }
 
+
     // Save SVG string to a file
     public static void saveStringToPath(String filename, String svgContent) {
         try (FileWriter writer = new FileWriter(filename)) {
