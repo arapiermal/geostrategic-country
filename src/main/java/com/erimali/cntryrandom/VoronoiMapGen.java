@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class VoronoiMapGen {
+public class VoronoiMapGen implements Voronoi {
     // Size of the output image and number of sites (provinces)
     private int mapWidth;
     private int mapHeight;
@@ -20,8 +20,6 @@ public class VoronoiMapGen {
     private Random rand;
     private List<Point2D> sites;
     private List<List<Point2D>> cells;
-    //private List<VProvince> provinces;
-    //private List<VCountry> countries;
 
 
     public VoronoiMapGen(int totalProvs, int mapWidth, int mapHeight){
@@ -32,6 +30,27 @@ public class VoronoiMapGen {
         this.sites = generateRandomSites(totalProvs, mapWidth, mapHeight);
         this.cells = computeVoronoiCells(sites);
     }
+
+    @Override
+    public List<Point2D> getSites(){
+        return sites;
+    }
+
+    @Override
+    public List<List<Point2D>> getVoronoiCells(){
+        return cells;
+    }
+
+    @Override
+    public void setSites(List<Point2D> sites){
+        this.sites = sites;
+    }
+
+    @Override
+    public void generateVoronoiCells(){
+        computeVoronoiCells(sites);
+    }
+
     // a*x + b*y + c = 0
     static class Line {
         double a, b, c;
@@ -167,85 +186,7 @@ public class VoronoiMapGen {
         return cells;
     }
 
-    // Generate an SVG string from the Voronoi cells.
-    private String generateSVG(List<List<Point2D>> cells, List<Point2D> sites) {
-        StringBuilder svg = new StringBuilder();
-        svg.append("<svg width='").append(mapWidth).append("' height='").append(mapHeight)
-                .append("' xmlns='http://www.w3.org/2000/svg'>\n");
 
-        Random rand = new Random();
 
-        // Draw each Voronoi cell.
-        for (int i = 0; i < cells.size(); i++) {
-            List<Point2D> cell = cells.get(i);
-            // Build the SVG path from polygon vertices.
-            StringBuilder pathData = new StringBuilder();
-            if (!cell.isEmpty()) {
-                pathData.append("M ").append((int) cell.get(0).getX())
-                        .append(" ").append((int) cell.get(0).getY()).append(" ");
-                for (int j = 1; j < cell.size(); j++) {
-                    Point2D p = cell.get(j);
-                    pathData.append("L ").append((int) p.getX())
-                            .append(" ").append((int) p.getY()).append(" ");
-                }
-                pathData.append("Z");
-            }
-            // Fill with a random color.
-            String fill = String.format("rgb(%d,%d,%d)",
-                    rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
-            svg.append("<path d='").append(pathData).append("' fill='").append(fill)
-                    .append("' stroke='black' stroke-width='1'/>\n");
-        }
 
-        // Optionally, draw the site points.
-        for (Point2D site : sites) {
-            svg.append("<circle cx='").append((int) site.getX()).append("' cy='")
-                    .append((int) site.getY()).append("' r='3' fill='black'/>\n");
-        }
-
-        svg.append("</svg>");
-        return svg.toString();
-    }
-
-    // Save the SVG string to a file.
-    static void saveSVG(String filename, String svgContent) {
-        try (FileWriter writer = new FileWriter(filename)) {
-            writer.write(svgContent);
-            System.out.println("SVG map saved to " + filename);
-        } catch (IOException e) {
-            System.err.println("Error writing SVG file: " + e.getMessage());
-        }
-    }
-
-    public Pane createPaneFX(){
-        Pane pane = new Pane();
-        List<Point2D> sites = generateRandomSites(totalProvs, mapWidth, mapHeight);
-        List<List<Point2D>> cells = computeVoronoiCells(sites);
-        // Draw the Voronoi cells as JavaFX Polygons
-        for (List<Point2D> cell : cells) {
-            Polygon polygon = new Polygon();
-            for (Point2D point : cell) {
-                polygon.getPoints().addAll(point.getX(), point.getY());
-            }
-
-            // Random fill color
-            Color fillColor = Color.rgb(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
-            polygon.setFill(fillColor);
-            polygon.setStroke(Color.BLACK);
-
-            pane.getChildren().add(polygon);
-        }
-
-        // Draw site points
-        for (Point2D site : sites) {
-            Circle circle = new Circle(site.getX(), site.getY(), 3, Color.BLACK);
-            pane.getChildren().add(circle);
-        }
-
-        return pane;
-    }
-
-    public void saveToSVG(String path){
-        saveSVG(path, generateSVG(cells, sites));
-    }
 }
