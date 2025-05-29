@@ -33,9 +33,22 @@ public class RandCountry {
 
     public void setColor(Color color){
         this.color = color;
-        for(RandProvince prov : provinces)
-            prov.setColor(color);
     }
 
+    public List<RandProvince> getProvinces(){
+        return provinces;
+    }
+    public Set<RandCountry> getNeighbours(){
+        return neighbours;
+    }
+    public int getId() {
+        return countryId;
+    }
 
+    public Color getColor() {
+        if(color == null)
+            color = UsefulColors.getRandomColor();
+
+        return color;
+    }
 }

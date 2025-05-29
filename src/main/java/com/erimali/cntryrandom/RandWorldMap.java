@@ -1,7 +1,9 @@
 package com.erimali.cntryrandom;
 
+import com.erimali.cntrygame.CountryArray;
 import com.erimali.cntrygame.WorldMap;
 import javafx.geometry.Point2D;
+import javafx.scene.paint.Color;
 
 import java.util.*;
 
@@ -13,10 +15,15 @@ public class RandWorldMap {
     private int totalProv;
     private int totalCountries;
     private List<GeoPolZone> zones;
+    private List<RandProvince> provinces;
+    private List<RandWaterBody> waterBodies;
     private Set<Integer> countryIds = new HashSet<>();
     private List<RandCountry> countries = new ArrayList<>();
     private Voronoi voronoi;
     private PerlinNoiseElevationGen perlinNoise;
+    private int perlinOctaves = 4;
+    private double perlinPersistence = 0.5;
+    private double perlinScale = 0.005;
 
     public RandWorldMap(double width, double height) {
         this.rand = new Random();
@@ -28,7 +35,9 @@ public class RandWorldMap {
         this.totalProv = calcTotalProv();
         this.totalCountries = calcTotalCountries();
         this.zones = new ArrayList<>(totalProv);
-        this.perlinNoise = new PerlinNoiseElevationGen(seed);
+        this.provinces = new ArrayList<>();
+        this.waterBodies = new ArrayList<>();
+        this.perlinNoise = new PerlinNoiseElevationGen(seed, width, height, perlinOctaves, perlinPersistence, perlinScale);
     }
 
 
@@ -38,12 +47,14 @@ public class RandWorldMap {
         this.width = width;
         this.height = height;
         this.totalProv = totalProv;
-        if(totalCountries > totalProv)
+        if (totalCountries > totalProv)
             this.totalCountries = calcTotalCountries();
         else
             this.totalCountries = calcTotalProv();
         this.zones = new ArrayList<>(totalProv);
-        this.perlinNoise = new PerlinNoiseElevationGen(seed);
+        this.provinces = new ArrayList<>();
+        this.waterBodies = new ArrayList<>();
+        this.perlinNoise = new PerlinNoiseElevationGen(seed, width, height, perlinOctaves, perlinPersistence, perlinScale);
     }
 
 
@@ -63,62 +74,119 @@ public class RandWorldMap {
     }
 
 
-    public void relaxVoronoi(int n){
-        if(voronoi != null && n > 1){
+    public void relaxVoronoi(int n) {
+        if (voronoi != null && n > 1) {
             voronoi.relax(n);
         }
     }
 
-    public void reset(){
+    public void reset() {
         zones.clear();
-        // clear other stuff as well
+        provinces.clear();
+        waterBodies.clear();
+        GeoPolZone.resetCountingIDS();
+        countryIds.clear();
+        countries.clear();
     }
 
-    public Voronoi getVoronoi(){
+    public Voronoi getVoronoi() {
         return voronoi;
     }
+    public void generateAll(){
+        generateZones();
+        generateCountries();
+        generateColors();
 
-    public void generateZones(){
-        if(voronoi == null){
+    }
+
+    private void generateColors() {
+
+    }
+
+    public void generateZones() {
+        if (voronoi == null) {
             return;
         }
         reset();
-        int octaves = 4;
-        double persistence = 0.5;
-        double scale = 0.005;
 
         List<Point2D> sites = voronoi.getSites();
         List<List<Point2D>> cells = voronoi.getVoronoiCells();
         int n = sites.size();
-        for(int i = 0; i < n; i++){
+        for (int i = 0; i < n; i++) {
             Point2D site = sites.get(i);
             List<Point2D> boundary = cells.get(i);
             double x = site.getX();
             double y = site.getY();
 
-            double elevation = perlinNoise.islandNoise(x,y,width,height,octaves,persistence,scale);
-            GeoPolZone zone;
-            if(elevation < GeoPolZone.getSeaLevel()){
-                zone = new RandWaterBody(site, boundary);
-                zone.setElevation(elevation);
-            } else{
-                zone = new RandProvince(site, boundary);
-                zone.setElevation(elevation);
+            double elevation = perlinNoise.islandNoise(x, y);
+            if (elevation < GeoPolZone.getSeaLevel()) {
+                RandWaterBody water = new RandWaterBody(site, boundary);
+                water.setElevation(elevation);
+                waterBodies.add(water);
+                zones.add(water);
+            } else {
+                RandProvince prov = new RandProvince(site, boundary);
+                prov.setElevation(elevation);
+                provinces.add(prov);
+                zones.add(prov);
             }
-            zones.add(zone);
-
         }
+
+        GeoPolZone.findAndAssignNeighbors(zones, false);
     }
 
-    public void generateCountries(){
+    public void generateCountries() {
+        Set<RandProvince> visited = new HashSet<>();
 
+        for (RandProvince startProv : provinces) {
+            if (visited.contains(startProv)) continue;
+            int countryId = CountryArray.genISO2ID(countryIds);
+            RandCountry newCountry = new RandCountry(countryId);
+            // later method for coloroing
+            //newCountry.setColor(Color.color(random.nextDouble(), random.nextDouble(), random.nextDouble()));
 
+            List<RandProvince> countryProvs = newCountry.getProvinces();
+            Queue<RandProvince> queue = new LinkedList<>();
+            queue.add(startProv);
+            visited.add(startProv);
+            int desiredCountrySize = totalProv / totalCountries;
+            while (!queue.isEmpty() && countryProvs.size() < desiredCountrySize) {
+                RandProvince prov = queue.poll();
+                countryProvs.add(prov);
+                prov.setCountry(newCountry);
+
+                for (RandProvince neighbor : prov.getProvinceNeighbours()) {
+                    if (!visited.contains(neighbor)) {
+                        queue.add(neighbor);
+                        visited.add(neighbor);
+                    }
+                }
+            }
+
+            countries.add(newCountry);
+        }
+
+        // Optionally calculate neighbors between countries
+        calculateCountryNeighbors();
+    }
+
+    private void calculateCountryNeighbors() {
+        for (RandCountry country : countries) {
+            Set<RandCountry> neighborCountries = country.getNeighbours();
+            for (RandProvince prov : country.getProvinces()) {
+                for (RandProvince neigh : prov.getProvinceNeighbours()) {
+                    if (neigh.getCountry() != country) {
+                        neighborCountries.add(neigh.getCountry());
+                    }
+                }
+            }
+        }
     }
 
     protected int calcTotalProv() {
         double ratioWidth = width / WorldMap.getDefMapWidth();
         double ratioHeight = height / WorldMap.getDefMapHeight();
-        int p = WorldMap.getDefProvCount();
+        int p = WorldMap.getDefProvCount() * 5;
         return (int) (p * ratioWidth * ratioHeight * rand.nextDouble(0.9, 1.1));
     }
 
@@ -144,5 +212,9 @@ public class RandWorldMap {
 
     public List<GeoPolZone> getZones() {
         return zones;
+    }
+
+    public PerlinNoiseElevationGen getPerlinNoise() {
+        return perlinNoise;
     }
 }

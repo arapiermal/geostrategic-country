@@ -5,9 +5,13 @@ import java.util.Random;
 public class PerlinNoiseElevationGen {
     private final int[] p;
     private final Random rand;
+    private double width;
+    private double height;
+    private int octaves;
+    private double persistence;
+    private double scale;
 
-
-    public PerlinNoiseElevationGen(long seed) {
+    public PerlinNoiseElevationGen(long seed, double width, double height, int octaves, double persistence, double scale) {
         rand = new Random(seed);
         p = new int[512];
         int[] permutation = new int[256];
@@ -19,12 +23,19 @@ public class PerlinNoiseElevationGen {
             permutation[j] = temp;
         }
         for (int i = 0; i < 512; i++) p[i] = permutation[i & 255];
+
+        this.width = width;
+        this.height = height;
+        this.octaves = octaves;
+        this.persistence = persistence;
+        this.scale = scale;
     }
 
 
 
     // Noise with octaves
-    public double octaveNoise(double x, double y, int octaves, double persistence, double scale) {
+    // , int octaves, double persistence, double scale
+    public double octaveNoise(double x, double y) {
         double total = 0;
         double maxValue = 0;
         double frequency = 1;
@@ -42,11 +53,12 @@ public class PerlinNoiseElevationGen {
 
 
     // Island-shaped noise (masking based on distance from center)
-    public double islandNoise(double x, double y, double width, double height, int octaves, double persistence, double scale) {
+    // , double width, double height, int octaves, double persistence, double scale
+    public double islandNoise(double x, double y) {
         double nx = x / width - 0.5;
         double ny = y / height - 0.5;
         double distance = Math.sqrt(nx * nx + ny * ny) / 0.7071; // Max distance is sqrt(0.5^2 + 0.5^2)
-        double base = octaveNoise(x, y, octaves, persistence, scale);
+        double base = octaveNoise(x, y); // , octaves, persistence, scale
         double mask = 1.0 - Math.pow(distance, 2.5); // sharper island dropoff
         return base * mask;
     }

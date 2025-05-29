@@ -3,17 +3,20 @@ package com.erimali.cntryrandom;
 import javafx.scene.paint.Color;
 
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 public class UsefulColors {
     private static Set<Color> colors = new HashSet<>();
-    public static void loadUsefulColors() {
+
+    public static void loadUsefulColorsResources() {
         try {
-            InputStream inputStream = UsefulColors.class.getClassLoader().getResourceAsStream("colorCodesFlags_iso.csv");
+            InputStream inputStream = UsefulColors.class.getResourceAsStream("colorCodesFlags.csv");
             if (inputStream == null) {
-                System.err.println("Could not find colorCodesFlags_iso.csv in resources.");
+                System.err.println("Could not find colorCodesFlags.csv in resources.");
                 return;
             }
 
@@ -28,7 +31,15 @@ public class UsefulColors {
             e.printStackTrace();
         }
     }
+    public static void loadUsefulColors(){
 
+        File file = new File("src/main/resources/colorCodesFlags.csv");
+        if(!file.exists()){
+            System.err.println("Could not find colorCodesFlags.csv.");
+            return;
+        }
+        loadUsefulColors(file);
+    }
     public static void loadUsefulColors(File file){
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
@@ -58,7 +69,7 @@ public class UsefulColors {
         }
     }
     public static Color getRandomColor(){
-        return null;
+        return colors.stream().skip(new Random().nextInt(colors.size())).findFirst().orElse(null);
     }
     public static Color getRandomColor(List<Color> nearby){
         return null;

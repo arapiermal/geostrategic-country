@@ -190,6 +190,17 @@ public class CountryArray implements Iterable<Country>, Serializable {
         return genISO2alternative(cList);
     }
 
+    public static int genISO2ID(Set<Integer> cSet) {
+        if (cSet.size() >= maxISO2Countries)
+            return -1;
+        int a;
+        do {
+            a = (int) (Math.random() * maxISO2Countries);
+        } while (cSet.contains(a));
+        cSet.add(a);
+        return a;
+    }
+
     public static String genISO2alternative(Set<String> cList) {
         for (int i = 0; i < 26; i++) {
             for (int j = 0; j < 26; j++) {
@@ -278,28 +289,30 @@ public class CountryArray implements Iterable<Country>, Serializable {
         return world;
     }
 
-    public int calcTotalAdmDivs(){
+    public int calcTotalAdmDivs() {
         int n = 0;
-        for(Country c : countries){
-            if(c != null){
+        for (Country c : countries) {
+            if (c != null) {
                 n += c.getAdmDivs().size();
             }
         }
         return n;
     }
-    public long calcTotalPopulation(){
+
+    public long calcTotalPopulation() {
         long n = 0;
-        for(Country c : countries){
-            if(c != null){
+        for (Country c : countries) {
+            if (c != null) {
                 n += c.getPopulation();
             }
         }
         return n;
     }
-    public double calcTotalArea(){
+
+    public double calcTotalArea() {
         double v = 0;
-        for(Country c : countries){
-            if(c != null){
+        for (Country c : countries) {
+            if (c != null) {
                 v += c.getArea();
             }
         }

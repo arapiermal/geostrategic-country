@@ -2,6 +2,7 @@ package com.erimali.cntryrandom;
 
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -12,7 +13,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-enum VoronoiEnum{
+enum VoronoiEnum {
     BASIC, JITTERED;
 }
 
@@ -20,6 +21,7 @@ public class RandomGenStage extends Stage {
     private Scene mainScene;
     private ScrollPane scrollPane;
     private Pane randMapPane;
+    private ImageView perlinMapImageView;
     private BorderPane root;
     // Text Fields for parameters (width, height, number of provinces, etc.)
     private VBox rightVBox;
@@ -33,17 +35,22 @@ public class RandomGenStage extends Stage {
     private Button genButton;
     private Button relaxButton;
     private Button saveSVGButton;
+    private ToggleButton showPerlinMapToggle;
     // Map Logic
     private RandWorldMap randMap;
 
     public RandomGenStage() {
+        UsefulColors.loadUsefulColors();
+
         genButton = new Button("Generate");
         relaxButton = new Button("Relax");
         saveSVGButton = new Button("Save SVG");
-        ToolBar bottomToolBar = new ToolBar(genButton, relaxButton, saveSVGButton);
+        showPerlinMapToggle = new ToggleButton("Terrain (Perlin)");
+        ToolBar bottomToolBar = new ToolBar(genButton, relaxButton, saveSVGButton, showPerlinMapToggle);
         genButton.setOnAction(e -> generateRandomMap());
-        relaxButton.setOnAction(e-> relaxMap());
+        relaxButton.setOnAction(e -> relaxMap());
         saveSVGButton.setOnAction(e -> saveAsSVG());
+        showPerlinMapToggle.setOnAction(e -> toggleTerrainMap());
 
         voronoiComboBox = new ComboBox<>();
         voronoiComboBox.getItems().setAll(VoronoiEnum.values());
@@ -59,6 +66,19 @@ public class RandomGenStage extends Stage {
         mainScene = new Scene(root, 1000, 680);
 
         setScene(mainScene);
+    }
+
+    private void toggleTerrainMap() {
+
+        if (showPerlinMapToggle.isSelected()) {
+            if (perlinMapImageView == null && randMap != null) {
+                perlinMapImageView = PerlinMapFX.genImageViewPerlin(randMap);
+            }
+            scrollPane.setContent(perlinMapImageView);
+        } else {
+            scrollPane.setContent(randMapPane);
+
+        }
     }
 
     private void saveAsSVG() {
@@ -87,7 +107,7 @@ public class RandomGenStage extends Stage {
 
     private void generateRandomMap() {
         VoronoiEnum chosenVoronoi = voronoiComboBox.getValue();
-        if(chosenVoronoi == null) {
+        if (chosenVoronoi == null) {
             showAlert("Invalid Voronoi Type", "Please pick a Voronoi method from the dropdown list in the right.");
             return;
         }
@@ -95,22 +115,22 @@ public class RandomGenStage extends Stage {
         double mapHeight = 600;
 
         randMap = new RandWorldMap(mapWidth, mapHeight);
-        if(chosenVoronoi.equals(VoronoiEnum.BASIC)){
+        if (chosenVoronoi.equals(VoronoiEnum.BASIC)) {
             randMap.basicVoronoi();
-        } else if (chosenVoronoi.equals(VoronoiEnum.JITTERED)){
+        } else if (chosenVoronoi.equals(VoronoiEnum.JITTERED)) {
             randMap.jitteredVoronoi();
         }
-        randMap.generateZones();
+        randMap.generateAll();
         randMapPane = RandMapFX.createPaneFX(randMap);
         scrollPane.setContent(randMapPane);
-
+        perlinMapImageView = null;
     }
 
     private void relaxMap() {
-        if(randMap != null){
+        if (randMap != null) {
             int iterations = relaxSpinner.getValue();
             randMap.getVoronoi().relax(iterations);
-            randMap.generateZones();
+            randMap.generateAll();
             randMapPane = RandMapFX.createPaneFX(randMap);
             scrollPane.setContent(randMapPane);
         }

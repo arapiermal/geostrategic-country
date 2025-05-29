@@ -7,8 +7,7 @@ import java.util.List;
 
 public class RandProvince extends GeoPolZone {
     private static int IDS = 0;
-    private Color color;
-    private int ownerId;
+    private RandCountry country;
 
     public RandProvince(Point2D mainPoint, List<Point2D> boundary){
         this.mainPoint = mainPoint;
@@ -17,29 +16,33 @@ public class RandProvince extends GeoPolZone {
     }
 
     public boolean isCoastal() {
-        return neighbours.stream().anyMatch(n -> !n.aboveSeaLevel());
+        return !neighWaters.isEmpty();
     }
 
-    public void setOwnerId(int ownerId){
-        this.ownerId = ownerId;
+    public void setCountry(RandCountry country){
+        this.country = country;
     }
 
-    public int getOwnerId(){
-        return ownerId;
+    public RandCountry getCountry(){
+        return country;
     }
 
-    public void setColor(Color color){
-        this.color = color;
-    }
 
     public Color getColor(){
-        if(color == null)
+        if(country == null)
             return Color.LIGHTGRAY;
 
-        return color;
+        return country.getColor();
     }
 
     public static void resetCountingIDS(){
         IDS = 0;
+    }
+
+    public int getOwnerId() {
+        if(country == null)
+            return -1;
+
+        return country.getId();
     }
 }
