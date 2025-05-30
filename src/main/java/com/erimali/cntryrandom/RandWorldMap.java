@@ -100,7 +100,7 @@ public class RandWorldMap {
     }
 
     private void generateColors() {
-
+        UsefulColors.colorCountries(countries);
     }
 
     public void generateZones() {
@@ -165,8 +165,28 @@ public class RandWorldMap {
 
             countries.add(newCountry);
         }
+        // Second pass: assign leftover provinces to nearest country
+        for (RandProvince leftover : provinces) {
+            if (leftover.getCountry() != null) continue;
 
-        // Optionally calculate neighbors between countries
+            for (RandProvince neighbor : leftover.getProvinceNeighbours()) {
+                if (neighbor.getCountry() != null) {
+                    RandCountry country = neighbor.getCountry();
+                    leftover.setCountry(country);
+                    country.getProvinces().add(leftover);
+                    break;
+                }
+            }
+
+            // Optional: isolated provinces still left -> Create tiny country
+            if (leftover.getCountry() == null) {
+                int countryId = CountryArray.genISO2ID(countryIds);
+                RandCountry tinyCountry = new RandCountry(countryId);
+                tinyCountry.getProvinces().add(leftover);
+                leftover.setCountry(tinyCountry);
+                countries.add(tinyCountry);
+            }
+        }
         calculateCountryNeighbors();
     }
 
@@ -175,7 +195,7 @@ public class RandWorldMap {
             Set<RandCountry> neighborCountries = country.getNeighbours();
             for (RandProvince prov : country.getProvinces()) {
                 for (RandProvince neigh : prov.getProvinceNeighbours()) {
-                    if (neigh.getCountry() != country) {
+                    if (neigh.getCountry() != null && neigh.getCountry() != country) {
                         neighborCountries.add(neigh.getCountry());
                     }
                 }
