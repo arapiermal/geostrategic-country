@@ -14,7 +14,7 @@ GameStage makes the interaction between the two possible and has the UI necessar
 ![image](https://github.com/arapiermal/geostrategic-country/assets/109100661/d7c0e2d7-6454-4e84-b632-329867250f1b)
 
 World Map
-![image](https://github.com/user-attachments/assets/900f6c61-77cd-4262-a1da-b2b1cbd3f953)
+![image](https://github.com/user-attachments/assets/0a1f49df-484f-4b30-85fe-adb214a2752d)
 
 
 #EriScript
