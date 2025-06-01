@@ -56,12 +56,7 @@ public abstract class GeoPolZone {
     }
 
 
-    public String getName() {
-        if (name == null) {
-            return this instanceof RandProvince ? "Prov" : "Water" + provId;
-        }
-        return name;
-    }
+    public abstract String getName();
 
     public void setName(String name) {
         this.name = name;

@@ -22,4 +22,13 @@ public class RandWaterBody extends GeoPolZone {
     public static void resetCountingIDS(){
         IDS = DEFAULT_IDS;
     }
+   public String getName() {
+        if (name == null) {
+            return "Water"  + (provId - RandWaterBody.getStartingId());
+        }
+        return name;
+    }
+    public static int getStartingId(){
+        return DEFAULT_IDS;
+    }
 }

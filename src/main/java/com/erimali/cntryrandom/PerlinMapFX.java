@@ -1,6 +1,7 @@
 package com.erimali.cntryrandom;
 
 import javafx.application.Application;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
@@ -8,6 +9,10 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
 
 public class PerlinMapFX {
     static Color deepWater = Color.rgb(0, 0, 100);       // Dark Blue
@@ -19,7 +24,7 @@ public class PerlinMapFX {
     static Color mountains = Color.rgb(139, 69, 19);       // SaddleBrown
     static Color snowCaps = Color.rgb(245, 245, 245);      // WhiteSmoke
     
-    public static ImageView genImageViewPerlin(RandWorldMap randWorldMap){
+    public static WritableImage genPerlinMapImage(RandWorldMap randWorldMap){
         int mapWidth = (int) randWorldMap.getMapWidth();
         int mapHeight = (int) randWorldMap.getMapHeight();
         PerlinNoiseElevationGen generator = randWorldMap.getPerlinNoise();
@@ -35,7 +40,7 @@ public class PerlinMapFX {
             }
         }
 
-        return new ImageView(mapImage);
+        return mapImage;
         
     }
 
@@ -62,4 +67,13 @@ public class PerlinMapFX {
         return colorToSet;
     }
 
+    public static void saveImage(WritableImage image, File file) {
+
+        try {
+            ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+            System.out.println("Map image saved to: " + file.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

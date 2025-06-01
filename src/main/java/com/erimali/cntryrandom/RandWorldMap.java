@@ -92,11 +92,17 @@ public class RandWorldMap {
     public Voronoi getVoronoi() {
         return voronoi;
     }
+
     public void generateAll(){
         generateZones();
         generateCountries();
         generateColors();
+        //generateProvinceNames();
+    }
 
+    public void generateProvinceNames() {
+        for(RandCountry c : countries)
+            c.generateNamesForProvinces();
     }
 
     private void generateColors() {
