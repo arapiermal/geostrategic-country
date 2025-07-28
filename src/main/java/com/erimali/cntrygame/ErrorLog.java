@@ -65,7 +65,7 @@ public class ErrorLog {
         // errors.add(e.getMessage());
         Platform.runLater(() -> {
             errors.add(e);
-            e.printStackTrace();
+            e.printStackTrace(); //!!!
             showAlertErrors();
         }); //thread safety!
     }
@@ -89,8 +89,8 @@ public class ErrorLog {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
         String timestamp = now.format(formatter);
-        String currentDir = System.getProperty("user.dir");
-        String logsDirPath = currentDir + File.separator + "logs";
+        String currentDir = System.getProperty("user.dir"); // Should be game (userdata) directory
+        String logsDirPath = currentDir + File.separator + "logs"; // !!!
         File logsDir = new File(logsDirPath);
         if (!logsDir.exists()) {
             if (!logsDir.mkdirs()) {
@@ -98,6 +98,7 @@ public class ErrorLog {
                 return;
             }
         }
+        // Show where to save(?)
         String filename = logsDirPath + File.separator + "log_error_" + timestamp + ".txt";
         try (FileWriter writer = new FileWriter(filename)) {
             for (Exception e : errors) {

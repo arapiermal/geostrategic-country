@@ -1,5 +1,6 @@
 package com.erimali.cntrymilitary;
 
+import com.erimali.cntrygame.GUtils;
 import com.erimali.cntrygame.Language;
 
 import java.io.BufferedReader;
@@ -32,6 +33,8 @@ public class MilUnitData implements Comparable<MilUnitData> {
 
     private boolean[] canCarry; //problematic if small vehicle carry big one
 
+    private double baseScore;
+
     public MilUnitData() {
         this.type = -1;
     }
@@ -48,6 +51,15 @@ public class MilUnitData implements Comparable<MilUnitData> {
             }
             minValues();
         }
+        calcBaseScore();
+    }
+
+    //!! TO IMPROVE
+    public void calcBaseScore() {
+        baseScore = 0;
+        double avgAtk = (double) Arrays.stream(atk).sum() / MAX_TYPES;
+        double avgDef = (double) Arrays.stream(def).sum() / MAX_TYPES;
+        baseScore += avgAtk + avgDef + hp + speed + minMilTech;
     }
 
 
@@ -268,5 +280,9 @@ public class MilUnitData implements Comparable<MilUnitData> {
 
     public String getName() {
         return name;
+    }
+
+    public double getBaseScore() {
+        return baseScore;
     }
 }

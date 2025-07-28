@@ -239,4 +239,11 @@ public class MilDiv implements Serializable {
         this.military = military;
     }
 
+    public double calcScore() {
+        double score = 0;
+        for(MilUnit milUnit : units) {
+            score += milUnit.calcScore();
+        }
+        return score;
+    }
 }

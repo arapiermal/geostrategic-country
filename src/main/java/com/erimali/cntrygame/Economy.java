@@ -250,4 +250,30 @@ public class Economy implements Serializable {
 
         return sb.toString();
     }
+
+
+    public double calcScore(){
+        double score = 0;
+        // GDP: Log-scaled to prevent rich countries from dominating score entirely
+        if (gdp > 0) {
+            score += Math.log10(gdp) * 100; // E.g., 1 trillion GDP ≈ score of 120
+        }
+        // Economic Growth Rate (positive impact)
+        score += economicGrowthRate * 1000; // e.g., 0.03 growth = +30
+        // Inflation (negative impact)
+        score -= inflationRate * 500; // high inflation hurts economy
+        // Taxation (represents government fiscal capacity)
+        score += taxation * 500; // balanced weight
+        // Unemployment (negative impact)
+        score -= unemploymentRate * 400; // 10% = -40
+        // Trade Balance (positive or negative)
+        if (tradeManagement != null) {
+            double tradeBalance = tradeManagement.diffExportImportMonthly() * 12; // annualized
+            if (tradeBalance != 0) {
+                score += Math.signum(tradeBalance) * Math.min(50, Math.log10(Math.abs(tradeBalance) + 1) * 10);
+            }
+        }
+
+        return score; //Math.max(score, 0);
+    }
 }

@@ -497,4 +497,11 @@ public class Military implements Serializable {
         return baseResearch;
     }
 
+    public double calcScore() {
+        double score = 0;
+        for(MilDiv milDiv : divisions){
+            score += milDiv.calcScore();
+        }
+        return score;
+    }
 }

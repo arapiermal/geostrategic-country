@@ -50,9 +50,8 @@ public class TESTING {
         //print(w.randLangName("Albanian:John"));
         print(BooleanSolver.solve("_prime(13400000000)"));
 
-        long a = System.currentTimeMillis();
-        print(Long.toString(a,36));
-
+        // long a = System.currentTimeMillis();
+        // print(Long.toString(a,36));
 
 
     }

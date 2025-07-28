@@ -132,12 +132,12 @@ public class Language implements Comparable<Language>, Serializable {
     }
 
     public String generateMName() {
-        int name = (int) (Math.random() * commonMaleNames.length + 1);
+        int name = (int) (Math.random() * commonMaleNames.length);
         return commonMaleNames[name];
     }
 
     public String generateSurname() {
-        int name = (int) (Math.random() * commonMaleNames.length + 1);
+        int name = (int) (Math.random() * commonMaleNames.length);
         return commonMaleNames[name];
     }
 

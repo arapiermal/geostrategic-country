@@ -8,6 +8,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.LinkedList;
 import java.util.List;
 
+//add removal logic for NEWS_LOCATION
+// Utilizing LLM API such as from Google for expansion (!!!)
 //For big news -> WW3
 public class GNews implements Serializable , Comparable<GNews>{
     private static final String SEPARATOR = "~~~";

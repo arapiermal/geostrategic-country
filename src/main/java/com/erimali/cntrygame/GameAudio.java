@@ -15,7 +15,7 @@ public class GameAudio {
                 ac.setVolume(GOptions.getVolume());
                 ac.play();
             } else{
-                ErrorLog.logError("ERROR: NO SUCH FILE FOUND");
+                ErrorLog.logError("ERROR: NO SUCH SOUND FILE FOUND");
             }
         } catch (Exception e) {
             ErrorLog.logError(e);

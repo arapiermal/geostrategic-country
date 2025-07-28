@@ -116,7 +116,7 @@ public class UsefulColors {
 
             // Fallback if no more distinct color is available
             if (assignedColor == null) {
-                System.err.println("Warning: No unique color available. Falling back.");
+                // System.err.println("Warning: No unique color available. Falling back.");
                 for (Color fallback : colors) {
                     boolean ok = true;
                     for (Color used : neighborColors) {

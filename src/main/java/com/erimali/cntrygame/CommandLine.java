@@ -90,7 +90,8 @@ public class CommandLine {
 
     public static void loadEriScripts(Map<String, EriScript> eriScripts, File filesPath) {
         if (!filesPath.exists() || !filesPath.isDirectory()) {
-            ErrorLog.logError("Error in file path.");
+            // boolean to check if necessary so if player is actually trying to load sth else it might pop up
+            //ErrorLog.logError("File path for loading EriScript folder not found: " + filesPath);
             return;
         }
         File[] arrFiles = filesPath.listFiles();

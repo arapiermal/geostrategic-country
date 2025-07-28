@@ -222,4 +222,8 @@ public abstract class MilUnit implements Serializable {
         if(division != null)
             division.removeUnit(this);
     }
+
+    public double calcScore() {
+        return data.getBaseScore(); // and level
+    }
 }
