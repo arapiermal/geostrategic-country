@@ -243,4 +243,8 @@ public class RandWorldMap {
     public PerlinNoiseElevationGen getPerlinNoise() {
         return perlinNoise;
     }
+
+    public int getTotalCountries() {
+        return countries != null ? countries.size() : 0;
+    }
 }

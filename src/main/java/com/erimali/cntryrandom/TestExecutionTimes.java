@@ -2,33 +2,27 @@ package com.erimali.cntryrandom;
 
 public class TestExecutionTimes {
     public static void main(String[] args) {
-        //new RandWorldMap(300, 300).basicVoronoi(); // warm-up
+        //new RandWorldMap(200, 200).basicVoronoi(); // warm-up
         UsefulColors.loadUsefulColors();
-        RandWorldMap map1 = new RandWorldMap(500, 500);
-        RandWorldMap map2 = new RandWorldMap(1000, 1000);
-        RandWorldMap map3 = new RandWorldMap(2000, 2000);
-        RandWorldMap map4 = new RandWorldMap(4000, 4000);
+        RandWorldMap map1 = new RandWorldMap(1000, 500);
+        RandWorldMap map2 = new RandWorldMap(2000, 1000);
+        RandWorldMap map3 = new RandWorldMap(4000, 2000);
         long totalTime1 = testBasicVoronoi(map1);
         long totalTime2 = testBasicVoronoi(map2);
         long totalTime3 = testBasicVoronoi(map3);
-        long totalTime4 = testBasicVoronoi(map4);
         System.out.println("Testing the generation of other attributes for the political map");
         totalTime1 += testWholeProcess(map1);
         totalTime2 += testWholeProcess(map2);
         totalTime3 += testWholeProcess(map3);
-        totalTime4 += testWholeProcess(map4);
         System.out.println("Testing the generation of geographical map (Perlin Noise)");
-        PerlinMapFX.genPerlinMapImage(new RandWorldMap(300, 300)); // warm-up because of JavaFX
+        PerlinMapFX.genPerlinMapImage(new RandWorldMap(200, 200)); // warm-up because of JavaFX
         totalTime1 += testPerlin(map1);
         totalTime2 += testPerlin(map2);
         totalTime3 += testPerlin(map3);
-        totalTime4 += testPerlin(map4);
         System.out.println("Total Times");
         System.out.println(totalTime1);
         System.out.println(totalTime2);
         System.out.println(totalTime3);
-        System.out.println(totalTime4);
-
 
     }
 
@@ -50,8 +44,10 @@ public class TestExecutionTimes {
         long start = System.currentTimeMillis();
         randWorldMap.generateAll();
         long end = System.currentTimeMillis();
+
         long diff = end - start;
         System.out.println(width + "x" + height + " took " + diff + " ms");
+        System.out.println("Countries count: " + randWorldMap.getTotalCountries());
         return diff;
     }
 
