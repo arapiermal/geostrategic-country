@@ -114,6 +114,7 @@ public class VoronoiMapGen implements Voronoi {
         return output;
     }
 
+    /*
     // Generate a padded bounding box that will serve as the initial polygon for every Voronoi cell.
     private List<Point2D> createBoundingBox(List<Point2D> sites) {
         double xl = Double.MAX_VALUE, xr = -Double.MAX_VALUE;
@@ -141,6 +142,17 @@ public class VoronoiMapGen implements Voronoi {
         box.add(new Point2D(xl, yb));
         return box;
     }
+    */
+
+    // Fixed bounding box exactly the map size, no padding
+    private List<Point2D> createBoundingBox() {
+        List<Point2D> box = new ArrayList<>();
+        box.add(new Point2D(0, mapHeight));       // top-left
+        box.add(new Point2D(mapWidth, mapHeight)); // top-right
+        box.add(new Point2D(mapWidth, 0));         // bottom-right
+        box.add(new Point2D(0, 0));                // bottom-left
+        return box;
+    }
 
     // Generate a list of random sites within the given width and height.
     private List<Point2D> generateRandomSites(int count, int width, int height) {
@@ -153,6 +165,7 @@ public class VoronoiMapGen implements Voronoi {
         return sites;
     }
 
+    /*
     // Build the Voronoi diagram as a list of cells (each cell is a list of points defining its polygon).
     private List<List<Point2D>> computeVoronoiCells(List<Point2D> sites) {
         List<List<Point2D>> cells = new ArrayList<>();
@@ -185,8 +198,30 @@ public class VoronoiMapGen implements Voronoi {
         }
         return cells;
     }
+    */
 
+    private List<List<Point2D>> computeVoronoiCells(List<Point2D> sites) {
+        List<List<Point2D>> cells = new ArrayList<>();
+        List<Point2D> boundingBox = createBoundingBox();
 
+        for (Point2D site : sites) {
+            List<Point2D> cell = new ArrayList<>(boundingBox);
 
+            for (Point2D other : sites) {
+                if (site.equals(other))
+                    continue;
+
+                Line bisector = Line.perpendicularBisector(site, other);
+                double refValue = bisector.evaluate(site);
+                cell = clipPolygon(cell, bisector, refValue);
+
+                if (cell.isEmpty()) {
+                    break;
+                }
+            }
+            cells.add(cell);
+        }
+        return cells;
+    }
 
 }

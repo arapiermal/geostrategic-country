@@ -30,7 +30,7 @@ public class RandomGenStage extends Stage {
     private ComboBox<VoronoiEnum> voronoiComboBox;
     private TextField textFieldWidth;
     private TextField textFieldHeight;
-    private TextField textFieldTotalCells;
+    private TextField textFieldTotalProvs;
 
     private Spinner<Integer> relaxSpinner;
     // ToolBar
@@ -60,20 +60,61 @@ public class RandomGenStage extends Stage {
         showPerlinMapToggle.setOnAction(e -> toggleTerrainMap());
         savePNGButton.setOnAction(e -> savePerlinAsPNG());
         genProvNamesButton.setOnAction(e -> generateProvinceNames());
+        textFieldWidth = new TextField("800");
+        textFieldHeight = new TextField("600");
+        textFieldTotalProvs = new TextField();
         voronoiComboBox = new ComboBox<>();
         voronoiComboBox.getItems().setAll(VoronoiEnum.values());
 
         relaxSpinner = new Spinner<>(2, 10, 2);
-        rightVBox = new VBox(new Label("Voronoi Type:"), voronoiComboBox,
+
+        rightVBox = new VBox(new Label("Width:"), textFieldWidth,
+                new Label("Height:"), textFieldHeight,
+                new Label("Voronoi Type:"), voronoiComboBox,
                 new Label("Lloyd Iterations:"), relaxSpinner);
         scrollPane = new ScrollPane();
 
-        root = new BorderPane(scrollPane);
+        root = new BorderPane(scrollPane); //can act unpredictably because of JavaFX
         root.setBottom(bottomToolBar);
         root.setRight(rightVBox);
         mainScene = new Scene(root, 1000, 680);
 
         setScene(mainScene);
+    }
+
+    private void generateRandomMap() {
+        VoronoiEnum chosenVoronoi = voronoiComboBox.getValue();
+        if (chosenVoronoi == null) {
+            showAlert("Invalid Voronoi Type", "Please pick a Voronoi method from the dropdown list in the right.");
+            return;
+        }
+        double inputWidth = parseDoubleText(textFieldWidth.getText());
+        double inputHeight = parseDoubleText(textFieldHeight.getText());
+        double mapWidth = inputWidth <= 0 ? 800 : inputWidth;
+        double mapHeight = inputHeight <= 0 ? 600 : inputHeight;
+
+
+        randMap = new RandWorldMap(mapWidth, mapHeight);
+        if (chosenVoronoi.equals(VoronoiEnum.BASIC)) {
+            randMap.basicVoronoi();
+        } else if (chosenVoronoi.equals(VoronoiEnum.JITTERED)) {
+            randMap.jitteredVoronoi();
+        }
+        randMap.generateAll();
+        randMapPane = RandMapFX.createPaneFX(randMap);
+        scrollPane.setContent(randMapPane);
+        perlinMapImageView = null;
+        perlinMapWriteableImage = null;
+    }
+
+    public static double parseDoubleText(String in){
+        double val = 0;
+        try{
+            val = Double.parseDouble(in);
+        } catch (NumberFormatException nfe){
+
+        }
+        return val;
     }
 
     private void savePerlinAsPNG() {
@@ -147,27 +188,6 @@ public class RandomGenStage extends Stage {
                 showAlert("Error", "Failed to save file:\n" + e.getMessage());
             }
         }
-    }
-
-    private void generateRandomMap() {
-        VoronoiEnum chosenVoronoi = voronoiComboBox.getValue();
-        if (chosenVoronoi == null) {
-            showAlert("Invalid Voronoi Type", "Please pick a Voronoi method from the dropdown list in the right.");
-            return;
-        }
-        double mapWidth = 800;
-        double mapHeight = 600;
-
-        randMap = new RandWorldMap(mapWidth, mapHeight);
-        if (chosenVoronoi.equals(VoronoiEnum.BASIC)) {
-            randMap.basicVoronoi();
-        } else if (chosenVoronoi.equals(VoronoiEnum.JITTERED)) {
-            randMap.jitteredVoronoi();
-        }
-        randMap.generateAll();
-        randMapPane = RandMapFX.createPaneFX(randMap);
-        scrollPane.setContent(randMapPane);
-        perlinMapImageView = null;
     }
 
     private void relaxMap() {

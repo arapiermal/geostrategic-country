@@ -13,6 +13,7 @@ public class RandWorldMap {
     private double width;
     private double height;
     private int totalProv;
+    private int provPerCountry = 10;
     private int totalCountries;
     private List<GeoPolZone> zones;
     private List<RandProvince> provinces;
@@ -217,7 +218,7 @@ public class RandWorldMap {
     }
 
     protected int calcTotalCountries() {
-        return Math.max(1, totalProv / 10);
+        return Math.max(1, totalProv / provPerCountry);
     }
 
     public long getSeed() {
